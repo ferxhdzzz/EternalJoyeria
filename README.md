@@ -19,6 +19,7 @@ R: React es una biblioteca Javascript de código abierto diseñada para crear in
 N: Node es un entorno en tiempo de ejecución multiplataforma, de código abierto, para la capa del servidor basado en el lenguaje de programación JavaScript, asíncrono, con E/S de datos en una arquitectura orientada a eventos 
 
 
+
 Herramientas para la ejecucion del proyecto 
 
 Visual Studio Code: Es un editor de código fuente desarrollado por Microsoft para Windows, Linux, macOS y Web. Incluye soporte para la depuración, control integrado de Git, resaltado de sintaxis, finalización inteligente de código, fragmentos y refactorización de código.
