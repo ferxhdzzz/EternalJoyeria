@@ -20,7 +20,7 @@ N: Node es un entorno en tiempo de ejecución multiplataforma, de código abiert
 
 
 
-Herramientas para la ejecucion del proyecto 
+Herramientas para la ejecucion del proyecto:
 
 Visual Studio Code: Es un editor de código fuente desarrollado por Microsoft para Windows, Linux, macOS y Web. Incluye soporte para la depuración, control integrado de Git, resaltado de sintaxis, finalización inteligente de código, fragmentos y refactorización de código.
 
