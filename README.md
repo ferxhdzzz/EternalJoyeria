@@ -31,4 +31,5 @@ HTML: Es un lenguaje de programaci√≥n que se utiliza para crear y estructurar p√
 
 
 Configuraciones adicionales
+
 Pendiente
