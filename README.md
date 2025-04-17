@@ -1,26 +1,35 @@
 Eternal Joyeria
 
 Sobre el equipo:
+
 Este proyecto forma parte del desarrollo del PTC y ha sido asignado al equipo conformado por los siguientes estudiantes:
+
 
 Hernández Cruz, Fernanda Mizel – 20220031
 
+
 Tejada Teos, Jennifer Alexandra – 20210177
+
 
 Hernández Morales, Fernando De Jesús – 20200335
 
+
 Galdámez Palomares, Thomas Alexander – 20230441
+
 
 Campos Reyes, William Alexander – 20230079
 
 
 Sobre el proyecto:
+
 El objetivo principal es desarrollar una plataforma web y una aplicación móvil para el emprendimiento Eternal Joyería, el cual se dedica a la creación de joyas con flores naturales preservadas y piedras exóticas.
+
 
 El sistema permitirá a los usuarios visualizar productos, realizar compras, rastrear pedidos y elegir métodos de pago. Para su desarrollo se utilizarán MongoDB como base de datos, JavaScript como lenguaje de programación principal y Visual Studio Code como entorno de desarrollo. El proyecto busca digitalizar y optimizar los procesos del negocio para expandir su alcance en el país y fuera de este.
 
 
 Tecnologias:
+
 
 Para el proyecto se utilizara el stack MERN 
 
