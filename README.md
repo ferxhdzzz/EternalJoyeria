@@ -33,7 +33,7 @@ El sistema permitirá a los usuarios visualizar productos, realizar compras, ras
 ## Tecnologias
 
 
-###Para el proyecto se utilizara el stack MERN 
+### Para el proyecto se utilizara el stack MERN 
 
 **M**: MongoDB es un sistema de base de datos NoSQL, mongoDB es orientado a documentos y de codigo abierto, MongoDB posee un esquema dinamico haciendo que integrar datos sea mas facil y rapido
 **E**: Express es un entorno de trabajo para aplicaciones web en Node.js, de código abierto y con licencia MIT. Se utiliza para desarrollar aplicaciones web y APIs
