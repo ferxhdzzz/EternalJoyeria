@@ -36,9 +36,13 @@ El sistema permitirá a los usuarios visualizar productos, realizar compras, ras
 ### Para el proyecto se utilizara el stack MERN 
 
 **M**: MongoDB es un sistema de base de datos NoSQL, mongoDB es orientado a documentos y de codigo abierto, MongoDB posee un esquema dinamico haciendo que integrar datos sea mas facil y rapido
+
 **E**: Express es un entorno de trabajo para aplicaciones web en Node.js, de código abierto y con licencia MIT. Se utiliza para desarrollar aplicaciones web y APIs
+
 **R**: React es una biblioteca Javascript de código abierto diseñada para crear interfaces de usuario con el objetivo de facilitar el desarrollo de aplicaciones en una sola página. 
+
 **N**: Node es un entorno en tiempo de ejecución multiplataforma, de código abierto, para la capa del servidor basado en el lenguaje de programación JavaScript, asíncrono, con E/S de datos en una arquitectura orientada a eventos 
+
 
 ### Frontend
 - **React.js**: Biblioteca JavaScript para construir interfaces de usuario
