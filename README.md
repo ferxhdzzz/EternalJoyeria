@@ -63,7 +63,30 @@ El sistema permitirá a los usuarios visualizar productos, realizar compras, ras
 **JavaScript**: Lenguaje de programación que se utiliza para crear páginas web interactivas. Se ejecuta en el navegador web y se considera el lenguaje oficial de la web. 
 
 **HTM**L: Es un lenguaje de programación que se utiliza para crear y estructurar páginas web. Es el estándar de facto para la codificación web y es usado por la mayoría de los navegadores
+## Estructura del Proyecto
 
+```
+EternalJoyeria/
+├── backend/
+├── frontend/
+    ├── node_modules/
+    ├── public/
+    ├── src/
+        ├── assets/
+        ├── components/
+        ├── pages/
+        ├── App.css
+        ├── App.jsx
+        ├── index.css
+        ├── main.jsx
+    ├── .gitignore
+    ├── eslint.config.js
+    ├── index.html
+    ├── package-lock.json
+    ├── package.json
+    ├── README.md
+    └── vite.config.js
+```
 
 
 ## Configuraciones adicionales
