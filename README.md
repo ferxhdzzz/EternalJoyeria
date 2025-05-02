@@ -2,7 +2,7 @@
 
  Eternal joyeria es una tienda en linea que esta pensada para vender joyas, especificamnete joyas hechas a mano con relacion a las flores, es una plataforma e-commerce, y esta construida con el stack mern 
  
-##Sobre el equipo
+## Sobre el equipo
 
 Este proyecto forma parte del desarrollo del PTC y ha sido asignado al equipo conformado por los siguientes estudiantes:
 
@@ -22,7 +22,7 @@ Galdámez Palomares, Thomas Alexander – 20230441
 Campos Reyes, William Alexander – 20230079
 
 
-##Sobre el proyecto
+## Sobre el proyecto
 
 El objetivo principal es desarrollar una plataforma web y una aplicación móvil para el emprendimiento Eternal Joyería, el cual se dedica a la creación de joyas con flores naturales preservadas y piedras exóticas.
 
@@ -30,7 +30,7 @@ El objetivo principal es desarrollar una plataforma web y una aplicación móvil
 El sistema permitirá a los usuarios visualizar productos, realizar compras, rastrear pedidos y elegir métodos de pago. Para su desarrollo se utilizarán MongoDB como base de datos, JavaScript como lenguaje de programación principal y Visual Studio Code como entorno de desarrollo. El proyecto busca digitalizar y optimizar los procesos del negocio para expandir su alcance en el país y fuera de este.
 
 
-##Tecnologias
+## Tecnologias
 
 
 ###Para el proyecto se utilizara el stack MERN 
@@ -52,7 +52,7 @@ El sistema permitirá a los usuarios visualizar productos, realizar compras, ras
 - **JWT**: Autenticación y seguridad
 - **Google OAuth**: Autenticación de terceros
 
-###Herramientas para la ejecucion del proyecto
+### Herramientas para la ejecucion del proyecto
 
 **Visual Studio Code**: Es un editor de código fuente desarrollado por Microsoft para Windows, Linux, macOS y Web. Incluye soporte para la depuración, control integrado de Git, resaltado de sintaxis, finalización inteligente de código, fragmentos y refactorización de código.
 
@@ -62,6 +62,6 @@ El sistema permitirá a los usuarios visualizar productos, realizar compras, ras
 
 
 
-##Configuraciones adicionales
+## Configuraciones adicionales
 
 Pendiente
