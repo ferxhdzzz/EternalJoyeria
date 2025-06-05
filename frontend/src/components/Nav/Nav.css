@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Nunito:wght@400;600;700&display=swap');
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: transparent;
+  font-family: 'Nunito', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 4rem; /* Increased right (and left) padding from 2rem to 4rem */
+  z-index: 1000; /* Ensure it's on top */
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.nav__logo img {
+  max-height: 70px; /* Aumentado de 50px a 70px */
+}
+
+.nav__right-content {
+  display: flex;
+  align-items: center;
+  gap: 4rem; /* Further increased gap between links block and icons block */
+}
+
+.nav__links {
+  list-style: none;
+  display: flex;
+  gap: 2.5rem; /* Increased gap between links */
+}
+
+.nav__link {
+  text-decoration: none;
+  color: #000;
+  font-weight: 400;
+  transition: color 0.3s;
+  font-size: 1.1rem; /* Increased font size */
+}
+
+.nav__link--active {
+  color: #CC7CAF;
+  font-weight: 600;
+}
+
+.nav__link:hover {
+  color: #CC7CAF;
+}
+
+.nav__icons {
+  display: flex;
+  gap: 2.5rem; /* Significantly increased gap between icons */
+}
+
+.nav__icon {
+  color: #000;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.nav__icon:hover {
+  color: #CC7CAF;
+}
+
+.nav__mobile-menu-icon {
+  display: none;
+  cursor: pointer;
+  z-index: 1001; /* Ensure icon is above nav links if they overlap */
+}
+
+@media (max-width: 768px) {
+  .nav__links {
+    display: none;
+    position: absolute;
+    top: 60px; /* Adjust based on new nav height (approx) */
+    left: 0;
+    right: 0;
+    background-color: #fff; /* Or your desired background */
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+  }
+
+  .nav__links--open {
+    display: flex;
+  }
+
+  .nav__links li {
+    margin-bottom: 1rem;
+  }
+
+  .nav__mobile-menu-icon {
+    display: block;
+    color: #000; /* Or your desired icon color */
+  }
+}

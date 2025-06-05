@@ -1,10 +1,56 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* Global Styles */
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Nunito:wght@400;600;700&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #FEF8F0; /* Light background for the whole page */
+  color: #132F3A; /* Default text color */
 }
 
+#root {
+  /* max-width: 1280px; Remove or adjust for full-width layouts */
+  /* margin: 0 auto; Remove or adjust */
+  /* padding: 2rem; Remove, handle padding at component/page level */
+  /* text-align: center; Remove, handle text-align at component/page level */
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* General responsive typography (optional) */
+html {
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* Styling for home-container if needed, e.g., for full width */
+.home-container {
+  flex-grow: 1; /* Allows it to take available space if Nav is fixed height */
+  position: relative; /* Important for absolute positioned children like ParticleAnimation */
+  width: 100%;
+  min-height: 100vh; /* Ensure it takes at least full viewport height */
+  overflow-x: hidden; /* Prevent horizontal scroll from particles if they go off-screen */
+  padding-top: 60px; /* Add padding to prevent content from being hidden behind fixed Nav. Adjust if Nav height changes. */
+  box-sizing: border-box;
+}
+
+/* Remove Vite specific styles if not needed or adjust */
+/*
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -40,3 +86,4 @@
 .read-the-docs {
   color: #888;
 }
+*/
