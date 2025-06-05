@@ -1,0 +1,123 @@
+.categories {
+  position: relative;
+  padding: 60px 20px 0 20px;
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+  z-index: 1;
+  padding-bottom: 150px;
+  background: transparent;
+}
+
+.categories::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  height: 1350px;
+  background-color: #FFFAF3;
+  z-index: 0;
+  border-radius: 24px 24px 0 0;
+  pointer-events: none;
+}
+
+.categories h2 {
+  font-size: 28px;
+  margin-bottom: 50px;
+  font-weight: bold;
+  color: #333;
+  position: relative;
+  z-index: 2;
+}
+
+.diamond-layout {
+  position: relative;
+  width: 640px;
+  height: 1160px;
+  margin: 0 auto;
+  border-radius: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 0;
+  box-sizing: border-box;
+  overflow: visible;
+  z-index: 2;
+}
+
+.cat {
+  position: absolute;
+  width: 200px;
+  height: 240px;
+  text-align: center;
+  background: transparent;
+  z-index: 3;
+}
+
+.cat img {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+}
+
+.cat span {
+  display: block;
+  margin-top: 14px;
+  font-size: 16px;
+  color: #333;
+  font-weight: 600;
+  line-height: 1.3;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+.cat-1 { top: 10px; left: 220px; }
+.cat-2 { top: 270px; left: 0px; }
+.cat-3 { top: 270px; left: 440px; }
+.cat-4 { top: 590px; left: 0px; }
+.cat-5 { top: 590px; left: 440px; }
+.cat-6 { top: 860px; left: 220px; }
+
+@media (max-width: 768px) {
+  .diamond-layout {
+    width: 100%;
+    height: auto;
+    position: relative;
+    padding-bottom: 120%;
+  }
+  .cat {
+    position: relative;
+    width: 45%;
+    height: auto;
+    margin: 10px auto;
+  }
+  .cat img {
+    height: auto;
+  }
+  .cat-1, .cat-2, .cat-3, .cat-4, .cat-5, .cat-6 {
+    top: auto !important;
+    left: auto !important;
+  }
+  .categories::before {
+    height: 1500px;
+  }
+}
+
+@media (max-width: 480px) {
+  .categories h2 {
+    font-size: 22px;
+    margin-bottom: 30px;
+  }
+  .cat {
+    width: 90%;
+  }
+  .categories {
+    padding-bottom: 100px;
+  }
+  .categories::before {
+    height: 1600px;
+  }
+}

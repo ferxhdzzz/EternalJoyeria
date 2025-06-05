@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
+import Products from './pages/Products';
 import './App.css'; // Global styles
 
 function App() {
@@ -8,6 +9,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/products" element={<Products />} />
         {/* Define other routes here, e.g.:
         <Route path="/about" element={<About />} />
         <Route path="/products" element={<Products />} /> 
