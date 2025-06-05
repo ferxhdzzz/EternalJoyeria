@@ -12,7 +12,7 @@
   gap: 80px;
   padding: 60px 40px;
   border-radius: 40px;
-  background-color: #FFFAF3;
+  background-color: #ffffff;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
   max-width: 1200px;
   width: 100%;
@@ -24,8 +24,8 @@
 }
 
 .hero-text h1 {
-  margin-bottom: 24px;
-  font-size: 36px;
+  margin-bottom: 16px;
+  font-size: 48px;
   color: #222;
 }
 
@@ -68,14 +68,12 @@
   justify-content: center;
   align-items: center;
 }
-
 .hero-image img {
+  max-width: 420px;
   width: 100%;
-  max-width: 300px;
   height: auto;
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
+
 
 /* Responsive */
 @media (max-width: 1024px) {

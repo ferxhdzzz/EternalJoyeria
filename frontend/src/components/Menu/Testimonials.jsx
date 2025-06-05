@@ -2,19 +2,59 @@ import React from 'react';
 import '../../styles/Testimonials.css';
 import client1 from '../img/Menu/client1.png';
 import client2 from '../img/Menu/client2.png';
+import client3 from '../img/Menu/client3.png';
 
 const Testimonials = () => {
   return (
     <section className="testimonials">
-      <h2>Clientes felices</h2>
-      <div className="testimonial-cards">
-        <div className="testimonial">
-          <img src={client1} alt="Cliente feliz" />
-          <p>"Lo amé, la calidad es increíble y llegó rapidísimo!"</p>
+      <div className="testimonial-wrapper">
+        <h2>¿Qué opinan los clientes acerca de Eternal Joyería?</h2>
+
+        <div className="testimonial-cards">
+          <div className="testimonial-box">
+            <div className="client-info">
+              <img src={client1} alt="Cliente 1" />
+              <div>
+                <h3>Josue Alejandro</h3>
+                <div className="stars">★★★★★</div>
+              </div>
+            </div>
+            <p>
+              Me he pedido joyas en esta tienda desde hace unos meses, me ha encantado la calidad y el empeño que le ponen a cada producto, lo recomiendo.
+            </p>
+          </div>
+
+          <div className="testimonial-box">
+            <div className="client-info">
+              <img src={client2} alt="Cliente 2" />
+              <div>
+                <h3>Fernanda Mizel</h3>
+                <div className="stars">★★★★★</div>
+              </div>
+            </div>
+            <p>
+              Pedí una variedad de productos para mi novia, todos han sido de entrega rápida, y con una belleza excelente.
+            </p>
+          </div>
+
+          <div className="testimonial-box">
+            <div className="client-info">
+              <img src={client3} alt="Cliente 3" />
+              <div>
+                <h3>Jennifer Teos</h3>
+                <div className="stars">★★★★★</div>
+              </div>
+            </div>
+            <p>
+              Me pedí un collar y dos anillos, que resultaron preciosos.
+            </p>
+          </div>
         </div>
-        <div className="testimonial">
-          <img src={client2} alt="Cliente feliz" />
-          <p>"Es más hermoso de lo que imaginaba, definitivamente compraré de nuevo."</p>
+        <div className="decorative-lines">
+          <svg viewBox="0 0 600 400">
+            <path d="M0,100 C150,200 450,0 600,100" fill="none" stroke="#f5dede" stroke-dasharray="6,6" stroke-width="2" />
+            <path d="M0,300 C150,200 450,400 600,300" fill="none" stroke="#f5dede" stroke-dasharray="6,6" stroke-width="2" />
+          </svg>
         </div>
       </div>
     </section>
