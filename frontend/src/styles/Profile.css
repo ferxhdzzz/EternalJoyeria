@@ -1,0 +1,158 @@
+.profile-page {
+  max-width: 920px;
+  margin: 150px auto 0;
+  padding: 32px 40px;
+  background: #ffffff;
+  border: 1px solid #fdeced;
+  border-radius: 10px;
+  display: flex;
+  gap: 48px;
+  font-family: "Segoe UI", Verdana, sans-serif;
+  flex-wrap: wrap;
+}
+
+.profile-left {
+  flex: 1;
+  min-width: 280px;
+}
+
+.section-title {
+  margin: 0 0 24px 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.pwd-title {
+  margin-top: 48px;
+}
+
+.subtitle {
+  display: block;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #555;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #f0f0f0;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.input.disabled {
+  color: #999;
+}
+
+.primary-btn {
+  display: inline-block;
+  margin: 10px 0 0 0;
+  padding: 10px 32px;
+  background: #f49ac1;
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.profile-right {
+  width: 230px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  margin-top: 40px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.profile-photo {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.secondary-btn {
+  width: 100%;
+  padding: 12px 0;
+  border: none;
+  border-radius: 16px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.btn-photo {
+  background: #bb6d90;
+}
+
+.btn-upload {
+  background: #f48cb0;
+}
+
+.btn-history {
+  background: #fbd1e4;
+}
+
+.secondary-btn:hover {
+  opacity: 0.92;
+}
+
+@media screen and (max-width: 768px) {
+  .profile-page {
+    flex-direction: column;
+    padding: 24px 20px;
+    gap: 32px;
+  }
+
+  .profile-right {
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .profile-photo {
+    width: 120px;
+    height: 120px;
+  }
+
+  .secondary-btn {
+    width: 140px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .profile-page {
+    margin: 100px 10px 0;
+    padding: 20px 16px;
+  }
+
+  .profile-photo {
+    width: 100px;
+    height: 100px;
+  }
+
+  .secondary-btn {
+    width: 100%;
+  }
+
+  .primary-btn {
+    width: 100%;
+    text-align: center;
+  }
+}

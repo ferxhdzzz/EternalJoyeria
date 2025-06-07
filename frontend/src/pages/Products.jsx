@@ -1,11 +1,11 @@
 import React from 'react';
-import Hero from '../components/Menu/Hero';
-import ProductShowcase from '../components/Menu/ProductShowcase';
-import Categories from '../components/Menu/Categories';
-import ProductGrid from '../components/Menu/ProductGrid';
-import Testimonials from '../components/Menu/Testimonials';
-import Footer from '../components/Menu/Footer';
-import RatingBox from '../components/Menu/RatingBox';
+import Hero from "../components/Products/Hero";
+import ProductShowcase from '../components/Products/ProductShowcase';
+import Categories from '../components/Products/Categories';
+import ProductGrid from '../components/Products/ProductGrid';
+import Testimonials from '../components/Products/Testimonials';
+import Footer from '../components/Products/Footer';
+import RatingBox from '../components/Products/RatingBox';
 import Nav from '../components/Nav/Nav';
 
 const Products = () => {

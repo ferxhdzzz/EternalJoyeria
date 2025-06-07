@@ -1,8 +1,5 @@
 import React from 'react';
 import '../../styles/Testimonials.css';
-import client1 from '../img/Menu/client1.png';
-import client2 from '../img/Menu/client2.png';
-import client3 from '../img/Menu/client3.png';
 
 const Testimonials = () => {
   return (
@@ -13,7 +10,7 @@ const Testimonials = () => {
         <div className="testimonial-cards">
           <div className="testimonial-box">
             <div className="client-info">
-              <img src={client1} alt="Cliente 1" />
+              <img src="/Products/client1.png" alt="Cliente 1" />
               <div>
                 <h3>Josue Alejandro</h3>
                 <div className="stars">★★★★★</div>
@@ -26,7 +23,7 @@ const Testimonials = () => {
 
           <div className="testimonial-box">
             <div className="client-info">
-              <img src={client2} alt="Cliente 2" />
+              <img src="/Products/client2.png" alt="Cliente 2" />
               <div>
                 <h3>Fernanda Mizel</h3>
                 <div className="stars">★★★★★</div>
@@ -39,7 +36,7 @@ const Testimonials = () => {
 
           <div className="testimonial-box">
             <div className="client-info">
-              <img src={client3} alt="Cliente 3" />
+              <img src="/Products/client3.png" alt="Cliente 3" />
               <div>
                 <h3>Jennifer Teos</h3>
                 <div className="stars">★★★★★</div>
@@ -52,8 +49,8 @@ const Testimonials = () => {
         </div>
         <div className="decorative-lines">
           <svg viewBox="0 0 600 400">
-            <path d="M0,100 C150,200 450,0 600,100" fill="none" stroke="#f5dede" stroke-dasharray="6,6" stroke-width="2" />
-            <path d="M0,300 C150,200 450,400 600,300" fill="none" stroke="#f5dede" stroke-dasharray="6,6" stroke-width="2" />
+            <path d="M0,100 C150,200 450,0 600,100" fill="none" stroke="#f5dede" strokeDasharray="6,6" strokeWidth="2" />
+            <path d="M0,300 C150,200 450,400 600,300" fill="none" stroke="#f5dede" strokeDasharray="6,6" strokeWidth="2" />
           </svg>
         </div>
       </div>

@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import '../../styles/RatingBox.css';
-import florIzq from '../img/Menu/flor-izq.png';
-import florDer from '../img/Menu/flor-der.png';
 
 const RatingBox = () => {
   const [rating, setRating] = useState(0);
@@ -17,7 +15,7 @@ const RatingBox = () => {
         <textarea placeholder="Agrega tus comentarios" className="input-field textarea" />
 
         <div className="rating-row">
-          <img src={florIzq} alt="Flor izquierda" className="flor-icon flor-izq" />
+          <img src="/Products/flor-izq.png" alt="Flor izquierda" className="flor-icon flor-izq" />
 
           <div className="rating-center">
             <p className="rating-label">¿Cuál es tu calificación?</p>
@@ -37,7 +35,7 @@ const RatingBox = () => {
             <button className="submit-button">Enviar</button>
           </div>
 
-          <img src={florDer} alt="Flor derecha" className="flor-icon flor-der" />
+          <img src="/Products/flor-der.png" alt="Flor derecha" className="flor-icon flor-der" />
         </div>
       </div>
     </div>
