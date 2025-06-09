@@ -2,7 +2,6 @@ import jsonwebtoken from "jsonwebtoken"; //Token
 import bcryptjs from "bcryptjs"; //Encriptar
 
 import clientsModel from "../models/Customers.js";
-import employeesModel from "../models/employee.js";
 
 import { sendEmail, HTMLRecoveryEmail } from "../utils/mailPasswordRecovery.js";
 import { config } from "../config.js";
@@ -10,49 +9,42 @@ import { config } from "../config.js";
 //1- Crear un array de funciones
 const passwordRecoveryController = {};
 
+// Función para solicitar el código de recuperación
 passwordRecoveryController.requestCode = async (req, res) => {
   const { email } = req.body;
 
   try {
-    let userFound;
-    let userType;
+    // Buscar al usuario por email en la base de datos de clientes
+    let userFound = await clientsModel.findOne({ email });
 
-    userFound = await clientsModel.findOne({ email });
-    if (userFound) {
-      userType = "client";
-    } else {
-      userFound = await employeesModel.findOne({ email });
-      if (userFound) {
-        userType = "employee";
-      }
-    }
-
+    // Si no se encuentra el usuario, devolver mensaje de error
     if (!userFound) {
       res.json({ message: "User not found" });
     }
 
-    //Generar un código un aleatorio
-    // (El que se va a enviar)
+    // Generar un código aleatorio de 5 dígitos
+    // (El que se va a enviar por correo)
     const code = Math.floor(10000 + Math.random() * 90000).toString();
 
-    //Guardamos todo en un token
+    // Guardamos toda la información en un token JWT
     const token = jsonwebtoken.sign(
-      //1-¿Que voy a guardar?
-      { email, code, userType, verified: false },
-      //2-secret key
+      //1-¿Que voy a guardar? - email, código, tipo de usuario y estado de verificación
+      { email, code, userType: "client", verified: false },
+      //2-secret key - clave secreta para firmar el token
       config.JWT.secret,
-      //3-¿Cuando expira?
+      //3-¿Cuando expira? - el token expira en 20 minutos
       { expiresIn: "20m" }
     );
 
+    // Guardar el token en una cookie con duración de 20 minutos
     res.cookie("tokenRecoveryCode", token, { maxAge: 20 * 60 * 1000 });
 
-    //ULTIMO PASO => enviar el correo con el código
+    // ULTIMO PASO => enviar el correo electrónico con el código de verificación
     await sendEmail(
       email,
-      "You verification code", //Asunto
-      "Hello! Remember dont forget your pass", //Cuerpo del mensaje
-      HTMLRecoveryEmail(code) //HTML
+      "You verification code", //Asunto del correo
+      "Hello! Remember dont forget your pass", //Cuerpo del mensaje en texto plano
+      HTMLRecoveryEmail(code) //HTML del correo con el código
     );
 
     res.json({ message: "correo enviado" });
@@ -61,36 +53,38 @@ passwordRecoveryController.requestCode = async (req, res) => {
   }
 };
 
-// FUNCION PARA VERIFICAR CÓDIGO
+// FUNCIÓN PARA VERIFICAR EL CÓDIGO enviado por correo
 passwordRecoveryController.verifyCode = async (req, res) => {
   const { code } = req.body;
 
   try {
-    //Sacar el token de las cookies
+    // Extraer el token de las cookies del navegador
     const token = req.cookies.tokenRecoveryCode;
 
-    //Extraer la información del token
+    // Decodificar y verificar la información del token JWT
     const decoded = jsonwebtoken.verify(token, config.JWT.secret);
 
+    // Comparar el código enviado con el código almacenado en el token
     if (decoded.code !== code) {
       return res.json({ message: "Invalid code" });
     }
 
-    //Marcar el token como verificado
+    // Marcar el token como verificado creando un nuevo token
     const newToken = jsonwebtoken.sign(
-      //1-¿Que vamos a guardar?
+      //1-¿Que vamos a guardar? - misma info pero ahora marcada como verificada
       {
         email: decoded.email,
         code: decoded.code,
         userType: decoded.userType,
-        verified: true,
+        verified: true, // Ahora el código está verificado
       },
-      //2- Secret key
+      //2- Secret key para firmar el nuevo token
       config.JWT.secret,
-      //3- ¿Cuando expira?
+      //3- ¿Cuando expira? - 20 minutos más
       { expiresIn: "20m" }
     );
 
+    // Actualizar la cookie con el nuevo token verificado
     res.cookie("tokenRecoveryCode", newToken, { maxAge: 20 * 60 * 1000 });
 
     res.json({ message: "Code verified successfully" });
@@ -104,41 +98,33 @@ passwordRecoveryController.newPassword = async (req, res) => {
   const { newPassword } = req.body;
 
   try {
-    //Extraer el token de las cookies
+    // Extraer el token de recuperación de las cookies
     const token = req.cookies.tokenRecoveryCode;
 
-    //Extraer la información del token
+    // Decodificar la información del token
     const decoded = jsonwebtoken.verify(token, config.JWT.secret);
 
-    //Comprobar si el codigo fue verificado
+    // Verificar que el código haya sido verificado previamente
     if (!decoded.verified) {
       return res.json({ message: "Code not verified" });
     }
 
-    //Extraer el email y el userType del token
-    const { email, userType } = decoded;
+    // Extraer el email del token decodificado
+    const { email } = decoded;
 
-    // Encriptar la contraseña
+    // Encriptar la nueva contraseña usando bcrypt con salt de 10 rounds
     const hashedPassword = await bcryptjs.hash(newPassword, 10);
 
-    //Actualizar la contraseña del usuario en la base de datos
-    let updatedUser;
+    // Actualizar la contraseña del usuario en la base de datos
+    // findOneAndUpdate busca por email y actualiza la contraseña
+    // new: true devuelve el documento actualizado
+    let updatedUser = await clientsModel.findOneAndUpdate(
+      { email },
+      { password: hashedPassword },
+      { new: true }
+    );
 
-    if (userType === "client") {
-      updatedUser = await clientsModel.findOneAndUpdate(
-        { email },
-        { password: hashedPassword },
-        { new: true }
-      );
-    } else if (userType === "employee") {
-      updatedUser = await employeesModel.findOneAndUpdate(
-        { email },
-        { password: hashedPassword },
-        { new: true }
-      );
-    }
-
-    //Quitamos el token
+    // Eliminar el token de las cookies por seguridad
     res.clearCookie("tokenRecoveryCode");
 
     res.json({ message: "Password updated" });

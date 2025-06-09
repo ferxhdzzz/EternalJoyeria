@@ -8,25 +8,26 @@ const transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user: config.email.user,
-    pass: config.email.pass,
+    user: config.smtp.user,
+    pass: config.smtp.pass,
   },
 });
 
 // ¿Quien lo envia?
-const sendEmail = async (to, subject, body, html) => {
+const sendEmail = async (to, subject, text, html) => {
   try {
     const info = await transporter.sendMail({
-      from: "tomasgaldames91@gmail.com",
+      from: config.smtp.user, // Usar el email de configuración
       to, // Para quien
       subject, // El asunto
-      body, //Cuerpo del mensaje
-      html, //HTML
+      text, // Texto plano (cambié de 'body' a 'text')
+      html, // HTML
     });
 
     return info;
   } catch (error) {
     console.log("error" + error);
+    throw error; // Re-lanzar el error para manejarlo en el controlador
   }
 };
 
@@ -42,7 +43,7 @@ const HTMLRecoveryEmail = (code) => {
           ${code}
         </div>
         <p style="font-size: 14px; color: #777; line-height: 1.5;">
-          This code is valid for the next <strong>15 minutes</strong>. If you didn’t request this email, you can safely ignore it.
+          This code is valid for the next <strong>15 minutes</strong>. If you didn't request this email, you can safely ignore it.
         </p>
         <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
         <footer style="font-size: 12px; color: #aaa;">

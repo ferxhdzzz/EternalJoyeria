@@ -1,6 +1,5 @@
 //Importamos los modelos
 import customersModel from "../models/Customers.js";
-import employeesModel from "../models/employee.js";
 import bcryptjs from "bcryptjs"; // Encriptar
 import jsonwebtoken from "jsonwebtoken"; // generar token
 import { config } from "../config.js";
@@ -13,28 +12,23 @@ loginController.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    //Validamos los 3 posibles niveles
-    // 1. Admin, 2. Empleado, 3. Cliente
+    //Validamos los 2 posibles niveles
+    // 1. Admin, 2. Cliente
 
     let userFound; //Guarda el usuario encontrado
     let userType; //Guarda el tipo de usuario encontrado
 
     //1. Admin
     if (
-      email === config.ADMIN.emailAdmin &&
-      password === config.ADMIN.password
+      email === config.adminAccount.email &&
+      password === config.adminAccount.password
     ) {
       userType = "admin";
       userFound = { _id: "admin" };
     } else {
-      //2. Empleados
-      userFound = await employeesModel.findOne({ email });
-      userType = "employee";
-      if (!userFound) {
-        //3. Cliente
-        userFound = await customersModel.findOne({ email });
-        userType = "customer";
-      }
+      //2. Cliente
+      userFound = await customersModel.findOne({ email });
+      userType = "customer";
     }
 
     //Si no encontramos a ningun usuario con esas credenciales
@@ -57,9 +51,9 @@ loginController.login = async (req, res) => {
       //1-Que voy a guardar
       { id: userFound._id, userType },
       //2-Secreto
-      config.JWT.secret,
+      config.jwt.secret,
       //3-Cuando expira
-      { expiresIn: config.JWT.expiresIn },
+      { expiresIn: config.jwt.expiresIn },
       //4. Funcion flecha
       (error, token) => {
         if (error) console.log("error" + error);
