@@ -1,0 +1,31 @@
+/* src/pages/Recuperacion.css */
+.recover-wrapper {
+  background-image: url("/fondoEternal.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  width: 200vh;
+  height: 100vh;
+
+  display: flex;
+  justify-content: flex-start; /* Alinea la card a la izquierda */
+  align-items: center;
+  padding-left: 5%; /* Espacio desde el borde izquierdo */
+}
+
+.recover-card {
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  max-width: 400px;
+  width: 100%;
+  text-align: left; /* Alinea todo el contenido de la card a la izquierda */
+}
+
+.recover-title {
+  font-size: 24px;
+  text-align: left; /* Alinea solo el título a la izquierda */
+  margin-bottom: 20px;
+}

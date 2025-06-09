@@ -1,10 +1,14 @@
-import React from 'react';
-import './HeroButton.css';
+// components/HeroButton.jsx
+import React from "react";
+import { NavLink } from "react-router-dom";
+import "./HeroButton.css";
 
-const HeroButton = ({ onClick, children }) => (
-  <button className="hero-button" onClick={onClick}>
-    {children}
-  </button>
-);
+const HeroButton = ({ children, to = "/productos" }) => {
+  return (
+    <NavLink to={to} className="hero-button">
+      {children}
+    </NavLink>
+  );
+};
 
 export default HeroButton;
