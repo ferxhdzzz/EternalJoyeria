@@ -1,40 +1,59 @@
-/*
-    Campos:
-        nombre
-        descripcion
-        precio
-        stock
-*/
-
+// backend/src/models/Product.js
 import { Schema, model } from "mongoose";
 
-const customersSchema = new Schema(
+/*
+    Campos:
+      name
+      description
+      price
+      images
+      measurements
+      category_id
+      discountPercentage (opcional)
+      finalPrice (siempre se calcula)
+*/
+
+const productSchema = new Schema(
   {
     name: {
       type: String,
       require: true,
     },
 
-    email: {
-      type: String,
-    },
-
-    password: {
+    description: {
       type: String,
       require: true,
     },
 
-    telephone: {
-      type: String,
+    price: {
+      type: Number,
       require: true,
     },
 
-    dui: {
-      type: String,
+    images: {
+      type: [String],
+      default: [],
+    },
+
+    measurements: {
+      type: Object,
+    },
+
+    category_id: {
+      type: Schema.Types.ObjectId,
+      ref: "categories",
       require: true,
     },
-    addres: {
-      type: String,
+
+    discountPercentage: {
+      type: Number,
+      default: null,
+      min: 0,
+      max: 100,
+    },
+
+    finalPrice: {
+      type: Number,
       require: true,
     },
   },
@@ -44,4 +63,4 @@ const customersSchema = new Schema(
   }
 );
 
-export default model("customers", customersSchema);
+export default model("products", productSchema);
