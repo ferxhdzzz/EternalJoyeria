@@ -12,7 +12,7 @@ export const getAllCategories = async (req, res) => {
     const categories = await Category.find().sort({ name: 1 });
     return res.status(200).json({ categories });
   } catch (err) {
-    console.error("❌ Error in getAllCategories:", err);
+    console.error("Error in getAllCategories:", err);
     return res.status(500).json({ message: "Server error while fetching categories." });
   }
 };
@@ -38,7 +38,7 @@ export const getCategoryById = async (req, res) => {
 
     return res.status(200).json({ category });
   } catch (err) {
-    console.error("❌ Error in getCategoryById:", err);
+    console.error("Error in getCategoryById:", err);
     return res.status(500).json({ message: "Server error while fetching category." });
   }
 };
@@ -71,7 +71,7 @@ export const createCategory = async (req, res) => {
       category: savedCategory
     });
   } catch (err) {
-    console.error("❌ Error in createCategory:", err);
+    console.error("Error in createCategory:", err);
     // If we hit a unique index error (duplicate key), Mongoose error.code === 11000
     if (err.code === 11000) {
       return res.status(400).json({ message: "Category name already in use." });
@@ -120,7 +120,7 @@ export const updateCategory = async (req, res) => {
       category: updatedCategory
     });
   } catch (err) {
-    console.error("❌ Error in updateCategory:", err);
+    console.error("Error in updateCategory:", err);
     return res.status(500).json({ message: "Server error while updating category." });
   }
 };

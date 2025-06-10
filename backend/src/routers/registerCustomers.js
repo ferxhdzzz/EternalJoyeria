@@ -1,13 +1,13 @@
 // backend/src/routers/registerClient.js
 import { Router } from "express";
-import { registerCustomers } from "../controllers/registerCustomersController.js";
+import registerCustomersController from "../controllers/registerCustomersController.js";
 
 const router = Router();
 
 /**
- * Route: POST /api/registerClient
- * Description: Register a new client (no authentication needed)
+ * Route: POST /api/register/client
+ * Description: Register a new client and send verification email
  */
-router.post("/", registerCustomers);
+router.post("/", registerCustomersController.registerClient);
 
 export default router;

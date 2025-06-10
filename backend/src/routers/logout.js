@@ -1,15 +1,12 @@
-// backend/src/routers/logout.js
+//ruta logout
 import { Router } from "express";
-import { logoutClient } from "../controllers/logoutController.js";
-import { protect } from "../utils/authMiddleware.js";
-
+import logoutController from "../controllers/logoutController.js";
 const router = Router();
 
 /**
- * Route: POST /api/logout
- * Description: Logs out the user by clearing the JWT cookie
- * Access: Private (user must be logged in)
+ * Route: POST /api/logout/logout
+ * Description: User logout (clears the JWT cookie)
  */
-router.post("/", protect, logoutClient);
+router.post("/logout", logoutController.logout);
 
 export default router;

@@ -1,66 +1,47 @@
-// backend/src/models/Customers.js
-import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
+/*
+    Campos:
+        nombre
+        descripcion
+        precio
+        stock
+*/
 
-const { Schema, model } = mongoose;
+import { Schema, model } from "mongoose";
 
-const customerSchema = new Schema(
+const customersSchema = new Schema(
   {
-    firstName: {
+    name: {
       type: String,
-      required: [true, "First name is required."],
-      trim: true
+      require: true,
     },
-    lastName: {
-      type: String,
-      required: [true, "Last name is required."],
-      trim: true
-    },
+
     email: {
       type: String,
-      required: [true, "Email is required."],
-      unique: true, // No two accounts with the same email
-      lowercase: true,
-      trim: true
     },
+
     password: {
       type: String,
-      required: [true, "Password is required."],
-      minlength: [6, "Password must be at least 6 characters."]
+      require: true,
     },
-    phone: {
+
+    telephone: {
       type: String,
-      default: ""
+      require: true,
     },
-    role: {
+
+    dui: {
       type: String,
-      enum: ["cliente", "admin"],
-      default: "cliente"
-    }
+      require: true,
+    },
+    addres: {
+      type: String,
+      require: true,
+    },
   },
   {
-    timestamps: true // Adds createdAt/updatedAt
+    timestamps: true,
+    strict: false,
   }
 );
 
-// ── Hash password before saving to the database ──────────────────────
-customerSchema.pre("save", async function (next) {
-  try {
-    // Only hash if the password field was modified (or is new)
-    if (!this.isModified("password")) {
-      return next();
-    }
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    return next();
-  } catch (err) {
-    return next(err);
-  }
-});
-
-// ── Compare a plaintext password with the hashed one in the DB ────────
-customerSchema.methods.comparePassword = async function (plainPassword) {
-  return await bcrypt.compare(plainPassword, this.password);
-};
-
-export default model("Customer", customerSchema, "users");
+export default model("customers", customersSchema);

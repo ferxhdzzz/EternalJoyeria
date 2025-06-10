@@ -7,7 +7,7 @@ const categorySchema = new Schema(
   {
     name: {
       type: String,
-      required: [true, "Category name is required."], // Must have a name
+      required: true,
       trim: true,
       unique: true // Prevent duplicate category names
     }
