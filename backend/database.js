@@ -1,27 +1,24 @@
+// backend/src/database.js
 import mongoose from "mongoose";
 
-// 1- Configuro la URI o dirección de la base de datos
-const URI = "mongodb://localhost:27017/EternalJoyeria";
-
-// 2- Conecto la base de datos
+// 1- Configuro la URI usando la variable de entorno (con fallback local)
+const URI = process.env.DB_URI || "mongodb://localhost:27017/EternalJoyeria";
 mongoose.connect(URI);
 
-// ------ Comprobar que todo funciona ------
-
-// 3- Creo una constante que es igual a la conexión
+// Obtengo la conexión
 const connection = mongoose.connection;
 
-// Veo si funciona
+// Cuando se abra correctamente
 connection.once("open", () => {
   console.log("DB is connected");
 });
 
-// Veo si se desconectó
+// Si se desconecta
 connection.on("disconnected", () => {
   console.log("DB is disconnected");
 });
 
-// Veo si hay un error
+// Si ocurre un error
 connection.on("error", (error) => {
   console.log("error found" + error);
 });

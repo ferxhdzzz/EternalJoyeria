@@ -7,6 +7,7 @@ import recoveryPasswordRoutes from "./src/routes/recoveryPassword.js";
 import productsRoutes from "./src/routes/products.js";
 import registerCustomersRoutes from "./src/routes/registerCustomers.js";
 import cookieParser from "cookie-parser";
+
 // Creo una constante que es igual a la libreria que importé
 const app = express();
 

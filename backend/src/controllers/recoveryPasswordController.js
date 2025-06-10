@@ -3,7 +3,7 @@ import bcryptjs from "bcryptjs"; //Encriptar
 
 import clientsModel from "../models/Customers.js";
 
-import { sendEmail, HTMLRecoveryEmail } from "../utils/mailPasswordRecovery.js";
+import { sendEmail, HTMLRecoveryEmail } from "../utils/mailRecoveryPassword.js";
 import { config } from "../config.js";
 
 //1- Crear un array de funciones

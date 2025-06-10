@@ -1,5 +1,5 @@
 // backend/src/controllers/productController.js
-import Product from "../models/Product.js";
+import Product from "../models/Products.js";
 
 const productController = {};
 
