@@ -1,19 +1,18 @@
-// backend/src/routers/categories.js
-import { Router } from "express";
-import {
-  getAllCategories,
-  getCategoryById,
-  createCategory,
-  updateCategory,
-  deleteCategory
-} from "../controllers//categoryController.js";
+// backend/src/routes/categories.js
+import express from "express";
+import categoryController from "../controllers/categoryController.js";
 
-const router = Router();
+const router = express.Router();
 
-router.get("/", getAllCategories);
-router.get("/:id", getCategoryById);
-router.post("/", createCategory);
-router.put("/:id", updateCategory);
-router.delete("/:id", deleteCategory);
+router
+  .route("/")
+  .get(categoryController.getAllCategories)  
+  .post(categoryController.createCategory);
+
+router
+  .route("/:id")
+  .get(categoryController.getCategoryById)
+  .put(categoryController.updateCategory)
+  .delete(categoryController.deleteCategory);
 
 export default router;

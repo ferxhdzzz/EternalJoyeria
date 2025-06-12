@@ -4,10 +4,6 @@ import registerCustomersController from "../controllers/registerCustomersControl
 
 const router = Router();
 
-/**
- * Route: POST /api/register/client
- * Description: Register a new client and send verification email
- */
 router.post("/", registerCustomersController.registerClient);
 
 export default router;

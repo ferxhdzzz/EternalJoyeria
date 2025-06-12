@@ -2,7 +2,10 @@ import jsonwebtoken from "jsonwebtoken";
 import bcryptjs from "bcryptjs";
 import nodemailer from "nodemailer";
 import crypto from "crypto";
+<<<<<<< HEAD
 
+=======
+>>>>>>> ff3a32d3e1e7253db695bad084a229052a470068
 import clientsModel from "../models/Customers.js";
 import { config } from "../config.js";
 
