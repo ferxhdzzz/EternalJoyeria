@@ -1,5 +1,7 @@
 // Importo todo lo de la libreria de Express
 import express from "express";
+import customersRoutes from "./src/routes/customers.js";
+
 import categoriesRouters from "./src/routes/categories.js";
 import loginRoutes from "./src/routes/login.js";
 import logoutRoutes from "./src/routes/logout.js";
@@ -16,6 +18,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Definir las rutas de las funciones que tendrá la página web
+app.use("/api/customers", customersRoutes);
 app.use("/api/categories", categoriesRouters);
 app.use("/api/login", loginRoutes);
 app.use("/api/logout", logoutRoutes);
