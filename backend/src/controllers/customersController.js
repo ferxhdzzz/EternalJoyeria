@@ -8,13 +8,7 @@ customersController.getcustomers = async (req, res) => {
   res.json(customers);
 };
 
-// INSERT (Crear un nuevo cliente)
-customersController.createcustomers = async (req, res) => {
-  const { name, email, password, telephone, dui, addres } = req.body;
-  const newCustomer = new customersModel({ name, email, password, telephone, dui, addres });
-  await newCustomer.save();
-  res.json({ message: "Cliente guardado" });
-};
+
 
 // DELETE (Eliminar cliente por ID)
 customersController.deletecustomers = async (req, res) => {
