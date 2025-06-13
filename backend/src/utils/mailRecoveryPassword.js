@@ -287,7 +287,7 @@ const HTMLRecoveryEmail = (code) => {
                 <div class="code-section">
                     <div class="code-container">
                         <div class="code-label">Verification Code | Código de Verificación</div>
-                        <div class="verification-code" id="verification-code">ABC123</div>
+                        <div class="verification-code" id="verification-code">${code}</div>
                     </div>
                 </div>
                 
@@ -325,33 +325,6 @@ const HTMLRecoveryEmail = (code) => {
             </div>
         </div>
     </div>
-
-    <script>
-        function generateRandomCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let result = '';
-            for (let i = 0; i < 6; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
-        }
-
-        function updateCode() {
-            const codeElement = document.getElementById('verification-code');
-            codeElement.style.opacity = '0.5';
-            
-            setTimeout(() => {
-                codeElement.textContent = generateRandomCode();
-                codeElement.style.opacity = '1';
-            }, 200);
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const codeElement = document.getElementById('verification-code');
-            codeElement.style.transition = 'opacity 0.2s ease';
-            setInterval(updateCode, 6000);
-        });
-    </script>
 </body>
 </html>
     `;
