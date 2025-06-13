@@ -23,7 +23,7 @@ const Nav = () => {
           </NavLink>
         </li>
         <li>
-          <NavLink to="/about" className={({ isActive }) => isActive ? 'nav__link nav__link--active' : 'nav__link'}>
+                    <NavLink to="/sobre-nosotros" className={({ isActive }) => isActive ? 'nav__link nav__link--active' : 'nav__link'}>
             Sobre nosotros
           </NavLink>
         </li>
