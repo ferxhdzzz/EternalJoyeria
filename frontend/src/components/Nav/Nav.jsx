@@ -33,10 +33,14 @@ const Nav = () => {
           </NavLink>
         </li>
       </ul>
-      <div className="nav__icons">
-        <ShoppingBag className="nav__icon" />
-        <User className="nav__icon" />
-      </div>
+        <div className="nav__icons">
+          <NavLink to="/shop" className="nav__icon-link">
+            <ShoppingBag className="nav__icon" />
+          </NavLink>
+          <NavLink to="/profile">
+            <User className="nav__icon" />
+          </NavLink>
+        </div>
       <div className="nav__mobile-menu-icon" onClick={toggleMobileMenu}>
         {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
       </div>
