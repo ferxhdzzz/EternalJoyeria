@@ -1,19 +1,13 @@
 /* src/pages/Recuperacion.css */
-.recover-wrapper {
+.recover-wrappere {
 
 
-  width: 200vh;
-  height: 100vh;
+  height: 150vh;
 
   display: flex;
   justify-content: flex-start; /* Alinea la card a la izquierda */
   align-items: center;
   padding-left: 5%; /* Espacio desde el borde izquierdo */
-}
-
-.recover-title{
-    font-family: 'Lora', sans-serif;
-
 }
 
 .recover-card {

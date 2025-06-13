@@ -2,16 +2,19 @@
   margin-bottom: 24px; /* Más espacio entre grupos de inputs */
   display: flex;
   flex-direction: column;
+  
 }
 
 .input-label {
   font-size: 14px;
   margin-bottom: 10px; /* Más espacio entre el label y el input */
   color: black;
+
 }
 
 .input {
   background-color: white;
+  
   color: black;
   padding: 10px 14px;
   border: 2px solid #000; /* Borde más visible */

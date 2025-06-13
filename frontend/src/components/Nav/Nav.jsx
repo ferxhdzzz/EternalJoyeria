@@ -42,7 +42,16 @@ const Nav = () => {
         </li>
       </ul>
       <div className="nav__icons">
-        <ShoppingBag className="nav__icon" />
+
+ <li>
+          <NavLink to="/products" className={({ isActive }) => isActive ? 'nav__link nav__link--active' : 'nav__link'} onClick={() => isMobileMenuOpen && toggleMobileMenu()}>
+            Productos
+          </NavLink>
+        </li>
+
+        <ShoppingBag className="nav__icon"  to="/shopping"/>
+
+
         <User className="nav__icon" />
       </div>
       <div className="nav__mobile-menu-icon" onClick={toggleMobileMenu}>

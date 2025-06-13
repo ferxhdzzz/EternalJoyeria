@@ -4,6 +4,9 @@ import Home from './pages/Home';
 import './App.css'; // Global styles
 import Recuperacion from './pages/RecuperacionContra';
 import Actualizacion from './pages/CambiarCont';
+import Login from './pages/Login';
+import Registro from './pages/Registro';
+
 
 function App() {
   return (
@@ -12,6 +15,9 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/recuperacion" element={<Recuperacion />} />
           <Route path="/cambiar" element={<Actualizacion />} />
+          <Route path="/login" element={<Login />} />
+             <Route path="/registro" element={<Registro />} />
+
         {/* Define other routes here, e.g.:
         <Route path="/about" element={<About />} />
         <Route path="/products" element={<Products />} /> 

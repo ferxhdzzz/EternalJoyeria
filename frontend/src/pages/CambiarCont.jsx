@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Logo from "../components/Recuperacion/Logo";
-import Input from "../components/Recuperacion/InputGroup";
-import Button from "../components/Recuperacion/Button";
-import BackArrow from "../components/Recuperacion/BackArrow";
+import Logo from "../components/registro/logo/Logo";
+import Input from "../components/registro/inpungroup/InputGroup";
+import Button from "../components/registro/button/Button";
+import BackArrow from "../components/registro/backarrow/BackArrow";
 import "./Recuperacion.css";
 
 const CambiarContra = () => {
@@ -21,7 +21,14 @@ const CambiarContra = () => {
   return (
 
     
-    <div className="recover-wrapper">
+    <div className="recover-wrapper"
+       style={{
+        backgroundImage: `url("/fondoact.png")`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}>
+
       <div className="recover-card">
 
       <BackArrow to="/recuperacion" />
