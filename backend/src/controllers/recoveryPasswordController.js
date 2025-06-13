@@ -31,7 +31,7 @@ passwordRecoveryController.requestCode = async (req, res) => {
       //1-¿Que voy a guardar? - email, código, tipo de usuario y estado de verificación
       { email, code, userType: "client", verified: false },
       //2-secret key - clave secreta para firmar el token
-      config.JWT.secret,
+      config.JWT.JWT_SECRET,
       //3-¿Cuando expira? - el token expira en 20 minutos
       { expiresIn: "20m" }
     );
@@ -62,7 +62,7 @@ passwordRecoveryController.verifyCode = async (req, res) => {
     const token = req.cookies.tokenRecoveryCode;
 
     // Decodificar y verificar la información del token JWT
-    const decoded = jsonwebtoken.verify(token, config.JWT.secret);
+    const decoded = jsonwebtoken.verify(token, config.JWT.JWT_SECRET);
 
     // Comparar el código enviado con el código almacenado en el token
     if (decoded.code !== code) {
@@ -79,7 +79,7 @@ passwordRecoveryController.verifyCode = async (req, res) => {
         verified: true, // Ahora el código está verificado
       },
       //2- Secret key para firmar el nuevo token
-      config.JWT.secret,
+      config.JWT.JWT_SECRET,
       //3- ¿Cuando expira? - 20 minutos más
       { expiresIn: "20m" }
     );
@@ -106,7 +106,7 @@ passwordRecoveryController.newPassword = async (req, res) => {
 
     // Verificar que el código haya sido verificado previamente
     if (!decoded.verified) {
-      return res.json({ message: "Code not verified" });
+      return res.status(400).json({ message: "Code not verified" });
     }
 
     // Extraer el email del token decodificado
@@ -115,7 +115,22 @@ passwordRecoveryController.newPassword = async (req, res) => {
     // Encriptar la nueva contraseña usando bcrypt con salt de 10 rounds
     const hashedPassword = await bcryptjs.hash(newPassword, 10);
 
+
+const oldPassword = await clientsModel.find({email})
+//1-Primero comparar la nueva contra con la contra actual
+//si la contra es igual retornar un error
+
+//const validacion = await bcryptjs.compare(newPassword, oldPassword.password)
+
+//if(validacion){
+  //  return res.status(400).json({message: "contraseñas iguales"})
+//}
+
+
+
+
     // Actualizar la contraseña del usuario en la base de datos
+
     // findOneAndUpdate busca por email y actualiza la contraseña
     // new: true devuelve el documento actualizado
     let updatedUser = await clientsModel.findOneAndUpdate(
@@ -129,7 +144,7 @@ passwordRecoveryController.newPassword = async (req, res) => {
 
     res.json({ message: "Password updated" });
   } catch (error) {
-    console.log("error" + error);
+    console.log("error here" + error);
   }
 };
 

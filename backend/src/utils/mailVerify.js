@@ -42,12 +42,12 @@ const HTMLEmailVerification = (code) => {
         ${code}
       </div>
       <p style="font-size: 14px; color: #555;">
-        This code will expire in <strong>15 minutes</strong>. If you didn’t sign up, you can ignore this email.
+        This code will expire in <strong>2 Hours</strong>. If you didn’t sign up, you can ignore this email.
       </p>
       <hr style="margin: 20px 0; border: none; border-top: 1px solid #ccc;">
       <footer style="font-size: 12px; color: #aaa;">
         Need help? Contact us at 
-        <a href="mailto:support@example.com" style="color: #3498db;">support@example.com</a>
+        <a href="mailto:EternalJoyeria@gmail.com" style="color: #3498db;">support@example.com</a>
       </footer>
     </div>
   `;
