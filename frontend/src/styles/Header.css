@@ -1,0 +1,56 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 32px;
+  background-color: #fdfdfd;
+  border-bottom: 1px solid #ffffff;
+  position: relative;
+}
+
+.logo-container {
+  flex-shrink: 0;
+  position: absolute;
+  top: 12px;
+  left: 32px;
+}
+
+.logo {
+  height: 90px;
+  width: auto;
+}
+
+.icons {
+  display: flex;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.icon {
+  height: 32px;
+  width: 32px;
+  object-fit: contain;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 12px 20px;
+  }
+
+  .logo-container {
+    position: static;
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    height: 60px;
+  }
+
+  .icon {
+    height: 24px;
+    width: 24px;
+  }
+}
