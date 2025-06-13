@@ -7,6 +7,6 @@ const router = Router();
  * Route: POST /api/login/login
  * Description: User login (returns a JWT cookie if successful)
  */
-router.post("/login", loginController.login);
+router.post("/", loginController.login);
 
 export default router;
