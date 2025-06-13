@@ -1,7 +1,7 @@
 import React from 'react';
 import Nav from '../components/Nav/Nav';
-import ParticleAnimation from '../components/Particles/ParticleAnimation';
-import Hero from '../components/Hero/Hero';
+import ParticleAnimation from '../components/Home/Particles/ParticleAnimation';
+import Hero from '../components/Home/Hero/Hero';
 
 const Home = () => (
   <>

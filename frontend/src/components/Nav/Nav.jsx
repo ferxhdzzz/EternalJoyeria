@@ -13,15 +13,7 @@ const Nav = () => {
   return (
   <nav className="nav">
     <div className="nav__logo">
-     
-        <NavLink to="/">
-          <img
-            src="/EternalLogo.png"
-            alt="Eternal Logo"
-            style={{ cursor: 'pointer' }}
-          />
-        </NavLink>
-      
+      <img src="/EternalLogo.png" alt="Eternal Logo" />
     </div>
     <div className="nav__right-content">
       <ul className={`nav__links ${isMobileMenuOpen ? 'nav__links--open' : ''}`}>
@@ -31,7 +23,7 @@ const Nav = () => {
           </NavLink>
         </li>
         <li>
-          <NavLink to="/about" className={({ isActive }) => isActive ? 'nav__link nav__link--active' : 'nav__link'}>
+                    <NavLink to="/sobre-nosotros" className={({ isActive }) => isActive ? 'nav__link nav__link--active' : 'nav__link'}>
             Sobre nosotros
           </NavLink>
         </li>
@@ -41,19 +33,14 @@ const Nav = () => {
           </NavLink>
         </li>
       </ul>
-      <div className="nav__icons">
-
- <li>
-          <NavLink to="/products" className={({ isActive }) => isActive ? 'nav__link nav__link--active' : 'nav__link'} onClick={() => isMobileMenuOpen && toggleMobileMenu()}>
-            Productos
+        <div className="nav__icons">
+          <NavLink to="/shop" className="nav__icon-link">
+            <ShoppingBag className="nav__icon" />
           </NavLink>
-        </li>
-
-        <ShoppingBag className="nav__icon"  to="/shopping"/>
-
-
-        <User className="nav__icon" />
-      </div>
+          <NavLink to="/profile">
+            <User className="nav__icon" />
+          </NavLink>
+        </div>
       <div className="nav__mobile-menu-icon" onClick={toggleMobileMenu}>
         {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
       </div>

@@ -1,0 +1,78 @@
+.our-values {
+  background-color: #FFFAF3;
+  padding: 6rem 2rem;
+  text-align: center;
+}
+
+.our-values__title {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  color: #0c3c3a;
+  margin-bottom: 4rem;
+}
+
+.our-values__cards-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.our-values__card {
+  padding: 2.5rem 2rem;
+  border-radius: 40px 40px 20px 100px; /* Esquina inf-der más puntiaguda */
+  max-width: 320px;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.4s ease;
+  background-color: #FAF0EB; /* Color de fondo por defecto */
+  transform: translateY(0);
+}
+
+/* Efecto hover para TODAS las tarjetas */
+.our-values__card:hover {
+  background-color: #CE91A5; /* Color de fondo en hover */
+  transform: translateY(-20px) scale(1.05);
+}
+
+.our-values__card-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #895961; /* Color de título por defecto */
+  transition: color 0.4s ease;
+}
+
+.our-values__card-description {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.1rem; /* Tamaño de fuente aumentado */
+  line-height: 1.6;
+  color: #CE91A5; /* Color de descripción por defecto */
+  transition: color 0.4s ease;
+}
+
+/* Cambio de color de texto en hover */
+.our-values__card:hover .our-values__card-title {
+  color: #FFFFFF; /* Color de título en hover */
+}
+
+.our-values__card:hover .our-values__card-description {
+  color: #FFEFE6; /* Color de descripción en hover */
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .our-values__cards-container {
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .our-values__card.artesania {
+    transform: translateY(0);
+  }
+}

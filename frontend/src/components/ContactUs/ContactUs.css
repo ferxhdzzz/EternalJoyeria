@@ -1,0 +1,123 @@
+.contact-us-container {
+  padding: 4rem 2rem;
+  background-color: #FFFDFA;
+}
+
+.contact-us {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+  background-color: #F5C8C6; /* Tono rosado del fondo */
+  border-top-left-radius: 50vw;
+  border-top-right-radius: 50vw;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  text-align: center;
+}
+
+.contact-us__title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.8rem;
+  color: #333;
+  margin-bottom: 2.5rem;
+}
+
+.contact-us__form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  max-width: 450px;
+  margin: 0 auto;
+}
+
+.contact-us__form-group {
+  width: 100%;
+  text-align: left;
+}
+
+.contact-us__form-group label {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  color: #5c5c5c;
+  margin-bottom: 0.4rem;
+  padding-left: 1rem;
+}
+
+.contact-us__form-group input,
+.contact-us__form-group textarea,
+.contact-us__form-group select {
+  width: 100%;
+  padding: 0.9rem 1.2rem;
+  border: none;
+  border-radius: 50px;
+  background-color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.phone-input-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.phone-input-group select {
+  width: 120px; /* Ancho para el selector de país */
+  flex-shrink: 0;
+}
+
+.phone-input-group input {
+  width: 100%;
+}
+
+.error-text {
+  color: #D32F2F; /* Tono rojo para errores */
+  font-size: 0.75rem;
+  padding-left: 1rem;
+  margin-top: 0.25rem;
+}
+
+.contact-us__form-group textarea {
+  height: 80px;
+  resize: none;
+}
+
+.contact-us__submit-btn {
+  padding: 1rem 3rem;
+  border: none;
+  border-radius: 50px;
+  background-color: #3A6A64; /* Tono verde oscuro */
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 1.5rem;
+}
+
+.contact-us__submit-btn:hover {
+  background-color: #2e5450;
+}
+
+.contact-us__footer-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  color: #5c5c5c;
+  margin-top: 1rem;
+  max-width: 300px;
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 768px) {
+  .contact-us {
+    padding: 3rem 1rem;
+  }
+
+  .contact-us__title {
+    font-size: 2.2rem;
+  }
+}
