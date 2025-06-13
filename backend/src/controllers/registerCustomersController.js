@@ -8,7 +8,7 @@ import { config } from "../config.js";
 const registerCustomersController = {};
 
 registerCustomersController.registerClient = async (req, res) => {
-  const { name, email, password, telephone, dui, address } = req.body;
+  const { firstName, lastName, email, password, phone } = req.body;
 
   try {
     // Verificar si el cliente ya existe
@@ -22,12 +22,12 @@ registerCustomersController.registerClient = async (req, res) => {
 
     // Crear nuevo cliente
     const newClient = new clientsModel({
-      name,
+      firstName,
+      lastName,
       email,
       password: passwordHash,
-      telephone,
-      dui: dui || null,
-      address
+      phone,
+      
     });
 
     // Guardar el cliente en la base de datos
@@ -53,13 +53,13 @@ registerCustomersController.registerClient = async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: config.email.user,
-        pass: config.email.pass,
+        user: config.smtp.user,
+        pass: config.smtp.pass,
       },
     });
 
     const mailOptions = {
-      from: config.email.user,
+      from: config.smtp.user,
       to: email,
       subject: "Verificación de correo",
       text: `Tu código de verificación es: ${verificationCode}\nEste código expira en 2 horas.`,

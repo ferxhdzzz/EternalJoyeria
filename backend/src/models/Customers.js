@@ -10,7 +10,11 @@ import { Schema, model } from "mongoose";
 
 const customersSchema = new Schema(
   {
-    name: {
+    firstName: {
+      type: String,
+      require: true,
+    },
+    lastName: {
       type: String,
       require: true,
     },
@@ -24,19 +28,12 @@ const customersSchema = new Schema(
       require: true,
     },
 
-    telephone: {
+    phone: {
       type: String,
       require: true,
     },
 
-    dui: {
-      type: String,
-      require: true,
-    },
-    addres: {
-      type: String,
-      require: true,
-    },
+    
   },
   {
     timestamps: true,

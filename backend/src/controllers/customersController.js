@@ -1,5 +1,8 @@
 import customersModel from "../models/Customers.js";
 
+import bcryptjs from "bcryptjs";
+
+
 const customersController = {};
 
 // SELECT (Obtener todos los clientes)
@@ -19,19 +22,27 @@ customersController.deletecustomers = async (req, res) => {
   res.json({ message: "Cliente eliminado" });
 };
 
+
+
 // UPDATE (Actualizar un cliente)
 customersController.updatecustomers = async (req, res) => {
-  const { name, email, password, telephone, dui, addres } = req.body;
+//Antes de Actualizar los datos necesito que se encripte la Contra
+  const { firstName, lastName, email, password, phone } = req.body;
+// Encriptar la contraseña
+const passwordHash = await bcryptjs.hash(password, 10);
+
+
   await customersModel.findByIdAndUpdate(
     req.params.id,
-    { name,
+    { firstName,
+      lastName,
      email, 
-     password, 
-     telephone, 
-     dui, 
-     addres },
+     password: passwordHash, 
+     phone
+    },
     { new: true }
   );
+  
   res.json({ message: "Cliente actualizado" });
 };
 
