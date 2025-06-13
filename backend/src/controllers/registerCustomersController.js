@@ -7,6 +7,9 @@ import { config } from "../config.js";
 
 const registerCustomersController = {};
 
+import { sendMail, HTMLEmailVerification } from "../utils/mailVerify.js";
+
+
 registerCustomersController.registerClient = async (req, res) => {
   const { firstName, lastName, email, password, phone } = req.body;
 
@@ -44,36 +47,22 @@ registerCustomersController.registerClient = async (req, res) => {
       { expiresIn: config.JWT.expiresIn }
     );
 
+    await sendMail(
+      email,
+      "You verification code", //Asunto del correo
+      "Hello! Remember dont forget your pass", //Cuerpo del mensaje en texto plano
+      HTMLEmailVerification(verificationCode) //HTML del correo con el código
+    );
+
     // Guardar el token de verificación en una cookie
     res.cookie("verificationToken", tokenCode, {
       maxAge: 2 * 60 * 60 * 1000, // 2 horas
     });
 
-    // Configurar el envío de correo electrónico
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: config.smtp.user,
-        pass: config.smtp.pass,
-      },
-    });
-
-    const mailOptions = {
-      from: config.smtp.user,
-      to: email,
-      subject: "Verificación de correo",
-      text: `Tu código de verificación es: ${verificationCode}\nEste código expira en 2 horas.`,
-    };
-
-    // Enviar el correo de verificación
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Error al enviar correo:", error);
-        return res.status(500).json({ message: "Error sending email" });
-      }
-      res.json({ message: "Client registered, please verify your email" });
-    });
-
+    res.json({ message: "Register successfully" });
+    
+    
+    
   } catch (error) {
     console.error("Error en el registro del cliente:", error);
     res.status(500).json({ message: "Server error during registration" });
@@ -91,7 +80,7 @@ registerCustomersController.verifyCodeEmail = async (req, res) => {
 
   try {
     // Verificar el token JWT
-    const decoded = jsonwebtoken.verify(token, config.JWT.secret);
+    const decoded = jsonwebtoken.verify(token, config.JWT.JWT_SECRET);
     const { email, verificationCode: storedCode, expiresAt } = decoded;
 
     // Verificar si el código ha expirado

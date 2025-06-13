@@ -5,5 +5,7 @@ import registerCustomersController from "../controllers/registerCustomersControl
 const router = Router();
 
 router.post("/", registerCustomersController.registerClient);
+// /api/registerClients/verifyCodeEmail
+router.route("/verifyCodeEmail").post(registerCustomersController.verifyCodeEmail)
 
 export default router;

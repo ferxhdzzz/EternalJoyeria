@@ -102,7 +102,7 @@ passwordRecoveryController.newPassword = async (req, res) => {
     const token = req.cookies.tokenRecoveryCode;
 
     // Decodificar la información del token
-    const decoded = jsonwebtoken.verify(token, config.JWT.secret);
+    const decoded = jsonwebtoken.verify(token, config.JWT.JWT_SECRET);
 
     // Verificar que el código haya sido verificado previamente
     if (!decoded.verified) {
