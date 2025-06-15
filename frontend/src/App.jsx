@@ -10,6 +10,8 @@ import Actualizacion from './pages/CambiarCont';
 import Login from './pages/Login';
 import Registro from './pages/Registro';
 import Carrito from './pages/Cart';
+import Hitorial from './pages/Historial';
+
 
 
 
@@ -29,6 +31,7 @@ function App() {
         <Route path="/products" element={<Products />} />
         <Route path="/profile" element={<Profile />} />
                 <Route path="/shop" element={<Carrito />} />
+                  <Route path="/historial" element={<Hitorial />} />
         {/* Define other routes here, e.g.:
         <Route path="/about" element={<About />} />
         <Route path="/products" element={<Products />} /> 
