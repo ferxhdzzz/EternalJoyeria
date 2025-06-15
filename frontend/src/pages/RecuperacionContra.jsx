@@ -4,7 +4,7 @@ import Logo from "../components/registro/logo/Logo";
 import Input from "../components/registro/inpungroup/InputGroup";
 import Button from "../components/registro/button/Button";
 import BackArrow from "../components/registro/backarrow/BackArrow";
-import "./Recuperacion.css";
+import '../styles/Recuperacion.css';
 
 const RecoverPassword = () => {
 const [form, setForm] = useState({ email: "", code: "" });

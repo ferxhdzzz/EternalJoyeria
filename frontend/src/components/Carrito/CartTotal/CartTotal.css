@@ -1,0 +1,24 @@
+.cart-total {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* ⬅️ Esto alinea a la derecha */
+}
+
+.cart-total p,
+.cart-total h2 {
+  margin: 0;
+  margin-bottom: 10px;
+  width: 100%;
+  text-align: left; /* También alinea los textos a la derecha */
+}
+
+.cart-total button {
+  background-color: #d07aa6;
+  color: white;
+  padding: 12px 40px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  display: inline-block;
+}

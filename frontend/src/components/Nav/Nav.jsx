@@ -13,7 +13,12 @@ const Nav = () => {
   return (
   <nav className="nav">
     <div className="nav__logo">
+
+       <NavLink to="/" >
       <img src="/EternalLogo.png" alt="Eternal Logo" />
+
+
+       </NavLink>
     </div>
     <div className="nav__right-content">
       <ul className={`nav__links ${isMobileMenuOpen ? 'nav__links--open' : ''}`}>

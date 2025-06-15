@@ -6,8 +6,9 @@ import Button from "../components/registro/button/Button";
 import BackArrow from "../components/registro/backarrow/BackArrow";
 import Label from "../components/registro/labels/LabelLog";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import Select from "../components/registro/selector/Select";
 
-import "./Registro.css";
+import '../styles/Registro.css';
 
 const Registro = () => {
   const [form, setForm] = useState({ email: "", contra: "", name: "", lastName: "", user: "", phone: "", country: "sv" });
@@ -94,8 +95,19 @@ const Registro = () => {
         <Input label="Correo" name="email" value={form.email} onChange={handleChange} />
         {errors.email && <p className="error">{errors.email}</p>}
 
-        <Input label="Teléfono" name="phone" value={form.phone} onChange={handleChange} />
-        {errors.phone && <p className="error">{errors.phone}</p>}
+        
+
+        <Select
+  label="Teléfono"
+  name="phone"
+  value={form.phone}
+  onChange={handleChange}
+  country={form.country}
+  onCountryChange={(e) =>
+    setForm((prev) => ({ ...prev, country: e.target.value }))
+  }
+/>
+{errors.phone && <p className="error">{errors.phone}</p>}
 
         {/* Puedes agregar aquí un selector de país */}
         {/* <select name="country" onChange={handleChange}>

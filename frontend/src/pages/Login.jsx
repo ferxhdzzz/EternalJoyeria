@@ -7,9 +7,9 @@ import BackArrow from "../components/registro/backarrow/BackArrow";
 import Label from "../components/registro/labels/LabelLog";
 import OlvidarCont from "../components/registro/labelcont/LabelCont";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import '../styles/Recuperacion.css';
 
 
-import "./Recuperacion.css";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", code: "" });

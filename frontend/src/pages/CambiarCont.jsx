@@ -5,7 +5,7 @@ import Input from "../components/registro/inpungroup/InputGroup";
 import Button from "../components/registro/button/Button";
 import BackArrow from "../components/registro/backarrow/BackArrow";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
-import "./Recuperacion.css";
+import '../styles/Recuperacion.css';
 
 const CambiarContra = () => {
   const [form, setForm] = useState({ password: "", confirmPassword: "" });
