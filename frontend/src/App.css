@@ -1,56 +1,61 @@
 /* Global Styles */
+/* Imports the Lora and Nunito fonts from Google Fonts to be used throughout the application. */
 @import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Nunito:wght@400;600;700&display=swap');
 
 body {
-  margin: 0;
-  font-family: 'Nunito', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-    background-color: #FFFFFF; /* White background */
-  color: #132F3A; /* Default text color */
-  overflow-x: hidden; /* Prevent horizontal scrolling */
+  margin: 0; /* Removes the default margin from the body. */
+  font-family: 'Nunito', sans-serif; /* Sets the default font for the entire application. */
+  -webkit-font-smoothing: antialiased; /* Enables anti-aliasing for fonts on WebKit browsers for smoother text. */
+  -moz-osx-font-smoothing: grayscale; /* Enables grayscale anti-aliasing for fonts on Firefox for sharper text. */
+  background-color: #FFFFFF; /* Sets a solid white background color for the application. */
+  color: #132F3A; /* Sets the default text color for the application. */
+  overflow-x: hidden; /* Prevents horizontal scrolling on the page. */
 }
 
 #root {
-  /* max-width: 1280px; Remove or adjust for full-width layouts */
-  /* margin: 0 auto; Remove or adjust */
-  /* padding: 2rem; Remove, handle padding at component/page level */
-  /* text-align: center; Remove, handle text-align at component/page level */
-  width: 100%;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  /* These properties are commented out to allow for full-width layouts controlled by components. */
+  /* max-width: 1280px; */
+  /* margin: 0 auto; */
+  /* padding: 2rem; */
+  /* text-align: center; */
+  width: 100%; /* Ensures the root container takes the full width of the viewport. */
+  min-height: 100vh; /* Ensures the root container takes at least the full height of the viewport. */
+  display: flex; /* Enables flexbox layout for the root container. */
+  flex-direction: column; /* Stacks the direct children of the root container vertically. */
 }
 
-/* General responsive typography (optional) */
+/* General responsive typography (optional but recommended). */
 html {
-  font-size: 16px;
+  font-size: 16px; /* Sets the base font size for the document, which rem units are based on. */
 }
 
+/* Media query for tablet-sized screens. */
 @media (max-width: 768px) {
   html {
-    font-size: 15px;
+    font-size: 15px; /* Slightly reduces the base font size for better readability on smaller screens. */
   }
 }
 
+/* Media query for mobile-sized screens. */
 @media (max-width: 480px) {
   html {
-    font-size: 14px;
+    font-size: 14px; /* Further reduces the base font size for small mobile devices. */
   }
 }
 
-/* Styling for home-container if needed, e.g., for full width */
+/* Styles for the main content container, especially when using a fixed navigation bar. */
 .home-container {
-  flex-grow: 1; /* Allows it to take available space if Nav is fixed height */
-  position: relative; /* Important for absolute positioned children like ParticleAnimation */
-  width: 100%;
-  min-height: 100vh; /* Ensure it takes at least full viewport height */
-  overflow-x: hidden; /* Prevent horizontal scroll from particles if they go off-screen */
-  padding-top: 60px; /* Add padding to prevent content from being hidden behind fixed Nav. Adjust if Nav height changes. */
-  box-sizing: border-box;
+  flex-grow: 1; /* Allows the container to grow and take up available vertical space. */
+  position: relative; /* Establishes a positioning context for child elements. */
+  width: 100%; /* Ensures the container spans the full width. */
+  min-height: 100vh; /* Ensures the container is at least the full height of the viewport. */
+  overflow-x: hidden; /* Prevents horizontal scrolling, useful for animations that might go off-screen. */
+  padding-top: 60px; /* Adds padding to the top to prevent content from being hidden by a fixed navbar. */
+  box-sizing: border-box; /* Ensures padding is included in the element's total width and height. */
 }
 
-/* Remove Vite specific styles if not needed or adjust */
+/* The following styles are the default styles provided by Vite when creating a new React project. */
+/* They are commented out as they are not needed for this specific project's design. */
 /*
 .logo {
   height: 6em;

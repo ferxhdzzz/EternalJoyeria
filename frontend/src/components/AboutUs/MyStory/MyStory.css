@@ -1,133 +1,145 @@
-/* Estilos base de la sección */
-
+/* General section styling for 'My Story'. */
 .my-story {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4rem; /* Espacio entre la imagen y el texto */
-    padding: 6rem 2rem;
-    background-color: #ffffff; /* Fondo blanco como en la imagen */
-    max-width: 1200px;
-    margin: 6rem auto 0;
-  }
+    display: flex; /* Enables flexbox layout for aligning children (image and text). */
+    align-items: center; /* Vertically centers the flex items. */
+    justify-content: center; /* Horizontally centers the flex items. */
+    gap: 4rem; /* Creates a gap between the image wrapper and the text content. */
+    padding: 6rem 2rem; /* Adds significant padding to the top/bottom and sides. */
+    background-color: #ffffff; /* Sets a clean white background. */
+    max-width: 1200px; /* Constrains the maximum width of the section. */
+    margin: 6rem auto 0; /* Adds top margin and centers the section on the page. */
+}
   
-  /* Contenedor de la imagen y la paleta de colores */
-  .my-story__image-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem; /* Espacio entre la imagen y los círculos de color */
-  }
+/* Wrapper for the image and its associated color palette. */
+.my-story__image-wrapper {
+    display: flex; /* Enables flexbox to align the image and palette side-by-side. */
+    align-items: center; /* Vertically centers the image and palette. */
+    gap: 1.5rem; /* Adds space between the image and the color palette. */
+}
   
-  /* Contenedor de la imagen con fondo y borde redondeado */
-  .my-story__image-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+/* Container for the main image. */
+.my-story__image-container {
+    display: flex; /* Uses flexbox for alignment. */
+    align-items: center; /* Vertically centers the image within this container. */
+    justify-content: center; /* Horizontally centers the image within this container. */
+}
   
-  .my-story__image {
-    width: 100%;
-    height: auto; /* Altura automática para mantener la proporción */
-    max-width: 380px; /* Ancho máximo para la imagen */
-    object-fit: cover; /* Asegura que la imagen cubra el espacio */
-  }
+/* The main image of the creator. */
+.my-story__image {
+    width: 100%; /* Ensures the image is responsive within its container. */
+    height: auto; /* Maintains the image's aspect ratio. */
+    max-width: 380px; /* Limits the maximum size of the image. */
+    object-fit: cover; /* Ensures the image covers the container area, cropping if needed. */
+}
   
-  /* Paleta de colores vertical */
-  .my-story__palette {
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem; /* Espacio entre los círculos */
-  }
+/* Container for the vertical color palette. */
+.my-story__palette {
+    display: flex; /* Enables flexbox for the color swatches. */
+    flex-direction: column; /* Stacks the color swatches vertically. */
+    gap: 0.8rem; /* Adds space between each color swatch. */
+}
   
-  .my-story__palette-color {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
+/* Individual color swatch circles. */
+.my-story__palette-color {
+    width: 32px; /* Sets the width of the color circle. */
+    height: 32px; /* Sets the height of the color circle. */
+    border-radius: 50%; /* Makes the div a perfect circle. */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow for a 3D effect. */
+}
   
-  /* Contenedor del texto a la derecha */
-  .my-story__text-content {
-    flex: 1;
-    max-width: 500px; /* Ancho máximo para el texto */
-  }
+/* Container for the textual content (title and paragraph). */
+.my-story__text-content {
+    flex: 1; /* Allows this container to grow and fill available space. */
+    max-width: 500px; /* Constrains the width of the text block for readability. */
+}
   
-  .my-story__title {
-    font-family: 'Playfair Display', serif;
-    font-size: 3rem; /* Tamaño de fuente grande */
-    color: #0c3c3a; /* Color verde oscuro del texto */
-    margin-bottom: 1.5rem;
-    font-weight: 600;
-  }
+/* The main title of the section, 'Mi historia'. */
+.my-story__title {
+    font-family: 'Playfair Display', serif; /* Uses an elegant serif font for the title. */
+    font-size: 3rem; /* Sets a large, impactful font size. */
+    color: #0c3c3a; /* Sets a dark, teal-like color for the title. */
+    margin-bottom: 1.5rem; /* Adds space below the title. */
+    font-weight: 600; /* Sets a semi-bold font weight. */
+}
   
-  .my-story__text {
-    font-family: 'Inter', sans-serif;
-    font-size: 1.1rem;
-    line-height: 1.8;
-    color: #333; /* Color de texto estándar */
-  }
+/* The main paragraph of text. */
+.my-story__text {
+    font-family: 'Inter', sans-serif; /* Uses a clean sans-serif font for readability. */
+    font-size: 1.1rem; /* Sets a comfortable reading font size. */
+    line-height: 1.8; /* Increases line spacing for better readability. */
+    color: #333; /* Sets a standard dark gray for the body text. */
+}
   
-  /* --- Responsive Design --- */
-  @media (max-width: 1024px) {
+/* --- Responsive Design --- */
+/* Media query for tablets and smaller desktops. */
+@media (max-width: 1024px) {
     .my-story {
-      flex-direction: column;
-      gap: 3rem;
+      flex-direction: column; /* Stacks the image and text vertically on smaller screens. */
+      gap: 3rem; /* Adjusts the gap for the new vertical layout. */
     }
     
     .my-story__image-container {
-      width: 100%;
-      min-height: 400px;
+      width: 100%; /* Allows the image container to fill the width. */
+      min-height: 400px; /* Ensures the container has a minimum height. */
     }
     
+    /* Note: .my-story__content class is not used in the current JSX. */
     .my-story__content {
-      text-align: center;
+      text-align: center; /* Centers the text content. */
     }
     
+    /* Note: This pseudo-element is not defined in the base styles. */
     .my-story__title::after {
-      left: 50%;
-      transform: translateX(-50%);
+      left: 50%; /* Moves the pseudo-element to the horizontal center. */
+      transform: translateX(-50%); /* Precisely centers the pseudo-element. */
     }
     
+    /* Note: .my-story__signature class is not used in the current JSX. */
     .my-story__signature {
-      margin-left: auto;
-      margin-right: auto;
+      margin-left: auto; /* Used with margin-right: auto to center a block element. */
+      margin-right: auto; /* Used with margin-left: auto to center a block element. */
     }
     
+    /* Note: This pseudo-element is not defined in the base styles. */
     .my-story::before {
-      display: none;
+      display: none; /* Hides the pseudo-element on smaller screens. */
     }
-  }
+}
   
-  @media (max-width: 768px) {
+/* Media query for smaller tablets. */
+@media (max-width: 768px) {
     .my-story {
-      padding: 5rem 5%;
+      padding: 5rem 5%; /* Adjusts padding for tablet screens. */
     }
     
     .my-story__title {
-      font-size: 2.4rem;
+      font-size: 2.4rem; /* Reduces the title font size for better fit. */
     }
     
+    /* Note: This selector targets a 'p' inside '.my-story__text', but the JSX has the class on the 'p' tag itself. */
     .my-story__text p {
-      font-size: 1rem;
+      font-size: 1rem; /* Reduces the paragraph font size. */
     }
     
     .my-story__image-container {
-      min-height: 350px;
+      min-height: 350px; /* Reduces the minimum height of the image container. */
     }
-  }
+}
   
-  @media (max-width: 480px) {
+/* Media query for mobile phones. */
+@media (max-width: 480px) {
     .my-story__title {
-      font-size: 2rem;
+      font-size: 2rem; /* Further reduces the title font size for mobile. */
     }
     
+    /* Note: .my-story__subtitle class is not used in the current JSX. */
     .my-story__subtitle {
-      font-size: 0.9rem;
+      font-size: 0.9rem; /* Reduces the subtitle font size. */
     }
     
+    /* Note: .my-story__button class is not used in the current JSX. */
     .my-story__button {
-      padding: 0.7rem 1.5rem;
-      font-size: 0.9rem;
+      padding: 0.7rem 1.5rem; /* Adjusts button padding for mobile. */
+      font-size: 0.9rem; /* Reduces button font size for mobile. */
     }
-  }
-  
+}

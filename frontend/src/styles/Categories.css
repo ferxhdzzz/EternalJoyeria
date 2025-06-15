@@ -1,167 +1,168 @@
 .categories-section {
-  padding: 80px 20px;
-  background-color: #FFFAF3;
-  text-align: center;
-  position: relative;
+  padding: 80px 20px; /* Adds padding to the top/bottom and sides of the section. */
+  background-color: #FFFAF3; /* Sets a light background color for the section. */
+  text-align: center; /* Centers the text content within the section. */
+  position: relative; /* Establishes a positioning context for child elements, like the navigation arrows. */
 }
 
 .categories-title {
-  font-size: 42px;
-  color: #123;
-  margin-bottom: 10px;
-  font-weight: bold;
+  font-size: 42px; /* Sets a large font size for the main title. */
+  color: #123; /* Sets a dark color for the title text. */
+  margin-bottom: 10px; /* Adds a small space below the title. */
+  font-weight: bold; /* Makes the title text bold. */
 }
 
 .categories-subtitle {
-  font-size: 20px;
-  color: #666;
-  margin-bottom: 50px;
+  font-size: 20px; /* Sets the font size for the subtitle. */
+  color: #666; /* Sets a medium-gray color for the subtitle text. */
+  margin-bottom: 50px; /* Adds a large space below the subtitle, before the carousel. */
 }
 
 .categories-carousel {
-  position: relative;
-  width: 100%;
-  padding: 0 80px;
-  box-sizing: border-box;
+  position: relative; /* Establishes a positioning context. */
+  width: 100%; /* Ensures the carousel takes the full width of its container. */
+  padding: 0 80px; /* Adds horizontal padding to prevent cards from touching the edges, making space for arrows. */
+  box-sizing: border-box; /* Ensures padding is included in the element's total width. */
 }
 
 .category-card {
-  background-color: transparent;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  background-color: transparent; /* Makes the card background transparent. */
+  text-align: center; /* Centers the text within the card. */
+  display: flex; /* Enables flexbox layout. */
+  flex-direction: column; /* Stacks the card's content vertically. */
+  align-items: center; /* Horizontally centers the content. */
 }
 
 .card-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: transform 0.4s ease;
+  display: flex; /* Enables flexbox layout. */
+  flex-direction: column; /* Stacks the content vertically. */
+  align-items: center; /* Horizontally centers the content. */
+  transition: transform 0.4s ease; /* Adds a smooth transition for the transform property. */
 }
 
 .category-card:hover .card-content {
-  transform: translateY(-20px); /* Desplazamiento sutil */
+  transform: translateY(-20px); /* Moves the card content up slightly on hover. */
 }
 
 .card-top {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 2;
-  position: relative;
+  display: flex; /* Enables flexbox layout. */
+  flex-direction: column; /* Stacks the image and title vertically. */
+  align-items: center; /* Horizontally centers the items. */
+  z-index: 2; /* Ensures the top part of the card is above the description. */
+  position: relative; /* Establishes a positioning context. */
 }
 
 .image-container {
-  position: relative;
-  overflow: hidden;
-  border-radius: 16px;
-  transition: transform 0.3s ease;
-  width: 100%;
-  max-width: 360px;
-  background-color: #FFFAF3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 400px;
+  position: relative; /* Establishes a positioning context. */
+  overflow: hidden; /* Hides any part of the image that overflows the container. */
+  border-radius: 16px; /* Adds rounded corners to the image container. */
+  transition: transform 0.3s ease; /* Adds a smooth transition for the transform property. */
+  width: 100%; /* Makes the container take the full width of its parent (the card). */
+  max-width: 360px; /* Sets a maximum width for the image container. */
+  background-color: #FFFAF3; /* Sets a background color, visible if the image is transparent. */
+  display: flex; /* Enables flexbox layout. */
+  align-items: center; /* Vertically centers the image inside the container. */
+  justify-content: center; /* Horizontally centers the image inside the container. */
+  height: 400px; /* Sets a fixed height for the image container. */
 }
 
 .image-container img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  transition: transform 0.3s ease;
-  border-radius: 16px;
+  width: 100%; /* Makes the image take the full width of its container. */
+  height: 100%; /* Makes the image take the full height of its container. */
+  object-fit: contain; /* Scales the image to fit within the container while maintaining its aspect ratio. */
+  transition: transform 0.3s ease; /* Adds a smooth transition for the transform property. */
+  border-radius: 16px; /* Ensures the image itself has rounded corners. */
 }
 
 .category-card:hover .image-container img {
-  transform: scale(0.95);
+  transform: scale(0.95); /* Slightly shrinks the image on hover for a subtle effect. */
 }
 
 .category-card h3 {
-  margin-top: 12px; /* puedes reducir a 8px o incluso 4px si lo quieres más pegado */
-  font-size: 20px;
-  color: #222;
-  font-weight: 700;
-  position: relative;
-  z-index: 2;
+  margin-top: 12px; /* Adds space above the category title. */
+  font-size: 20px; /* Sets the font size for the title. */
+  color: #222; /* Sets a dark color for the title text. */
+  font-weight: 700; /* Makes the title text bold. */
+  position: relative; /* Establishes a positioning context. */
+  z-index: 2; /* Ensures the title is stacked above the description. */
 }
 
 .description-hover {
-  font-size: 17px;
-  line-height: 1.4;
-  color: #444;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  max-width: 320px;
-  text-align: center;
-  background-color: rgba(255, 250, 243, 0.95);
-  padding: 6px 6px; /* antes: 10px 8px */
-  border-radius: 8px;
-  position: relative;
-  z-index: 1;
-  word-break: break-word;
+  font-size: 17px; /* Sets the font size for the description text. */
+  line-height: 1.4; /* Sets the line height for better readability. */
+  color: #444; /* Sets a medium-dark color for the text. */
+  opacity: 0; /* Hides the description by default. */
+  transform: translateY(8px); /* Moves the description down slightly by default. */
+  transition: opacity 0.3s ease, transform 0.3s ease; /* Adds smooth transitions for opacity and transform. */
+  max-width: 320px; /* Sets a maximum width for the description. */
+  text-align: center; /* Centers the description text. */
+  background-color: rgba(255, 250, 243, 0.95); /* Sets a semi-transparent background. */
+  padding: 6px 6px; /* Adds padding inside the description box. */
+  border-radius: 8px; /* Adds rounded corners to the description box. */
+  position: relative; /* Establishes a positioning context. */
+  z-index: 1; /* Ensures the description is below the card title and image. */
+  word-break: break-word; /* Allows long words to break and wrap to the next line. */
 }
 
 .category-card:hover .description-hover {
-  opacity: 1;
-  transform: translateY(0);
+  opacity: 1; /* Makes the description visible on hover. */
+  transform: translateY(0); /* Moves the description back to its original position on hover. */
 }
 
 .swiper-button-next,
 .swiper-button-prev {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 56px;
-  height: 56px;
-  background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  color: #222;
-  z-index: 20;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  position: absolute; /* Positions the arrows relative to the carousel container. */
+  top: 50%; /* Positions the arrows vertically in the middle. */
+  transform: translateY(-50%); /* Fine-tunes the vertical centering. */
+  width: 56px; /* Sets the width of the arrow buttons. */
+  height: 56px; /* Sets the height of the arrow buttons. */
+  background-color: rgba(255, 255, 255, 0.8); /* Sets a semi-transparent white background. */
+  border-radius: 50%; /* Makes the arrow buttons circular. */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); /* Adds a subtle shadow for depth. */
+  color: #222; /* Sets the color of the arrow icon. */
+  z-index: 20; /* Ensures the arrows are on top of other content. */
+  cursor: pointer; /* Changes the cursor to a pointer on hover. */
+  transition: background-color 0.3s ease; /* Adds a smooth transition for the background color. */
 }
 
 .swiper-button-next:hover,
 .swiper-button-prev:hover {
-  background-color: rgba(240, 220, 200, 0.9);
+  background-color: rgba(240, 220, 200, 0.9); /* Changes the background color on hover. */
 }
 
 .swiper-button-next::after,
 .swiper-button-prev::after {
-  font-size: 22px;
-  font-weight: bold;
+  font-size: 22px; /* Sets the size of the arrow icon (which is a font character). */
+  font-weight: bold; /* Makes the arrow icon bold. */
 }
 
 .swiper-button-prev {
-  left: 20px;
-  margin-top: 0px;
+  left: 20px; /* Positions the previous button on the left side. */
+  margin-top: 0px; /* Resets any default margin. */
 }
 
 .swiper-button-next {
-  right: 20px;
-  margin-top: 0px;
+  right: 20px; /* Positions the next button on the right side. */
+  margin-top: 0px; /* Resets any default margin. */
 }
 
-@media (max-width: 768px) {
+/* Responsive Design for smaller screens. */
+@media (max-width: 768px) { /* Applies styles for screens 768px wide or smaller. */
   .image-container {
-    height: 250px;
+    height: 250px; /* Reduces the height of the image container on smaller screens. */
   }
 
   .swiper-button-prev,
   .swiper-button-next {
-    width: 40px;
-    height: 40px;
+    width: 40px; /* Reduces the width of the arrow buttons. */
+    height: 40px; /* Reduces the height of the arrow buttons. */
   }
 
   .swiper-button-next {
-    right: 6px;
+    right: 6px; /* Moves the next button closer to the edge. */
   }
 
   .swiper-button-prev {
-    left: 6px;
+    left: 6px; /* Moves the previous button closer to the edge. */
   }
 }

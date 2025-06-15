@@ -1,139 +1,142 @@
 .footer {
-  background-color: #fff9fb;
-  color: #333;
-  padding: 60px 20px 40px;
-  font-family: 'Arial', sans-serif;
-  text-align: center;
+  background-color: #fff9fb; /* Sets a very light pinkish background color for the footer. */
+  color: #333; /* Sets the default text color for the footer content. */
+  padding: 60px 20px 40px; /* Adds padding to the top, sides, and bottom of the footer. */
+  font-family: 'Arial', sans-serif; /* Sets the font for the footer text. */
+  text-align: center; /* Centers the text content within the footer by default. */
 }
 
 .footer-top {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 30px;
-  margin-bottom: 40px;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
+  display: flex; /* Enables flexbox layout. */
+  flex-direction: column; /* Stacks the child elements vertically. */
+  align-items: center; /* Horizontally centers the child elements. */
+  gap: 30px; /* Adds space between the child elements (logo and columns). */
+  margin-bottom: 40px; /* Adds space below the top section. */
+  max-width: 1200px; /* Sets a maximum width for the top section. */
+  margin-left: auto; /* Centers the section horizontally. */
+  margin-right: auto; /* Centers the section horizontally. */
 }
 
 .footer-logo {
-  width: 160px;
-  height: auto;
+  width: 160px; /* Sets the width of the logo. */
+  height: auto; /* Maintains the aspect ratio of the logo. */
 }
 
 .footer-columns {
-  display: flex;
-  gap: 80px;
-  flex-wrap: wrap;
-  justify-content: center;
-  text-align: left;
+  display: flex; /* Enables flexbox layout for the columns. */
+  gap: 80px; /* Adds a large space between the columns. */
+  flex-wrap: wrap; /* Allows columns to wrap to the next line on smaller screens. */
+  justify-content: center; /* Centers the columns horizontally. */
+  text-align: left; /* Aligns the text within each column to the left. */
 }
 
 .footer-col {
-  min-width: 180px;
+  min-width: 180px; /* Sets a minimum width for each column. */
 }
 
 .footer-col h4 {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 14px;
+  font-size: 18px; /* Sets the font size for the column titles. */
+  font-weight: bold; /* Makes the column titles bold. */
+  margin-bottom: 14px; /* Adds space below the column titles. */
 }
 
 .footer-col ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+  list-style: none; /* Removes the default bullet points from the list. */
+  padding: 0; /* Removes the default padding from the list. */
+  margin: 0; /* Removes the default margin from the list. */
 }
 
 .footer-col li {
-  margin-bottom: 10px;
-  font-size: 15px;
+  margin-bottom: 10px; /* Adds space between the list items. */
+  font-size: 15px; /* Sets the font size for the list items. */
 }
 
 .footer-bottom {
-  border-top: 1px solid #e6dada;
-  padding-top: 30px;
-  max-width: 800px;
-  margin: 0 auto;
+  border-top: 1px solid #e6dada; /* Adds a decorative line above the bottom section. */
+  padding-top: 30px; /* Adds space above the content in the bottom section. */
+  max-width: 800px; /* Sets a maximum width for the bottom section. */
+  margin: 0 auto; /* Centers the bottom section horizontally. */
 }
 
 .footer-phrase {
-  font-size: 16px;
-  font-style: italic;
-  margin-bottom: 20px;
+  font-size: 16px; /* Sets the font size for the phrase. */
+  font-style: italic; /* Makes the phrase text italic. */
+  margin-bottom: 20px; /* Adds space below the phrase. */
 }
 
 .footer-socials {
-  margin-bottom: 20px;
+  margin-bottom: 20px; /* Adds space below the social media icons. */
 }
 
 .footer-socials a {
-  margin: 0 10px;
-  color: #333;
-  font-size: 18px;
-  transition: color 0.3s ease;
+  margin: 0 10px; /* Adds horizontal space between the social media links. */
+  color: #333; /* Sets the color for the social media icons. */
+  font-size: 18px; /* Sets the size of the social media icons. */
+  transition: color 0.3s ease; /* Adds a smooth transition for the color change on hover. */
 }
 
 .footer-socials a:hover {
-  color: #c291a1;
+  color: #c291a1; /* Changes the color of the icons on hover. */
 }
 
 .footer-copy {
-  font-size: 14px;
-  color: #666;
+  font-size: 14px; /* Sets the font size for the copyright text. */
+  color: #666; /* Sets a light gray color for the copyright text. */
 }
 
-@media (max-width: 1024px) {
+/* Responsive Design for tablets and smaller desktops. */
+@media (max-width: 1024px) { /* Applies styles for screens 1024px wide or smaller. */
   .footer-columns {
-    gap: 40px;
+    gap: 40px; /* Reduces the space between columns on smaller screens. */
   }
 }
 
-@media (max-width: 768px) {
+/* Responsive Design for tablets. */
+@media (max-width: 768px) { /* Applies styles for screens 768px wide or smaller. */
   .footer-top {
-    gap: 20px;
-    padding: 0 10px;
+    gap: 20px; /* Reduces the space between the logo and columns. */
+    padding: 0 10px; /* Adds horizontal padding to the top section. */
   }
 
   .footer-columns {
-    flex-direction: column;
-    align-items: center;
-    gap: 30px;
+    flex-direction: column; /* Stacks the columns vertically. */
+    align-items: center; /* Centers the columns horizontally. */
+    gap: 30px; /* Sets the space between the stacked columns. */
   }
 
   .footer-col {
-    min-width: auto;
-    width: 100%;
-    max-width: 320px;
-    text-align: center;
+    min-width: auto; /* Removes the minimum width constraint. */
+    width: 100%; /* Makes each column take the full width. */
+    max-width: 320px; /* Sets a maximum width for the columns. */
+    text-align: center; /* Centers the text within each column. */
   }
 
   .footer-col ul {
-    padding: 0 20px;
+    padding: 0 20px; /* Adds horizontal padding to the lists. */
   }
 
   .footer-bottom {
-    max-width: 100%;
-    padding: 20px 10px 0;
+    max-width: 100%; /* Allows the bottom section to take the full width. */
+    padding: 20px 10px 0; /* Adjusts the padding for the bottom section. */
   }
 }
 
-@media (max-width: 480px) {
+/* Responsive Design for mobile phones. */
+@media (max-width: 480px) { /* Applies styles for screens 480px wide or smaller. */
   .footer-logo {
-    width: 120px;
+    width: 120px; /* Reduces the size of the logo on small screens. */
   }
 
   .footer-socials a {
-    font-size: 16px;
-    margin: 0 8px;
+    font-size: 16px; /* Reduces the size of the social media icons. */
+    margin: 0 8px; /* Reduces the space between the icons. */
   }
 
   .footer-phrase {
-    font-size: 14px;
+    font-size: 14px; /* Reduces the font size of the phrase. */
   }
 
   .footer-copy {
-    font-size: 13px;
+    font-size: 13px; /* Reduces the font size of the copyright text. */
   }
 }

@@ -1,64 +1,66 @@
 .product-grid {
-  padding: 60px 20px;
-  background-color: #fff;
-  text-align: center;
+  padding: 60px 20px; /* Adds padding to the top/bottom and sides of the section. */
+  background-color: #fff; /* Sets a white background color. */
+  text-align: center; /* Centers the text content, including the title. */
 }
 
 .product-grid h2 {
-  font-size: 28px;
-  margin-bottom: 40px;
-  font-weight: bold;
+  font-size: 28px; /* Sets the font size for the section title. */
+  margin-bottom: 40px; /* Adds space below the title. */
+  font-weight: bold; /* Makes the title text bold. */
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 80px 60px;
-  max-width: 1000px;
-  margin: 0 auto;
+  display: grid; /* Enables CSS Grid layout. */
+  grid-template-columns: repeat(3, 1fr); /* Creates a 3-column grid with equal-width columns. */
+  gap: 80px 60px; /* Sets the gap between rows (80px) and columns (60px). */
+  max-width: 1000px; /* Sets a maximum width for the grid container. */
+  margin: 0 auto; /* Centers the grid horizontally within its parent. */
 }
 
 .grid-item {
-  background-color: #fdfdfd;
-  border-radius: 12px;
-  padding: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  background-color: #fdfdfd; /* Sets a very light gray background for each item. */
+  border-radius: 12px; /* Adds rounded corners to the grid items. */
+  padding: 10px; /* Adds padding inside each grid item. */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* Adds a subtle shadow for a floating effect. */
 }
 
 .grid-item img {
-  width: 100%;
-  height: 240px;
-  object-fit: cover;
-  border-radius: 10px;
+  width: 100%; /* Makes the image take the full width of its container. */
+  height: 240px; /* Sets a fixed height for the images. */
+  object-fit: cover; /* Scales the image to cover the container, cropping if necessary. */
+  border-radius: 10px; /* Adds rounded corners to the images. */
 }
 
 .product-name {
-  margin-top: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
+  margin-top: 12px; /* Adds space above the product name. */
+  font-size: 16px; /* Sets the font size for the product name. */
+  font-weight: 600; /* Makes the product name semi-bold. */
+  color: #333; /* Sets a dark color for the product name text. */
 }
 
 .product-price {
-  font-size: 15px;
-  color: #777;
-  margin-top: 4px;
+  font-size: 15px; /* Sets the font size for the product price. */
+  color: #777; /* Sets a gray color for the product price text. */
+  margin-top: 4px; /* Adds a small space above the product price. */
 }
 
-@media (max-width: 1024px) {
+/* Responsive Design for tablets. */
+@media (max-width: 1024px) { /* Applies styles for screens 1024px wide or smaller. */
   .grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 60px 40px;
+    grid-template-columns: repeat(2, 1fr); /* Changes the grid to a 2-column layout. */
+    gap: 60px 40px; /* Adjusts the gap between items for smaller screens. */
   }
 }
 
-@media (max-width: 640px) {
+/* Responsive Design for mobile phones. */
+@media (max-width: 640px) { /* Applies styles for screens 640px wide or smaller. */
   .grid {
-    grid-template-columns: 1fr;
-    gap: 40px 20px;
+    grid-template-columns: 1fr; /* Changes the grid to a single-column layout. */
+    gap: 40px 20px; /* Further adjusts the gap for very small screens. */
   }
 
   .product-grid h2 {
-    font-size: 24px;
+    font-size: 24px; /* Reduces the font size of the title on mobile. */
   }
 }
