@@ -2,7 +2,7 @@
 .recover-wrappere {
 
 
-  height: 150vh;
+  height: 165vh;
 
   display: flex;
   justify-content: flex-start; /* Alinea la card a la izquierda */
@@ -24,4 +24,11 @@
   font-size: 24px;
   text-align: left; /* Alinea solo el título a la izquierda */
   margin-bottom: 20px;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+  margin-top: -10px;
+  margin-bottom: 12px;
 }
