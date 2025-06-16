@@ -3,7 +3,7 @@ import "./Select.css";
 
 const PhoneInput = ({ label, name, value, onChange, country, onCountryChange }) => {
   return (
-    <div className="input-wrapper">
+    <div className="input-wrapperr">
       <label className="input-label">{label}</label>
       <div className="phone-input-container">
         <select className="country-select" value={country} onChange={onCountryChange}>

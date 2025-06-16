@@ -11,7 +11,8 @@ import Login from './pages/Login';
 import Registro from './pages/Registro';
 import Carrito from './pages/Cart';
 import Hitorial from './pages/Historial';
-
+import Registro2 from './pages/Registro2';
+import Registro3 from './pages/Registro3';
 
 
 
@@ -32,6 +33,9 @@ function App() {
         <Route path="/profile" element={<Profile />} />
                 <Route path="/shop" element={<Carrito />} />
                   <Route path="/historial" element={<Hitorial />} />
+                   <Route path="/registro2" element={<Registro2 />} />
+                                      <Route path="/registro3" element={<Registro3 />} />
+
         {/* Define other routes here, e.g.:
         <Route path="/about" element={<About />} />
         <Route path="/products" element={<Products />} /> 
