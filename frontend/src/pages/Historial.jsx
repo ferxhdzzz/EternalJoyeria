@@ -1,8 +1,8 @@
-// src/pages/CartPage/CartPage.jsx
 import React, { useState } from 'react';
-import Hitorial from '../components/Carrito/Historial/Historial';
 import Nav from '../components/Nav/Nav';
-import '../styles/CartPage.css';
+import HistorialItem from '../components/Historial/HistorialItem';
+import '../components/Cart/CartPage.css'; // Re-using cart styles for now
+import Footer from '../components/Footer';
 
 const initialProducts = [
   {
@@ -49,42 +49,29 @@ const initialProducts = [
   },
 ];
 
-const CartPage = () => {
-  const [products, setProducts] = useState(initialProducts);
-
-  const updateQuantity = (id, newQty) => {
-    const updated = products.map(p => p.id === id ? { ...p, quantity: newQty } : p);
-    setProducts(updated);
-  };
-
-  const total = products.reduce((acc, item) => acc + item.price * item.quantity, 0);
-
-  const handleBuy = () => {
-    alert('Compra realizada con éxito.');
-  };
+const HistorialPage = () => {
+  const [products] = useState(initialProducts);
 
   return (
-
-<>
-<Nav/>
-  <div className="cart-page">
-      <div className="cart-container">
-        <h2>Tus compras realizadas</h2>
-        {products.map(product => (
-          <Hitorial
-            key={product.id}
-            product={product}
-            onUpdateQuantity={updateQuantity}
-          />
-        ))}
-      
+    <>
+      <Nav />
+      <div className="cart-page">
+        <div className="cart-container">
+          <h2>Tus compras realizadas</h2>
+          {products.map(product => (
+            <HistorialItem
+              key={product.id}
+              product={product}
+            />
+          ))}
+        </div>
       </div>
-    </div>
-</>
+      <Footer />
+    </>
 
   
   );
 };
 
-export default CartPage;
+export default HistorialPage;
 

@@ -24,11 +24,11 @@ const CartItem = ({ product, onUpdateQuantity, onRemove }) => {
         <div className="cart-item-actions">
           <div className="cart-item-quantity">
             <button onClick={() => handleQuantityChange(-1)} className="quantity-btn">
-              <Minus size={16} />
+              <span className="quantity-symbol">-</span>
             </button>
             <span>{product.quantity}</span>
             <button onClick={() => handleQuantityChange(1)} className="quantity-btn">
-              <Plus size={16} />
+              <span className="quantity-symbol">+</span>
             </button>
           </div>
           <button onClick={handleRemove} className="remove-button">

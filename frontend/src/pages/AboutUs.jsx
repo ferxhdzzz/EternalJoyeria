@@ -5,6 +5,7 @@ import MyStory from '../components/AboutUs/MyStory/MyStory';
 import OurValues from '../components/AboutUs/OurValues/OurValues';
 import MissionAndVision from '../components/AboutUs/MissionAndVision/MissionAndVision';
 import ContactUs from '../components/ContactUs/ContactUs';
+import Footer from '../components/Footer';
 
 const AboutUs = () => {
   return (
@@ -15,6 +16,7 @@ const AboutUs = () => {
       <OurValues />
       <MissionAndVision />
       <ContactUs />
+      <Footer />
     </>
   );
 };

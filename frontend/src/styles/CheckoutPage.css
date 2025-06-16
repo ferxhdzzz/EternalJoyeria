@@ -1,0 +1,287 @@
+body {
+  background: radial-gradient(circle at 60% 60%, #fdf6f3 60%, #fae9f2 100%);
+  min-height: 100vh;
+}
+
+.checkout-bg {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 80px 0 0 0;
+}
+
+.checkout-flex {
+  display: flex;
+  gap: 4rem;
+  max-width: 1200px;
+  width: 100%;
+  align-items: flex-start;
+}
+
+.checkout-payment-box {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.07);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  min-width: 450px;
+  max-width: 540px;
+  width: 100%;
+}
+
+.checkout-payment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.checkout-payment-title {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #222;
+}
+
+.checkout-payment-secure {
+  font-size: 0.95rem;
+  color: #888;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.lock-icon {
+  width: 18px;
+  margin-left: 2px;
+  vertical-align: middle;
+}
+
+.checkout-tabs {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.checkout-tab {
+  background: #fafbfc;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px 10px 0 0;
+  padding: 0.75rem 1.5rem 0.5rem 1.5rem;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  color: #222;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.checkout-tab.active {
+  border-bottom: 2.5px solid #fff;
+  background: #fff;
+  border-color: #d1a6b4 #d1a6b4 #fff #d1a6b4;
+  z-index: 2;
+}
+
+.checkout-tab input[type="radio"] {
+  display: none;
+}
+
+.checkout-logos img {
+  height: 22px;
+  margin-left: 2px;
+}
+
+.paypal-logo {
+  height: 24px;
+  margin-left: 5px;
+}
+
+.checkout-form {
+  margin-bottom: 0;
+}
+
+.checkout-fields {
+  margin-top: 1.5rem;
+}
+
+.checkout-field {
+  margin-bottom: 1.1rem;
+}
+
+.checkout-field label {
+  display: block;
+  font-size: 0.98rem;
+  color: #444;
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+}
+
+.checkout-field input {
+  width: 100%;
+  padding: 12px 13px;
+  border: 1.2px solid #e4e4e4;
+  border-radius: 8px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  background: #fafbfc;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.checkout-field input:focus {
+  border-color: #d1a6b4;
+}
+
+.checkout-field-row {
+  display: flex;
+  gap: 1.2rem;
+}
+
+.checkout-save-card {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.98rem;
+  color: #444;
+  margin-top: 0.5rem;
+}
+
+.checkout-save-card input[type="checkbox"] {
+  accent-color: #d1a6b4;
+}
+
+.checkout-summary-box {
+  background: #fceee7;
+  border-radius: 18px;
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  min-width: 330px;
+  max-width: 360px;
+  width: 100%;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkout-summary-inner {
+  width: 100%;
+}
+
+.checkout-summary-title {
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+.checkout-summary-items {
+  margin-bottom: 1.25rem;
+}
+
+.checkout-summary-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.checkout-summary-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.checkout-summary-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.checkout-summary-name {
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+  display: block;
+}
+
+.checkout-summary-size {
+  font-size: 0.93rem;
+  color: #888;
+  display: block;
+}
+
+.checkout-summary-price {
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+  min-width: 60px;
+  text-align: right;
+}
+
+.checkout-summary-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #222;
+  margin: 2.2rem 0 1.2rem 0;
+  border-top: 1.2px solid #e5e7eb;
+  padding-top: 1.2rem;
+}
+
+.checkout-summary-total {
+  font-size: 1.2rem;
+  color: #222;
+}
+
+.checkout-complete-btn {
+  width: 100%;
+  background: #16813d;
+  color: #fff;
+  border: none;
+  padding: 15px 0;
+  border-radius: 12px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.12rem;
+  font-weight: 800;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 2px 10px rgba(22, 129, 61, 0.07);
+}
+
+.checkout-complete-btn:hover {
+  background: #10692f;
+}
+
+@media (max-width: 900px) {
+  .checkout-flex {
+    flex-direction: column;
+    gap: 2.5rem;
+    align-items: center;
+  }
+  .checkout-payment-box, .checkout-summary-box {
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .checkout-bg {
+    padding: 40px 0 0 0;
+  }
+  .checkout-payment-box, .checkout-summary-box {
+    padding: 1.2rem 0.8rem;
+  }
+}

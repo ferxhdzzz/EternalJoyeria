@@ -1,9 +1,9 @@
 import React from 'react';
 import HeroButton from '../HeroButton/HeroButton';
-import './Hero.css'; // Ensure this line is present and correct
+import './HomeHero.css'; // Specific styles for Home Hero
 
 const Hero = () => (
-  <main className="hero">
+  <main className="home-hero">
     <div className="hero__content">
       <h1>Brilla con Elegancia, Resplandece con Estilo</h1>
       <p>
@@ -12,7 +12,6 @@ const Hero = () => (
       <HeroButton  to="/login">Compra ahora</HeroButton>
     </div>
     <div className="hero__image">
-      <img src="/GroupOrchid.png" alt="Orquídea" className="hero__image-foreground" />
     </div>
   </main>
 );

@@ -6,9 +6,19 @@ body {
   font-family: 'Nunito', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-    background-color: #FFFFFF; /* White background */
+  background-color: #FFFFFF; /* White background */
   color: #132F3A; /* Default text color */
   overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+/*
+  Elimina el contorno por defecto (outline) en los botones cuando están seleccionados (focus).
+  Esto proporciona una apariencia más limpia y coherente con el diseño de la aplicación.
+*/
+button:focus,
+button:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 #root {
@@ -42,11 +52,11 @@ html {
 /* Styling for home-container if needed, e.g., for full width */
 .home-container {
   flex-grow: 1; /* Allows it to take available space if Nav is fixed height */
-  position: relative; /* Important for absolute positioned children like ParticleAnimation */
+  position: relative;
   width: 100%;
-  min-height: 100vh; /* Ensure it takes at least full viewport height */
-  overflow-x: hidden; /* Prevent horizontal scroll from particles if they go off-screen */
-  padding-top: 60px; /* Add padding to prevent content from being hidden behind fixed Nav. Adjust if Nav height changes. */
+  height: 100vh; /* Fixed height to viewport height */
+  overflow: hidden; /* Prevent any scrolling */
+  padding-top: 60px; /* Add padding to prevent content from being hidden behind fixed Nav */
   box-sizing: border-box;
 }
 
