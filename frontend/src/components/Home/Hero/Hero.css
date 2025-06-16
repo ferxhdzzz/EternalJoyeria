@@ -4,7 +4,10 @@
   display: flex; /* Enables flexbox layout. */
   justify-content: flex-start; /* Aligns flex items to the start of the main axis. */
   align-items: flex-start; /* Aligns flex items to the start of the cross axis (moves content up). */
-  background: transparent; /* Makes the background of the hero section transparent. */
+  background-image: url('/BackHome.png'); /* Sets the background image. */
+  background-size: cover; /* Ensures the image covers the entire element. */
+  background-position: center; /* Centers the background image. */
+  background-repeat: no-repeat; /* Prevents the image from repeating. */
   min-height: calc(100vh - 70px); /* Sets a minimum height relative to the viewport height, minus the navbar height. */
   overflow: hidden; /* Hides any content that overflows the element's box. */
   padding: 1rem 2rem 0 12rem; /* Adds padding: top, right, bottom, left. Moves content up and right. */
