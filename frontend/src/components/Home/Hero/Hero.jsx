@@ -16,6 +16,7 @@ const Hero = () => (
       </p>
       {/* The HeroButton component is used here, with "Compra ahora" as its child text. */}
       <HeroButton>Compra ahora</HeroButton>
+      <HeroButton  to="/login">Compra ahora</HeroButton>
     </div>
     {/* This div is intended to hold an image, but it's currently empty. */}
     <div className="hero__image">

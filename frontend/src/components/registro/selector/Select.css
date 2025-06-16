@@ -1,0 +1,29 @@
+.phone-input-container {
+  display: flex;
+  align-items: center;
+  border: 2px solid black;
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: white;
+}
+
+.country-select {
+  border: none;
+  padding: 10px 12px;
+  background-color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  color: black;
+  height: 100%;
+  cursor: pointer;
+}
+
+.phone-input {
+  flex: 1;
+  border: none;
+  padding: 10px 14px;
+  font-size: 16px;
+  outline: none;
+  background-color: white;
+  color: black;
+}

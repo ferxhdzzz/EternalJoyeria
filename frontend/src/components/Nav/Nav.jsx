@@ -20,7 +20,12 @@ const Nav = () => {
     {/* Container for the website logo. */}
     <div className="nav__logo">
       {/* The logo image. */}
+
+       <NavLink to="/" >
       <img src="/EternalLogo.png" alt="Eternal Logo" />
+
+
+       </NavLink>
     </div>
     {/* Container for all content on the right side of the navbar. */}
     <div className="nav__right-content">
