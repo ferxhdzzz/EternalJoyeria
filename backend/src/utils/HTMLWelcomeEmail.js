@@ -3,7 +3,7 @@ import { config } from "../config.js";
 
 // Configurar el transporter
 // ¿Quien envía el correo?
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 465,
   secure: true,

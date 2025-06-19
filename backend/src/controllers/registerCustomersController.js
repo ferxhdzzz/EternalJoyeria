@@ -7,7 +7,7 @@ import { v2 as cloudinary } from "cloudinary";
 import clientsModel from "../models/Customers.js";
 import { config } from "../config.js";
 import { sendMail } from "../utils/mailVerify.js";
-import { HTMLEmailVerification } from "../utils/HTMLWelcomeEmail.js";
+import { HTMLEmailVerification } from "../utils/mailVerify.js";
 import { HTMLWelcomeEmail } from "../utils/HTMLWelcomeEmail.js";
 // 1- Configurar cloudinary con nuestra cuenta
 cloudinary.config({
