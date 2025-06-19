@@ -1,41 +1,35 @@
-/*
-    Campos:
-        nombre
-        descripcion
-        precio
-        stock
-*/
-
 import { Schema, model } from "mongoose";
 
 const customersSchema = new Schema(
   {
-    name: {
+    firstName: {
       type: String,
-      require: true,
+      required: true,
     },
-
+    lastName: {
+      type: String,
+      required: true, 
+    },
     email: {
       type: String,
+      required: true, // Agregado: el email debería ser requerido
+      unique: true,   // Agregado: para evitar duplicados
     },
-
     password: {
       type: String,
-      require: true,
+      required: true, 
     },
-
-    telephone: {
+    phone: {
       type: String,
-      require: true,
+      required: true, 
     },
-
-    dui: {
-      type: String,
-      require: true,
+    isVerified: { 
+      type: Boolean,
+      default: false 
     },
-    addres: {
+    profilePicture: { 
       type: String,
-      require: true,
+      default: "" // Cambiado a string vacío para consistencia con tu controlador
     },
   },
   {
@@ -44,4 +38,4 @@ const customersSchema = new Schema(
   }
 );
 
-export default model("users", customersSchema);
+export default model("customers", customersSchema);

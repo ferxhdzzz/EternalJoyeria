@@ -1,14 +1,27 @@
+// 📁 controllers/registerCustomersController.js 
+
 import jsonwebtoken from "jsonwebtoken";
 import bcryptjs from "bcryptjs";
-import nodemailer from "nodemailer";
 import crypto from "crypto";
+import { v2 as cloudinary } from "cloudinary";
 import clientsModel from "../models/Customers.js";
 import { config } from "../config.js";
+import { sendMail } from "../utils/mailVerify.js";
+import { HTMLEmailVerification } from "../utils/mailVerify.js";
+import { HTMLWelcomeEmail } from "../utils/HTMLWelcomeEmail.js";
+// 1- Configurar cloudinary con nuestra cuenta
+cloudinary.config({
+  cloud_name: config.cloudinary.cloudinary_name,
+  api_key: config.cloudinary.cloudinary_api_key,
+  api_secret: config.cloudinary.cloudinary_api_secret,
+});
 
 const registerCustomersController = {};
 
+// Registro de cliente
 registerCustomersController.registerClient = async (req, res) => {
-  const { name, email, password, telephone, dui, address } = req.body;
+  const { firstName, lastName, email, password, phone } = req.body;
+  let profilePictureURL = "";
 
   try {
     // Verificar si el cliente ya existe
@@ -17,61 +30,63 @@ registerCustomersController.registerClient = async (req, res) => {
       return res.status(409).json({ message: "Client already exists" });
     }
 
-    // Encriptar la contraseña
+    // Subir la imagen a Cloudinary 
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "profiles", // Carpeta específica para perfiles
+        allowed_formats: ["png", "jpg", "jpeg"],
+        transformation: [
+          { width: 500, height: 500, crop: "fill" }, // Redimensionar para perfiles
+          { quality: "auto" }
+        ]
+      });
+      // Guardo en la variable la URL de donde se subió la imagen
+      profilePictureURL = result.secure_url;
+    }
+
+    // Encriptar contraseña
     const passwordHash = await bcryptjs.hash(password, 10);
 
     // Crear nuevo cliente
     const newClient = new clientsModel({
-      name,
+      firstName,
+      lastName,
       email,
       password: passwordHash,
-      telephone,
-      dui: dui || null,
-      address
+      phone,
+      profilePicture: profilePictureURL, // URL de Cloudinary o string vacío
     });
 
-    // Guardar el cliente en la base de datos
     await newClient.save();
 
-    // Generar código de verificación aleatorio
+    // Generar código de verificación
     const verificationCode = crypto.randomBytes(3).toString("hex");
     const expiresAt = Date.now() + 2 * 60 * 60 * 1000; // 2 horas
 
-    // Crear un token JWT con el código de verificación
     const tokenCode = jsonwebtoken.sign(
       { email, verificationCode, expiresAt },
-      config.JWT.secret,
+      config.JWT.JWT_SECRET,
       { expiresIn: config.JWT.expiresIn }
     );
 
-    // Guardar el token de verificación en una cookie
+    // Enviar correo con código de verificación
+    await sendMail(
+      email,
+      "Your verification code",
+      "Hello! Here's your verification code.",
+      HTMLEmailVerification(verificationCode)
+    );
+
+    // Guardar token en cookie
     res.cookie("verificationToken", tokenCode, {
-      maxAge: 2 * 60 * 60 * 1000, // 2 horas
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 2 * 60 * 60 * 1000,
     });
 
-    // Configurar el envío de correo electrónico
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: config.email.user,
-        pass: config.email.pass,
-      },
-    });
-
-    const mailOptions = {
-      from: config.email.user,
-      to: email,
-      subject: "Verificación de correo",
-      text: `Tu código de verificación es: ${verificationCode}\nEste código expira en 2 horas.`,
-    };
-
-    // Enviar el correo de verificación
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Error al enviar correo:", error);
-        return res.status(500).json({ message: "Error sending email" });
-      }
-      res.json({ message: "Client registered, please verify your email" });
+    res.json({ 
+      message: "Register successfully",
+      profilePicture: profilePictureURL
     });
 
   } catch (error) {
@@ -80,41 +95,44 @@ registerCustomersController.registerClient = async (req, res) => {
   }
 };
 
+// Verificación de código (sin cambios)
 registerCustomersController.verifyCodeEmail = async (req, res) => {
   const { verificationCode } = req.body;
   const token = req.cookies.verificationToken;
 
-  // Verificar si el token de verificación existe en las cookies
   if (!token) {
     return res.status(400).json({ message: "Please register your account first" });
   }
 
   try {
-    // Verificar el token JWT
-    const decoded = jsonwebtoken.verify(token, config.JWT.secret);
+    const decoded = jsonwebtoken.verify(token, config.JWT.JWT_SECRET);
     const { email, verificationCode: storedCode, expiresAt } = decoded;
 
-    // Verificar si el código ha expirado
     if (Date.now() > expiresAt) {
       return res.status(401).json({ message: "Verification code has expired" });
     }
 
-    // Verificar si el código proporcionado es válido
     if (verificationCode !== storedCode) {
       return res.status(401).json({ message: "Invalid verification code" });
     }
 
-    // Buscar al cliente en la base de datos
     const client = await clientsModel.findOne({ email });
     if (!client) {
       return res.status(404).json({ message: "Client not found" });
     }
 
-    // Marcar al cliente como verificado
-    client.isVerified = true; // Este campo debería añadirse al modelo si se usa
+    // Marcar cliente como verificado
+    client.isVerified = true;
     await client.save();
 
-    // Limpiar la cookie de verificación
+    // Enviar correo de bienvenida
+    await sendMail(
+      email,
+      "Welcome to the platform!",
+      `Hi ${client.firstName}, welcome!`,
+      HTMLWelcomeEmail(client.firstName)
+    );
+
     res.clearCookie("verificationToken");
     res.json({ message: "Email verified successfully" });
   } catch (error) {
@@ -124,3 +142,4 @@ registerCustomersController.verifyCodeEmail = async (req, res) => {
 };
 
 export default registerCustomersController;
+// Exportar el controlador

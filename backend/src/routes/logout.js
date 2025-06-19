@@ -7,6 +7,6 @@ const router = Router();
  * Route: POST /api/logout/logout
  * Description: User logout (clears the JWT cookie)
  */
-router.post("/logout", logoutController.logout);
+router.post("/", logoutController.logout);
 
 export default router;

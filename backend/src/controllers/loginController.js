@@ -51,16 +51,16 @@ loginController.login = async (req, res) => {
       //1-Que voy a guardar
       { id: userFound._id, userType },
       //2-Secreto
-      config.jwt.secret,
+      config.JWT.JWT_SECRET,
       //3-Cuando expira
-      { expiresIn: config.jwt.expiresIn },
+      { expiresIn: config.JWT.expiresIn },
       //4. Funcion flecha
       (error, token) => {
         if (error) console.log("error" + error);
         res.cookie("authToken", token);
-        res.json({ message: "Login successful" });
       }
     );
+    res.json({ message: "Login successful" });
   } catch (error) {
     console.log("error" + error);
   }
