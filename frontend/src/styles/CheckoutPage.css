@@ -89,6 +89,7 @@ body {
 
 .checkout-tab input[type="radio"] {
   display: none;
+   color: black;
 }
 
 .checkout-logos img {
@@ -107,6 +108,7 @@ body {
 
 .checkout-fields {
   margin-top: 1.5rem;
+  color: black;
 }
 
 .checkout-field {
@@ -131,6 +133,7 @@ body {
   background: #fafbfc;
   outline: none;
   transition: border-color 0.2s;
+  color: black;
 }
 
 .checkout-field input:focus {

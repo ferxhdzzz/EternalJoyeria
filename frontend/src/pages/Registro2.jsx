@@ -19,13 +19,22 @@ const RegistroPaso2 = () => {
 const navigate = useNavigate();
   const [errors, setErrors] = useState({});
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prevForm) => ({
-      ...prevForm,
-      [name]: value,
-    }));
-  };
+const handleChange = (e) => {
+  const { name, value } = e.target;
+
+  // Si es el campo de teléfono, limita la longitud
+  if (name === "phone") {
+    const maxLength = form.country === "sv" ? 8 : 10;
+    if (value.length > maxLength) return;
+    // Solo números
+    if (!/^\d*$/.test(value)) return;
+  }
+
+  setForm((prevForm) => ({
+    ...prevForm,
+    [name]: value,
+  }));
+};
 
   const validateStep2 = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
