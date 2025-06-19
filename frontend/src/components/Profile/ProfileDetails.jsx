@@ -2,18 +2,28 @@ import React, { useState } from 'react';
 import '../../styles/ProfileDetails.css';
 
 const ProfileDetails = () => {
-  const [name] = useState('Aeri');
-  const [email] = useState('aeriuchinaga@gmail.com');
+  const [name, setName] = useState('Aeri');
+  const [email, setEmail] = useState('aeriuchinaga@gmail.com');
 
   return (
     <div className="profile-left">
       <h2 className="section-title">Detalles</h2>
 
-      <label className="field-label">Nombre</label>
-      <input className="input disabled narrow" type="text" value={name} disabled />
+      <input
+        className="input narrow"
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Nombre"
+      />
 
-      <label className="field-label">Email</label>
-      <input className="input disabled narrow" type="email" value={email} disabled />
+      <input
+        className="input narrow"
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email"
+      />
 
       <button className="primary-btn">Guardar</button>
 
@@ -21,7 +31,7 @@ const ProfileDetails = () => {
       <span className="subtitle">Cambiar la contraseña</span>
 
       <div className="pwd-inputs-container">
-        <input className="input" type="password" placeholder="**********" />
+        <input className="input" type="password" placeholder="Nueva contraseña" />
         <input className="input" type="password" placeholder="Confirmar contraseña" />
       </div>
 

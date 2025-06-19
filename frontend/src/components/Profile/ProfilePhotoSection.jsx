@@ -8,7 +8,7 @@ const ProfilePhotoSection = () => {
   const navigate = useNavigate();
 
 const handleBuy = () => {
-  navigate('/historial'); // ← Aquí va la ruta a la que quieres ir
+  navigate('/historial');
 }; 
   return (
 
