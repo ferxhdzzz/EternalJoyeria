@@ -1,9 +1,17 @@
 // backend/src/routers/registerClient.js
-import { Router } from "express";
+import express from "express";
+import multer from "multer";
 import registerCustomersController from "../controllers/registerCustomersController.js";
 
-const router = Router();
+const router = express.Router();
 
-router.post("/", registerCustomersController.registerClient);
+// Configurar multer para manejar archivos de imagen
+const upload = multer({ dest: "public/" });
+
+// Ruta para registro con imagen opcional
+router.post("/", upload.single("profilePicture"), registerCustomersController.registerClient);
+
+// Ruta para verificación de código de email
+router.post("/verifyCodeEmail", registerCustomersController.verifyCodeEmail);
 
 export default router;

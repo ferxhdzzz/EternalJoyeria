@@ -1,8 +1,8 @@
+// utils/email.js
 import nodemailer from "nodemailer";
 import { config } from "../config.js";
 
 // Configurar el transporter
-// ¿Quien envía el correo?
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 465,
@@ -13,33 +13,31 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// ¿Quien lo envia?
-const sendEmail = async (to, subject, text, html) => {
+// Función para enviar correos
+const sendMail = async (to, subject, text, html) => {
   try {
     const info = await transporter.sendMail({
-      from: config.smtp.user, // Usar el email de configuración
-      to, // Para quien
-      subject, // El asunto
-      text, // Texto plano (cambié de 'body' a 'text')
-      html, // HTML
+      from: config.smtp.user,
+      to,
+      subject,
+      text,
+      html,
     });
-
     return info;
   } catch (error) {
-    console.log("error" + error);
-    throw error; // Re-lanzar el error para manejarlo en el controlador
+    console.log("Error al enviar el email: " + error);
+    throw error;
   }
 };
 
-// Función para generar el HTML del correo de recuperación de contraseña
-const HTMLRecoveryEmail = (code) => {
-  return `
-      <!DOCTYPE html>
+// Plantilla de correo de verificación
+const HTMLEmailVerification = (code) => {
+  return `<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eternal Joyería - Password Recovery</title>
+    <title>Eternal Joyería - Email Verification</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
         
@@ -51,7 +49,7 @@ const HTMLRecoveryEmail = (code) => {
         
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+            background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -67,36 +65,36 @@ const HTMLRecoveryEmail = (code) => {
         .email-card {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 40px -12px rgba(236, 72, 153, 0.25);
+            box-shadow: 0 20px 40px -12px rgba(34, 197, 94, 0.25);
             overflow: hidden;
-            border: 1px solid rgba(236, 72, 153, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.1);
         }
         
         .header-section {
-            background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+            background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
             padding: 30px 20px 25px;
             text-align: center;
-            border-top: 3px solid #ec4899;
+            border-top: 3px solid #22c55e;
         }
         
         .brand-logo {
             font-family: 'Playfair Display', serif;
             font-size: 24px;
             font-weight: 700;
-            color: #be185d;
+            color: #16a34a;
             margin-bottom: 8px;
         }
         
         .main-title {
             font-size: 18px;
             font-weight: 600;
-            color: #be185d;
+            color: #16a34a;
             margin-bottom: 4px;
         }
         
         .subtitle {
             font-size: 12px;
-            color: #db2777;
+            color: #22c55e;
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -107,11 +105,11 @@ const HTMLRecoveryEmail = (code) => {
         }
         
         .welcome-message {
-            background: #fdf2f8;
+            background: #f0fdf4;
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 25px;
-            border: 1px solid rgba(236, 72, 153, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.1);
         }
         
         .language-block {
@@ -124,7 +122,7 @@ const HTMLRecoveryEmail = (code) => {
         
         .language-label {
             font-weight: 600;
-            color: #be185d;
+            color: #16a34a;
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -143,10 +141,10 @@ const HTMLRecoveryEmail = (code) => {
         }
         
         .code-container {
-            background: linear-gradient(135deg, #ec4899, #db2777);
+            background: linear-gradient(135deg, #22c55e, #16a34a);
             border-radius: 16px;
             padding: 24px 20px;
-            box-shadow: 0 15px 30px -8px rgba(236, 72, 153, 0.4);
+            box-shadow: 0 15px 30px -8px rgba(34, 197, 94, 0.4);
         }
         
         .code-label {
@@ -168,11 +166,11 @@ const HTMLRecoveryEmail = (code) => {
         }
         
         .timer-section {
-            background: linear-gradient(135deg, #fef3c7, #fed7aa);
+            background: linear-gradient(135deg, #fefce8, #fef3c7);
             border-radius: 12px;
             padding: 18px;
             margin: 25px 0;
-            border-left: 3px solid #f59e0b;
+            border-left: 3px solid #eab308;
         }
         
         .timer-content {
@@ -185,7 +183,7 @@ const HTMLRecoveryEmail = (code) => {
         
         .timer-label {
             font-weight: 600;
-            color: #92400e;
+            color: #a16207;
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -193,7 +191,7 @@ const HTMLRecoveryEmail = (code) => {
         }
         
         .timer-text {
-            color: #78350f;
+            color: #92400e;
             line-height: 1.5;
             font-size: 13px;
         }
@@ -202,7 +200,7 @@ const HTMLRecoveryEmail = (code) => {
             background: #f8fafc;
             padding: 20px;
             text-align: center;
-            border-top: 1px solid rgba(236, 72, 153, 0.1);
+            border-top: 1px solid rgba(34, 197, 94, 0.1);
         }
         
         .support-info {
@@ -215,7 +213,7 @@ const HTMLRecoveryEmail = (code) => {
         
         .support-label {
             font-weight: 600;
-            color: #be185d;
+            color: #16a34a;
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -229,13 +227,13 @@ const HTMLRecoveryEmail = (code) => {
         }
         
         .support-link {
-            color: #db2777;
+            color: #22c55e;
             text-decoration: none;
             font-weight: 600;
         }
         
         .support-link:hover {
-            color: #be185d;
+            color: #16a34a;
         }
         
         /* Mobile optimizations */
@@ -264,8 +262,8 @@ const HTMLRecoveryEmail = (code) => {
         <div class="email-card">
             <div class="header-section">
                 <div class="brand-logo">Eternal Joyería</div>
-                <h1 class="main-title">Password Recovery | Recuperación de Contraseña</h1>
-                <p class="subtitle">Secure Access | Acceso Seguro</p>
+                <h1 class="main-title">Email Verification | Verificación de Email</h1>
+                <p class="subtitle">Secure Registration | Registro Seguro</p>
             </div>
             
             <div class="content-section">
@@ -273,13 +271,13 @@ const HTMLRecoveryEmail = (code) => {
                     <div class="language-block">
                         <div class="language-label">English</div>
                         <div class="language-text">
-                            Hello! We received a request to reset your password. Use the verification code below to proceed with your account recovery.
+                            Thank you for registering! Use the verification code below to confirm your email address.
                         </div>
                     </div>
                     <div class="language-block">
                         <div class="language-label">Español</div>
                         <div class="language-text">
-                            ¡Hola! Hemos recibido una solicitud para restablecer tu contraseña. Usa el código de verificación a continuación para continuar con la recuperación de tu cuenta.
+                            ¡Gracias por registrarte! Usa el código de verificación a continuación para confirmar tu dirección de email.
                         </div>
                     </div>
                 </div>
@@ -287,7 +285,7 @@ const HTMLRecoveryEmail = (code) => {
                 <div class="code-section">
                     <div class="code-container">
                         <div class="code-label">Verification Code | Código de Verificación</div>
-                        <div class="verification-code" id="verification-code">${code}</div>
+                        <div class="verification-code">${code}</div>
                     </div>
                 </div>
                 
@@ -295,13 +293,13 @@ const HTMLRecoveryEmail = (code) => {
                     <div class="timer-content">
                         <div class="timer-label">English</div>
                         <div class="timer-text">
-                            This code is valid for the next <strong>15 minutes</strong>. If you didn't request this email, you can safely ignore it.
+                            This code will expire in <strong>2 Hours</strong>. If you didn't sign up, you can ignore this email.
                         </div>
                     </div>
                     <div class="timer-content">
                         <div class="timer-label">Español</div>
                         <div class="timer-text">
-                            Este código es válido por los próximos <strong>15 minutos</strong>. Si no solicitaste este correo, puedes ignorarlo de forma segura.
+                            Este código expirará en <strong>2 Horas</strong>. Si no te registraste, puedes ignorar este email.
                         </div>
                     </div>
                 </div>
@@ -311,14 +309,14 @@ const HTMLRecoveryEmail = (code) => {
                 <div class="support-info">
                     <div class="support-label">English</div>
                     <div class="support-text">
-                        If you need further assistance, please contact our support team at 
+                        Need help? Contact us at 
                         <a href="mailto:eternaljoyeria@gmail.com" class="support-link">eternaljoyeria@gmail.com</a>
                     </div>
                 </div>
                 <div class="support-info">
                     <div class="support-label">Español</div>
                     <div class="support-text">
-                        Si necesitas asistencia adicional, por favor contacta a nuestro equipo de soporte en 
+                        ¿Necesitas ayuda? Contáctanos en 
                         <a href="mailto:eternaljoyeria@gmail.com" class="support-link">eternaljoyeria@gmail.com</a>
                     </div>
                 </div>
@@ -327,7 +325,7 @@ const HTMLRecoveryEmail = (code) => {
     </div>
 </body>
 </html>
-    `;
+  `;
 };
 
-export { sendEmail, HTMLRecoveryEmail };
+export { sendMail, HTMLEmailVerification };
