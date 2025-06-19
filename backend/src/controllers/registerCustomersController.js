@@ -82,6 +82,9 @@ registerCustomersController.registerClient = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: 2 * 60 * 60 * 1000,
+      path:'/', //cookie disponibloe en toda la aplicacion 
+      sameSite:'lax',  // proteccion contra CSRF
+
     });
 
     res.json({ 

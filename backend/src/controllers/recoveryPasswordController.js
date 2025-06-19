@@ -37,7 +37,13 @@ passwordRecoveryController.requestCode = async (req, res) => {
     );
 
     // Guardar el token en una cookie con duración de 20 minutos
-    res.cookie("tokenRecoveryCode", token, { maxAge: 20 * 60 * 1000 });
+    res.cookie("tokenRecoveryCode", token, { maxAge: 20 * 60 * 1000, 
+      path:'/', //cookie disponibloe en toda la aplicacion 
+     sameSite:'lax',  // proteccion contra CSRF});
+     }
+
+      
+    );
 
     // ULTIMO PASO => enviar el correo electrónico con el código de verificación
     await sendEmail(

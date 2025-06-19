@@ -55,11 +55,15 @@ loginController.login = async (req, res) => {
       //3-Cuando expira
       { expiresIn: config.JWT.expiresIn },
       //4. Funcion flecha
-      (error, token) => {
-        if (error) console.log("error" + error);
-        res.cookie("authToken", token);
-      }
-    );
+    
+
+    )
+
+    res.cookie("authToken", token,
+      { path:'/', //cookie disponibloe en toda la aplicacion 
+     sameSite:'lax',  // proteccion contra CSRF});
+ }
+);
     res.json({ message: "Login successful" });
   } catch (error) {
     console.log("error" + error);
