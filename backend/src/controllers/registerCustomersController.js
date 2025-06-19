@@ -11,9 +11,9 @@ import { HTMLEmailVerification } from "../utils/mailVerify.js";
 import { HTMLWelcomeEmail } from "../utils/HTMLWelcomeEmail.js";
 // 1- Configurar cloudinary con nuestra cuenta
 cloudinary.config({
-  cloud_name: config.cloudinary.cloudinary_name,
-  api_key: config.cloudinary.cloudinary_api_key,
-  api_secret: config.cloudinary.cloudinary_api_secret,
+  cloud_name: config.cloudinary.cloud_name,
+  api_key: config.cloudinary.api_key,
+  api_secret: config.cloudinary.api_secret,
 });
 
 const registerCustomersController = {};
@@ -86,7 +86,7 @@ registerCustomersController.registerClient = async (req, res) => {
 
     res.json({ 
       message: "Register successfully",
-      profilePicture: profilePictureURL
+      
     });
 
   } catch (error) {
@@ -95,7 +95,7 @@ registerCustomersController.registerClient = async (req, res) => {
   }
 };
 
-// Verificación de código (sin cambios)
+// Verificación de código 
 registerCustomersController.verifyCodeEmail = async (req, res) => {
   const { verificationCode } = req.body;
   const token = req.cookies.verificationToken;

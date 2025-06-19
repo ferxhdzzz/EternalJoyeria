@@ -31,17 +31,14 @@ customersController.deletecustomers = async (req, res) => {
 customersController.updatecustomers = async (req, res) => {
   try {
     const { firstName, lastName, email, password, phone } = req.body;
-    
-    // Preparar datos de actualización
+
     let updateData = { firstName, lastName, email, phone };
-    
-    // Solo encriptar si se proporciona una nueva contraseña
+
     if (password) {
       const passwordHash = await bcryptjs.hash(password, 10);
       updateData.password = passwordHash;
     }
 
-    // Manejar la imagen si se proporciona
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: "profiles",
@@ -54,17 +51,22 @@ customersController.updatecustomers = async (req, res) => {
       updateData.profilePicture = result.secure_url;
     }
 
-    await customersModel.findByIdAndUpdate(
+    const updatedClient = await customersModel.findByIdAndUpdate(
       req.params.id,
       updateData,
       { new: true }
     );
-    
-    res.json({ message: "Cliente actualizado" });
+
+    if (!updatedClient) {
+      return res.status(404).json({ message: "Client not found" });
+    }
+
+    return res.status(200).json({ message: "Client updated", client: updatedClient });
   } catch (error) {
-    console.error("Error actualizando cliente:", error);
-    res.status(500).json({ message: "Error del servidor al actualizar cliente" });
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 export default customersController;
