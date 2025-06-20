@@ -50,7 +50,7 @@ const HTMLWelcomeEmail = (firstName) => {
         
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            background: linear-gradient(135deg, #faf5ff, #f3e8ff);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -66,36 +66,36 @@ const HTMLWelcomeEmail = (firstName) => {
         .email-card {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 40px -12px rgba(59, 130, 246, 0.25);
+            box-shadow: 0 20px 40px -12px rgba(147, 51, 234, 0.25);
             overflow: hidden;
-            border: 1px solid rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(147, 51, 234, 0.1);
         }
         
         .header-section {
-            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            background: linear-gradient(135deg, #faf5ff, #f3e8ff);
             padding: 30px 20px 25px;
             text-align: center;
-            border-top: 3px solid #3b82f6;
+            border-top: 3px solid #9333ea;
         }
         
         .brand-logo {
             font-family: 'Playfair Display', serif;
             font-size: 24px;
             font-weight: 700;
-            color: #1d4ed8;
+            color: #7c3aed;
             margin-bottom: 8px;
         }
         
         .main-title {
             font-size: 18px;
             font-weight: 600;
-            color: #1d4ed8;
+            color: #7c3aed;
             margin-bottom: 4px;
         }
         
         .subtitle {
             font-size: 12px;
-            color: #3b82f6;
+            color: #9333ea;
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -106,11 +106,11 @@ const HTMLWelcomeEmail = (firstName) => {
         }
         
         .welcome-message {
-            background: #f0f9ff;
+            background: #faf5ff;
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 25px;
-            border: 1px solid rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(147, 51, 234, 0.1);
         }
         
         .language-block {
@@ -123,7 +123,7 @@ const HTMLWelcomeEmail = (firstName) => {
         
         .language-label {
             font-weight: 600;
-            color: #1d4ed8;
+            color: #7c3aed;
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -137,7 +137,7 @@ const HTMLWelcomeEmail = (firstName) => {
         }
         
         .name-highlight {
-            color: #1d4ed8;
+            color: #7c3aed;
             font-weight: 600;
         }
         
@@ -147,10 +147,10 @@ const HTMLWelcomeEmail = (firstName) => {
         }
         
         .celebration-container {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            background: linear-gradient(135deg, #9333ea, #7c3aed);
             border-radius: 16px;
             padding: 24px 20px;
-            box-shadow: 0 15px 30px -8px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 15px 30px -8px rgba(147, 51, 234, 0.4);
         }
         
         .celebration-icon {
@@ -175,11 +175,11 @@ const HTMLWelcomeEmail = (firstName) => {
         }
         
         .benefits-section {
-            background: linear-gradient(135deg, #fef3c7, #fed7aa);
+            background: linear-gradient(135deg, #fdf4ff, #fae8ff);
             border-radius: 12px;
             padding: 18px;
             margin: 25px 0;
-            border-left: 3px solid #f59e0b;
+            border-left: 3px solid #c084fc;
         }
         
         .benefits-content {
@@ -192,7 +192,7 @@ const HTMLWelcomeEmail = (firstName) => {
         
         .benefits-label {
             font-weight: 600;
-            color: #92400e;
+            color: #86198f;
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -200,7 +200,7 @@ const HTMLWelcomeEmail = (firstName) => {
         }
         
         .benefits-list {
-            color: #78350f;
+            color: #701a75;
             line-height: 1.6;
             font-size: 13px;
         }
@@ -215,7 +215,7 @@ const HTMLWelcomeEmail = (firstName) => {
         }
         
         .cta-section {
-            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
             border-radius: 12px;
             padding: 20px;
             margin: 25px 0;
@@ -251,7 +251,7 @@ const HTMLWelcomeEmail = (firstName) => {
             background: #f8fafc;
             padding: 20px;
             text-align: center;
-            border-top: 1px solid rgba(59, 130, 246, 0.1);
+            border-top: 1px solid rgba(147, 51, 234, 0.1);
         }
         
         .support-info {
@@ -264,7 +264,7 @@ const HTMLWelcomeEmail = (firstName) => {
         
         .support-label {
             font-weight: 600;
-            color: #1d4ed8;
+            color: #7c3aed;
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -278,13 +278,13 @@ const HTMLWelcomeEmail = (firstName) => {
         }
         
         .support-link {
-            color: #3b82f6;
+            color: #9333ea;
             text-decoration: none;
             font-weight: 600;
         }
         
         .support-link:hover {
-            color: #1d4ed8;
+            color: #7c3aed;
         }
         
         /* Mobile optimizations */
@@ -340,7 +340,7 @@ const HTMLWelcomeEmail = (firstName) => {
                 
                 <div class="celebration-section">
                     <div class="celebration-container">
-                        <div class="celebration-icon">✨💎✨</div>
+                        <div class="celebration-icon"></div>
                         <div class="celebration-text">Congratulations | Felicitaciones</div>
                         <div class="celebration-message">Account Active!</div>
                     </div>
