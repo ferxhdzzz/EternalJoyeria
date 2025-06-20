@@ -1,12 +1,12 @@
-import React from 'react'; // Imports the React library, essential for creating React components.
-import Hero from "../components/Products/Hero"; // Imports the hero section component for the Products page.
-import ProductShowcase from '../components/Products/ProductShowcase'; // Imports the product showcase component.
-import Categories from '../components/Products/Categories'; // Imports the product categories component.
-import ProductGrid from '../components/Products/ProductGrid'; // Imports the grid display for products.
-import Testimonials from '../components/Products/Testimonials'; // Imports the customer testimonials component.
-import Footer from '../components/Products/Footer'; // Imports the page footer component.
-import RatingBox from '../components/Products/RatingBox'; // Imports the rating box component.
-import Nav from '../components/Nav/Nav'; // Imports the navigation bar component.
+import React from 'react';
+import Hero from "../components/Products/Hero";
+import ProductShowcase from '../components/Products/ProductShowcase';
+import Categories from '../components/Products/Categories';
+import ProductGrid from '../components/Products/ProductGrid';
+import Testimonials from '../components/Products/Testimonials';
+import Footer from '../components/Footer';
+import RatingBox from '../components/Products/RatingBox';
+import Nav from '../components/Nav/Nav';
 
 // Defines the Products page component.
 const Products = () => {

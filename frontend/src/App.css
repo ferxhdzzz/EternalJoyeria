@@ -2,14 +2,37 @@
 /* Imports the Lora and Nunito fonts from Google Fonts to be used throughout the application. */
 @import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Nunito:wght@400;600;700&display=swap');
 
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
 body {
-  margin: 0; /* Removes the default margin from the body. */
-  font-family: 'Nunito', sans-serif; /* Sets the default font for the entire application. */
-  -webkit-font-smoothing: antialiased; /* Enables anti-aliasing for fonts on WebKit browsers for smoother text. */
-  -moz-osx-font-smoothing: grayscale; /* Enables grayscale anti-aliasing for fonts on Firefox for sharper text. */
-  background-color: #FFFFFF; /* Sets a solid white background color for the application. */
-  color: #132F3A; /* Sets the default text color for the application. */
-  overflow-x: hidden; /* Prevents horizontal scrolling on the page. */
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #FFFFFF; /* White background */
+  color: #132F3A; /* Default text color */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+/*
+  Elimina el contorno por defecto (outline) en los botones cuando están seleccionados (focus).
+  Esto proporciona una apariencia más limpia y coherente con el diseño de la aplicación.
+*/
+button:focus,
+button:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 #root {
@@ -45,13 +68,13 @@ html {
 
 /* Styles for the main content container, especially when using a fixed navigation bar. */
 .home-container {
-  flex-grow: 1; /* Allows the container to grow and take up available vertical space. */
-  position: relative; /* Establishes a positioning context for child elements. */
-  width: 100%; /* Ensures the container spans the full width. */
-  min-height: 100vh; /* Ensures the container is at least the full height of the viewport. */
-  overflow-x: hidden; /* Prevents horizontal scrolling, useful for animations that might go off-screen. */
-  padding-top: 60px; /* Adds padding to the top to prevent content from being hidden by a fixed navbar. */
-  box-sizing: border-box; /* Ensures padding is included in the element's total width and height. */
+  flex-grow: 1; /* Allows it to take available space if Nav is fixed height */
+  position: relative;
+  width: 100%;
+  height: 100vh; /* Fixed height to viewport height */
+  overflow: hidden; /* Prevent any scrolling */
+  padding-top: 60px; /* Add padding to prevent content from being hidden behind fixed Nav */
+  box-sizing: border-box;
 }
 
 /* The following styles are the default styles provided by Vite when creating a new React project. */

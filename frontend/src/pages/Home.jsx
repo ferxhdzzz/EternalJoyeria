@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react'; // Imports React and the useEffect hook for handling side effects.
-import Nav from '../components/Nav/Nav'; // Imports the navigation bar component.
-
-import Hero from '../components/Home/Hero/Hero'; // Imports the main hero section component for the home page.
 import './Home.css'; // Imports the specific stylesheet for the Home page.
+
+import Nav from '../components/Nav/Nav';
+import Hero from '../components/Home/Hero/Hero';
+import Footer from '../components/Footer';
 
 // Defines the Home page component.
 const Home = () => {

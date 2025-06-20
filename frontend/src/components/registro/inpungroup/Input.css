@@ -1,8 +1,9 @@
 .input-wrapper {
+  width: 100%; /* Asegura que el contenedor ocupe todo el ancho */
   margin-bottom: 24px; /* Más espacio entre grupos de inputs */
   display: flex;
   flex-direction: column;
-  
+  align-items: flex-start; /* Alinea los elementos a la izquierda */
 }
 
 .input-label {
@@ -15,7 +16,7 @@
 .input {
   background-color: white;
   width: 100%;
-max-width: 350px;
+max-width: 100%;
   color: black;
   padding: 10px 14px;
   border: 2px solid #000; /* Borde más visible */
@@ -27,4 +28,24 @@ max-width: 350px;
 
 .input:focus {
   border-color: #ff69b4; /* Opcional: resalta cuando está enfocado */
+}
+
+.input-container {
+  position: relative;
+  width: 100%;
+}
+
+/* The input is already 100% width, but we need space for the icon */
+.input-container .input {
+  padding-right: 45px; /* Make space for the icon */
+}
+
+.eye-icon {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #555;
+  font-size: 22px;
 }

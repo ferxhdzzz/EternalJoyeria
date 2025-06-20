@@ -1,7 +1,7 @@
 .inline-redirect-label {
   text-align: right;
-  font-size: 0.85rem;
-  margin-top: 0px;   /* más espacio respecto al input */
+  font-size: 14px;
+  margin-top: -15px;  /* Mueve el texto un poco más arriba */
   margin-bottom: 15px;
   color: #888888;
   font-family: 'Poppins', sans-serif;

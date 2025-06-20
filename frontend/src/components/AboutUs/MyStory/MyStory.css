@@ -1,15 +1,19 @@
-/* General section styling for 'My Story'. */
+/* Full-width background container for the 'My Story' section. */
+.my-story-background {
+    background-color: #ffffff; /* Sets a clean white background. */
+    padding: 6rem 2rem; /* Adds padding to the top/bottom and sides. */
+}
+
+/* General section styling for 'My Story' content alignment. */
 .my-story {
     display: flex; /* Enables flexbox layout for aligning children (image and text). */
     align-items: center; /* Vertically centers the flex items. */
     justify-content: center; /* Horizontally centers the flex items. */
     gap: 4rem; /* Creates a gap between the image wrapper and the text content. */
-    padding: 6rem 2rem; /* Adds significant padding to the top/bottom and sides. */
-    background-color: #ffffff; /* Sets a clean white background. */
-    max-width: 1200px; /* Constrains the maximum width of the section. */
-    margin: 6rem auto 0; /* Adds top margin and centers the section on the page. */
+    max-width: 1200px; /* Constrains the maximum width of the content. */
+    margin: 0 auto; /* Centers the content container horizontally. */
 }
-  
+
 /* Wrapper for the image and its associated color palette. */
 .my-story__image-wrapper {
     display: flex; /* Enables flexbox to align the image and palette side-by-side. */

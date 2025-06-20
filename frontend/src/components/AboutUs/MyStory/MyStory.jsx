@@ -8,8 +8,10 @@ const MyStory = () => {
 
   // The return statement contains the JSX that will be rendered to the DOM.
   return (
-    // The main section element for the 'My Story' content.
-    <section className="my-story">
+    // A full-width container for the background color.
+    <div className="my-story-background">
+      {/* The main section element for the 'My Story' content, now for layout. */}
+      <section className="my-story">
       {/* A wrapper for the image and the color palette to group them visually. */}
       <div className="my-story__image-wrapper">
         {/* Container specifically for the image to help with styling and positioning. */}
@@ -45,6 +47,7 @@ const MyStory = () => {
         </p>
       </div>
     </section>
+    </div>
   );
 };
 

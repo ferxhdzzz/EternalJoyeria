@@ -1,142 +1,120 @@
-.footer {
-  background-color: #fff9fb; /* Sets a very light pinkish background color for the footer. */
-  color: #333; /* Sets the default text color for the footer content. */
-  padding: 60px 20px 40px; /* Adds padding to the top, sides, and bottom of the footer. */
-  font-family: 'Arial', sans-serif; /* Sets the font for the footer text. */
-  text-align: center; /* Centers the text content within the footer by default. */
+.custom-footer {
+  background-color: #FAE3E0;
+  color: #5c5c5c;
+  font-family: 'Nunito', sans-serif;
+  padding: 50px 30px 20px;
 }
 
-.footer-top {
-  display: flex; /* Enables flexbox layout. */
-  flex-direction: column; /* Stacks the child elements vertically. */
-  align-items: center; /* Horizontally centers the child elements. */
-  gap: 30px; /* Adds space between the child elements (logo and columns). */
-  margin-bottom: 40px; /* Adds space below the top section. */
-  max-width: 1200px; /* Sets a maximum width for the top section. */
-  margin-left: auto; /* Centers the section horizontally. */
-  margin-right: auto; /* Centers the section horizontally. */
+.footer-main {
+  display: flex;
+  justify-content: space-between;
+  max-width: 1100px;
+  margin: 0 auto 40px;
+  gap: 40px;
+}
+
+.footer-brand {
+  flex: 1.5;
+  max-width: 300px;
 }
 
 .footer-logo {
-  width: 160px; /* Sets the width of the logo. */
-  height: auto; /* Maintains the aspect ratio of the logo. */
+  width: 120px;
+  margin-bottom: 15px;
 }
 
-.footer-columns {
-  display: flex; /* Enables flexbox layout for the columns. */
-  gap: 80px; /* Adds a large space between the columns. */
-  flex-wrap: wrap; /* Allows columns to wrap to the next line on smaller screens. */
-  justify-content: center; /* Centers the columns horizontally. */
-  text-align: left; /* Aligns the text within each column to the left. */
-}
-
-.footer-col {
-  min-width: 180px; /* Sets a minimum width for each column. */
-}
-
-.footer-col h4 {
-  font-size: 18px; /* Sets the font size for the column titles. */
-  font-weight: bold; /* Makes the column titles bold. */
-  margin-bottom: 14px; /* Adds space below the column titles. */
-}
-
-.footer-col ul {
-  list-style: none; /* Removes the default bullet points from the list. */
-  padding: 0; /* Removes the default padding from the list. */
-  margin: 0; /* Removes the default margin from the list. */
-}
-
-.footer-col li {
-  margin-bottom: 10px; /* Adds space between the list items. */
-  font-size: 15px; /* Sets the font size for the list items. */
-}
-
-.footer-bottom {
-  border-top: 1px solid #e6dada; /* Adds a decorative line above the bottom section. */
-  padding-top: 30px; /* Adds space above the content in the bottom section. */
-  max-width: 800px; /* Sets a maximum width for the bottom section. */
-  margin: 0 auto; /* Centers the bottom section horizontally. */
-}
-
-.footer-phrase {
-  font-size: 16px; /* Sets the font size for the phrase. */
-  font-style: italic; /* Makes the phrase text italic. */
-  margin-bottom: 20px; /* Adds space below the phrase. */
+.footer-help {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 20px;
 }
 
 .footer-socials {
-  margin-bottom: 20px; /* Adds space below the social media icons. */
+  display: flex;
+  gap: 12px;
 }
 
-.footer-socials a {
-  margin: 0 10px; /* Adds horizontal space between the social media links. */
-  color: #333; /* Sets the color for the social media icons. */
-  font-size: 18px; /* Sets the size of the social media icons. */
-  transition: color 0.3s ease; /* Adds a smooth transition for the color change on hover. */
+.footer-social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e0e0e0;
+  border-radius: 50%;
+  color: #5c5c5c;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-.footer-socials a:hover {
-  color: #c291a1; /* Changes the color of the icons on hover. */
+.footer-social-link:hover {
+  background-color: #D1A6B4;
+  color: #fff;
 }
 
-.footer-copy {
-  font-size: 14px; /* Sets the font size for the copyright text. */
-  color: #666; /* Sets a light gray color for the copyright text. */
+.footer-info-blocks {
+  display: flex;
+  flex: 2;
+  justify-content: space-around;
+  gap: 40px;
 }
 
-/* Responsive Design for tablets and smaller desktops. */
-@media (max-width: 1024px) { /* Applies styles for screens 1024px wide or smaller. */
-  .footer-columns {
-    gap: 40px; /* Reduces the space between columns on smaller screens. */
-  }
+.footer-info h4 {
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #333;
 }
 
-/* Responsive Design for tablets. */
-@media (max-width: 768px) { /* Applies styles for screens 768px wide or smaller. */
-  .footer-top {
-    gap: 20px; /* Reduces the space between the logo and columns. */
-    padding: 0 10px; /* Adds horizontal padding to the top section. */
-  }
-
-  .footer-columns {
-    flex-direction: column; /* Stacks the columns vertically. */
-    align-items: center; /* Centers the columns horizontally. */
-    gap: 30px; /* Sets the space between the stacked columns. */
-  }
-
-  .footer-col {
-    min-width: auto; /* Removes the minimum width constraint. */
-    width: 100%; /* Makes each column take the full width. */
-    max-width: 320px; /* Sets a maximum width for the columns. */
-    text-align: center; /* Centers the text within each column. */
-  }
-
-  .footer-col ul {
-    padding: 0 20px; /* Adds horizontal padding to the lists. */
-  }
-
-  .footer-bottom {
-    max-width: 100%; /* Allows the bottom section to take the full width. */
-    padding: 20px 10px 0; /* Adjusts the padding for the bottom section. */
-  }
+.footer-info ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 15px;
 }
 
-/* Responsive Design for mobile phones. */
-@media (max-width: 480px) { /* Applies styles for screens 480px wide or smaller. */
-  .footer-logo {
-    width: 120px; /* Reduces the size of the logo on small screens. */
+.footer-info li {
+  margin-bottom: 12px;
+}
+
+.footer-info a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.footer-info a:hover {
+  text-decoration: underline;
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+  font-size: 14px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .footer-main {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
 
-  .footer-socials a {
-    font-size: 16px; /* Reduces the size of the social media icons. */
-    margin: 0 8px; /* Reduces the space between the icons. */
+  .footer-brand,
+  .footer-info-blocks {
+    width: 100%;
+    max-width: 400px;
+    align-items: center;
   }
 
-  .footer-phrase {
-    font-size: 14px; /* Reduces the font size of the phrase. */
+  .footer-socials {
+    justify-content: center;
   }
 
-  .footer-copy {
-    font-size: 13px; /* Reduces the font size of the copyright text. */
+  .footer-info-blocks {
+    flex-direction: column;
+    gap: 30px;
   }
 }

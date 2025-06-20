@@ -8,10 +8,12 @@ import './App.css'; // Global styles
 import Recuperacion from './pages/RecuperacionContra';
 import Actualizacion from './pages/CambiarCont';
 import Login from './pages/Login';
-import Registro from './pages/Registro';
-import Carrito from './pages/Cart';
-import Hitorial from './pages/Historial';
-
+import RegistroContainer from './pages/RegistroContainer';
+import CartPage from './components/Cart/CartPage';
+import HistorialPage from './pages/Historial';
+import ProductDetail from './pages/ProductDetail';
+import CheckoutPage from './pages/CheckoutPage';
+import { CartProvider } from './context/CartContext';
 
 
 
@@ -19,29 +21,32 @@ import Hitorial from './pages/Historial';
 function App() {
   // The return statement contains the JSX that will be rendered to the DOM.
   return (
-    // The Router component provides the routing context for the application.
-    <Router>
-      {/* The Routes component is a container for a collection of Route components. */}
+    <CartProvider>
+      <Router>
       <Routes>
 
         <Route path="/" element={<Home />} />
         <Route path="/recuperacion" element={<Recuperacion />} />
           <Route path="/cambiar" element={<Actualizacion />} />
           <Route path="/login" element={<Login />} />
-             <Route path="/registro" element={<Registro />} />
+          <Route path="/registro" element={<RegistroContainer />} />
 
 
         <Route path="/sobre-nosotros" element={<AboutUs />} />
         <Route path="/products" element={<Products />} />
+        <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/profile" element={<Profile />} />
-                <Route path="/shop" element={<Carrito />} />
-                  <Route path="/historial" element={<Hitorial />} />
+                <Route path="/shop" element={<CartPage />} />
+                  <Route path="/historial" element={<HistorialPage />} />
+<Route path="/checkout" element={<CheckoutPage />} />
+
         {/* Define other routes here, e.g.:
         <Route path="/about" element={<About />} />
         <Route path="/products" element={<Products />} /> 
         */}
       </Routes>
-    </Router>
+      </Router>
+    </CartProvider>
   );
 }
 
