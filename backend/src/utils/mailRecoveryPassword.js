@@ -33,8 +33,7 @@ const sendEmail = async (to, subject, text, html) => {
 
 // Función para generar el HTML del correo de recuperación de contraseña
 const HTMLRecoveryEmail = (code) => {
-  return `
-      <!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -51,7 +50,7 @@ const HTMLRecoveryEmail = (code) => {
         
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+            background: linear-gradient(135deg, #fef7f7, #fce7e7);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -61,61 +60,61 @@ const HTMLRecoveryEmail = (code) => {
         
         .email-container {
             width: 100%;
-            max-width: 480px;
+            max-width: 720px;
         }
         
         .email-card {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 40px -12px rgba(236, 72, 153, 0.25);
+            box-shadow: 0 20px 40px -12px rgba(251, 113, 133, 0.25);
             overflow: hidden;
-            border: 1px solid rgba(236, 72, 153, 0.1);
+            border: 1px solid rgba(251, 113, 133, 0.1);
         }
         
         .header-section {
-            background: linear-gradient(135deg, #fdf2f8, #fce7f3);
-            padding: 30px 20px 25px;
+            background: linear-gradient(135deg, #fef7f7, #fce7e7);
+            padding: 40px 30px 35px;
             text-align: center;
-            border-top: 3px solid #ec4899;
+            border-top: 3px solid #f472b6;
         }
         
         .brand-logo {
             font-family: 'Playfair Display', serif;
-            font-size: 24px;
+            font-size: 32px;
             font-weight: 700;
-            color: #be185d;
-            margin-bottom: 8px;
+            color: #ec4899;
+            margin-bottom: 12px;
         }
         
         .main-title {
-            font-size: 18px;
+            font-size: 24px;
             font-weight: 600;
-            color: #be185d;
-            margin-bottom: 4px;
+            color: #ec4899;
+            margin-bottom: 6px;
         }
         
         .subtitle {
-            font-size: 12px;
-            color: #db2777;
+            font-size: 14px;
+            color: #f472b6;
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         
         .content-section {
-            padding: 25px 20px;
+            padding: 35px 30px;
         }
         
         .welcome-message {
-            background: #fdf2f8;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(236, 72, 153, 0.1);
+            background: #fef7f7;
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 35px;
+            border: 1px solid rgba(251, 113, 133, 0.1);
         }
         
         .language-block {
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
         
         .language-block:last-child {
@@ -124,59 +123,59 @@ const HTMLRecoveryEmail = (code) => {
         
         .language-label {
             font-weight: 600;
-            color: #be185d;
-            font-size: 11px;
+            color: #ec4899;
+            font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
         
         .language-text {
             color: #6b7280;
-            line-height: 1.5;
-            font-size: 14px;
+            line-height: 1.6;
+            font-size: 16px;
         }
         
         .code-section {
             text-align: center;
-            margin: 25px 0;
+            margin: 35px 0;
         }
         
         .code-container {
-            background: linear-gradient(135deg, #ec4899, #db2777);
-            border-radius: 16px;
-            padding: 24px 20px;
-            box-shadow: 0 15px 30px -8px rgba(236, 72, 153, 0.4);
+            background: linear-gradient(135deg, #f472b6, #ec4899);
+            border-radius: 20px;
+            padding: 32px 28px;
+            box-shadow: 0 15px 30px -8px rgba(251, 113, 133, 0.4);
         }
         
         .code-label {
             color: rgba(255, 255, 255, 0.9);
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 10px;
+            margin-bottom: 14px;
         }
         
         .verification-code {
-            font-size: 28px;
+            font-size: 36px;
             font-weight: 700;
             color: #ffffff;
             font-family: 'Inter', monospace;
-            letter-spacing: 4px;
+            letter-spacing: 5px;
             text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
         
         .timer-section {
-            background: linear-gradient(135deg, #fef3c7, #fed7aa);
-            border-radius: 12px;
-            padding: 18px;
-            margin: 25px 0;
-            border-left: 3px solid #f59e0b;
+            background: linear-gradient(135deg, #fef3f3, #fce7e7);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 35px 0;
+            border-left: 3px solid #fb7185;
         }
         
         .timer-content {
-            margin-bottom: 10px;
+            margin-bottom: 14px;
         }
         
         .timer-content:last-child {
@@ -185,28 +184,28 @@ const HTMLRecoveryEmail = (code) => {
         
         .timer-label {
             font-weight: 600;
-            color: #92400e;
-            font-size: 11px;
+            color: #e11d48;
+            font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
         
         .timer-text {
-            color: #78350f;
-            line-height: 1.5;
-            font-size: 13px;
+            color: #be123c;
+            line-height: 1.6;
+            font-size: 15px;
         }
         
         .footer-section {
-            background: #f8fafc;
-            padding: 20px;
+            background: #fef7f7;
+            padding: 28px;
             text-align: center;
-            border-top: 1px solid rgba(236, 72, 153, 0.1);
+            border-top: 1px solid rgba(251, 113, 133, 0.1);
         }
         
         .support-info {
-            margin-bottom: 10px;
+            margin-bottom: 14px;
         }
         
         .support-info:last-child {
@@ -215,29 +214,29 @@ const HTMLRecoveryEmail = (code) => {
         
         .support-label {
             font-weight: 600;
-            color: #be185d;
-            font-size: 11px;
+            color: #ec4899;
+            font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
         
         .support-text {
             color: #6b7280;
-            font-size: 13px;
-            line-height: 1.5;
+            font-size: 15px;
+            line-height: 1.6;
         }
         
         .support-link {
-            color: #db2777;
+            color: #f472b6;
             text-decoration: none;
             font-weight: 600;
         }
         
         .support-link:hover {
-            color: #be185d;
+            color: #ec4899;
         }
-        
+
         /* Mobile optimizations */
         @media (max-width: 480px) {
             body { padding: 10px; }
@@ -251,11 +250,48 @@ const HTMLRecoveryEmail = (code) => {
             .timer-section { padding: 16px; }
             .footer-section { padding: 16px; }
         }
-        
+
         @media (max-width: 360px) {
             .brand-logo { font-size: 20px; }
             .main-title { font-size: 15px; }
             .verification-code { font-size: 22px; letter-spacing: 2px; }
+        }
+
+        /* Larger screen optimizations */
+        @media (min-width: 1024px) {
+            .brand-logo {
+                font-size: 40px;
+            }
+
+            .main-title {
+                font-size: 30px;
+            }
+
+            .subtitle {
+                font-size: 16px;
+            }
+
+            .language-text,
+            .timer-text,
+            .support-text {
+                font-size: 18px;
+            }
+
+            .verification-code {
+                font-size: 48px;
+                letter-spacing: 6px;
+            }
+
+            .code-container {
+                padding: 48px 40px;
+            }
+
+            .welcome-message,
+            .timer-section,
+            .footer-section,
+            .content-section {
+                padding: 40px;
+            }
         }
     </style>
 </head>
@@ -327,6 +363,7 @@ const HTMLRecoveryEmail = (code) => {
     </div>
 </body>
 </html>
+
     `;
 };
 
