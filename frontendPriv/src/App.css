@@ -50,14 +50,21 @@ html {
 }
 
 /* Styling for home-container if needed, e.g., for full width */
+/* Styling for home-container if needed, e.g., for full width */
 .home-container {
-  flex-grow: 1; /* Allows it to take available space if Nav is fixed height */
+  flex-grow: 1; /* Permite que ocupe el espacio disponible si el Nav tiene una altura fija */
   position: relative;
   width: 100%;
-  height: 100vh; /* Fixed height to viewport height */
-  overflow: hidden; /* Prevent any scrolling */
-  padding-top: 60px; /* Add padding to prevent content from being hidden behind fixed Nav */
+  height: 100vh; /* Altura fija a la altura del viewport */
+  overflow: hidden; /* Evita cualquier desplazamiento */
+  padding-top: 60px; /* Agrega padding para evitar que el contenido se oculte detrás del Nav fijo */
   box-sizing: border-box;
+
+  /* --- AGREGA ESTOS ESTILOS PARA CENTRAR --- */
+  display: flex; /* Habilitar Flexbox */
+  justify-content: center; /* Centrar contenido horizontalmente */
+  align-items: center; /* Centrar contenido verticalmente */
+  /* --- FIN DE LOS NUEVOS ESTILOS --- */
 }
 
 /* Remove Vite specific styles if not needed or adjust */

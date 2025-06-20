@@ -6,6 +6,8 @@ import Recuperacion from './pages/RecuperacionContra';
 import Login from './pages/Login';
 import Actualizacion from './pages/CambiarCont';
 import Ajustes from './pages/Ajustes';
+import Resenas from './pages/HistorialResenas';
+
 
 
 
@@ -23,6 +25,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/cambiar" element={<Actualizacion />} />
           <Route path="/ajustes" element={<Ajustes />} />
+          <Route path="/compras" element={<Resenas />} />
 
 
 
