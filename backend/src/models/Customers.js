@@ -12,7 +12,7 @@ const customersSchema = new Schema(
     },
     email: {
       type: String,
-      required: true, // Agregado: el email debería ser requerido
+      required: true, 
       unique: true,   // Agregado: para evitar duplicados
     },
     password: {
@@ -29,7 +29,7 @@ const customersSchema = new Schema(
     },
     profilePicture: { 
       type: String,
-      default: "" // Cambiado a string vacío para consistencia con tu controlador
+      default: "" // Cambiado a string vacío para consistencia con el controlador
     },
   },
   {
