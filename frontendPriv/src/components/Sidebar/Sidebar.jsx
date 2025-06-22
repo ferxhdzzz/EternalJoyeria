@@ -29,7 +29,7 @@ function Sidebar() {
         <NavLink to="/proveedores" className="nav-link">
           <FaTruck className="icon" /> <span>Compras</span>
         </NavLink>
-        <NavLink to="/compras" className="nav-link">
+        <NavLink to="/resenas" className="nav-link">
           <FaShoppingCart className="icon" /> <span>Reseñas</span>
         </NavLink>
         <NavLink to="/categorias" className="nav-link">
