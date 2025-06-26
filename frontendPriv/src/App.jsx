@@ -7,10 +7,9 @@ import Login from './pages/Login';
 import Actualizacion from './pages/CambiarCont';
 import Ajustes from './pages/Ajustes';
 import Resenas from './pages/HistorialResenas';
-
-
-
-
+import ProductPriv from './pages/Products-Private';
+import AddProduct from './pages/AgregarProducto'
+import HistoryShopping from './pages/HistorialCompras'
 
 function App() {
 
@@ -26,6 +25,9 @@ function App() {
           <Route path="/cambiar" element={<Actualizacion />} />
           <Route path="/ajustes" element={<Ajustes />} />
           <Route path="/resenas" element={<Resenas />} />
+          <Route path="/productPriv" element={<ProductPriv />} />
+          <Route path="/AddProduct" element={<AddProduct />} />
+          <Route path="/HistorialCompras" element={<HistoryShopping />} />
 
 
 

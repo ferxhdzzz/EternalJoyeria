@@ -1,0 +1,126 @@
+/* ProductForm.css */
+.product-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: start;
+}
+
+.left-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.right-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.left-form input,
+.left-form textarea {
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  background-color: #fff;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.left-form textarea {
+  height: 110px;
+  resize: none;
+}
+
+.right-form input {
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  background-color: #fff;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+label {
+  font-size: 14px;
+  font-weight: 400;
+  color: #555;
+}
+
+.price-discount {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.price-discount > div {
+  flex: 1;
+}
+
+.cantidad-label {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.medidas {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.right-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .product-form {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  
+  .left-form input,
+  .left-form textarea,
+  .right-form input {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  .left-form textarea {
+    height: 90px;
+  }
+  
+  .price-discount {
+    gap: 8px;
+  }
+  
+  label {
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .product-form {
+    gap: 80px;
+  }
+  
+  .left-form input,
+  .left-form textarea,
+  .right-form input {
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+  
+  .left-form textarea {
+    height: 130px;
+  }
+  
+  label {
+    font-size: 15px;
+  }
+}
