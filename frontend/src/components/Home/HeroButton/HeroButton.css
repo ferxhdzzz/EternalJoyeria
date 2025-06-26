@@ -1,18 +1,18 @@
 .hero-button {
-  font-family: 'Nunito', sans-serif;
-  font-weight: 700;
-  color: #FEF8F0;
-  background: #CC7CAF;
-  border: none;
-  padding: 0.8rem 1.5rem;
-  border-radius: 999px;
-  box-shadow: 0 4px 15px rgba(206, 145, 165, 0.5);
-  cursor: pointer;
-  transition: background 0.3s;
-  width: max-content; /* Ensure width is based on content */
-  align-self: flex-start; /* Prevent stretching if in a flex container */
+  font-family: 'Nunito', sans-serif; /* Sets the font family for the button text. */
+  font-weight: 700; /* Sets the font weight to bold. */
+  color: #FEF8F0; /* Sets the text color. */
+  background: #CC7CAF; /* Sets the background color of the button. */
+  border: none; /* Removes the default border. */
+  padding: 0.8rem 1.5rem; /* Adds padding inside the button (vertical and horizontal). */
+  border-radius: 999px; /* Creates a pill shape by making the border radius very large. */
+  box-shadow: 0 4px 15px rgba(206, 145, 165, 0.5); /* Adds a subtle shadow to the button. */
+  cursor: pointer; /* Changes the cursor to a pointer on hover to indicate it's clickable. */
+  transition: background 0.3s; /* Adds a smooth transition effect for the background color change. */
+  width: max-content; /* Ensures the button's width is determined by its content. */
+  align-self: flex-start; /* Prevents the button from stretching if it's in a flex container. */
 }
 
 .hero-button:hover {
-  background: #bf6c96;
+  background: #bf6c96; /* Darkens the background color when the mouse hovers over the button. */
 }

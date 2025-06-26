@@ -1,135 +1,137 @@
+/* Imports the 'Playfair Display' font from Google Fonts for use in the component. */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap');
 
 .rating-box {
-  background-color: #FFF3FB;
-  padding: 60px 30px 100px;
-  max-width: 700px;
-  width: 100%;
-  border-radius: 400px 400px 0 0;
-  text-align: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  margin: 100px auto;
-  position: relative;
-  overflow: hidden;
-  min-height: 800px;
+  background-color: #FFF3FB; /* Sets a light pink background color. */
+  padding: 60px 30px 100px; /* Adds padding to the top, sides, and bottom. */
+  max-width: 700px; /* Sets a maximum width for the box. */
+  width: 100%; /* Ensures the box is responsive. */
+  border-radius: 400px 400px 0 0; /* Creates a unique shape with heavily rounded top corners. */
+  text-align: center; /* Centers all text content. */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* Adds a subtle shadow for depth. */
+  margin: 100px auto; /* Centers the box horizontally and adds vertical margin. */
+  position: relative; /* Establishes a positioning context for child elements. */
+  overflow: hidden; /* Hides parts of child elements (like the large flowers) that go outside the boundaries. */
+  min-height: 800px; /* Sets a minimum height for the container. */
 }
 
 .rating-content {
-  margin-top: 200px;
+  margin-top: 200px; /* Pushes the content down from the top edge of the box. */
 }
 
 .rating-box h3 {
-  font-family: 'Playfair Display', serif;
-  font-size: 30px;
-  margin-bottom: 40px;
-  color: #2B2B2B;
-  margin-top: -40px;
+  font-family: 'Playfair Display', serif; /* Applies the imported elegant font. */
+  font-size: 30px; /* Sets a large font size for the heading. */
+  margin-bottom: 40px; /* Adds space below the heading. */
+  color: #2B2B2B; /* Sets a dark color for the text. */
+  margin-top: -40px; /* Adjusts the top margin. */
 }
 
 .input-field {
-  width: 100%;
-  padding: 14px;
-  margin-bottom: 20px;
-  border: none;
-  border-radius: 20px;
-  background: #fff;
-  font-size: 15px;
-  box-sizing: border-box;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  width: 100%; /* Makes the input fields take the full width of their container. */
+  padding: 14px; /* Adds padding inside the input fields. */
+  margin-bottom: 20px; /* Adds space below each input field. */
+  border: none; /* Removes the default border. */
+  border-radius: 20px; /* Adds rounded corners. */
+  background: #fff; /* Sets a white background. */
+  font-size: 15px; /* Sets the font size for the input text. */
+  box-sizing: border-box; /* Ensures padding is included in the total width. */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); /* Adds a subtle inner shadow. */
 }
 
 .textarea {
-  height: 100px;
-  resize: none;
+  height: 100px; /* Sets a fixed height for the textarea. */
+  resize: none; /* Disables resizing of the textarea. */
 }
 
 .rating-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 50px;
-  position: relative;
+  display: flex; /* Enables flexbox layout. */
+  align-items: center; /* Vertically centers the items. */
+  justify-content: space-between; /* Distributes space between the items. */
+  margin-top: 50px; /* Adds space above the rating row. */
+  position: relative; /* Establishes a positioning context. */
 }
 
 .rating-center {
-  flex-grow: 1;
-  text-align: center;
+  flex-grow: 1; /* Allows the center element to take up available space. */
+  text-align: center; /* Centers the content within. */
 }
 
 .rating-label {
-  font-size: 16px;
-  margin-bottom: 12px;
-  color: #333;
+  font-size: 16px; /* Sets the font size for the rating label. */
+  margin-bottom: 12px; /* Adds space below the label. */
+  color: #333; /* Sets a dark gray color for the text. */
 }
 
 .stars {
-  margin-bottom: 24px;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
+  margin-bottom: 24px; /* Adds space below the stars. */
+  display: flex; /* Enables flexbox for the stars. */
+  justify-content: center; /* Horizontally centers the stars. */
+  gap: 10px; /* Adds a small gap between each star. */
 }
 
 .star {
-  font-size: 32px;
-  color: #ccc;
-  cursor: pointer;
-  transition: color 0.3s ease;
+  font-size: 32px; /* Sets a large size for the star characters. */
+  color: #ccc; /* Sets the default (empty) color for the stars. */
+  cursor: pointer; /* Changes the cursor to a pointer on hover. */
+  transition: color 0.3s ease; /* Adds a smooth color transition effect. */
 }
 
 .star.filled {
-  color: #f5c518;
+  color: #f5c518; /* Sets the color for filled (selected or hovered) stars. */
 }
 
 .submit-button {
-  background-color: #5B6E67;
-  color: white;
-  padding: 14px 36px;
-  font-size: 16px;
-  border: none;
-  border-radius: 14px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  background-color: #5B6E67; /* Sets a green background color. */
+  color: white; /* Sets the text color to white. */
+  padding: 14px 36px; /* Adds padding to the button. */
+  font-size: 16px; /* Sets the font size. */
+  border: none; /* Removes the default border. */
+  border-radius: 14px; /* Adds rounded corners. */
+  cursor: pointer; /* Changes the cursor to a pointer. */
+  transition: background-color 0.3s ease; /* Adds a smooth background color transition on hover. */
 }
 
 .submit-button:hover {
-  background-color: #3f4f49;
+  background-color: #3f4f49; /* Darkens the background color on hover. */
 }
 
 .flor-icon {
-  width: 1100px; /* FLORES más grandes */
-  height: auto;
+  width: 1100px; /* Sets a very large width for the flower images, making them act as side decorations. */
+  height: auto; /* Maintains the aspect ratio. */
 }
 
 .flor-izq {
-  margin-left: -30px;
+  margin-left: -30px; /* Adjusts the position of the left flower. */
 }
 
 .flor-der {
-  margin-right: -30px;
+  margin-right: -30px; /* Adjusts the position of the right flower. */
 }
 
+/* Responsive Design for tablets and smaller screens. */
 @media (max-width: 768px) {
   .rating-box {
-    margin: 40px 20px;
-    padding: 40px 20px 60px;
-    border-radius: 300px 300px 0 0;
-    min-height: 700px;
+    margin: 40px 20px; /* Adjusts the margin for smaller screens. */
+    padding: 40px 20px 60px; /* Adjusts the padding. */
+    border-radius: 300px 300px 0 0; /* Reduces the border radius slightly. */
+    min-height: 700px; /* Reduces the minimum height. */
   }
 
   .rating-content {
-    margin-top: 60px;
+    margin-top: 60px; /* Reduces the top margin of the content. */
   }
 
   .rating-row {
-    flex-direction: column;
-    gap: 20px;
+    flex-direction: column; /* Stacks the rating elements vertically. */
+    gap: 20px; /* Adds a gap between the stacked elements. */
   }
 
   .flor-icon {
-    width: 90px;
+    width: 90px; /* Reduces the size of the flower icons significantly. */
   }
 
   .submit-button {
-    width: 100%;
+    width: 100%; /* Makes the submit button take the full width. */
   }
 }

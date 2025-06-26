@@ -8,18 +8,18 @@ import './App.css'; // Global styles
 import Recuperacion from './pages/RecuperacionContra';
 import Actualizacion from './pages/CambiarCont';
 import Login from './pages/Login';
-import Registro from './pages/Registro';
+import RegistroContainer from './pages/RegistroContainer';
 import CartPage from './components/Cart/CartPage';
 import HistorialPage from './pages/Historial';
-import Registro2 from './pages/Registro2';
-import Registro3 from './pages/Registro3';
 import ProductDetail from './pages/ProductDetail';
 import CheckoutPage from './pages/CheckoutPage';
 import { CartProvider } from './context/CartContext';
 
 
 
+// This is the main component of the application, which acts as a container for all other components.
 function App() {
+  // The return statement contains the JSX that will be rendered to the DOM.
   return (
     <CartProvider>
       <Router>
@@ -29,7 +29,7 @@ function App() {
         <Route path="/recuperacion" element={<Recuperacion />} />
           <Route path="/cambiar" element={<Actualizacion />} />
           <Route path="/login" element={<Login />} />
-             <Route path="/registro" element={<Registro />} />
+          <Route path="/registro" element={<RegistroContainer />} />
 
 
         <Route path="/sobre-nosotros" element={<AboutUs />} />
@@ -38,8 +38,6 @@ function App() {
         <Route path="/profile" element={<Profile />} />
                 <Route path="/shop" element={<CartPage />} />
                   <Route path="/historial" element={<HistorialPage />} />
-                   <Route path="/registro2" element={<Registro2 />} />
-                                      <Route path="/registro3" element={<Registro3 />} />
 <Route path="/checkout" element={<CheckoutPage />} />
 
         {/* Define other routes here, e.g.:
@@ -52,4 +50,5 @@ function App() {
   );
 }
 
+// Exports the App component to be used in other parts of the application, such as index.js.
 export default App;

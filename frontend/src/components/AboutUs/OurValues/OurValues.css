@@ -1,77 +1,87 @@
+/* Main container for the 'Our Values' section. */
 .our-values {
-  background-color: #FFFAF3;
-  padding: 6rem 2rem;
-  text-align: center;
+  background-color: #FFFAF3; /* Sets a very light, warm background color. */
+  padding: 6rem 2rem; /* Provides ample vertical and horizontal padding. */
+  text-align: center; /* Ensures all text content within the section is centered by default. */
 }
 
+/* The main title of the section. */
 .our-values__title {
-  font-family: 'Playfair Display', serif;
-  font-size: 3rem;
-  color: #0c3c3a;
-  margin-bottom: 4rem;
+  font-family: 'Playfair Display', serif; /* Uses an elegant serif font for the title. */
+  font-size: 3rem; /* Sets a large, impactful font size. */
+  color: #0c3c3a; /* Uses a dark, teal-like color for high contrast and brand consistency. */
+  margin-bottom: 4rem; /* Adds significant space below the title to separate it from the cards. */
 }
 
+/* Container that holds the value cards. */
 .our-values__cards-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 2rem;
-  flex-wrap: wrap;
+  display: flex; /* Enables flexbox to arrange the cards. */
+  justify-content: center; /* Horizontally centers the cards within the container. */
+  align-items: center; /* Vertically aligns the cards, useful if they have different heights. */
+  gap: 2rem; /* Adds consistent spacing between the cards. */
+  flex-wrap: wrap; /* Allows cards to wrap onto the next line on smaller viewports, preventing overflow. */
 }
 
+/* Styling for an individual value card. */
 .our-values__card {
-  padding: 2.5rem 2rem;
-  border-radius: 40px 40px 20px 100px; /* Esquina inf-der más puntiaguda */
-  max-width: 320px;
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  transition: all 0.4s ease;
-  background-color: #FAF0EB; /* Color de fondo por defecto */
-  transform: translateY(0);
+  padding: 2.5rem 2rem; /* Adds internal spacing within the card. */
+  border-radius: 40px 40px 20px 100px; /* Creates a unique, organic shape with asymmetrical corner rounding. */
+  max-width: 320px; /* Constrains the width of the card to maintain a consistent layout. */
+  min-height: 300px; /* Ensures all cards have at least the same height for visual balance. */
+  display: flex; /* Enables flexbox for the card's internal content. */
+  flex-direction: column; /* Stacks the title and description vertically. */
+  justify-content: center; /* Vertically centers the content within the card. */
+  align-items: center; /* Horizontally centers the content within the card. */
+  transition: all 0.4s ease; /* Applies a smooth transition to all property changes (e.g., on hover). */
+  background-color: #FAF0EB; /* Sets a soft, default background color. */
+  transform: translateY(0); /* Establishes a base transform state for the hover animation. */
 }
 
-/* Efecto hover para TODAS las tarjetas */
+/* Hover effect for the value cards. */
 .our-values__card:hover {
-  background-color: #CE91A5; /* Color de fondo en hover */
-  transform: translateY(-20px) scale(1.05);
+  background-color: #CE91A5; /* Changes the background to a richer color on hover. */
+  transform: translateY(-20px) scale(1.05); /* Lifts the card upwards and slightly enlarges it for a dynamic effect. */
 }
 
+/* Styling for the title within each card. */
 .our-values__card-title {
-  font-family: 'Inter', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: #895961; /* Color de título por defecto */
-  transition: color 0.4s ease;
+  font-family: 'Inter', sans-serif; /* Uses a clean sans-serif font for readability. */
+  font-size: 1.5rem; /* Sets the font size for the card's title. */
+  font-weight: 600; /* Gives the title a semi-bold weight. */
+  margin-bottom: 1rem; /* Adds space between the title and the description. */
+  color: #895961; /* Sets a default text color that complements the card's background. */
+  transition: color 0.4s ease; /* Smoothly transitions the text color change on hover. */
 }
 
+/* Styling for the description text within each card. */
 .our-values__card-description {
-  font-family: 'Inter', sans-serif;
-  font-size: 1.1rem; /* Tamaño de fuente aumentado */
-  line-height: 1.6;
-  color: #CE91A5; /* Color de descripción por defecto */
-  transition: color 0.4s ease;
+  font-family: 'Inter', sans-serif; /* Uses a clean sans-serif font. */
+  font-size: 1.1rem; /* Sets a slightly smaller font size for the description. */
+  line-height: 1.6; /* Improves readability with increased line spacing. */
+  color: #CE91A5; /* Sets a default text color. */
+  transition: color 0.4s ease; /* Smoothly transitions the text color change on hover. */
 }
 
-/* Cambio de color de texto en hover */
+/* Changes the title's color when the parent card is hovered. */
 .our-values__card:hover .our-values__card-title {
-  color: #FFFFFF; /* Color de título en hover */
+  color: #FFFFFF; /* Changes the title color to white for high contrast against the new background. */
 }
 
+/* Changes the description's color when the parent card is hovered. */
 .our-values__card:hover .our-values__card-description {
-  color: #FFEFE6; /* Color de descripción en hover */
+  color: #FFEFE6; /* Changes the description color to a soft off-white. */
 }
 
-/* Responsive Design */
+/* --- Responsive Design --- */
+/* Media query for tablets and smaller devices. */
 @media (max-width: 992px) {
   .our-values__cards-container {
-    flex-direction: column;
-    gap: 3rem;
+    flex-direction: column; /* Stacks the cards vertically instead of horizontally. */
+    gap: 3rem; /* Increases the space between the cards in the vertical layout. */
   }
 
+  /* This rule appears to reset any transform effects on this specific card for mobile. */
+  /* It ensures consistent alignment in the single-column layout. */
   .our-values__card.artesania {
     transform: translateY(0);
   }

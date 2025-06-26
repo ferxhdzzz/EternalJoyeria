@@ -1,0 +1,9 @@
+.registro-content {
+    width: 100%;
+}
+
+/* Ajustes para que el Stepper se vea bien dentro de la tarjeta */
+.recover-card .Stepper {
+    margin-bottom: 2rem; /* Espacio entre el stepper y el contenido del paso */
+    padding: 0 1rem; /* Alinear con el resto del contenido */
+}

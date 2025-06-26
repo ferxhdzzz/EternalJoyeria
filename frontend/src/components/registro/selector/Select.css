@@ -3,7 +3,7 @@
   margin-top: 20px;
   display: flex;
   flex-direction: column;
-  max-width: 381px; /* ✅ antes era 350px, ahora más ancho */
+  width: 100%; /* Ocupa el ancho completo */
 }
 
 

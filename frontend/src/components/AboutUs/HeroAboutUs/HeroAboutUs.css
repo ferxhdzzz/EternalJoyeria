@@ -1,109 +1,107 @@
-/* Estilos base del hero */
-
+/* Base styles for the Hero section in the 'About Us' page. */
 .hero-about-us {
-    width: 100%;
-    height: 95vh; /* Altura aumentada para una curva más pronunciada */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-image: url('/AboutUsBack.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    position: relative;
-    text-align: center;
-    overflow: hidden;
-    padding: 0 2rem;
-    /* Aplicamos la nueva forma de curva cóncava */
-    clip-path: url(#hero-down-curve);
-    /* Ajuste para que la siguiente sección se acomode a la curva */
-    margin-bottom: -15vh;
-  }
+    width: 100%; /* Sets the section to occupy the full width of its parent container. */
+    height: 95vh; /* Sets a height equal to 95% of the viewport height for a dramatic effect. */
+    display: flex; /* Enables flexbox for easy alignment of child elements. */
+    flex-direction: column; /* Stacks the child elements vertically. */
+    align-items: center; /* Horizontally centers the flex items. */
+    justify-content: center; /* Vertically centers the flex items. */
+    background-image: url('/AboutUsBack.png'); /* Specifies the background image for the section. */
+    background-size: cover; /* Ensures the background image covers the entire area. */
+    background-position: center; /* Centers the background image within the section. */
+    background-repeat: no-repeat; /* Prevents the background image from repeating. */
+    position: relative; /* Creates a positioning context for child elements with absolute positioning. */
+    text-align: center; /* Centers the inline text content. */
+    overflow: hidden; /* Prevents content (like the scaled background) from spilling outside the element's bounds. */
+    padding: 0 2rem; /* Adds horizontal padding to prevent content from touching the screen edges. */
+    clip-path: url(#hero-down-curve); /* Applies an SVG clipping path to create a curved bottom edge. */
+    margin-bottom: -15vh; /* Creates a negative bottom margin to allow the subsequent section to overlap with the curve. */
+}
   
-  /* Contenedor de la imagen de fondo */
-  .hero-about-us__image-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-  }
+/* Container for the background image, used for applying blur and other effects. */
+.hero-about-us__image-container {
+    position: absolute; /* Positions the container relative to its parent (.hero-about-us). */
+    top: 0; /* Aligns the container to the top of the parent. */
+    left: 0; /* Aligns the container to the left of the parent. */
+    width: 100%; /* Ensures the container spans the full width of the parent. */
+    height: 100%; /* Ensures the container spans the full height of the parent. */
+    z-index: 1; /* Places the image container behind the text content. */
+}
   
-  .hero-about-us__image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    filter: blur(15px);
-    transform: scale(1.1);
-  }
+/* The actual image element that serves as the blurred background. */
+.hero-about-us__image {
+    width: 100%; /* Stretches the image to the full width of its container. */
+    height: 100%; /* Stretches the image to the full height of its container. */
+    object-fit: cover; /* Ensures the image covers the entire container, cropping if necessary. */
+    object-position: center; /* Keeps the center of the image visible. */
+    filter: blur(15px); /* Applies a strong blur effect to the image. */
+    transform: scale(1.1); /* Scales the image up slightly to prevent the blurred edges from being visible. */
+}
   
-  /* Contenido principal (texto) */
-  .hero-about-us__content {
-    position: relative;
-    z-index: 2;
-    max-width: 800px;
-    /* Empujamos el contenido hacia abajo para que no se corte por la curva */
-    padding-bottom: 15vh;
-  }
+/* Container for the main textual content (title and subtitle). */
+.hero-about-us__content {
+    position: relative; /* Allows z-index to work. */
+    z-index: 2; /* Ensures the text content appears on top of the blurred image. */
+    max-width: 800px; /* Constrains the width of the text for better readability. */
+    padding-bottom: 15vh; /* Adds padding at the bottom to push the text up, preventing it from being cut off by the curve. */
+}
   
-  /* Título */
-  .hero-about-us__title {
-    font-family: 'Playfair Display', serif;
-    font-size: 4.5rem;
-    font-weight: 400;
-    color: #3a3a3a;
-    line-height: 1.3;
-    margin: 0;
-  }
+/* The main title of the hero section. */
+.hero-about-us__title {
+    font-family: 'Playfair Display', serif; /* Uses an elegant serif font for a classic look. */
+    font-size: 4.5rem; /* Sets a large, prominent font size. */
+    font-weight: 400; /* Sets a normal font weight. */
+    color: #3a3a3a; /* Sets a dark gray color for high contrast and readability. */
+    line-height: 1.3; /* Adjusts the spacing between lines of text. */
+    margin: 0; /* Removes the default margin to have precise control over spacing. */
+}
   
-  /* Subtítulo */
-  .hero-about-us__subtitle {
-    font-size: 1.2rem;
-    color: #666;
-    margin: 1.5rem 0 0;
-    line-height: 1.6;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-  }
+/* The subtitle of the hero section. */
+.hero-about-us__subtitle {
+    font-size: 1.2rem; /* Sets a smaller font size than the title. */
+    color: #666; /* Sets a lighter gray color for secondary text. */
+    margin: 1.5rem 0 0; /* Adds margin only to the top to space it from the title. */
+    line-height: 1.6; /* Increases line height for better readability of the paragraph. */
+    max-width: 600px; /* Constrains the width to prevent lines from being too long. */
+    margin-left: auto; /* Works with margin-right: auto to center the block. */
+    margin-right: auto; /* Works with margin-left: auto to center the block. */
+}
   
-  /* --- Responsive --- */
-  @media (max-width: 992px) {
+/* --- Responsive Design --- */
+/* Media query for large tablets and small desktops. */
+@media (max-width: 992px) {
     .hero-about-us__title {
-      font-size: 3.5rem;
+      font-size: 3.5rem; /* Reduces the title font size for medium-sized screens. */
     }
-  }
+}
   
-  @media (max-width: 768px) {
+/* Media query for tablets. */
+@media (max-width: 768px) {
     .hero-about-us {
-      height: 85vh;
-      margin-bottom: -10vh;
+      height: 85vh; /* Reduces the section height on smaller screens. */
+      margin-bottom: -10vh; /* Adjusts the negative margin to match the smaller curve. */
     }
     
     .hero-about-us__content {
-      padding-bottom: 10vh;
+      padding-bottom: 10vh; /* Adjusts the bottom padding for the content. */
     }
   
     .hero-about-us__title {
-      font-size: 2.8rem;
+      font-size: 2.8rem; /* Further reduces the title font size for tablets. */
     }
     
     .hero-about-us__subtitle {
-      font-size: 1.1rem;
+      font-size: 1.1rem; /* Reduces the subtitle font size for tablets. */
     }
-  }
+}
   
-  @media (max-width: 480px) {
+/* Media query for mobile phones. */
+@media (max-width: 480px) {
     .hero-about-us__title {
-      font-size: 2.2rem;
+      font-size: 2.2rem; /* Makes the title font size even smaller for mobile readability. */
     }
     
     .hero-about-us__subtitle {
-      font-size: 1rem;
+      font-size: 1rem; /* Makes the subtitle font size smaller for mobile. */
     }
-  }
-  
-  
+}

@@ -1,98 +1,100 @@
 .product-showcase {
-  padding: 60px 20px;
-  background-color: #fff;
+  padding: 60px 20px; /* Adds padding to the top/bottom and sides of the section. */
+  background-color: #fff; /* Sets a white background color. */
 }
 
 .showcase-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1200px;
-  margin: 0 auto;
-  gap: 40px;
-  flex-wrap: wrap;
+  display: flex; /* Enables flexbox layout. */
+  align-items: center; /* Vertically centers the items. */
+  justify-content: space-between; /* Distributes space between the text and product sections. */
+  max-width: 1200px; /* Sets a maximum width for the content. */
+  margin: 0 auto; /* Centers the content horizontally. */
+  gap: 40px; /* Adds space between the text and product sections. */
+  flex-wrap: wrap; /* Allows items to wrap to the next line on smaller screens. */
 }
 
 .text-section {
-  flex: 1;
-  max-width: 400px;
+  flex: 1; /* Allows the text section to grow. */
+  max-width: 400px; /* Sets a maximum width for the text section. */
 }
 
 .text-section h2 {
-  font-size: 32px;
-  color: #222;
-  margin-bottom: 16px;
+  font-size: 32px; /* Sets the font size for the headline. */
+  color: #222; /* Sets a dark color for the headline text. */
+  margin-bottom: 16px; /* Adds space below the headline. */
 }
 
 .text-section p {
-  font-size: 18px;
-  color: #555;
+  font-size: 18px; /* Sets the font size for the paragraph text. */
+  color: #555; /* Sets a gray color for the paragraph text. */
 }
 
 .products {
-  flex: 2;
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex: 2; /* Allows the products section to take up more space than the text section. */
+  display: flex; /* Enables flexbox layout for the products. */
+  gap: 20px; /* Adds space between the product items. */
+  flex-wrap: wrap; /* Allows products to wrap to the next line. */
+  justify-content: center; /* Centers the products horizontally. */
 }
 
 .product {
-  width: 200px !important;
-  flex-shrink: 0;
-  text-align: center;
+  width: 200px !important; /* Sets a fixed width for each product card. `!important` is used to override other styles. */
+  flex-shrink: 0; /* Prevents the product card from shrinking. */
+  text-align: center; /* Centers the text inside the product card. */
 }
 
 .product img {
-  width: 200px !important;
-  height: 240px !important;
-  object-fit: cover;
-  border-radius: 18px;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+  width: 200px !important; /* Sets a fixed width for the product image. */
+  height: 240px !important; /* Sets a fixed height for the product image. */
+  object-fit: cover; /* Ensures the image covers the container, cropping if necessary. */
+  border-radius: 18px; /* Adds rounded corners to the image. */
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow to the image. */
 }
 
 .product-info {
-  margin-top: 10px;
+  margin-top: 10px; /* Adds space above the product information. */
 }
 
 .product-info h4 {
-  font-size: 16px;
-  margin: 0;
-  color: #222;
-  font-weight: 600;
+  font-size: 16px; /* Sets the font size for the product name. */
+  margin: 0; /* Removes default margin from the heading. */
+  color: #222; /* Sets a dark color for the product name. */
+  font-weight: 600; /* Makes the product name semi-bold. */
 }
 
 .product-info span {
-  display: block;
-  margin-top: 4px;
-  color: #777;
-  font-size: 14px;
+  display: block; /* Makes the price appear on a new line. */
+  margin-top: 4px; /* Adds a small space above the price. */
+  color: #777; /* Sets a gray color for the price text. */
+  font-size: 14px; /* Sets the font size for the price. */
 }
 
+/* Responsive Design for tablets and smaller desktops. */
 @media (max-width: 1024px) {
   .showcase-content {
-    flex-direction: column;
-    align-items: center;
+    flex-direction: column; /* Stacks the text and products sections vertically. */
+    align-items: center; /* Centers the content. */
   }
 
   .text-section {
-    max-width: 100%;
-    text-align: center;
-    margin-bottom: 40px;
+    max-width: 100%; /* Allows the text section to take the full width. */
+    text-align: center; /* Centers the text. */
+    margin-bottom: 40px; /* Adds space below the text section. */
   }
 
   .products {
-    justify-content: center;
+    justify-content: center; /* Ensures products remain centered. */
   }
 }
 
+/* Responsive Design for mobile phones. */
 @media (max-width: 640px) {
   .product {
-    width: 150px !important;
+    width: 150px !important; /* Reduces the width of product cards on small screens. */
   }
 
   .product img {
-    width: 150px !important;
-    height: 180px !important;
+    width: 150px !important; /* Reduces the width of product images. */
+    height: 180px !important; /* Reduces the height of product images. */
   }
 }

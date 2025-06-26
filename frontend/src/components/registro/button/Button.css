@@ -1,19 +1,20 @@
 .custom-button {
-  background-color: #c065a8;
+  background-color: #d47a9a; /* Mismo rosa que el stepper */
   color: white;
-  padding: 10px 20px;
+  padding: 12px 24px;
   border: none;
-  border-radius: 20px;
+  border-radius: 25px; /* Bordes más redondeados */
   cursor: pointer;
-  font-size: 14px;
-  margin-top: 1rem;
-
-  display: block;        /* necesario para que funcione el auto-margin */
-  margin-left: auto;
-  margin-right: auto;
+  font-size: 16px; /* Texto ligeramente más grande */
+  font-weight: bold;
+  margin-top: 1.5rem;
+  display: inline-block; /* Cambiado para mejor control */
+  min-width: 150px; /* Ancho mínimo para consistencia */
+  text-align: center;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-
 .custom-button:hover {
-  opacity: 0.9;
+  background-color: #c065a8; /* Un rosa un poco más oscuro al pasar el mouse */
+  transform: translateY(-2px); /* Efecto de elevación */
 }

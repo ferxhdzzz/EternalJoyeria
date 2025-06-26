@@ -6,7 +6,7 @@ import BackArrow from "../components/registro/backarrow/BackArrow";
 import PerfilFoto from "../components/registro/ProfilePic/PerfilFoto";
 import BotonPerfil from "../components/registro/BotonPerfil/BotonPerfil";
 
-import "../styles/Registro.css";
+import '../styles/AuthStyles.css';
 
 const RegistroPaso2 = () => {
   const [form, setForm] = useState({
@@ -22,7 +22,7 @@ const RegistroPaso2 = () => {
   };
 
   return (
-    <div className="recover-wrappere" style={{ backgroundImage: `url("/registeeer.png")`, backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}>
+    <div className="recover-wrapper" style={{ backgroundImage: `url("/registeeer.png")`, backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}>
       <div className="recover-card">
         <BackArrow to="/registro2" />
         <Logo />

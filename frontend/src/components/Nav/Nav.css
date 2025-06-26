@@ -1,99 +1,99 @@
-@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Nunito:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Nunito:wght@400;600;700&display=swap'); /* Imports Google Fonts for use in the component. */
 
 .nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background: transparent;
-  font-family: 'Nunito', sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.8rem 4rem; /* Increased right (and left) padding from 2rem to 4rem */
-  z-index: 1000; /* Ensure it's on top */
-  box-sizing: border-box; /* Include padding in width calculation */
+  position: fixed; /* Fixes the navigation bar to the top of the viewport. */
+  top: 0; /* Aligns the navbar to the top edge of the viewport. */
+  left: 0; /* Aligns the navbar to the left edge of the viewport. */
+  width: 100%; /* Makes the navbar span the full width of the viewport. */
+  background: transparent; /* Sets the background to be transparent. */
+  font-family: 'Nunito', sans-serif; /* Sets the default font for the navbar. */
+  display: flex; /* Enables flexbox layout for the navbar. */
+  align-items: center; /* Vertically centers the items in the navbar. */
+  justify-content: space-between; /* Distributes space between the logo and the right-side content. */
+  padding: 0.8rem 4rem; /* Adds padding to the top/bottom and left/right of the navbar. */
+  z-index: 1000; /* Ensures the navbar stays on top of other content. */
+  box-sizing: border-box; /* Includes padding and border in the element's total width and height. */
 }
 
 .nav__logo img {
-  max-height: 70px; /* Aumentado de 50px a 70px */
+  max-height: 70px; /* Sets the maximum height for the logo image. */
 }
 
 .nav__right-content {
-  display: flex;
-  align-items: center;
-  gap: 4rem; /* Further increased gap between links block and icons block */
+  display: flex; /* Enables flexbox for the right side content. */
+  align-items: center; /* Vertically centers the items on the right side. */
+  gap: 4rem; /* Adds a significant gap between the navigation links and the icons. */
 }
 
 .nav__links {
-  list-style: none;
-  display: flex;
-  gap: 2.5rem; /* Increased gap between links */
+  list-style: none; /* Removes the default bullet points from the list. */
+  display: flex; /* Enables flexbox for the list of links. */
+  gap: 2.5rem; /* Adds space between each navigation link. */
 }
 
 .nav__link {
-  text-decoration: none;
-  color: #000;
-  font-weight: 400;
-  transition: color 0.3s;
-  font-size: 1.1rem; /* Increased font size */
+  text-decoration: none; /* Removes the underline from links. */
+  color: #000; /* Sets the default text color for links. */
+  font-weight: 400; /* Sets the font weight for links. */
+  transition: color 0.3s; /* Adds a smooth transition for the color change on hover. */
+  font-size: 1.1rem; /* Sets the font size for the navigation links. */
 }
 
 .nav__link--active {
-  color: #CC7CAF;
-  font-weight: 600;
+  color: #CC7CAF; /* Sets the color for the active navigation link. */
+  font-weight: 600; /* Makes the active link's text semi-bold. */
 }
 
 .nav__link:hover {
-  color: #CC7CAF;
+  color: #CC7CAF; /* Changes the link color on hover. */
 }
 
 .nav__icons {
-  display: flex;
-  gap: 2.5rem; /* Significantly increased gap between icons */
+  display: flex; /* Enables flexbox for the icons container. */
+  gap: 2.5rem; /* Adds a large gap between the icons. */
 }
 
 .nav__icon {
-  color: #000;
-  cursor: pointer;
-  transition: color 0.3s;
+  color: #000; /* Sets the default color for the icons. */
+  cursor: pointer; /* Changes the cursor to a pointer on hover. */
+  transition: color 0.3s; /* Adds a smooth transition for the color change on hover. */
 }
 
 .nav__icon:hover {
-  color: #CC7CAF;
+  color: #CC7CAF; /* Changes the icon color on hover. */
 }
 
 .nav__mobile-menu-icon {
-  display: none;
-  cursor: pointer;
-  z-index: 1001; /* Ensure icon is above nav links if they overlap */
+  display: none; /* Hides the mobile menu icon by default on larger screens. */
+  cursor: pointer; /* Changes the cursor to a pointer on hover. */
+  z-index: 1001; /* Ensures the icon is above the navigation links if they overlap. */
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px) { /* Applies the following styles on screens 768px wide or smaller. */
   .nav__links {
-    display: none;
-    position: absolute;
-    top: 60px; /* Adjust based on new nav height (approx) */
-    left: 0;
-    right: 0;
-    background-color: #fff; /* Or your desired background */
-    flex-direction: column;
-    align-items: center;
-    padding: 1rem 0;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 10;
+    display: none; /* Hides the navigation links by default on smaller screens. */
+    position: absolute; /* Positions the links relative to the nearest positioned ancestor. */
+    top: 60px; /* Positions the dropdown menu below the navbar. */
+    left: 0; /* Aligns the dropdown to the left edge. */
+    right: 0; /* Aligns the dropdown to the right edge. */
+    background-color: #fff; /* Sets a white background for the dropdown menu. */
+    flex-direction: column; /* Stacks the links vertically. */
+    align-items: center; /* Centers the links horizontally. */
+    padding: 1rem 0; /* Adds padding to the top and bottom of the dropdown. */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow to the dropdown. */
+    z-index: 10; /* Ensures the dropdown is above other page content but below the navbar itself. */
   }
 
   .nav__links--open {
-    display: flex;
+    display: flex; /* Shows the navigation links when the mobile menu is open. */
   }
 
   .nav__links li {
-    margin-bottom: 1rem;
+    margin-bottom: 1rem; /* Adds space below each link in the mobile menu. */
   }
 
   .nav__mobile-menu-icon {
-    display: block;
-    color: #000; /* Or your desired icon color */
+    display: block; /* Shows the mobile menu (hamburger) icon on smaller screens. */
+    color: #000; /* Sets the color for the mobile menu icon. */
   }
 }
