@@ -1,0 +1,51 @@
+/* AgregarProducto.css */
+.agregar-producto-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.agregar-producto-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff2f1;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.agregar-producto-page {
+  flex: 1;
+  overflow-y: auto;
+  padding: 30px 40px;
+  box-sizing: border-box;
+}
+
+.add-title {
+  text-align: center;
+  font-size: 24px;
+  color: #111;
+  margin: 24px 0;
+}
+
+@media (max-width: 768px) {
+  .agregar-producto-page {
+    padding: 20px 20px;
+  }
+  
+  .add-title {
+    font-size: 20px;
+    margin: 20px 0;
+  }
+}
+
+@media (min-width: 1200px) {
+  .agregar-producto-page {
+    padding: 40px 60px;
+  }
+  
+  .add-title {
+    font-size: 28px;
+    margin: 30px 0;
+  }
+}

@@ -1,0 +1,32 @@
+/* HistorialCompras.css */
+.historial-wrapper {
+  background-color: #ffe8e6;
+  min-height: 100vh;
+  padding: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.page-layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background-color: #ffe8e6;
+  overflow: hidden;
+}
+
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.content-area {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+  background-color: #ffe8e6;
+  box-sizing: border-box;
+}
