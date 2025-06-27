@@ -14,6 +14,8 @@ const customersSchema = new Schema(
       type: String,
       required: true, 
       unique: true,   // Agregado: para evitar duplicados
+      lowercase: true,//lowercase: trueEsto hace que el valor del campo (en este caso, el correo) se convierta automáticamente a minúsculas antes de guardarlo en la base de datos.
+      trim: true,//Esto elimina los espacios en blanco al inicio y al final del texto antes de guardarlo. 
     },
     password: {
       type: String,

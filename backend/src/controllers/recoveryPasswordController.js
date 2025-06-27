@@ -1,156 +1,178 @@
-import jsonwebtoken from "jsonwebtoken"; //Token
-import bcryptjs from "bcryptjs"; //Encriptar
+import jsonwebtoken from "jsonwebtoken";
+import bcryptjs from "bcryptjs";
 
 import clientsModel from "../models/Customers.js";
+import adminModel from "../models/Administrator.js";
 
 import { sendEmail, HTMLRecoveryEmail } from "../utils/mailRecoveryPassword.js";
 import { config } from "../config.js";
 
-//1- Crear un array de funciones
 const passwordRecoveryController = {};
 
-// Función para solicitar el código de recuperación
+// Función para solicitar el código de recuperación (MEJORADA)
 passwordRecoveryController.requestCode = async (req, res) => {
-  const { email } = req.body;
+  const { email, userType } = req.body; // Ahora recibimos el tipo de usuario
 
   try {
-    // Buscar al usuario por email en la base de datos de clientes
-    let userFound = await clientsModel.findOne({ email });
+    let userFound;
+    let modelToUse;
+
+    // Determinar qué modelo usar según el tipo de usuario
+    if (userType === "client") {
+      userFound = await clientsModel.findOne({ email });
+      modelToUse = "client";
+    } else if (userType === "admin") {
+      userFound = await adminModel.findOne({ email });
+      modelToUse = "admin";
+    } else {
+      return res.status(400).json({ message: "Invalid user type" });
+    }
 
     // Si no se encuentra el usuario, devolver mensaje de error
     if (!userFound) {
-      res.json({ message: "User not found" });
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Generar un código aleatorio de 5 dígitos
-    // (El que se va a enviar por correo)
     const code = Math.floor(10000 + Math.random() * 90000).toString();
 
     // Guardamos toda la información en un token JWT
     const token = jsonwebtoken.sign(
-      //1-¿Que voy a guardar? - email, código, tipo de usuario y estado de verificación
-      { email, code, userType: "client", verified: false },
-      //2-secret key - clave secreta para firmar el token
+      { email, code, userType: modelToUse, verified: false },
       config.JWT.JWT_SECRET,
-      //3-¿Cuando expira? - el token expira en 20 minutos
       { expiresIn: "20m" }
     );
 
     // Guardar el token en una cookie con duración de 20 minutos
-    res.cookie("tokenRecoveryCode", token, { maxAge: 20 * 60 * 1000, 
-      path:'/', //cookie disponibloe en toda la aplicacion 
-     sameSite:'lax',  // proteccion contra CSRF});
-     }
+    res.cookie("tokenRecoveryCode", token, { 
+      maxAge: 20 * 60 * 1000, 
+      path: '/',
+      sameSite: 'lax'
+    });
 
-      
-    );
-
-    // ULTIMO PASO => enviar el correo electrónico con el código de verificación
+    // Enviar el correo electrónico con el código de verificación
     await sendEmail(
       email,
-      "You verification code", //Asunto del correo
-      "Hello! Remember dont forget your pass", //Cuerpo del mensaje en texto plano
-      HTMLRecoveryEmail(code) //HTML del correo con el código
+      "Your verification code",
+      "Hello! Your password recovery code",
+      HTMLRecoveryEmail(code)
     );
 
-    res.json({ message: "correo enviado" });
+    res.json({ message: "Recovery email sent successfully" });
   } catch (error) {
-    console.log("error" + error);
+    console.log("Error in requestCode: " + error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
-// FUNCIÓN PARA VERIFICAR EL CÓDIGO enviado por correo
+// FUNCIÓN PARA VERIFICAR EL CÓDIGO (sin cambios)
 passwordRecoveryController.verifyCode = async (req, res) => {
   const { code } = req.body;
 
   try {
-    // Extraer el token de las cookies del navegador
     const token = req.cookies.tokenRecoveryCode;
 
-    // Decodificar y verificar la información del token JWT
-    const decoded = jsonwebtoken.verify(token, config.JWT.JWT_SECRET);
-
-    // Comparar el código enviado con el código almacenado en el token
-    if (decoded.code !== code) {
-      return res.json({ message: "Invalid code" });
+    if (!token) {
+      return res.status(400).json({ message: "No recovery token found" });
     }
 
-    // Marcar el token como verificado creando un nuevo token
+    const decoded = jsonwebtoken.verify(token, config.JWT.JWT_SECRET);
+
+    if (decoded.code !== code) {
+      return res.status(400).json({ message: "Invalid code" });
+    }
+
+    // Marcar el token como verificado
     const newToken = jsonwebtoken.sign(
-      //1-¿Que vamos a guardar? - misma info pero ahora marcada como verificada
       {
         email: decoded.email,
         code: decoded.code,
         userType: decoded.userType,
-        verified: true, // Ahora el código está verificado
+        verified: true,
       },
-      //2- Secret key para firmar el nuevo token
       config.JWT.JWT_SECRET,
-      //3- ¿Cuando expira? - 20 minutos más
       { expiresIn: "20m" }
     );
 
-    // Actualizar la cookie con el nuevo token verificado
-    res.cookie("tokenRecoveryCode", newToken, { maxAge: 20 * 60 * 1000 });
+    res.cookie("tokenRecoveryCode", newToken, { 
+      maxAge: 20 * 60 * 1000,
+      path: '/',
+      sameSite: 'lax'
+    });
 
     res.json({ message: "Code verified successfully" });
   } catch (error) {
-    console.log("error" + error);
+    console.log("Error in verifyCode: " + error);
+    res.status(500).json({ message: "Token expired or invalid" });
   }
 };
 
-// FUNCIÓN PARA ASIGNAR LA NUEVA CONTRASEÑA
+// FUNCIÓN PARA ASIGNAR LA NUEVA CONTRASEÑA (MEJORADA)
 passwordRecoveryController.newPassword = async (req, res) => {
   const { newPassword } = req.body;
 
   try {
-    // Extraer el token de recuperación de las cookies
     const token = req.cookies.tokenRecoveryCode;
 
-    // Decodificar la información del token
+    if (!token) {
+      return res.status(400).json({ message: "No recovery token found" });
+    }
+
     const decoded = jsonwebtoken.verify(token, config.JWT.JWT_SECRET);
 
-    // Verificar que el código haya sido verificado previamente
     if (!decoded.verified) {
       return res.status(400).json({ message: "Code not verified" });
     }
 
-    // Extraer el email del token decodificado
-    const { email } = decoded;
+    const { email, userType } = decoded;
 
-    // Encriptar la nueva contraseña usando bcrypt con salt de 10 rounds
+    // Encriptar la nueva contraseña
     const hashedPassword = await bcryptjs.hash(newPassword, 10);
 
+    let updatedUser;
 
-const oldPassword = await clientsModel.find({email})
-//1-Primero comparar la nueva contra con la contra actual
-//si la contra es igual retornar un error
+    // Actualizar según el tipo de usuario
+    if (userType === "client") {
+      // Verificar que la nueva contraseña no sea igual a la actual
+      const currentUser = await clientsModel.findOne({ email });
+      const isSamePassword = await bcryptjs.compare(newPassword, currentUser.password);
+      
+      if (isSamePassword) {
+        return res.status(400).json({ message: "New password must be different from current password" });
+      }
 
-//const validacion = await bcryptjs.compare(newPassword, oldPassword.password)
+      updatedUser = await clientsModel.findOneAndUpdate(
+        { email },
+        { password: hashedPassword },
+        { new: true }
+      );
+    } else if (userType === "admin") {
+      // Verificar que la nueva contraseña no sea igual a la actual
+      const currentUser = await adminModel.findOne({ email });
+      const isSamePassword = await bcryptjs.compare(newPassword, currentUser.password);
+      
+      if (isSamePassword) {
+        return res.status(400).json({ message: "New password must be different from current password" });
+      }
 
-//if(validacion){
-  //  return res.status(400).json({message: "contraseñas iguales"})
-//}
+      updatedUser = await adminModel.findOneAndUpdate(
+        { email },
+        { password: hashedPassword },
+        { new: true }
+      );
+    }
 
-
-
-
-    // Actualizar la contraseña del usuario en la base de datos
-
-    // findOneAndUpdate busca por email y actualiza la contraseña
-    // new: true devuelve el documento actualizado
-    let updatedUser = await clientsModel.findOneAndUpdate(
-      { email },
-      { password: hashedPassword },
-      { new: true }
-    );
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     // Eliminar el token de las cookies por seguridad
     res.clearCookie("tokenRecoveryCode");
 
-    res.json({ message: "Password updated" });
+    res.json({ message: "Password updated successfully" });
   } catch (error) {
-    console.log("error here" + error);
+    console.log("Error in newPassword: " + error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
