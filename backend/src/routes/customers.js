@@ -1,26 +1,24 @@
 import express from "express";
 import multer from "multer";
-import adminController from "../controllers/AdministratorController.js";
+import customersController from "../controllers/customersController.js";
 
 const router = express.Router();
 
 // Configurar multer para manejar archivos (imagen de perfil)
 const upload = multer({ dest: "public/" });
 
-// Rutas para administradores
+// Rutas para clientes
 router
   .route("/")
-  // Obtener lista de administradores
-  .get(adminController.getadmins);
+  // Obtener lista de clientes
+  .get(customersController.getcustomers);
 
 // Rutas para operaciones por ID
 router
   .route("/:id")
-  // Obtener administrador por ID
-  .get(adminController.getadminById)
-  // Actualizar administrador (con posible imagen)
-  .put(upload.single("profilePicture"), adminController.updateadmin)
-  // Eliminar administrador
-  .delete(adminController.deleteadmin);
+  // Actualizar cliente (con posible imagen)
+  .put(upload.single("profilePicture"), customersController.updatecustomers)
+  // Eliminar cliente
+  .delete(customersController.deletecustomers);
 
 export default router;
