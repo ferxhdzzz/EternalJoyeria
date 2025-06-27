@@ -10,6 +10,7 @@ import productsRoutes from "./src/routes/products.js";
 import registerCustomersRoutes from "./src/routes/registerCustomers.js";
 import cookieParser from "cookie-parser";
 import adminRoutes from "./src/routes/Administrator.js";
+import salesRoutes from "./src/routes/sales.js"
 // Creo una constante que es igual a la libreria que importé
 const app = express();
 
@@ -27,6 +28,7 @@ app.use("/api/recoveryPassword", recoveryPasswordRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/registerClients", registerCustomersRoutes);
 app.use ("/api/admins",adminRoutes )
+app.use("/api/sales", salesRoutes)
 
 
 
