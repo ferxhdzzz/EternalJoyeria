@@ -9,9 +9,7 @@ const upload = multer({ dest: "public/" });
 
 // Rutas para administradores
 router
-  .route("/")
-  // Obtener lista de administradores
-  .get(adminController.getadmins);
+  .route("/")  .get(adminController.getadmins);
 
 // Rutas para operaciones por ID
 router
@@ -19,7 +17,7 @@ router
   // Obtener administrador por ID
   .get(adminController.getadminById)
   // Actualizar administrador (con posible imagen)
-  .put(upload.single("profilePicture"), adminController.updateadmin)
+  .put(upload.single("profileImage"), adminController.updateadmin)
   // Eliminar administrador
   .delete(adminController.deleteadmin);
 

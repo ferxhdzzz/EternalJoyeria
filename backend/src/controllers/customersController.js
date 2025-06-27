@@ -1,3 +1,9 @@
+
+
+
+//=========================================
+///controlador
+//==========================
 import customersModel from "../models/Customers.js";
 import bcryptjs from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
@@ -14,17 +20,27 @@ const customersController = {};
 
 // SELECT (Obtener todos los clientes)
 customersController.getcustomers = async (req, res) => {
-  const customers = await customersModel.find();
-  res.json(customers);
+  try {
+    const customers = await customersModel.find();
+    res.json(customers);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al obtener clientes" });
+  }
 };
 
 // DELETE (Eliminar cliente por ID)
 customersController.deletecustomers = async (req, res) => {
-  const deletedCustomer = await customersModel.findByIdAndDelete(req.params.id);
-  if (!deletedCustomer) {
-    return res.status(404).json({ message: "Cliente no encontrado" });
+  try {
+    const deletedCustomer = await customersModel.findByIdAndDelete(req.params.id);
+    if (!deletedCustomer) {
+      return res.status(404).json({ message: "Cliente no encontrado" });
+    }
+    res.json({ message: "Cliente eliminado" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al eliminar cliente" });
   }
-  res.json({ message: "Cliente eliminado" });
 };
 
 // UPDATE (Actualizar un cliente)
@@ -67,6 +83,5 @@ customersController.updatecustomers = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 
 export default customersController;
