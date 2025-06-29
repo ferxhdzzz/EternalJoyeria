@@ -27,11 +27,28 @@
   font-size: 14px;
   width: 100%;
   box-sizing: border-box;
+  color: #333; /* Color del texto que escribes */
+  font-family: inherit;
+}
+
+.left-form input:focus,
+.left-form textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.left-form input::placeholder,
+.left-form textarea::placeholder {
+  color: #999; /* Color del placeholder */
+  opacity: 1;
 }
 
 .left-form textarea {
   height: 110px;
   resize: none;
+  font-family: inherit;
+  line-height: 1.5;
 }
 
 .right-form input {
@@ -42,6 +59,19 @@
   font-size: 14px;
   width: 100%;
   box-sizing: border-box;
+  color: #333; /* Color del texto que escribes */
+  font-family: inherit;
+}
+
+.right-form input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.right-form input::placeholder {
+  color: #999; /* Color del placeholder */
+  opacity: 1;
 }
 
 label {
