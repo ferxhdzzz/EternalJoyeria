@@ -10,9 +10,11 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       <Sidebar />
-      <div className="main-content">
+      <div className="topbar-wrapper">
         <TopBar />
+      </div>
 
+      <div className="main-content">
         <div className="cards-container3">
           <DashboardCard 
             value="240" 

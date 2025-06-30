@@ -1,23 +1,18 @@
-/* Estilos para las dashboard cards */
-.dashboard-card {
+.dashboard-card3 {
   background-color: #fff;
-  padding: 20px; /* Aumentado el padding */
+  padding: 20px;
   border-radius: 15px;
   text-align: left;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
   width: 100%;
-  max-width: 478px;
-  position: relative;
-  aspect-ratio: 4.2;
   min-height: 180px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  height: auto;
 }
 
-
-/* Contenedor para el texto */
 .card-content {
   display: flex;
   flex-direction: column;
@@ -42,44 +37,56 @@
 
 .card-image {
   width: 55px;
-  height: 55px; 
-  object-fit: contain; 
-  position: static; /* Cambio de absolute a static */
-  margin-left: 15px; /* Separación del texto */
-  opacity: 0.8; 
-  flex-shrink: 0; /* Evita que se reduzca */
+  height: 55px;
+  object-fit: contain;
+  position: static;
+  margin-left: 15px;
+  opacity: 0.8;
+  flex-shrink: 0;
 }
 
-/* Ajustes para el contenedor de las cards */
 .cards-container3 {
   display: flex;
-  gap: 20px; /* Aumentado el gap para mejor separación */
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+  align-items: stretch;
   margin: 20px 0;
-  justify-content: space-between; /* Distribución uniforme: izquierda, centro, derecha */
-  flex-wrap: nowrap;
-  align-items: stretch; /* Todas las cards tienen la misma altura */
 }
 
-/* Responsive para pantallas más pequeñas */
-@media (max-width: 768px) {
-  .dashboard-card {
-    min-height: 80px;
-    aspect-ratio: 2.5;
-    max-width: 100%;
+/* En pantallas grandes, 3 por fila */
+@media (min-width: 1024px) {
+  .dashboard-card3 {
+    width: calc(33.333% - 13.33px);
   }
-  
-  .card-value {
-    font-size: 24px;
+}
+
+/* En pantallas medianas, 2 por fila */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .dashboard-card3 {
+    width: calc(50% - 10px);
   }
-  
-  .card-image {
-    width: 45px;
-    height: 45px;
-    margin-left: 10px;
-  }
-  
-  .cards-container3 {
+}
+
+/* En pantallas pequeñas, 1 por fila */
+@media (max-width: 599px) {
+  .dashboard-card3 {
+    width: 100%;
     flex-direction: column;
-    gap: 10px;
+    align-items: flex-start;
+    padding: 15px;
+  }
+
+  .card-image {
+    margin-left: 0;
+    margin-top: 10px;
+    width: 50px;
+    height: 50px;
+  }
+
+  .card-content {
+    align-items: flex-start;
   }
 }

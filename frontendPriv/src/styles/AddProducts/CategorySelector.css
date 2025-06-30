@@ -26,11 +26,13 @@
 }
 
 .category-item img {
-  width: 160px !important;
-  height: 160px !important;
+  width: 100%;
+  max-width: 160px;
+  height: auto;
   border-radius: 14px;
   object-fit: cover;
 }
+
 
 .category-item p {
   font-size: 16px;

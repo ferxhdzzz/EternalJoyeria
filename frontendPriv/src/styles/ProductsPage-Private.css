@@ -1,18 +1,18 @@
-/* ProductsPage-Private.css */
-
 .products-private-page-container {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
   background-color: #fcebeb;
   overflow: hidden;
 }
 
 .sidebar-private {
   height: 100vh;
+  flex-shrink: 0;
 }
 
 .main-content-wrapper {
   flex: 1;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
