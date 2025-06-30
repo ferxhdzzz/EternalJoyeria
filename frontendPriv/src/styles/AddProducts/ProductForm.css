@@ -4,6 +4,8 @@
   grid-template-columns: 1fr 1fr;
   gap: 60px;
   align-items: start;
+  width: 100%;
+  max-width: 100%;
 }
 
 .left-form {
@@ -27,7 +29,7 @@
   font-size: 14px;
   width: 100%;
   box-sizing: border-box;
-  color: #333; /* Color del texto que escribes */
+  color: #333;
   font-family: inherit;
 }
 
@@ -40,7 +42,7 @@
 
 .left-form input::placeholder,
 .left-form textarea::placeholder {
-  color: #999; /* Color del placeholder */
+  color: #999;
   opacity: 1;
 }
 
@@ -59,7 +61,7 @@
   font-size: 14px;
   width: 100%;
   box-sizing: border-box;
-  color: #333; /* Color del texto que escribes */
+  color: #333;
   font-family: inherit;
 }
 
@@ -70,7 +72,7 @@
 }
 
 .right-form input::placeholder {
-  color: #999; /* Color del placeholder */
+  color: #999;
   opacity: 1;
 }
 

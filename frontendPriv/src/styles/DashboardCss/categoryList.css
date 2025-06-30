@@ -1,3 +1,5 @@
+/* categoryList.css */
+
 .category-list2 {
   background-color: #ffffff;
   border-radius: 15px;
@@ -49,4 +51,26 @@
 .category-item2 .arrow {
   font-size: 24px;
   color: #d14da0;
+}
+
+@media (min-width: 1024px) {
+  .category-list2 {
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 600px) {
+  .category-list2 {
+    padding: 15px;
+  }
+
+  .category-item2 {
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .category-item2 img {
+    width: 35px;
+    height: 35px;
+  }
 }
