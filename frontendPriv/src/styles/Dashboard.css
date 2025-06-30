@@ -1,0 +1,39 @@
+/* Dashboard.css */
+
+.sales-chart-container {
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.sales-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.legend-item {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.legend-item.this-year {
+  color: #4a6cf7;
+}
+
+.legend-item.last-year {
+  color: #9ca3af;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease;
+}

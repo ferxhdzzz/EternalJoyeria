@@ -17,7 +17,7 @@ function Sidebar() {
       </div>
 
       <nav className="menu">
-      <NavLink to="/menu" className="nav-link">
+      <NavLink to="/Dashboard" className="nav-link">
           <FaCompass className="icon" /> <span>Menu</span>
         </NavLink>
         <NavLink to="/productPriv" className="nav-link">
