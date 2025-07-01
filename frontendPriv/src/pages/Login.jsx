@@ -53,7 +53,7 @@ const [showPassword, setShowPassword] = useState(false);
     if (hasError) return;
 
     // Si no hay errores, redirige
-    navigate("/ajustes");
+    navigate("/Dashboard");
   };
 
 

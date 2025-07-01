@@ -1,99 +1,115 @@
 .topbar {
   display: flex;
-  align-items: center; /* ✅ centra verticalmente */
   justify-content: space-between;
-  height: 54px; /* ✅ altura fija opcional */
-  padding: 0 20px;
-  background-color: white;
-  border-bottom: 1px solid #eaeaea;
+  align-items: center;
+  background-color: transparent;
+  padding: 15px 70px;
+  font-family: 'Poppins', sans-serif;
+  height: 64px;
 }
 
-.left-section,
-.center-section,
-.right-section {
-  flex: 1;
+.search-box {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-top: 0px;
-  margin-right: 40px;
+  background-color: rgba(214, 150, 191, 0.5);
+  padding: 8px 8px;
+  border-radius: 30px;
+  width: 400px;
+  gap: 10px;
 }
 
-.search-container {
-    margin-top: 0px;
-
-  display: flex;
-  align-items: center;
-  background-color: #e9f2ff;
-  padding: 0px 1px; /* ↓ Menor altura (antes: 8px 12px) */
-  border-radius: 999px;
-  gap: 8px;
-  width: 400px; /* ⬅️ Aumenta el ancho (ajústalo si quieres más) */
-}
-.search-container input {
+.search-box input {
   border: none;
   background: transparent;
   outline: none;
-  color: #333;
-  width: 100%;
+  color: rgb(0, 0, 0);
   font-size: 14px;
-  padding: 0;
-  margin: 0;
-  line-height: 3;
+  width: 100%;
 }
+
 .search-icon {
-  color: #1d75e5;
+  color: rgb(125, 122, 122);
+  font-size: 14px;
 }
 
-.right-section {
-  justify-content: flex-end;
-    margin-top: -2px;
-
-  gap: 16px;
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
 }
 
-.icon-circle {
-  background-color: rgba(29, 117, 229, 0.1);
+.icon-button {
+  background-color: #FAD1E4;
   padding: 10px;
-    margin-top: -4px; /* ⬆️ Súbela un poco */
-
   border-radius: 50%;
+  color: #D696BF;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
-.icon-circle .icon {
-  color: #1d75e5;
-  font-size: 16px;
+.icon-button:hover {
+  background-color: #e8b5cd;
 }
 
-.profile-link {
+.profile {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: -4px; /* ⬆️ Súbelos también */
+  text-decoration: none;
+  gap: 10px;
+  color: black;
+  font-weight: 600;
+  font-size: 14px;
 }
 
-.profile-pic {
+.profile:hover span {
+  color: black;
+}
+
+.profile-img {
   width: 32px;
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
 }
 
-.profile-name {
-  font-weight: 600;
-  font-size: 14px;
-  color: black; /* fuerza color inicial */
-  transition: color 0.2s ease;
-}
-.profile-link:hover .profile-name {
-  color: black; /* ← mantiene el color en hover */
+/* Responsive */
+@media (max-width: 768px) {
+  .topbar {
+    padding: 15px 20px;
+  }
+
+  .search-box {
+    width: 150px;
+    padding: 6px 8px;
+  }
+
+  .search-box input {
+    font-size: 12px;
+  }
+
+  .search-box input::placeholder {
+    font-size: 10px;
+  }
+
+  .topbar-right {
+    gap: 12px;
+  }
+
+  .profile span {
+    display: none;
+  }
+
+  .profile-img {
+    width: 36px;
+    height: 36px;
+  }
 }
 
-.profile-link:visited .profile-name,
-.profile-link:focus .profile-name,
-.profile-link:active .profile-name {
-  color: black; /* ← evita que se vuelva azul o morado */
+@media (max-width: 480px) {
+  .search-box {
+    display: none;
+  }
 }

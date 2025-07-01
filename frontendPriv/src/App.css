@@ -6,7 +6,7 @@ body {
   font-family: 'Nunito', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #FFFFFF; /* White background */
+  background-color: #FFF3F2; /* White background */
   color: #132F3A; /* Default text color */
   overflow-x: hidden; /* Prevent horizontal scrolling */
 }

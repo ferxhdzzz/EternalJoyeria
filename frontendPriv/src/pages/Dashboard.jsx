@@ -8,6 +8,8 @@ import "../styles/DashboardCss/dashboard.css";
 
 const Dashboard = () => {
   return (
+
+     < >
     <div className="dashboard-container">
       <Sidebar />
       <div className="topbar-wrapper">
@@ -39,6 +41,8 @@ const Dashboard = () => {
         </div>
       </div>
     </div>
+    
+     </>
   );
 };
 
