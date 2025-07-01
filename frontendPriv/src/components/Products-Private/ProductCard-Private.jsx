@@ -1,7 +1,9 @@
 import React from 'react';
 import '../../styles/ProductCard-Private.css';
+import EditButton from './EditButton';
+import DeleteButton from './DeleteButton';
 
-const ProductCardPrivate = ({ product }) => {
+const ProductCardPrivate = ({ product, onEdit, onDelete }) => {
   return (
     <div className="product-card-private">
       <img
@@ -25,8 +27,8 @@ const ProductCardPrivate = ({ product }) => {
       </p>
 
       <div className="product-actions-private">
-        <button className="btn-edit-private">Editar</button>
-        <button className="btn-delete-private">Eliminar</button>
+        <EditButton onClick={() => onEdit(product)} />
+        <DeleteButton onClick={() => onDelete(product)} />
       </div>
     </div>
   );

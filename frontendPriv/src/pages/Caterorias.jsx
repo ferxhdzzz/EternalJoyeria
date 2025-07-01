@@ -12,7 +12,7 @@ const Categorias = () => {
       image: '/Products/categoria1.png',
       name: 'Anillo de Orquídeas',
       originalPrice: 60.0,
-      discount: 10,
+      
       finalPrice: 50.0,
     },
     {
