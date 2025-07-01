@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import '../../styles/AddProducts/QuantityCounter.css';
+import CounterButton from './CounterBottom';
 
 const QuantityCounter = () => {
   const [count, setCount] = useState(1);
 
   return (
     <div className="quantity-counter">
-      <button onClick={() => setCount(prev => Math.max(1, prev - 1))}>−</button>
+      <CounterButton onClick={() => setCount(prev => Math.max(1, prev - 1))}>−</CounterButton>
       <span>{count}</span>
-      <button onClick={() => setCount(prev => prev + 1)}>+</button>
+      <CounterButton onClick={() => setCount(prev => prev + 1)}>+</CounterButton>
     </div>
   );
 };
