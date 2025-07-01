@@ -1,17 +1,24 @@
-import React from 'react';
-import Sidebar from '../components/Sidebar/Sidebar';
+import React from "react";
+import TopBar from "../components/Topbar/Topbar";
+import Sidebar from "../components/Sidebar/Sidebar";
+import ProfileCard from "../components/Ajustes/ProfileCard";
+import BackgroundRectangle from "../components/Ajustes/BackgroundRectangle";
+import "../styles/Ajustes.css";
 
-const Ajustes = () => (
-  <>
-   
-    <div className="home-container">
+const Ajustes = () => {
+  return (
+    <div className="ajustes-page">
       <Sidebar />
-          
-
-      {/* Other sections of the home page can go here */}
+      <div className="ajustes-container">
+        <TopBar />
+        <div className="ajustes-content">
+          {/* Rectángulo detrás de la card */}
+          <BackgroundRectangle />
+          <ProfileCard />
+        </div>
+      </div>
     </div>
-
-  </>
-);
+  );
+};
 
 export default Ajustes;

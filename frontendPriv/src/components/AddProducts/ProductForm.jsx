@@ -21,42 +21,48 @@ const ProductForm = () => {
   };
 
   return (
-    <div className="product-form">
-      <div className="left-form">
-        <FormLabel htmlFor="nombre">Nombre del producto</FormLabel>
-        <FormInput name="nombre" value={formData.nombre} onChange={handleChange} />
+    <div className="product-form-container">
+      <div className="product-form">
+        <div className="left-form">
+          <FormLabel htmlFor="nombre">Nombre del producto</FormLabel>
+          <FormInput name="nombre" value={formData.nombre} onChange={handleChange} />
 
-        <FormLabel htmlFor="descripcion">Descripción</FormLabel>
-        <FormInput name="descripcion" value={formData.descripcion} onChange={handleChange} isTextarea />
-      </div>
+          <FormLabel htmlFor="descripcion">Descripción</FormLabel>
+          <FormInput name="descripcion" value={formData.descripcion} onChange={handleChange} isTextarea />
 
-      <div className="right-form">
-        <div className="price-discount">
-          <div>
-            <FormLabel htmlFor="precio">Precio</FormLabel>
-            <FormInput name="precio" value={formData.precio} onChange={handleChange} />
-          </div>
-          <div>
-            <FormLabel htmlFor="descuento">Descuento</FormLabel>
-            <FormInput name="descuento" value={formData.descuento} onChange={handleChange} />
+          <div className="medidas">
+            <div>
+              <FormLabel htmlFor="largo">Largo</FormLabel>
+              <FormInput name="largo" value={formData.largo} onChange={handleChange} />
+            </div>
+            <div>
+              <FormLabel htmlFor="ancho">Ancho</FormLabel>
+              <FormInput name="ancho" value={formData.ancho} onChange={handleChange} />
+            </div>
+            <div>
+              <FormLabel htmlFor="peso">Peso (g)</FormLabel>
+              <FormInput name="peso" value={formData.peso} onChange={handleChange} />
+            </div>
           </div>
         </div>
 
-        <FormLabel htmlFor="cantidad" className="cantidad-label">Cantidad</FormLabel>
-        <QuantityCounter />
+        <div className="right-form">
+          <ImageUploader />
 
-        <div className="medidas">
-          <FormLabel htmlFor="largo">Largo</FormLabel>
-          <FormInput name="largo" value={formData.largo} onChange={handleChange} />
+          <div className="price-discount">
+            <div>
+              <FormLabel htmlFor="precio">Precio</FormLabel>
+              <FormInput name="precio" value={formData.precio} onChange={handleChange} />
+            </div>
+            <div>
+              <FormLabel htmlFor="descuento">Descuento</FormLabel>
+              <FormInput name="descuento" value={formData.descuento} onChange={handleChange} />
+            </div>
+          </div>
 
-          <FormLabel htmlFor="ancho">Ancho</FormLabel>
-          <FormInput name="ancho" value={formData.ancho} onChange={handleChange} />
-
-          <FormLabel htmlFor="peso">Peso (g)</FormLabel>
-          <FormInput name="peso" value={formData.peso} onChange={handleChange} />
+          <FormLabel htmlFor="cantidad">Cantidad</FormLabel>
+          <QuantityCounter />
         </div>
-
-        <ImageUploader />
       </div>
     </div>
   );

@@ -11,6 +11,8 @@ import ProductPriv from './pages/Products-Private';
 import AddProduct from './pages/AgregarProducto'
 import HistoryShopping from './pages/HistorialCompras'
 import Dashboard from './pages/Dashboard';
+import Categorias from './pages/Caterorias';
+
 
 function App() {
 
@@ -30,6 +32,8 @@ function App() {
           <Route path="/AddProduct" element={<AddProduct />} />
           <Route path="/HistorialCompras" element={<HistoryShopping />} />
           <Route path="/Dashboard" element={<Dashboard />} />
+                    <Route path="/categorias" element={<Categorias />} />
+
 
 
 

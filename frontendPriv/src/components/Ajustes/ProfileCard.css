@@ -1,0 +1,91 @@
+.profile-card {
+  padding: 1em;
+  padding-left: 2em;
+    padding-bottom: 4em;
+
+    padding-right: 2em;
+  background-color:white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+ overflow: hidden;
+  height: calc(100% - 20px); /* Reduce la altura de la card */
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile-image {
+  width: 89px;
+  height: 89px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.update-button {
+  background-color: #9575cd;
+  color: white;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.info-container {
+  margin-top: 1.5rem;
+}
+
+.info-box, .admin-box {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background-color: #fff; /* Fondo blanco */
+}
+
+.info-row {
+  margin-bottom: 1rem;
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.info-input {
+  flex-grow: 1;
+  border: 1px solid #ffffff;
+  border-radius: 5px;
+  padding: 0.5rem;
+  margin-right: 1rem;
+  background-color: #fff;
+  color: #555;
+  font-size: 1rem;
+}
+
+.edit-button {
+  background-color: #b39ddb;
+  color: white;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.admin-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #1e88e5; /* Azul */
+  margin-bottom: 0.5rem;
+}
+
+.admin-description {
+  font-size: 0.9rem;
+  color: #555;
+}
