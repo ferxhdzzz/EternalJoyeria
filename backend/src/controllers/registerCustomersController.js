@@ -1,19 +1,18 @@
-// 📁 controllers/registerCustomersController.js 
-
+// controllers/registerCustomersController.js 
 import jsonwebtoken from "jsonwebtoken";
 import bcryptjs from "bcryptjs";
 import crypto from "crypto";
-import { v2 as cloudinary } from "cloudinary";
 import clientsModel from "../models/Customers.js";
-import { config } from "../config.js";
 import { sendMail } from "../utils/mailVerify.js";
 import { HTMLEmailVerification } from "../utils/mailVerify.js";
 import { HTMLWelcomeEmail } from "../utils/HTMLWelcomeEmail.js";
+import { v2 as cloudinary } from "cloudinary";
+
 // 1- Configurar cloudinary con nuestra cuenta
 cloudinary.config({
-  cloud_name: config.cloudinary.cloudinary_name,
-  api_key: config.cloudinary.cloudinary_api_key,
-  api_secret: config.cloudinary.cloudinary_api_secret,
+  cloud_name: 'dosy4rouu',
+  api_key: '712175425427873',
+  api_secret: 'Yk2vqXqQ6aknOrT7FCoqEiWw31w',
 });
 
 const registerCustomersController = {};
