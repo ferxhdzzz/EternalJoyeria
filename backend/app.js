@@ -8,6 +8,9 @@ import logoutRoutes from "./src/routes/logout.js";
 import recoveryPasswordRoutes from "./src/routes/recoveryPassword.js";
 import productsRoutes from "./src/routes/products.js";
 import registerCustomersRoutes from "./src/routes/registerCustomers.js";
+import reviewsRouter from "./src/routes/reviews.js";
+import salesRoutes from "./src/routes/sales.js"
+import ordersRoutes from "./src/routes/orders.js";
 import cookieParser from "cookie-parser";
 import adminRoutes from "./src/routes/Administrator.js";
 // Creo una constante que es igual a la libreria que importé
@@ -27,6 +30,9 @@ app.use("/api/recoveryPassword", recoveryPasswordRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/registerClients", registerCustomersRoutes);
 app.use ("/api/admins",adminRoutes )
+app.use("/api/reviews", reviewsRouter);
+app.use("/api/sales", salesRoutes)
+app.use("/api/orders", ordersRoutes);
 
 
 
