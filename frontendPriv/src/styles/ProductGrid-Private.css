@@ -1,28 +1,26 @@
 /* ProductGrid-Private.css */
 .product-grid-private {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 40px; /* ← AUMENTADO (antes era 30px o menos) */
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 30px;
   padding: 20px;
 }
 
 @media (max-width: 1200px) {
   .product-grid-private {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 32px; /* también más espacio en responsive */
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 }
 
 @media (max-width: 768px) {
   .product-grid-private {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 24px;
+    gap: 20px;
   }
 }
 
 @media (max-width: 480px) {
   .product-grid-private {
     grid-template-columns: 1fr;
-    gap: 20px;
   }
 }
