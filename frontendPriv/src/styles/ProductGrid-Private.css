@@ -1,14 +1,14 @@
 /* ProductGrid-Private.css */
 .product-grid-private {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 30px;
-  /* padding: 20px;  --> Eliminado para evitar doble margen */
+  padding: 20px;
 }
 
 @media (max-width: 1200px) {
   .product-grid-private {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 }
 

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import QuantityCounter from './QuantityCounter';
 import ImageUploader from './ImageUploader';
+import FormLabel from './FormLabel';
+import FormInput from './FormInput';
 import '../../styles/AddProducts/ProductForm.css';
 
 const ProductForm = () => {
@@ -21,35 +23,37 @@ const ProductForm = () => {
   return (
     <div className="product-form">
       <div className="left-form">
-        <label>Nombre del producto</label>
-        <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} />
+        <FormLabel htmlFor="nombre">Nombre del producto</FormLabel>
+        <FormInput name="nombre" value={formData.nombre} onChange={handleChange} />
 
-        <label>Descripción</label>
-        <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} />
+        <FormLabel htmlFor="descripcion">Descripción</FormLabel>
+        <FormInput name="descripcion" value={formData.descripcion} onChange={handleChange} isTextarea />
       </div>
 
       <div className="right-form">
         <div className="price-discount">
           <div>
-            <label>Precio</label>
-            <input type="text" name="precio" value={formData.precio} onChange={handleChange} />
+            <FormLabel htmlFor="precio">Precio</FormLabel>
+            <FormInput name="precio" value={formData.precio} onChange={handleChange} />
           </div>
           <div>
-            <label>Descuento</label>
-            <input type="text" name="descuento" value={formData.descuento} onChange={handleChange} />
+            <FormLabel htmlFor="descuento">Descuento</FormLabel>
+            <FormInput name="descuento" value={formData.descuento} onChange={handleChange} />
           </div>
         </div>
 
-        <label className="cantidad-label">Cantidad</label>
+        <FormLabel htmlFor="cantidad" className="cantidad-label">Cantidad</FormLabel>
         <QuantityCounter />
 
         <div className="medidas">
-          <label>Largo</label>
-          <input type="text" name="largo" value={formData.largo} onChange={handleChange} />
-          <label>Ancho</label>
-          <input type="text" name="ancho" value={formData.ancho} onChange={handleChange} />
-          <label>Peso (g)</label>
-          <input type="text" name="peso" value={formData.peso} onChange={handleChange} />
+          <FormLabel htmlFor="largo">Largo</FormLabel>
+          <FormInput name="largo" value={formData.largo} onChange={handleChange} />
+
+          <FormLabel htmlFor="ancho">Ancho</FormLabel>
+          <FormInput name="ancho" value={formData.ancho} onChange={handleChange} />
+
+          <FormLabel htmlFor="peso">Peso (g)</FormLabel>
+          <FormInput name="peso" value={formData.peso} onChange={handleChange} />
         </div>
 
         <ImageUploader />

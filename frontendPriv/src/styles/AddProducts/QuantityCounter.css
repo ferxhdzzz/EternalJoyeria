@@ -7,7 +7,7 @@
   margin-bottom: 10px;
 }
 
-.quantity-counter button {
+.quantity-counter-button {
   width: 36px;
   height: 36px;
   background-color: #CFE8D5;
@@ -34,13 +34,13 @@
   .quantity-counter {
     gap: 10px;
   }
-  
-  .quantity-counter button {
+
+  .quantity-counter-button {
     width: 32px;
     height: 32px;
     font-size: 18px;
   }
-  
+
   .quantity-counter span {
     font-size: 14px;
   }
@@ -50,13 +50,13 @@
   .quantity-counter {
     gap: 18px;
   }
-  
-  .quantity-counter button {
+
+  .quantity-counter-button {
     width: 40px;
     height: 40px;
     font-size: 22px;
   }
-  
+
   .quantity-counter span {
     font-size: 18px;
   }
