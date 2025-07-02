@@ -5,56 +5,57 @@ import ProductGridPrivate from '../components/Products-Private/ProductGrid-Priva
 import '../styles/ProductsPage-Private.css';
 
 const ProductsPrivate = () => {
-  const productsData = [
-    {
-      id: 1,
-      image: '/Products/categoria1.png',
-      name: 'Anillo de Orquídeas',
-      originalPrice: 60.0,
-      discount: 10,
-      finalPrice: 50.0,
-    },
-    {
-      id: 2,
-      image: '/Products/categoria2.png',
-      name: 'Gancho de Orquídeas',
-      originalPrice: 60.0,
-      discount: 10,
-      finalPrice: 50.0,
-    },
-    {
-      id: 3,
-      image: '/Products/categoria3.png',
-      name: 'Collar con hortensias',
-      originalPrice: 60.0,
-      discount: 10,
-      finalPrice: 50.0,
-    },
-    {
-      id: 4,
-      image: '/Products/categoria4.png',
-      name: 'Collar de Orquídeas',
-      originalPrice: 60.0,
-      discount: 10,
-      finalPrice: 50.0,
-    },
-    {
-      id: 5,
-      image: '/Products/categoria5.png',
-      name: 'Collar con hortensias',
-      originalPrice: 60.0,
-      discount: 10,
-      finalPrice: 50.0,
-    },
-    {
-      id: 6,
-      image: '/Products/categoria6.png',
-      name: 'Gancho de Orquídeas',
-      originalPrice: 60.0,
-      discount: 10,
-      finalPrice: 50.0,
-    },
-  ];
+ const productsData = [
+  {
+    id: 1,
+    images: ['/Products/categoria1.png', '/Products/categoria2.png'],
+    name: 'Anillo de Orquídeas',
+    originalPrice: 60.0,
+    discount: 10,
+    finalPrice: 50.0,
+  },
+  {
+    id: 2,
+    images: ['/Products/categoria2.png', '/Products/categoria1.png'],
+    name: 'Gancho de Orquídeas',
+    originalPrice: 60.0,
+    discount: 10,
+    finalPrice: 50.0,
+  },
+  {
+    id: 3,
+    images: ['/Products/categoria3.png', '/Products/categoria4.png'],
+    name: 'Collar con hortensias',
+    originalPrice: 60.0,
+    discount: 10,
+    finalPrice: 50.0,
+  },
+  {
+    id: 4,
+    images: ['/Products/categoria4.png', '/Products/categoria3.png'],
+    name: 'Collar de Orquídeas',
+    originalPrice: 60.0,
+    discount: 10,
+    finalPrice: 50.0,
+  },
+  {
+    id: 5,
+    images: ['/Products/categoria5.png', '/Products/categoria6.png'],
+    name: 'Collar con hortensias',
+    originalPrice: 60.0,
+    discount: 10,
+    finalPrice: 50.0,
+  },
+  {
+    id: 6,
+    images: ['/Products/categoria6.png', '/Products/categoria5.png'],
+    name: 'Gancho de Orquídeas',
+    originalPrice: 60.0,
+    discount: 10,
+    finalPrice: 50.0,
+  },
+];
+
 
   return (
     <div className="products-private-page-container">

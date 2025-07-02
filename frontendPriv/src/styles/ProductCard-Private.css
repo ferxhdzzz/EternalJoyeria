@@ -91,3 +91,30 @@
   font-size: 0.8rem;
   transition: background-color 0.3s ease;
 }
+.carousel-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.arrow-button {
+  background-color: transparent;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: #f48cb0;
+  font-weight: bold;
+  padding: 0 6px;
+}
+
+.arrow-button:hover {
+  color: #e57399;
+}
+
+.product-grid-private {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}

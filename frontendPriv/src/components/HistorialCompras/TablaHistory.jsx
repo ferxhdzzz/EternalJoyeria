@@ -2,7 +2,12 @@ import React from "react";
 import HistorialComprasRow from "../HistorialCompras/HistoryRow";
 import "./TablaHistory.css";
 
-const TablaHistory = ({ titulo = "Historial de compras", datos = [], onEliminar }) => {
+const TablaHistory = ({
+  titulo = "Historial de compras",
+  datos = [],
+  onEliminar,
+  onEditar,
+}) => {
   return (
     <div className="tabla-historial-compras-container">
       <h2>{titulo}</h2>
@@ -23,6 +28,7 @@ const TablaHistory = ({ titulo = "Historial de compras", datos = [], onEliminar 
               key={idx}
               {...item}
               onEliminar={() => onEliminar && onEliminar(item)}
+              onEditar={() => onEditar && onEditar(item)}
             />
           ))}
         </tbody>

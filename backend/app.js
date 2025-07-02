@@ -1,5 +1,6 @@
 // Importo todo lo de la libreria de Express
 import express from "express";
+import cors from "cors";
 import customersRoutes from "./src/routes/customers.js";
 
 import categoriesRouters from "./src/routes/categories.js";
@@ -15,7 +16,12 @@ import cookieParser from "cookie-parser";
 import adminRoutes from "./src/routes/Administrator.js";
 // Creo una constante que es igual a la libreria que importé
 const app = express();
-
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 //Que acepte datos en json
 app.use(express.json());
 //Que postman acepte guardar cookies
