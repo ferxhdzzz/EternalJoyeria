@@ -1,47 +1,113 @@
-// Importar el modelo de Sales desde la carpeta models
-import Sale from "../models/sales.js" 
+import Sale from "../models/sales.js";
 
-// Crear objeto para contener todos los métodos del controlador
 const salesController = {};
 
-// READ: Obtener todas las ventas
-// Método para listar todas las ventas con información de las órdenes relacionadas
-salesController.getSales = async (req, res) => {
+// CREATE: Crear una nueva venta
+salesController.createSale = async (req, res) => {
   try {
-    // Buscar todas las ventas y poblar los datos de la orden relacionada
-    const allSales = await Sale.find().populate("idOrder");
-    
-    // Enviar respuesta exitosa con todas las ventas
-    res.json(allSales);
+    const { idOrder, address } = req.body;
+
+    if (!idOrder || !address) {
+      return res.status(400).json({ message: "idOrder y address son requeridos" });
+    }
+
+    const newSale = new Sale({
+      idOrder,
+      address
+    });
+
+    await newSale.save();
+
+    // Opcional: populate al crear
+    const populatedSale = await Sale.findById(newSale._id).populate("idOrder", "status total");
+
+    res.status(201).json({
+      message: "Venta creada correctamente",
+      sale: populatedSale
+    });
+
   } catch (error) {
-    // Manejo de errores del servidor
-    res
-      .status(500)
-      .json({ message: "Error fetching sales", error: error.message });
+    res.status(400).json({
+      message: "Error creando la venta",
+      error: error.message
+    });
   }
 };
 
-// READ: Obtener una venta específica
-// Método para obtener una venta por su ID único
+// READ: Obtener todas las ventas con status de la orden
+salesController.getSales = async (req, res) => {
+  try {
+    const allSales = await Sale.find().populate("idOrder", "status total");
+    res.json(allSales);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching sales", error: error.message });
+  }
+};
+
+// READ: Obtener una venta específica con status de la orden
 salesController.getSale = async (req, res) => {
   try {
-    // Buscar venta por ID y poblar datos de la orden relacionada
-    const sale = await Sale.findById(req.params.id).populate("idOrder");
+    const sale = await Sale.findById(req.params.id).populate("idOrder", "status total");
 
-    // Verificar si la venta existe
     if (!sale) {
       return res.status(404).json({ message: "Sale not found" });
     }
-    
-    // Enviar respuesta exitosa con la venta encontrada
+
     res.json(sale);
   } catch (error) {
-    // Manejo de errores (ID inválido u otros errores)
-    res
-      .status(400)
-      .json({ message: "Error fetching sale", error: error.message });
+    res.status(400).json({ message: "Error fetching sale", error: error.message });
   }
 };
 
-// Exportar el controlador para uso en las rutas
+// UPDATE: Actualizar una venta
+salesController.updateSale = async (req, res) => {
+  try {
+    const { idOrder, address } = req.body;
+
+    const updatedData = {};
+    if (idOrder) updatedData.idOrder = idOrder;
+    if (address) updatedData.address = address;
+
+    const updatedSale = await Sale.findByIdAndUpdate(
+      req.params.id,
+      updatedData,
+      { new: true }
+    ).populate("idOrder", "status total");
+
+    if (!updatedSale) {
+      return res.status(404).json({ message: "Venta no encontrada" });
+    }
+
+    res.json({
+      message: "Venta actualizada correctamente",
+      sale: updatedSale
+    });
+
+  } catch (error) {
+    res.status(400).json({
+      message: "Error actualizando la venta",
+      error: error.message
+    });
+  }
+};
+
+// DELETE: Eliminar una venta
+salesController.deleteSale = async (req, res) => {
+  try {
+    const deletedSale = await Sale.findByIdAndDelete(req.params.id);
+
+    if (!deletedSale) {
+      return res.status(404).json({ message: "Venta no encontrada" });
+    }
+
+    res.json({ message: "Venta eliminada correctamente" });
+
+  } catch (error) {
+    res.status(400).json({
+      message: "Error eliminando la venta",
+      error: error.message
+    });
+  }
+};
+
 export default salesController;
