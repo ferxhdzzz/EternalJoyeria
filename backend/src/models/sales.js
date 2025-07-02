@@ -16,8 +16,7 @@ const salesSchema = new Schema(
   
   },
   {
-    timestamps: true,
-    strict: false,
+    strict: false
   }
 );
 
