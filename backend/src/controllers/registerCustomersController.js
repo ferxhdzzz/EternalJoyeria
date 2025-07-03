@@ -9,6 +9,7 @@ import { config } from "../config.js";
 import { sendMail } from "../utils/mailVerify.js";
 import { HTMLEmailVerification } from "../utils/mailVerify.js";
 import { HTMLWelcomeEmail } from "../utils/HTMLWelcomeEmail.js";
+
 // 1- Configurar cloudinary con nuestra cuenta
 cloudinary.config({
   cloud_name: config.cloudinary.cloud_name,
@@ -18,12 +19,65 @@ cloudinary.config({
 
 const registerCustomersController = {};
 
+// Función para validar formato de email
+const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+// Función para validar longitud mínima de contraseña
+const validatePassword = (password) => {
+  // Validación básica: al menos 6 caracteres
+  return password.length >= 6;
+};
+
 // Registro de cliente
 registerCustomersController.registerClient = async (req, res) => {
   const { firstName, lastName, email, password, phone } = req.body;
   let profilePictureURL = "";
 
   try {
+    // Validar que todos los campos requeridos estén presentes
+    if (!firstName || !lastName || !email || !password || !phone) {
+      return res.status(400).json({ 
+        message: "All fields are required: firstName, lastName, email, password, phone" 
+      });
+    }
+
+    // Validar que los campos no estén vacíos (solo espacios)
+    if (!firstName.trim() || !lastName.trim() || !email.trim() || !password.trim() || !phone.trim()) {
+      return res.status(400).json({ 
+        message: "Fields cannot be empty or contain only spaces" 
+      });
+    }
+
+    // Validar formato de email
+    if (!validateEmail(email)) {
+      return res.status(400).json({ 
+        message: "Please enter a valid email address" 
+      });
+    }
+
+    // Validar longitud mínima de contraseña (6 caracteres)
+    if (!validatePassword(password)) {
+      return res.status(400).json({ 
+        message: "Password must be at least 6 characters long" 
+      });
+    }
+
+    // Validar longitud de nombres y apellidos (entre 2 y 50 caracteres)
+    if (firstName.trim().length < 2 || firstName.trim().length > 50) {
+      return res.status(400).json({ 
+        message: "First name must be between 2 and 50 characters" 
+      });
+    }
+
+    if (lastName.trim().length < 2 || lastName.trim().length > 50) {
+      return res.status(400).json({ 
+        message: "Last name must be between 2 and 50 characters" 
+      });
+    }
+
     // Verificar si el cliente ya existe
     const existClient = await clientsModel.findOne({ email });
     if (existClient) {
@@ -47,13 +101,13 @@ registerCustomersController.registerClient = async (req, res) => {
     // Encriptar contraseña
     const passwordHash = await bcryptjs.hash(password, 10);
 
-    // Crear nuevo cliente
+    // Crear nuevo cliente (usando trim() para limpiar espacios extra)
     const newClient = new clientsModel({
-      firstName,
-      lastName,
-      email,
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: email.trim().toLowerCase(), // Convertir email a minúsculas para consistencia
       password: passwordHash,
-      phone,
+      phone: phone.trim(),
       profilePicture: profilePictureURL, // URL de Cloudinary o string vacío
     });
 
@@ -84,12 +138,10 @@ registerCustomersController.registerClient = async (req, res) => {
       maxAge: 2 * 60 * 60 * 1000,
       path:'/', //cookie disponibloe en toda la aplicacion 
       sameSite:'lax',  // proteccion contra CSRF
-
     });
 
     res.json({ 
       message: "Register successfully",
-      
     });
 
   } catch (error) {
