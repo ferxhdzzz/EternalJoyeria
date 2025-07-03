@@ -54,8 +54,15 @@
 .product-grid-private {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 30px;
+  gap: 100px;
   padding: 20px;
+}
+
+.final-price-no-discount {
+  font-size: 1.05rem;
+  font-weight: bold;
+  color: #333;
+  margin-top: 3px;
 }
 
 @media (max-width: 1200px) {

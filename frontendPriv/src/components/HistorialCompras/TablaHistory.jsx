@@ -34,3 +34,4 @@ const TablaHistory = ({ titulo = "Historial de compras", datos = [], onEliminar 
 };
 
 export default TablaHistory;
+

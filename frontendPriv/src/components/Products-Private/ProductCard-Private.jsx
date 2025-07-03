@@ -35,3 +35,4 @@ const ProductCardPrivate = ({ product, onEdit, onDelete }) => {
 };
 
 export default ProductCardPrivate;
+
