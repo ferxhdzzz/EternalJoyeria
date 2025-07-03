@@ -6,11 +6,7 @@
   padding: 15px 70px;
   font-family: 'Poppins', sans-serif;
   height: 64px;
-}
-.top-navbar {
-  position: relative; /* o static si no flota */
-  width: 100%;
-  z-index: 5; /* suficiente para estar encima del formulario */
+  position: relative; /* para el menú absoluto */
 }
 
 .search-box {
@@ -80,7 +76,45 @@
   object-fit: cover;
 }
 
+/* Botón hamburguesa, inicialmente oculto */
+.hamburger-btn {
+  display: none;
+  background: none;
+  border: none;
+  padding-right: 10%;
+  font-size: 21px;
+  color:rgba(214, 150, 191, 0.5);;
+  cursor: pointer;
+}
+
+/* Menú móvil desplegable */
+.mobile-menu {
+  position: absolute;
+  top: 64px;
+  right: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 10px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 100;
+  width: 180px;
+}
+
+.mobile-profile {
+  gap: 12px;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.mobile-menu .icon-button {
+  align-self: flex-start;
+}
+
 /* Responsive */
+
 @media (max-width: 768px) {
   .topbar {
     padding: 15px 20px;
@@ -100,7 +134,11 @@
   }
 
   .topbar-right {
-    gap: 12px;
+    display: none; /* ocultamos el contenido normal */
+  }
+
+  .hamburger-btn {
+    display: block; /* mostramos el botón hamburguesa */
   }
 
   .profile span {

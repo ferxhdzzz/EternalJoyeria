@@ -13,6 +13,14 @@
   overflow-y: auto;
   overflow-x: hidden; /* Por defecto sin scroll horizontal */
 }
+.page-layout{
+    background-color: #FFF3F2;
+
+}
+.content-area{
+    background-color: #FFF3F2;
+
+}
 
 /* Scrollbar vertical */
 .tabla-historial-compras-container::-webkit-scrollbar {

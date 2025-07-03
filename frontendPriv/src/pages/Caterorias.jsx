@@ -12,7 +12,6 @@ const Categorias = () => {
       image: '/Products/categoria1.png',
       name: 'Anillo de Orquídeas',
       originalPrice: 60.0,
-      
       finalPrice: 50.0,
     },
     {
@@ -22,8 +21,7 @@ const Categorias = () => {
       originalPrice: 60.0,
       discount: 10,
       finalPrice: 50.0,
-    },
-   {
+    },{
       id: 2,
       image: '/Products/categoria2.png',
       name: 'Gancho de Orquídeas',
@@ -48,17 +46,24 @@ const Categorias = () => {
   ];
 
   return (
-  <div className="products-private-page-container">
+   <div className="products-private-page-container">
   <SidebarPrivate />
+
   <div className="main-content-wrapper">
-    <TopNavbarPrivate />
-    <div className="main-content-private">
-      <ProductGridPrivate products={productsData} />
-      <CategoriasForm />
+    <div className="fixed-topbar">
+      <TopNavbarPrivate />
+    </div>
+
+    <div className="scrollable-content">
+      <div className="padded-content-wrapper">
+        <div className="products-area-private">
+          <ProductGridPrivate products={productsData} />
+          <CategoriasForm />
+        </div>
+      </div>
     </div>
   </div>
 </div>
-
   );
 };
 
