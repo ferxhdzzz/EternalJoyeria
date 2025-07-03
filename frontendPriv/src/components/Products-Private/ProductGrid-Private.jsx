@@ -1,6 +1,6 @@
 import React from 'react';
 import ProductCardPrivate from './ProductCard-Private';
-import '../../styles/ProductGrid-Private.css';
+import '../../styles/Grid.css';
 
 const ProductGridPrivate = ({ products }) => {
   return (

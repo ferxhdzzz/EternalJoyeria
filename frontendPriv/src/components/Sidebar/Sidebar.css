@@ -160,3 +160,31 @@ padding: 10px; /* para que tenga un área clickeable cómoda */
   }
 }
 
+@media (max-width: 975px) {
+  .sidebarr {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 220px;
+    background: #ffffff;
+    border-radius: 0;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    padding: 1.5rem 1rem;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Apila contenido para scroll correcto */
+  }
+
+  .sidebar-wrapper.open .sidebarr {
+    transform: translateX(0);
+  }
+
+  .hamburger-button {
+    display: block;
+  }
+}

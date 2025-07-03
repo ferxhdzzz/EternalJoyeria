@@ -1,5 +1,5 @@
 .historial-wrapper {
-  background-color: #ffe8e6;
+  background-color: #ffe4e1;
   min-height: 100vh;
   padding: 40px;
   display: flex;
@@ -10,7 +10,7 @@
   display: flex;
   height: 100vh;
   width: 100vw;
-  background-color: #ffe8e6;
+  background-color: #ffe4e1;
   overflow: hidden;
 }
 
@@ -25,6 +25,6 @@
   flex: 1;
   padding: 30px;
   overflow-y: auto;
-  background-color: #ffe8e6;
+  background-color: #ffe4e1;
   box-sizing: border-box;
 }

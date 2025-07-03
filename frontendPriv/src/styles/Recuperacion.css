@@ -45,7 +45,7 @@
 .eye-icon {
   position: absolute;
   right: 10px;
-  top: 40px;
+  top: 45px;
   padding-right: 35px;
   cursor: pointer;
   font-size: 1.2rem;
@@ -58,3 +58,128 @@
   margin-top: -2px;
   margin-bottom: 12px;
 }
+
+@media (max-width: 736px) {
+  .recover-wrapper {
+    padding: 0px;
+    width: 100vw;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .recover-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 30px 20px;
+    box-sizing: border-box;
+  }
+
+  .input-group-eye input {
+    width: 100%;
+    padding-right: 30px;
+  }
+
+  .eye-icon {
+    right: 12px;
+    top: 70%;
+    transform: translateY(-50%);
+  }
+}
+
+@media (max-width: 480px) {
+  .recover-title {
+    font-size: 20px;
+  }
+
+  .recover-card {
+    padding: 25px 16px;
+  }
+
+  .eye-icon {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 912px) {
+  .recover-wrapper {
+    padding: 0px;
+    width: 100vw;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .recover-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 30px 20px;
+    box-sizing: border-box;
+  }
+
+  .input-group-eye input {
+    width: 100%;
+    padding-right: 30px;
+  }
+
+  .eye-icon {
+    right: 12px;
+    top: 70%;
+    transform: translateY(-50%);
+  }
+}
+@media (max-width: 1024px) {
+  .recover-wrapper {
+    padding: 0px;
+    width: 100vw;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .recover-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 30px 20px;
+    box-sizing: border-box;
+  }
+
+  .input-group-eye input {
+    width: 100%;
+    padding-right: 30px;
+  }
+
+  .eye-icon {
+    right: 12px;
+    top: 70%;
+    transform: translateY(-50%);
+  }
+}
+@media (max-width: 1247px) {
+  .recover-wrapper {
+    padding: 0px;
+    width: 100vw;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .recover-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 30px 20px;
+    box-sizing: border-box;
+  }
+
+  .input-group-eye input {
+    width: 100%;
+    padding-right: 30px;
+  }
+
+  .eye-icon {
+    right: 12px;
+    top: 70%;
+    transform: translateY(-50%);
+  }
+}
+

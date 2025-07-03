@@ -7,43 +7,63 @@ import '../styles/ProductsPage-Private.css';
 
 const Categorias = () => {
   const productsData = [
-   {
-    id: 1,
-    images: ['/Products/categoria1.png', '/Products/categoria2.png'],
-    name: 'Anillo de Orquídeas',
-    originalPrice: 60.0,
-    discount: 10,
-    finalPrice: 50.0,
-  },
-  {
-    id: 2,
-    images: ['/Products/categoria2.png', '/Products/categoria1.png'],
-    name: 'Gancho de Orquídeas',
-    originalPrice: 60.0,
-    discount: 10,
-    finalPrice: 50.0,
-  },
-   
+    {
+      id: 1,
+      image: '/Products/categoria1.png',
+      name: 'Anillo de Orquídeas',
+      originalPrice: 60.0,
+      finalPrice: 50.0,
+    },
+    {
+      id: 2,
+      image: '/Products/categoria2.png',
+      name: 'Gancho de Orquídeas',
+      originalPrice: 60.0,
+      discount: 10,
+      finalPrice: 50.0,
+    },{
+      id: 2,
+      image: '/Products/categoria2.png',
+      name: 'Gancho de Orquídeas',
+      originalPrice: 60.0,
+      discount: 10,
+      finalPrice: 50.0,
+    },{
+      id: 2,
+      image: '/Products/categoria2.png',
+      name: 'Gancho de Orquídeas',
+      originalPrice: 60.0,
+      discount: 10,
+      finalPrice: 50.0,
+    },{
+      id: 2,
+      image: '/Products/categoria2.png',
+      name: 'Gancho de Orquídeas',
+      originalPrice: 60.0,
+      discount: 10,
+      finalPrice: 50.0,
+    },
   ];
 
   return (
-    <div className="products-private-page-container">
-      <SidebarPrivate />
-      <div className="main-content-wrapper">
-        <TopNavbarPrivate />
-        <div className="main-content-private">
-          <div className="products-area-private">
+   <div className="products-private-page-container">
+  <SidebarPrivate />
 
-
-            <ProductGridPrivate products={productsData} />
-          </div>
-          
-        </div>
-
-
-      </div>
-       <CategoriasForm />
+  <div className="main-content-wrapper">
+    <div className="fixed-topbar">
+      <TopNavbarPrivate />
     </div>
+
+    <div className="scrollable-content">
+      <div className="padded-content-wrapper">
+        <div className="products-area-private">
+          <ProductGridPrivate products={productsData} />
+          <CategoriasForm />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
   );
 };
 

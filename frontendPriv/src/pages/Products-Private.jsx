@@ -2,7 +2,7 @@ import React from 'react';
 import SidebarPrivate from '../components/Sidebar/Sidebar';
 import TopNavbarPrivate from '../components/TopBar/TopBar';
 import ProductGridPrivate from '../components/Products-Private/ProductGrid-Private';
-import '../styles/ProductsPage-Private.css';
+import '../styles/PaginaProduct.css';
 
 const ProductsPrivate = () => {
  const productsData = [
@@ -58,12 +58,12 @@ const ProductsPrivate = () => {
 
 
   return (
-    <div className="products-private-page-container">
+    <div className="products-private-page-containers">
       <SidebarPrivate />
-      <div className="main-content-wrapper">
+      <div className="main-content-wrappers">
         <TopNavbarPrivate />
-        <div className="main-content-private">
-          <div className="products-area-private">
+        <div className="main-content-privates">
+          <div className="products-area-privates">
             <ProductGridPrivate products={productsData} />
           </div>
         </div>

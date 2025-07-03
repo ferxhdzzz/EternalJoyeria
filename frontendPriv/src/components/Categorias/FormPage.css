@@ -1,15 +1,40 @@
 .form-wrapper {
-  position: absolute; /* Posiciona el formulario dentro de su contenedor principal */
-  right: 25px; /* Espacio desde el borde derecho */
-  top: 64px; /* Espacio debajo del topbar */
-  width: 350px; /* Anchura fija del formulario */
-  height: calc(100vh - 64px); /* Ocupa el espacio disponible debajo del topbar */
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   padding: 1rem;
   box-sizing: border-box;
+  z-index: 10;
 }
+
+/* 🖥️ Formulario flotante para pantallas grandes */
+@media (min-width: 1246px) {
+  .form-wrapper {
+    position: absolute;
+    right: 25px;
+    top: 64px;
+    width: 350px;
+    height: calc(100vh - 64px); /* Altura total menos topbar */
+  }
+}
+
+/* 📱 Formulario debajo de las cards en pantallas chicas */
+@media (max-width: 1245px) {
+  .form-wrapper {
+    position: relative;
+    width: 100%;
+    height: auto;
+    margin-top: 2rem;
+    z-index: 1;
+  }
+
+  .form-containerr {
+    max-width: 500px;
+    margin: auto;
+  }
+}
+
 .form-containerr {
   display: flex;
   flex-direction: column;
@@ -18,7 +43,7 @@
   background-color: #FFF3F2;
   padding: 2rem;
   border-radius: 10px;
-  width: 100%; /* Ocupa todo el ancho del .form-wrapper */
+  width: 100%;
 }
 
 .form-titler {

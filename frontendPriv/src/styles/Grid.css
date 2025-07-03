@@ -1,0 +1,33 @@
+/* ProductGrid-Private.css */
+.product-grid-private {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 100px;
+  padding: 20px;
+}
+
+.final-price-no-discount {
+  font-size: 1.05rem;
+  font-weight: bold;
+  color: #333;
+  margin-top: 3px;
+}
+
+@media (max-width: 1200px) {
+  .product-grid-private {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .product-grid-private {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-grid-private {
+    grid-template-columns: 1fr;
+  }
+}
