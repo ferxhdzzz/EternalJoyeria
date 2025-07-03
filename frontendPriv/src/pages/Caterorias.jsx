@@ -46,17 +46,17 @@ const Categorias = () => {
   ];
 
   return (
-   <div className="products-private-page-container">
+ <div className="products-private-page-containerr">
   <SidebarPrivate />
 
-  <div className="main-content-wrapper">
-    <div className="fixed-topbar">
+  <div className="main-content-wrapperr">
+    <div className="fixed-topbarr">
       <TopNavbarPrivate />
     </div>
 
-    <div className="scrollable-content">
-      <div className="padded-content-wrapper">
-        <div className="products-area-private">
+    <div className="scrollable-contentr">
+      <div className="padded-content-wrapperr">
+        <div className="products-area-privater">
           <ProductGridPrivate products={productsData} />
           <CategoriasForm />
         </div>
@@ -64,6 +64,7 @@ const Categorias = () => {
     </div>
   </div>
 </div>
+
   );
 };
 
