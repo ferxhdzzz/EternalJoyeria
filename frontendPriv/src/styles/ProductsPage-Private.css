@@ -1,29 +1,45 @@
 .products-private-page-container {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
   background-color: #FFF3F2;
-  overflow: hidden;
+  overflow-x: hidden; /* ❌ solo ocultamos scroll horizontal para evitar doble scroll */
+  position: relative;
 }
 
+/* SIDEBAR */
 .sidebar-private {
   height: 100vh;
   flex-shrink: 0;
 }
 
+/* CONTENEDOR PRINCIPAL DEL CONTENIDO */
 .main-content-wrapper {
   flex: 1;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
+  padding-right: 375px; /* ✅ reserva espacio para el formulario flotante */
+  box-sizing: border-box;
+  overflow: visible; /* ✅ no scroll aquí */
 }
 
+/* CONTENIDO PRIVADO */
 .main-content-private {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   padding: 20px;
+  overflow: visible; /* ✅ aseguramos que no tenga scroll tampoco */
 }
 
+/* ÁREA DE PRODUCTOS */
 .products-area-private {
   flex-grow: 1;
+  overflow: visible;
+}
+
+/* RESPONSIVE: cuando el formulario se mueve abajo */
+@media (max-width: 1245px) {
+  .main-content-wrapper {
+    padding-right: 0; /* ❌ quitamos espacio para el formulario */
+  }
 }

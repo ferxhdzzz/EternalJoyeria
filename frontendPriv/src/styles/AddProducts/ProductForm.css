@@ -85,6 +85,27 @@
   border-radius: 12px;
   cursor: pointer;
 }
+.guardar-button {
+  padding: 8px 16px;
+  background-color: #FCA7B1;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  display: block;
+  margin: 20px auto 0;
+  max-width: 120px;  /* ancho reducido */
+  width: 100%;
+  position: relative;
+}
+
+.guardar-button:hover {
+  background-color: #e7939a;
+}
+
 
 @media (max-width: 768px) {
   .product-form {

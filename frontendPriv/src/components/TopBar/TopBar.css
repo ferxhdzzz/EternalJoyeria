@@ -7,6 +7,11 @@
   font-family: 'Poppins', sans-serif;
   height: 64px;
 }
+.top-navbar {
+  position: relative; /* o static si no flota */
+  width: 100%;
+  z-index: 5; /* suficiente para estar encima del formulario */
+}
 
 .search-box {
   display: flex;

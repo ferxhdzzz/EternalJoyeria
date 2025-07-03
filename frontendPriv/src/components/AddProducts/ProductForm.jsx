@@ -3,6 +3,7 @@ import QuantityCounter from './QuantityCounter';
 import ImageUploader from './ImageUploader';
 import FormLabel from './FormLabel';
 import FormInput from './FormInput';
+import Guardar from './GuardarButton';
 import '../../styles/AddProducts/ProductForm.css';
 
 const ProductForm = () => {
@@ -64,6 +65,7 @@ const ProductForm = () => {
           <QuantityCounter />
         </div>
       </div>
+  <Guardar onClick={() => alert("Guardar")} />
     </div>
   );
 };
