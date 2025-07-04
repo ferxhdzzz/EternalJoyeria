@@ -26,3 +26,9 @@
   outline: none; /* Remueve el contorno azul al enfocar */
   border-color: #888; /* Cambia el borde a un gris más oscuro */
 }
+.error-message {
+  color: red;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}

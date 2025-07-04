@@ -19,6 +19,13 @@
   background-color: #fff; /* Fondo blanco */
   color: #333; /* Texto oscuro */
 }
+.error-message {
+  color: red;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
 
 .input-field:focus {
   outline: none; /* Remueve el contorno azul al enfocar */
