@@ -1,32 +1,58 @@
-.products-private-page-container {
+.products-private-page-containerr {
   display: flex;
   height: 100vh;
   background-color: #FFF3F2;
-  overflow: hidden;
+  overflow: hidden; /* ❌ impide que toda la pantalla scrollee */
 }
 
-.sidebar-private {
+.sidebar-privater {
   height: 100vh;
   flex-shrink: 0;
 }
 
-.main-content-wrapper {
+/* Contenedor general sin scroll */
+.main-content-wrapperr {
   flex: 1;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   position: relative;
-  padding-top: 14px;
+  height: 100vh;
+  overflow: hidden; /* 👈 importante */
 }
 
-.main-content-private {
-  flex-grow: 1;
+/* Topbar queda arriba y fijo */
+.fixed-topbarr {
+  flex-shrink: 0;
+}
+
+/* Este contenedor ahora scrollea solo */
+.scrollable-contentr {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  padding: 20px;
-  
 }
 
-.products-area-private {
+/* Sección para las cards y el form */
+.padded-content-wrapperr {
+  padding-right: 375px;
+  box-sizing: border-box;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Área de productos */
+.products-area-privater {
   flex-grow: 1;
+  overflow: visible;
+}
+
+/* Responsive: formulario abajo */
+@media (max-width: 1245px) {
+  .padded-content-wrapperr {
+    padding-right: 0;
+  }
 }

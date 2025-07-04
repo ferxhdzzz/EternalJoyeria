@@ -16,7 +16,10 @@ const salesSchema = new Schema(
   
   },
   {
+
+=======
     strict: false
+
   }
 );
 

@@ -1,11 +1,12 @@
 .topbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   background-color: transparent;
   padding: 15px 70px;
-  font-family: 'Poppins', sans-serif;
   height: 64px;
+  position: relative;
+  font-family: 'Poppins', sans-serif;
 }
 
 .search-box {
@@ -14,7 +15,6 @@
   background-color: rgba(214, 150, 191, 0.5);
   padding: 8px 8px;
   border-radius: 30px;
-  width: 400px;
   gap: 10px;
 }
 
@@ -22,13 +22,13 @@
   border: none;
   background: transparent;
   outline: none;
-  color: rgb(0, 0, 0);
+  color: #000;
   font-size: 14px;
   width: 100%;
 }
 
 .search-icon {
-  color: rgb(125, 122, 122);
+  color: #7d7a7a;
   font-size: 14px;
 }
 
@@ -57,15 +57,11 @@
 .profile {
   display: flex;
   align-items: center;
-  text-decoration: none;
   gap: 10px;
+  text-decoration: none;
   color: black;
   font-weight: 600;
   font-size: 14px;
-}
-
-.profile:hover span {
-  color: black;
 }
 
 .profile-img {
@@ -75,31 +71,75 @@
   object-fit: cover;
 }
 
+.hamburger-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 21px;
+  padding-right:12%;
+  color: rgba(214, 150, 191, 0.5);
+  cursor: pointer;
+  margin-left: auto;
+}
+
+/* Menú desplegable en móviles */
+.mobile-menu {
+  position: absolute;
+  top: 64px;
+  right: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 10px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 100;
+  width: 200px;
+}
+
+.mobile-profile {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.mobile-menu .icon-button {
+  align-self: flex-start;
+}
+
+.mobile-search {
+  display: flex;
+  align-items: center;
+  background-color: rgba(214, 150, 191, 0.5);
+  padding: 8px 5px;
+  border-radius: 30px;
+  gap: 10px;
+  width: 100%;
+  max-width: 240px;
+  margin: 0 auto; /* ✅ Esto la centra horizontalmente */
+}
+
+
+.mobile-search input::placeholder {
+  font-size: 12px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .topbar {
     padding: 15px 20px;
   }
 
-  .search-box {
-    width: 150px;
-    padding: 6px 8px;
-  }
-
-  .search-box input {
-    font-size: 12px;
-  }
-
-  .search-box input::placeholder {
-    font-size: 10px;
-  }
-
   .topbar-right {
-    gap: 12px;
+    display: none;
+  }
+
+  .hamburger-btn {
+    display: block;
   }
 
   .profile span {
-    display: none;
+    display: inline;
   }
 
   .profile-img {
@@ -109,7 +149,15 @@
 }
 
 @media (max-width: 480px) {
-  .search-box {
-    display: none;
+  .mobile-search {
+    display: flex;
+  }
+
+  .mobile-search input {
+    font-size: 12px;
+  }
+
+  .mobile-profile span {
+    display: inline;
   }
 }

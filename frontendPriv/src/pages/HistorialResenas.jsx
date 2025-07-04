@@ -7,6 +7,25 @@ import "../styles/ResenasHist.css";
 const dataResenas = [
   { nombre: "Jennifer Huh", calificacion: 5, comentario: "muy bueno", email: "jennifer@microsoft.com", compra: "Collar" },
   { nombre: "José Martínez", calificacion: 5, comentario: "excelente", email: "jose@yahoo.com", compra: "Pulsera" },
+   { nombre: "Jennifer Huh", calificacion: 5, comentario: "muy bueno", email: "jennifer@microsoft.com", compra: "Collar" },
+  { nombre: "José Martínez", calificacion: 5, comentario: "excelente", email: "jose@yahoo.com", compra: "Pulsera" },
+  { nombre: "Jennifer Huh", calificacion: 5, comentario: "muy bueno", email: "jennifer@microsoft.com", compra: "Collar" },
+  { nombre: "José Martínez", calificacion: 5, comentario: "excelente", email: "jose@yahoo.com", compra: "Pulsera" },
+   { nombre: "Jennifer Huh", calificacion: 5, comentario: "muy bueno", email: "jennifer@microsoft.com", compra: "Collar" },
+  { nombre: "José Martínez", calificacion: 5, comentario: "excelente", email: "jose@yahoo.com", compra: "Pulsera" },
+  { nombre: "Jennifer Huh", calificacion: 5, comentario: "muy bueno", email: "jennifer@microsoft.com", compra: "Collar" },
+  { nombre: "José Martínez", calificacion: 5, comentario: "excelente", email: "jose@yahoo.com", compra: "Pulsera" },
+   { nombre: "Jennifer Huh", calificacion: 5, comentario: "muy bueno", email: "jennifer@microsoft.com", compra: "Collar" },
+  { nombre: "José Martínez", calificacion: 5, comentario: "excelente", email: "jose@yahoo.com", compra: "Pulsera" },
+  { nombre: "Jennifer Huh", calificacion: 5, comentario: "muy bueno", email: "jennifer@microsoft.com", compra: "Collar" },
+  { nombre: "José Martínez", calificacion: 5, comentario: "excelente", email: "jose@yahoo.com", compra: "Pulsera" },
+   { nombre: "Jennifer Huh", calificacion: 5, comentario: "muy bueno", email: "jennifer@microsoft.com", compra: "Collar" },
+  { nombre: "José Martínez", calificacion: 5, comentario: "excelente", email: "jose@yahoo.com", compra: "Pulsera" },
+  { nombre: "Jennifer Huh", calificacion: 5, comentario: "muy bueno", email: "jennifer@microsoft.com", compra: "Collar" },
+  { nombre: "José Martínez", calificacion: 5, comentario: "excelente", email: "jose@yahoo.com", compra: "Pulsera" },
+   { nombre: "Jennifer Huh", calificacion: 5, comentario: "muy bueno", email: "jennifer@microsoft.com", compra: "Collar" },
+  { nombre: "José Martínez", calificacion: 5, comentario: "excelente", email: "jose@yahoo.com", compra: "Pulsera" },
+  
 ];
 
 const HistorialResenas = () => {

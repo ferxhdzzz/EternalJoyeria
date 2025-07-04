@@ -1,5 +1,5 @@
 .editar-button2 {
-  background-color: #C4B0EC;
+  background-color: #e57399;
   border: none;
   border-radius: 20px;
   padding: 6px 16px;
@@ -11,5 +11,5 @@
 }
 
 .editar-button:hover {
-  background-color: #9c86e2;
+  background-color: #e57399;
 }

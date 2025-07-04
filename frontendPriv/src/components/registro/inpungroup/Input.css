@@ -28,3 +28,47 @@ max-width: 350px;
 .input:focus {
   border-color: #ff69b4; /* Opcional: resalta cuando está enfocado */
 }
+
+/* 🟣 Responsive: pantallas medianas */
+@media (max-width: 768px) {
+  .input {
+    padding: 10px 0px;
+    font-size: 15px;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 912px) {
+  .input {
+    padding: 10px 0px;
+    font-size: 15px;
+    max-width: 100%;
+  }
+}
+@media (max-width: 1024px) {
+  .input {
+    padding: 10px 0px;
+    font-size: 15px;
+    max-width: 100%;
+  }
+}
+@media (max-width: 1247px) {
+  .input {
+    padding: 10px 0px;
+    font-size: 15px;
+    max-width: 100%;
+  }
+}
+
+
+/* 🔵 Responsive: pantallas pequeñas como 375px o menos */
+@media (max-width: 480px) {
+  .input {
+    padding: px 10px;
+    font-size: 14px;
+  }
+
+  .input-label {
+    font-size: 13px;
+  }
+}
