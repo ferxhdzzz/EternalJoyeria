@@ -1,7 +1,10 @@
 // Importar dependencias
 import Product from "../models/Products.js";
 import { v2 as cloudinary } from "cloudinary";
+import fs from "fs/promises";
+
 // Configurar Cloudinary
+
 cloudinary.config({
   cloud_name: 'dosy4rouu',
   api_key: '712175425427873',

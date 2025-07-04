@@ -1,0 +1,122 @@
+/* Main container for the Mission and Vision section. */
+.mission-vision {
+  display: flex; /* Enables flexbox to align the text content and image side-by-side. */
+  align-items: center; /* Vertically centers the flex items. */
+  justify-content: center; /* Horizontally centers the flex items. */
+  gap: 2rem; /* Adds space between the text content and the image container. */
+  padding: 6rem 2rem; /* Provides ample padding on the top/bottom and sides. */
+  background-color: #FFFDFA; /* Sets a very light, warm background color. */
+  margin-top: 6rem; /* Adds space above the section to separate it from previous content. */
+  position: relative; /* Establishes a positioning context for child elements. */
+  width: 100%; /* Ensures the section spans the full viewport width. */
+}
+
+/* Container for the textual content (title, mission, vision). */
+.mission-vision__content {
+  flex: 1; /* Allows this container to grow and take up available space. */
+  max-width: 400px; /* Constrains the width of the content for readability. */
+}
+
+/* The main title of the section. */
+.mission-vision__title {
+  font-family: 'Playfair Display', serif; /* Uses an elegant serif font. */
+  font-size: 2.8rem; /* Sets a large font size for the title. */
+  color: #0c3c3a; /* Sets a dark, teal-like color. */
+  text-align: center; /* Centers the title text. */
+  margin-bottom: 1rem; /* Adds space below the title. */
+}
+
+/* Container that holds the decorative SVG path and the mission/vision text blocks. */
+.mission-vision__path-container {
+  position: relative; /* Creates a positioning context for the absolutely positioned text blocks and SVG. */
+  height: 400px; /* Sets a fixed height to ensure consistent layout of the positioned children. */
+  margin-top: 2rem; /* Adds space above this container. */
+}
+
+/* The decorative SVG path element. */
+.mission-vision__path-svg {
+  position: absolute; /* Positions the SVG relative to its parent, __path-container. */
+  left: 50%; /* Moves the SVG's left edge to the horizontal center of the parent. */
+  top: -2rem; /* Shifts the SVG upwards slightly. */
+  transform: translateX(-50%); /* Precisely centers the SVG horizontally by shifting it left by half its own width. */
+  height: 100%; /* Makes the SVG as tall as its container. */
+}
+
+/* Common styles for both the mission and vision text blocks. */
+.mission-vision__text-block {
+  position: absolute; /* Positions the text blocks relative to __path-container. */
+  max-width: 280px; /* Constrains the width of the text blocks. */
+}
+
+/* Styling for the subheadings (h3) within the text blocks. */
+.mission-vision__text-block h3 {
+  font-family: 'Playfair Display', serif; /* Uses the same elegant font as the main title. */
+  font-size: 1.7rem; /* Sets the font size for the subheadings. */
+  color: #0f0f0f; /* Sets a dark color for the text. */
+  margin-bottom: 0.5rem; /* Adds a small space below the subheadings. */
+  font-weight: 500; /* Sets a medium font weight. */
+}
+
+/* Styling for the paragraph text within the text blocks. */
+.mission-vision__text-block p {
+  font-family: 'Inter', sans-serif; /* Uses a clean, readable sans-serif font. */
+  font-size: 1rem; /* Sets a standard font size. */
+  line-height: 1.6; /* Increases line spacing for better readability. */
+  color: #3b3b3b; /* Sets a soft dark gray for the text. */
+}
+
+/* Specific positioning for the mission text block. */
+.mission-vision__mission {
+  top: 18px; /* Positions the block near the top of the container. */
+  left: 20px; /* Positions the block towards the left. */
+}
+
+/* Specific positioning for the vision text block. */
+.mission-vision__vision {
+  top: 218px; /* Positions the block further down in the container. */
+  left: 80px; /* Positions the block more to the right than the mission block. */
+}
+
+/* Container for the image on the right side of the section. */
+.mission-vision__image-container {
+  flex: 1; /* Allows the image container to grow and take up available space. */
+  max-width: 500px; /* Constrains the maximum width of the image. */
+}
+
+/* The image itself. */
+.mission-vision__image-container img {
+  width: 100%; /* Makes the image responsive, filling its container's width. */
+  height: auto; /* Maintains the image's original aspect ratio. */
+}
+
+/* --- Responsive Design --- */
+/* Media query for tablets and smaller screens. */
+@media (max-width: 992px) {
+  .mission-vision {
+    flex-direction: column-reverse; /* Stacks the content vertically, with the image appearing on top. */
+    gap: 3rem; /* Adjusts the spacing for the vertical layout. */
+    padding: 4rem 2rem; /* Reduces the padding for smaller screens. */
+  }
+
+  .mission-vision__content {
+    text-align: center; /* Centers all text content within the block. */
+  }
+
+  .mission-vision__path-container {
+    position: static; /* Resets the positioning context. */
+    height: auto; /* Allows the container's height to be determined by its content. */
+    display: flex; /* Enables flexbox for the text blocks. */
+    flex-direction: column; /* Stacks the mission and vision blocks vertically. */
+    gap: 2rem; /* Adds space between the mission and vision blocks. */
+    align-items: center; /* Horizontally centers the text blocks. */
+  }
+
+  .mission-vision__path-svg {
+    display: none; /* Hides the decorative SVG path, as it doesn't work well in the vertical layout. */
+  }
+
+  .mission-vision__text-block {
+    position: static; /* Resets the positioning, so they flow naturally in the flex container. */
+    max-width: 100%; /* Allows the text blocks to use the full available width. */
+  }
+}

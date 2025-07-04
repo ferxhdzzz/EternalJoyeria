@@ -1,0 +1,29 @@
+.form-wrapper {
+  position: absolute; /* Posiciona el formulario dentro de su contenedor principal */
+  right: 25px; /* Espacio desde el borde derecho */
+  top: 64px; /* Espacio debajo del topbar */
+  width: 350px; /* Anchura fija del formulario */
+  height: calc(100vh - 64px); /* Ocupa el espacio disponible debajo del topbar */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+.form-containerr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  background-color: #FFF3F2;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 100%; /* Ocupa todo el ancho del .form-wrapper */
+}
+
+.form-titler {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+}

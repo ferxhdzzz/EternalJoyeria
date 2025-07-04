@@ -1,18 +1,19 @@
-// controllers/registerCustomersController.js 
+// 📁 controllers/registerCustomersController.js 
+
 import jsonwebtoken from "jsonwebtoken";
 import bcryptjs from "bcryptjs";
 import crypto from "crypto";
+import { v2 as cloudinary } from "cloudinary";
 import clientsModel from "../models/Customers.js";
+import { config } from "../config.js";
 import { sendMail } from "../utils/mailVerify.js";
 import { HTMLEmailVerification } from "../utils/mailVerify.js";
 import { HTMLWelcomeEmail } from "../utils/HTMLWelcomeEmail.js";
-import { v2 as cloudinary } from "cloudinary";
-
 // 1- Configurar cloudinary con nuestra cuenta
 cloudinary.config({
-  cloud_name: 'dosy4rouu',
-  api_key: '712175425427873',
-  api_secret: 'Yk2vqXqQ6aknOrT7FCoqEiWw31w',
+  cloud_name: config.cloudinary.cloud_name,
+  api_key: config.cloudinary.api_key,
+  api_secret: config.cloudinary.api_secret,
 });
 
 const registerCustomersController = {};
@@ -81,11 +82,14 @@ registerCustomersController.registerClient = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: 2 * 60 * 60 * 1000,
+      path:'/', //cookie disponibloe en toda la aplicacion 
+      sameSite:'lax',  // proteccion contra CSRF
+
     });
 
     res.json({ 
       message: "Register successfully",
-      profilePicture: profilePictureURL
+      
     });
 
   } catch (error) {
@@ -94,7 +98,7 @@ registerCustomersController.registerClient = async (req, res) => {
   }
 };
 
-// Verificación de código (sin cambios)
+// Verificación de código 
 registerCustomersController.verifyCodeEmail = async (req, res) => {
   const { verificationCode } = req.body;
   const token = req.cookies.verificationToken;

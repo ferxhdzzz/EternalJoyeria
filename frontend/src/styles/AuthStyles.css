@@ -1,0 +1,73 @@
+/* src/pages/Recuperacion.css */
+.recover-wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: flex-start; /* Alinea la card a la izquierda */
+  align-items: center;
+  padding-left: 6%; /* Espacio desde el borde izquierdo */
+}
+
+.recover-card {
+  background: white;
+  padding: 35px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  max-width: 480px; /* Aumenta el ancho máximo */
+  width: 100%;
+  text-align: left; /* Alinea todo el contenido de la card a la izquierda */
+}
+
+.recover-title {
+  font-size: 24px;
+  text-align: left; /* Alinea solo el título a la izquierda */
+  margin-bottom: 20px;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+  margin-top: -40px;
+  margin-bottom: 12px;
+}
+
+.input-group-eye {
+  position: relative;
+  width: 100%;
+}
+
+.eye-icon {
+  position: absolute;
+  top: 45%; /* Adjusted for vertical alignment */
+  right: 10px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #888;
+}
+
+/* Estilo específico para el ojo en la página de Login */
+.login-form .eye-icon {
+  top: 58%; /* Mueve el icono hacia abajo */
+}
+
+/* Anula el estilo de Button.css para centrar el botón SÓLO en Login */
+.login-form .custom-button {
+  display: block; /* Permite usar márgenes automáticos para centrar */
+  margin: 1.5rem auto 0; /* Centra el botón y mantiene el margen superior */
+}
+
+/* Ajuste para el componente InputGroup para que el icono no se solape */
+.input-group-eye .input-group {
+  width: 100%;
+}
+
+.input-group-eye input {
+  padding-right: 40px !important; /* Añade espacio para el icono */
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-start; /* Alinea a la izquierda (por defecto) */
+  width: 100%;
+  margin-top: 20px; /* Añade un poco de espacio arriba */
+  padding-left: 130px; /* Ajuste final */
+}

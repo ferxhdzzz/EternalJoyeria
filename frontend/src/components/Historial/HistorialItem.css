@@ -1,0 +1,44 @@
+.historial-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 1.5rem;
+}
+
+.historial-item:last-child {
+  border-bottom: none;
+}
+
+.historial-item-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.historial-item-details {
+  flex-grow: 1;
+}
+
+.historial-item-name {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #333;
+  margin: 0 0 0.25rem 0;
+}
+
+.historial-item-quantity {
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem;
+  color: #777;
+  margin: 0;
+}
+
+.historial-item-price {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #333;
+}

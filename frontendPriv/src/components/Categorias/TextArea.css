@@ -1,0 +1,28 @@
+.textarea-container {
+  width: 100%; /* El contenedor sigue ocupando todo el ancho disponible */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.textarea-label {
+  font-size: 1rem;
+  color: #333;
+}
+
+.textarea-field {
+  padding: 0.5rem;
+  border: 1px solid #ccc; /* Borde gris */
+  border-radius: 25px; /* Esquinas redondeadas */
+  width: 100%; /* Ajusta al contenedor */
+  max-width: 500px; /* Ancho máximo personalizado */
+  font-size: 1rem;
+  background-color: #fff; /* Fondo blanco */
+  color: #333; /* Texto oscuro */
+  resize: none; /* Elimina la opción de redimensionar el textarea */
+}
+
+.textarea-field:focus {
+  outline: none; /* Remueve el contorno azul al enfocar */
+  border-color: #888; /* Cambia el borde a un gris más oscuro */
+}

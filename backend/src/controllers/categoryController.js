@@ -1,13 +1,12 @@
 import Category from "../models/Category.js";
 import { v2 as cloudinary } from "cloudinary";
 // Configurar Cloudinary
+
 cloudinary.config({
   cloud_name: 'dosy4rouu',
   api_key: '712175425427873',
   api_secret: 'Yk2vqXqQ6aknOrT7FCoqEiWw31w',
 });
-
-
 const categoryController = {};
 
 /*

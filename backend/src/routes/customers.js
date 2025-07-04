@@ -1,21 +1,24 @@
 import express from "express";
+import multer from "multer";
 import customersController from "../controllers/customersController.js";
-// Router() nos ayuda a colocar los metodos
-// que tendra mi ruta
+
 const router = express.Router();
 
+// Configurar multer para manejar archivos (imagen de perfil)
+const upload = multer({ dest: "public/" });
+
+// Rutas para clientes
 router
   .route("/")
-  //ruta de metodo get
-  .get(customersController.getcustomers)
+  // Obtener lista de clientes
+  .get(customersController.getcustomers);
 
-//no hay metodo insert, porque lo realiza el register
-
+// Rutas para operaciones por ID
 router
   .route("/:id")
-//ruta del metodo para actualizar
-  .put(customersController.updatecustomers)
-  //ruta del metodo eliminar
+  // Actualizar cliente (con posible imagen)
+  .put(upload.single("profilePicture"), customersController.updatecustomers)
+  // Eliminar cliente
   .delete(customersController.deletecustomers);
 
 export default router;

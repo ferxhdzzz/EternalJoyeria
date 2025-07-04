@@ -1,0 +1,13 @@
+.main-button {
+  background-color: #F2C1D1;
+  color: #000000;
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+}
+
+.main-button:hover {
+  background-color: #ff738b;
+}

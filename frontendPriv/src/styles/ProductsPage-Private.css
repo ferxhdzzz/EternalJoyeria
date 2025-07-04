@@ -1,0 +1,32 @@
+.products-private-page-container {
+  display: flex;
+  height: 100vh;
+  background-color: #FFF3F2;
+  overflow: hidden;
+}
+
+.sidebar-private {
+  height: 100vh;
+  flex-shrink: 0;
+}
+
+.main-content-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-top: 14px;
+}
+
+.main-content-private {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  
+}
+
+.products-area-private {
+  flex-grow: 1;
+}

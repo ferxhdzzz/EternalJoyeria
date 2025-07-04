@@ -1,0 +1,181 @@
+/* =================================== */
+/*          FILLED CART STYLES         */
+/* =================================== */
+.cart-page {
+  background-color: #fdf6f3;
+  min-height: 100vh;
+  padding: 120px 2rem 2rem;
+}
+
+.cart-page-container {
+  display: flex;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+
+.cart-items-section {
+  flex: 2;
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.cart-items-section h2 {
+  font-family: 'Lora', serif;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #132F3A;
+}
+
+.cart-summary-section {
+  flex: 1;
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 120px;
+}
+
+.cart-summary-section h3 {
+  font-family: 'Lora', serif;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #132F3A;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1rem;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  font-family: 'Nunito', sans-serif;
+}
+
+.buy-button {
+  width: 100%;
+  background-color: #D1A6B4;
+  color: white;
+  border: none;
+  padding: 12px 40px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.buy-button:hover {
+  background-color: #c593a2;
+}
+
+
+/* =================================== */
+/*          EMPTY CART STYLES          */
+/* =================================== */
+.empty-cart-page {
+  background-color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-top: 70px;
+  box-sizing: border-box;
+}
+
+.empty-cart-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  padding: 2rem 8rem;
+  gap: 4rem;
+}
+
+.empty-cart-text {
+  flex: 1;
+  max-width: 450px;
+}
+
+.empty-cart-text h1 {
+  font-family: 'Lora', serif;
+  font-size: 3.5rem;
+  color: #132F3A;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.empty-cart-text p {
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  color: #132F3A;
+  margin-bottom: 2rem;
+}
+
+.empty-cart-button {
+  display: inline-block;
+  background-color: #D1A6B4;
+  color: white;
+  padding: 10px 25px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.empty-cart-button:hover {
+  background-color: #c593a2;
+}
+
+.empty-cart-image {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 500px;
+}
+
+.empty-cart-image img {
+  max-width: 100%;
+  height: auto;
+}
+
+
+/* =================================== */
+/*        RESPONSIVE ADJUSTMENTS       */
+/* =================================== */
+@media (max-width: 992px) {
+  .cart-page-container {
+    flex-direction: column;
+  }
+  .cart-summary-section {
+    position: static;
+    width: 100%;
+  }
+  .empty-cart-container {
+    flex-direction: column;
+    text-align: center;
+    padding: 2rem;
+  }
+  .empty-cart-text {
+    order: 2;
+    margin-top: 2rem;
+  }
+  .empty-cart-image {
+    order: 1;
+    max-width: 300px;
+  }
+  .empty-cart-text h1 {
+    font-size: 2.5rem;
+  }
+}

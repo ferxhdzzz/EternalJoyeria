@@ -1,10 +1,85 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* Global Styles */
+/* Imports the Lora and Nunito fonts from Google Fonts to be used throughout the application. */
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Nunito:wght@400;600;700&display=swap');
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
 }
 
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #FFFFFF; /* White background */
+  color: #132F3A; /* Default text color */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+/*
+  Elimina el contorno por defecto (outline) en los botones cuando están seleccionados (focus).
+  Esto proporciona una apariencia más limpia y coherente con el diseño de la aplicación.
+*/
+button:focus,
+button:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+#root {
+  /* These properties are commented out to allow for full-width layouts controlled by components. */
+  /* max-width: 1280px; */
+  /* margin: 0 auto; */
+  /* padding: 2rem; */
+  /* text-align: center; */
+  width: 100%; /* Ensures the root container takes the full width of the viewport. */
+  min-height: 100vh; /* Ensures the root container takes at least the full height of the viewport. */
+  display: flex; /* Enables flexbox layout for the root container. */
+  flex-direction: column; /* Stacks the direct children of the root container vertically. */
+}
+
+/* General responsive typography (optional but recommended). */
+html {
+  font-size: 16px; /* Sets the base font size for the document, which rem units are based on. */
+}
+
+/* Media query for tablet-sized screens. */
+@media (max-width: 768px) {
+  html {
+    font-size: 15px; /* Slightly reduces the base font size for better readability on smaller screens. */
+  }
+}
+
+/* Media query for mobile-sized screens. */
+@media (max-width: 480px) {
+  html {
+    font-size: 14px; /* Further reduces the base font size for small mobile devices. */
+  }
+}
+
+/* Styles for the main content container, especially when using a fixed navigation bar. */
+.home-container {
+  flex-grow: 1; /* Allows it to take available space if Nav is fixed height */
+  position: relative;
+  width: 100%;
+  height: 100vh; /* Fixed height to viewport height */
+  overflow: hidden; /* Prevent any scrolling */
+  padding-top: 60px; /* Add padding to prevent content from being hidden behind fixed Nav */
+  box-sizing: border-box;
+}
+
+/* The following styles are the default styles provided by Vite when creating a new React project. */
+/* They are commented out as they are not needed for this specific project's design. */
+/*
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -40,3 +115,4 @@
 .read-the-docs {
   color: #888;
 }
+*/

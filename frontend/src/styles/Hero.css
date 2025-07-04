@@ -1,0 +1,102 @@
+.hero {
+  display: flex; /* Enables flexbox layout. */
+  justify-content: center; /* Horizontally centers the content. */
+  padding: 40px 20px; /* Adds padding to the top/bottom and sides. */
+  margin-top: 40px; /* Adds space above the hero section. */
+}
+
+.hero-content {
+  display: flex; /* Enables flexbox layout for the content. */
+  align-items: center; /* Vertically centers the items. */
+  justify-content: center; /* Horizontally centers the items. */
+  gap: 80px; /* Adds a large space between the text and image. */
+  padding: 60px 40px; /* Adds padding inside the content box. */
+  border-radius: 40px; /* Adds large rounded corners. */
+  background-color: #ffffff; /* Sets a white background color. */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05); /* Adds a subtle shadow for depth. */
+  max-width: 1200px; /* Sets a maximum width for the content. */
+  width: 100%; /* Ensures the content takes the full available width. */
+}
+
+.hero-text-container {
+  flex: 1; /* Allows the text container to grow and take available space. */
+  max-width: 500px; /* Sets a maximum width for the text container. */
+}
+
+.hero-text h1 {
+  margin-bottom: 16px; /* Adds space below the main headline. */
+  font-size: 48px; /* Sets a large font size for the headline. */
+  color: #222; /* Sets a dark color for the headline text. */
+}
+
+.hero-stats {
+  display: flex; /* Enables flexbox layout for the stats. */
+  align-items: center; /* Vertically centers the stats. */
+  justify-content: flex-start; /* Aligns the stats to the start of the container. */
+  gap: 40px; /* Adds space between the stat items. */
+  margin-top: 10px; /* Adds a small space above the stats. */
+}
+
+.stat {
+  display: flex; /* Enables flexbox layout for a single stat. */
+  flex-direction: column; /* Stacks the number and label vertically. */
+  align-items: center; /* Horizontally centers the number and label. */
+}
+
+.number {
+  font-size: 36px; /* Sets a large font size for the number. */
+  font-weight: bold; /* Makes the number text bold. */
+  color: #333; /* Sets a dark color for the number. */
+}
+
+.label {
+  font-size: 18px; /* Sets the font size for the label. */
+  color: #555; /* Sets a medium-gray color for the label. */
+  margin-top: 4px; /* Adds a small space above the label. */
+}
+
+.separator {
+  width: 2px; /* Sets the width of the separator line. */
+  height: 50px; /* Sets the height of the separator line. */
+  background-color: #ccc; /* Sets a light gray color for the separator. */
+  border-radius: 2px; /* Adds slightly rounded ends to the separator. */
+}
+
+.hero-image {
+  flex: 1; /* Allows the image container to grow and take available space. */
+  display: flex; /* Enables flexbox layout. */
+  justify-content: center; /* Horizontally centers the image. */
+  align-items: center; /* Vertically centers the image. */
+}
+.hero-image img {
+  max-width: 420px; /* Sets a maximum width for the image. */
+  width: 100%; /* Ensures the image is responsive within its container. */
+  height: auto; /* Maintains the aspect ratio of the image. */
+}
+
+
+/* Responsive Design for tablets and smaller screens. */
+@media (max-width: 1024px) { /* Applies styles for screens 1024px wide or smaller. */
+  .hero-content {
+    flex-direction: column; /* Stacks the text and image vertically. */
+    gap: 40px; /* Reduces the space between the text and image. */
+    padding: 40px 20px; /* Adjusts the padding for smaller screens. */
+  }
+
+  .hero-text-container {
+    text-align: center; /* Centers the text content. */
+  }
+
+  .hero-stats {
+    justify-content: center; /* Centers the stats horizontally. */
+    gap: 20px; /* Reduces the space between stat items. */
+  }
+
+  .separator {
+    display: none; /* Hides the separator line on smaller screens. */
+  }
+
+  .hero-image img {
+    width: 70%; /* Reduces the image width relative to its container. */
+  }
+}
