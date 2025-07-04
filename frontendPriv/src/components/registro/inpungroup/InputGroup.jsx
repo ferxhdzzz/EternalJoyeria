@@ -1,19 +1,18 @@
 import React from "react";
 import "./Input.css";
 
-const Input = ({ label, type = "text", value, onChange, name }) => {
+const Input = React.forwardRef(({ label, type = "text", ...props }, ref) => {
   return (
     <div className="input-wrapper">
       <label className="input-label">{label}</label>
       <input
+        ref={ref}
         type={type}
         className="input"
-        value={value}
-        onChange={onChange}
-        name={name}
+        {...props} 
       />
     </div>
   );
-};
+});
 
 export default Input;
