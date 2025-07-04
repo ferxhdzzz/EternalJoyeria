@@ -1,0 +1,123 @@
+.contact-us-container {
+  padding: 4rem 2rem; /* Adds padding around the container. */
+  background-color: #FFFDFA; /* Sets a light background color for the entire section. */
+}
+
+.contact-us {
+  max-width: 800px; /* Sets the maximum width of the contact form container. */
+  margin: 0 auto; /* Centers the container horizontally. */
+  padding: 4rem 2rem; /* Adds padding inside the container. */
+  background-color: #F5C8C6; /* Sets a pinkish background color. */
+  border-top-left-radius: 50vw; /* Creates a curved effect on the top-left corner. */
+  border-top-right-radius: 50vw; /* Creates a curved effect on the top-right corner. */
+  border-bottom-left-radius: 0; /* Keeps the bottom-left corner sharp. */
+  border-bottom-right-radius: 0; /* Keeps the bottom-right corner sharp. */
+  text-align: center; /* Centers the text content inside. */
+}
+
+.contact-us__title {
+  font-family: 'Playfair Display', serif; /* Sets the font for the title. */
+  font-size: 2.8rem; /* Sets the size of the title font. */
+  color: #333; /* Sets the color of the title text. */
+  margin-bottom: 2.5rem; /* Adds space below the title. */
+}
+
+.contact-us__form {
+  display: flex; /* Enables flexbox layout for the form. */
+  flex-direction: column; /* Stacks form elements vertically. */
+  align-items: center; /* Centers form elements horizontally. */
+  gap: 1.2rem; /* Adds space between form elements. */
+  max-width: 450px; /* Sets the maximum width of the form. */
+  margin: 0 auto; /* Centers the form horizontally. */
+}
+
+.contact-us__form-group {
+  width: 100%; /* Makes the form group take the full width of its parent. */
+  text-align: left; /* Aligns the text within the group to the left. */
+}
+
+.contact-us__form-group label {
+  display: block; /* Makes the label a block-level element. */
+  font-family: 'Inter', sans-serif; /* Sets the font for the label. */
+  font-size: 0.8rem; /* Sets the font size for the label. */
+  color: #5c5c5c; /* Sets the color of the label text. */
+  margin-bottom: 0.4rem; /* Adds space below the label. */
+  padding-left: 1rem; /* Adds padding to the left of the label. */
+}
+
+.contact-us__form-group input,
+.contact-us__form-group textarea,
+.contact-us__form-group select {
+  width: 100%; /* Makes form controls take the full width. */
+  padding: 0.9rem 1.2rem; /* Adds padding inside the form controls. */
+  border: none; /* Removes the default border. */
+  border-radius: 50px; /* Makes the corners of the form controls rounded. */
+  background-color: #fff; /* Sets a white background for form controls. */
+  font-family: 'Inter', sans-serif; /* Sets the font for the text inside controls. */
+  font-size: 1rem; /* Sets the font size for the text inside controls. */
+  color: #333; /* Sets the text color for the input. */
+  box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height. */
+}
+
+.phone-input-group {
+  display: flex; /* Enables flexbox for the phone input group. */
+  gap: 0.5rem; /* Adds a small gap between the select and input fields. */
+}
+
+.phone-input-group select {
+  width: 120px; /* Sets a fixed width for the country code selector. */
+  flex-shrink: 0; /* Prevents the selector from shrinking. */
+}
+
+.phone-input-group input {
+  width: 100%; /* Allows the phone number input to take the remaining width. */
+}
+
+.error-text {
+  color: #D32F2F; /* Sets a red color for error messages. */
+  font-size: 0.75rem; /* Sets a smaller font size for error messages. */
+  padding-left: 1rem; /* Adds padding to the left of the error message. */
+  margin-top: 0.25rem; /* Adds a small space above the error message. */
+}
+
+.contact-us__form-group textarea {
+  height: 80px; /* Sets a fixed height for the textarea. */
+  resize: none; /* Disables resizing of the textarea. */
+}
+
+.contact-us__submit-btn {
+  padding: 1rem 3rem; /* Adds padding to the submit button. */
+  border: none; /* Removes the default border. */
+  border-radius: 50px; /* Makes the button corners rounded. */
+  background-color: #3A6A64; /* Sets a dark green background color. */
+  color: #fff; /* Sets the text color to white. */
+  font-family: 'Inter', sans-serif; /* Sets the font for the button text. */
+  font-size: 1rem; /* Sets the font size for the button text. */
+  font-weight: 500; /* Makes the button text semi-bold. */
+  cursor: pointer; /* Changes the cursor to a pointer on hover. */
+  transition: background-color 0.3s ease; /* Adds a smooth transition for the background color. */
+  margin-top: 1.5rem; /* Adds space above the button. */
+}
+
+.contact-us__submit-btn:hover {
+  background-color: #2e5450; /* Darkens the background color on hover. */
+}
+
+.contact-us__footer-text {
+  font-family: 'Inter', sans-serif; /* Sets the font for the footer text. */
+  font-size: 0.75rem; /* Sets a smaller font size for the footer text. */
+  color: #5c5c5c; /* Sets the color of the footer text. */
+  margin-top: 1rem; /* Adds space above the footer text. */
+  max-width: 300px; /* Sets a maximum width for the footer text to wrap. */
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 768px) { /* Applies the following styles on screens 768px wide or smaller. */
+  .contact-us {
+    padding: 3rem 1rem; /* Reduces padding on smaller screens. */
+  }
+
+  .contact-us__title {
+    font-size: 2.2rem; /* Reduces the title font size on smaller screens. */
+  }
+}

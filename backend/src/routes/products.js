@@ -1,17 +1,17 @@
 import express from "express";
-import productController from "../controllers/productsController.js"
+import multer from "multer";
+import productController from "../controllers/productsController.js";
 
 const router = express.Router();
 
-router
-  .route("/")
-  .get(productController.getAllProducts)
-  .post(productController.createProduct);
+// Configura multer para subir múltiples archivos
+const upload = multer({ dest: "public/" });
 
-router
-  .route("/:id")
-  .get(productController.getProductById)
-  .put(productController.updateProduct)
-  .delete(productController.deleteProduct);
+router.post("/", upload.array("images"), productController.createProduct);
+router.put("/:id", upload.array("images"), productController.updateProduct);
+
+router.get("/", productController.getAllProducts);
+router.get("/:id", productController.getProductById);
+router.delete("/:id", productController.deleteProduct);
 
 export default router;

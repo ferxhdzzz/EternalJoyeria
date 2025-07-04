@@ -1,0 +1,18 @@
+.redirect-label {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #888888;
+  font-family: 'Poppins', sans-serif;
+}
+
+.redirect-label a {
+  color: #ffadd9;
+  text-decoration: underline;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.redirect-label a:hover {
+  color: #ff7aef;
+}

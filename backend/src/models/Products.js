@@ -41,7 +41,7 @@ const productSchema = new Schema(
 
     category_id: {
       type: Schema.Types.ObjectId,
-      ref: "categories",
+      ref: "categorys",
       require: true,
     },
 
@@ -58,7 +58,6 @@ const productSchema = new Schema(
     },
   },
   {
-    timestamps: true,
     strict: false,
   }
 );

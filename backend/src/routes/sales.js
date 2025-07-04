@@ -1,14 +1,16 @@
 import { Router } from "express";
-import salesController from "../controllers/salesController.js"; // Ajusta el path según tu estructura
+
+=======
+import salesController from "../controllers/salesController.js";
 
 const router = Router();
 
-// GET: Obtener todas las ventas
+
 router.get("/", salesController.getSales);
-
-// GET: Obtener una venta específica por ID
 router.get("/:id", salesController.getSale);
-
-
+router.post("/", salesController.createSale);
+router.put("/:id", salesController.updateSale);
+router.delete("/:id", salesController.deleteSale);
 
 export default router;
+

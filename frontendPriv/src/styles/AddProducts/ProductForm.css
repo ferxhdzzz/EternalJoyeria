@@ -1,0 +1,138 @@
+.product-form-container {
+  background-color: #FFF3F2;
+  color: black;
+  padding: 30px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form-title {
+  font-size: 24px;
+  color: #111;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.error-message {
+  color: red;
+  font-size: 13px;
+  margin-top: 4px;
+  margin-left: 2px;
+  display: block;
+}
+
+.product-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+    color: black;
+
+  width: 100%;
+  max-width: 1200px;
+}
+
+.left-form,
+.right-form {
+  display: flex;
+    color: black;
+
+  flex-direction: column;
+  gap: 20px;
+}
+
+.left-form textarea,
+.left-form input,
+.right-form input {
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+    color: black;
+  font-size: 14px;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
+.price-discount {
+  display: flex;
+  gap: 12px;
+}
+
+.price-discount > div {
+  flex: 1;
+}
+
+.medidas {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.quantity-counter {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.image-uploader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.image-uploader img {
+  width: 120px;
+  height: 120px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.image-uploader button {
+  padding: 8px 16px;
+  background-color: #FCA7B1;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.guardar-button {
+  padding: 8px 16px;
+  background-color: #FCA7B1;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  display: block;
+  margin: 20px auto 0;
+  max-width: 120px;  /* ancho reducido */
+  width: 100%;
+  position: relative;
+}
+
+.guardar-button:hover {
+  background-color: #e7939a;
+}
+
+
+@media (max-width: 768px) {
+  .product-form {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .price-discount {
+    gap: 10px;
+  }
+
+  .image-uploader img {
+    width: 100px;
+    height: 100px;
+  }
+}

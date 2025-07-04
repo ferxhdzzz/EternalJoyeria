@@ -1,0 +1,94 @@
+/* ✅ CSS COMPLETO para ProductsPage-Private.css */
+
+.products-private-page-container {
+  display: flex;
+  background-color: #FFF3F2;
+  flex-direction: row;
+  min-height: 100vh; /* ✅ permite crecer en altura */
+  width: 100%;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.sidebar-private {
+  flex-shrink: 0;
+}
+
+.main-content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-right: 375px; /* espacio para formulario flotante */
+  box-sizing: border-box;
+}
+
+@media (max-width: 1255px) {
+  .main-content-wrapper {
+    padding-right: 0; /* formulario ya no flota */
+  }
+}
+
+/* Elimina el padding cuando el formulario no está flotando */
+@media (max-width: 1248px) {
+  .main-content-wrapper {
+    padding-right: 0;
+  }
+}
+
+.main-content-private {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 2rem;
+  overflow: visible;
+}
+
+.products-area-private {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow: visible;
+}
+
+/* ✅ Grid de productos */
+.product-grid-private {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 100px;
+  padding: 20px;
+}
+
+.final-price-no-discount {
+  font-size: 1.05rem;
+  font-weight: bold;
+  color: #333;
+  margin-top: 3px;
+}
+
+@media (max-width: 1200px) {
+  .product-grid-private {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .product-grid-private {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-grid-private {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ✅ Asegura que el scroll vertical sea del body */
+html, body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+}
