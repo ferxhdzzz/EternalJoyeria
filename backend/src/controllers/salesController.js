@@ -1,3 +1,6 @@
+
+
+=======
 import Sale from "../models/sales.js";
 
 const salesController = {};
@@ -111,3 +114,4 @@ salesController.deleteSale = async (req, res) => {
 };
 
 export default salesController;
+

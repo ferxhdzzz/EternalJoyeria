@@ -48,7 +48,7 @@ adminController.deleteadmin = async (req, res) => {
     }
     res.json({ message: "Administrador eliminado correctamente" });
   } catch (error) {
-    console.error(error);
+    console.error(error); b   
     res.status(500).json({ message: "Error al eliminar administrador" });
   }
 };
