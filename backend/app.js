@@ -14,7 +14,7 @@ import salesRoutes from "./src/routes/sales.js"
 import ordersRoutes from "./src/routes/orders.js";
 import cookieParser from "cookie-parser";
 import adminRoutes from "./src/routes/Administrator.js";
-import salesRoutes from "./src/routes/sales.js"
+
 // Creo una constante que es igual a la libreria que importé
 const app = express();
 app.use(
@@ -38,7 +38,7 @@ app.use("/api/products", productsRoutes);
 app.use("/api/registerClients", registerCustomersRoutes);
 app.use ("/api/admins",adminRoutes )
 
-=======
+
 app.use("/api/reviews", reviewsRouter);
 app.use("/api/sales", salesRoutes)
 app.use("/api/orders", ordersRoutes);

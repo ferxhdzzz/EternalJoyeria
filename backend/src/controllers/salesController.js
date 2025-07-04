@@ -1,6 +1,5 @@
 
 
-=======
 import Sale from "../models/sales.js";
 
 const salesController = {};
