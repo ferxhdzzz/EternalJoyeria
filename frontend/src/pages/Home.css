@@ -1,4 +1,97 @@
-.home-container {
-  width: 100%; /* Ensures the container takes the full width of its parent. */
-  min-height: 100vh; /* Ensures the container takes at least the full height of the viewport. */
+/*
+  HOME PAGE STYLES
+  This file contains all styles for the home page layout and the hero section.
+  Styles are intentionally made highly specific to override any conflicting global styles.
+*/
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;600;700&display=swap');
+
+/* 1. Page Wrapper: The very background of the page */
+body .home-page-wrapper {
+  background-color: #f9f9f9 !important; /* Light gray background, forced */
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem 2rem;
+  box-sizing: border-box;
 }
+
+/* 2. Main Container: The "floating card" */
+.home-page-wrapper .home-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: radial-gradient(circle at 50% 0%, #fff5f5, #ffeae3) !important; /* Pink gradient, forced */
+  border-radius: 2rem;
+  padding: 4rem 2rem;
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+
+/* 3. Hero Component Styles (targeting classes inside Hero.jsx) */
+.home-container .hero-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  gap: 1.25rem;
+}
+
+.hero-container .hero-trusted-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background-color: #FEECEC;
+  color: #D96D6D;
+  padding: 0.5rem 1.25rem;
+  border-radius: 999px;
+}
+
+.hero-container .hero-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 5.5rem;
+  font-weight: 400;
+  line-height: 1.05;
+  margin: 0;
+  color: #381E1C;
+}
+
+.hero-container .hero-subtitle {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  max-width: 550px;
+  margin: 0;
+  color: #836E6C;
+}
+
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  body .home-page-wrapper {
+    padding: 2rem 1rem;
+  }
+
+  .home-page-wrapper .home-container {
+    padding: 2rem 1.5rem;
+  }
+
+  .hero-container .hero-title {
+    font-size: 3.5rem;
+  }
+  .hero-container .hero-subtitle {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-container .hero-title {
+    font-size: 2.8rem;
+  }
+}
+

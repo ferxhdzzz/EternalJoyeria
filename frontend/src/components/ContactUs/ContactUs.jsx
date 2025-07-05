@@ -77,28 +77,28 @@ const ContactUs = () => {
   // The return statement contains the JSX that will be rendered to the DOM.
   return (
     // The main container for the contact us section.
-    <section className="contact-us-container">
+    <section className="contact-us-container" style={{ backgroundColor: '#FFFFFF' }}>
       {/* The inner container for the form itself. */}
-      <div className="contact-us">
+      <div className="contact-us" style={{ backgroundColor: '#FFFFFF' }}>
         {/* The title of the contact form. */}
-        <h2 className="contact-us__title">Contactanos</h2>
+        <h2 className="contact-us__title" style={{ backgroundColor: '#FFFFFF' }}>Contactanos</h2>
         {/* The form element with a submit handler and noValidate to disable default browser validation. */}
-        <form className="contact-us__form" onSubmit={handleSubmit} noValidate>
+        <form className="contact-us__form" onSubmit={handleSubmit} noValidate style={{ backgroundColor: '#FFFFFF' }}>
           {/* A group for the name input field and its label. */}
-          <div className="contact-us__form-group">
+          <div className="contact-us__form-group" style={{ backgroundColor: '#FFFFFF' }}>
             {/* The label for the name input. */}
-            <label htmlFor="name">Nombre y Apellido</label>
+            <label htmlFor="name" style={{ backgroundColor: '#FFFFFF' }}>Nombre y Apellido</label>
             {/* The text input for the user's name. */}
             <input type="text" id="name" name="name" value={formData.name} onChange={handleInputChange} />
             {/* Conditionally renders an error message if there is a name error. */}
             {errors.name && <p className="error-text">{errors.name}</p>}
           </div>
           {/* A group for the phone number input and its label. */}
-          <div className="contact-us__form-group">
+          <div className="contact-us__form-group" style={{ backgroundColor: '#FFFFFF' }}>
             {/* The label for the phone input. */}
-            <label htmlFor="phone">Número telefónico</label>
+            <label htmlFor="phone" style={{ backgroundColor: '#FFFFFF' }}>Número telefónico</label>
             {/* A group for the country code selector and the phone number input. */}
-            <div className="phone-input-group">
+            <div className="phone-input-group" style={{ backgroundColor: '#FFFFFF' }}>
               {/* The dropdown for selecting the country code. */}
               <select name="countryCode" value={formData.countryCode} onChange={handleInputChange}>
                 <option value="+503">SV (+503)</option> {/* Option for El Salvador. */}
@@ -111,18 +111,18 @@ const ContactUs = () => {
             {errors.phone && <p className="error-text">{errors.phone}</p>}
           </div>
           {/* A group for the email input field and its label. */}
-          <div className="contact-us__form-group">
+          <div className="contact-us__form-group" style={{ backgroundColor: '#FFFFFF' }}>
             {/* The label for the email input. */}
-            <label htmlFor="email">Correo</label>
+            <label htmlFor="email" style={{ backgroundColor: '#FFFFFF' }}>Correo</label>
             {/* The email input for the user's email address. */}
             <input type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} />
             {/* Conditionally renders an error message if there is an email error. */}
             {errors.email && <p className="error-text">{errors.email}</p>}
           </div>
           {/* A group for the comments textarea and its label. */}
-          <div className="contact-us__form-group">
+          <div className="contact-us__form-group" style={{ backgroundColor: '#FFFFFF' }}>
             {/* The label for the comments textarea. */}
-            <label htmlFor="comments">Agrega tus comentarios</label>
+            <label htmlFor="comments" style={{ backgroundColor: '#FFFFFF' }}>Agrega tus comentarios</label>
             {/* The textarea for the user's comments. */}
             <textarea id="comments" name="comments" value={formData.comments} onChange={handleInputChange}></textarea>
             {/* Conditionally renders an error message if there is a comments error. */}
@@ -131,7 +131,7 @@ const ContactUs = () => {
           {/* The submit button for the form. */}
           <button type="submit" className="contact-us__submit-btn">Enviar</button>
           {/* A footer text to inform the user about the next steps. */}
-          <p className="contact-us__footer-text">
+          <p className="contact-us__footer-text" style={{ backgroundColor: '#FFFFFF' }}>
             Te contactaremos lo más pronto posible, muchas gracias por tus comentarios.
           </p>
         </form>

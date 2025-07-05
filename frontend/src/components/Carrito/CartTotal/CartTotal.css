@@ -22,3 +22,44 @@
   cursor: pointer;
   display: inline-block;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .cart-total {
+    margin-top: 30px;
+  }
+  
+  .cart-total p,
+  .cart-total h2 {
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+  }
+  
+  .cart-total button {
+    padding: 10px 30px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .cart-total {
+    margin-top: 20px;
+    align-items: center; /* Center on very small screens */
+  }
+  
+  .cart-total p,
+  .cart-total h2 {
+    margin-bottom: 6px;
+    font-size: 0.8rem;
+    text-align: center;
+  }
+  
+  .cart-total button {
+    padding: 8px 24px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    width: 100%; /* Full width on mobile */
+    max-width: 200px;
+  }
+}

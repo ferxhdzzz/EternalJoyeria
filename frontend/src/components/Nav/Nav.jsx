@@ -1,80 +1,72 @@
-import React, { useState } from 'react'; // Imports React and the useState hook for managing component state.
-import { NavLink } from 'react-router-dom'; // Imports NavLink for navigation, which can style active links.
-import { ShoppingBag, User, Menu, X } from 'lucide-react'; // Imports specific icons from the lucide-react library.
-import './Nav.css'; // Imports the stylesheet for the Nav component.
+import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import './Nav.css';
+import { Menu, X } from 'lucide-react';
+import { User, ShoppingCart } from 'lucide-react';
+import { useCart } from '../../context/CartContext';
 
-// Defines the Nav functional component.
-const Nav = () => {
-  // Initializes state for tracking whether the mobile menu is open or closed.
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+const Nav = ({ cartOpen = false }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const { cartItems } = useCart();
+    const [bump, setBump] = useState(false);
+    const prevCount = useRef(0);
+    const totalCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
-  // Defines a function to toggle the state of the mobile menu.
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+    useEffect(() => {
+        if (totalCount !== prevCount.current) {
+            setBump(true);
+            prevCount.current = totalCount;
+            const timer = setTimeout(() => setBump(false), 400);
+            return () => clearTimeout(timer);
+        }
+    }, [totalCount]);
 
-  // The return statement contains the JSX that will be rendered.
-  return (
-  // The main navigation bar element.
-  <nav className="nav">
-    {/* Container for the website logo. */}
-    <div className="nav__logo">
-      {/* The logo image. */}
+    const toggleMenu = () => {
+        setIsOpen(!isOpen);
+    };
 
-       <NavLink to="/" >
-      <img src="/EternalLogo.png" alt="Eternal Logo" />
+    return (
+        <header className={`header ${cartOpen ? 'header--cart-open' : ''}`}>
+            <div className="nav-container">
+                <Link to="/" className="nav-logo">
+                    <img src="/Products/EternalLogo.png" alt="Eternal Joyeria Logo" className="logo-image" />
+                </Link>
 
+                <div className={`nav-menu ${isOpen ? 'show-menu' : ''} ${cartOpen ? 'nav-menu--cart-open' : ''}`}>
+                    <ul className="nav-list">
+                        <li><Link to="/productos" className="nav-link" onClick={toggleMenu}><span className="nav-link-inner"><span className="nav-link-original">Productos</span><span className="nav-link-hover">Productos</span></span></Link></li>
+                        <li className="nav-categoria-dropdown">
+                          <span className="nav-link nav-link-categoria">Categoría</span>
+                          <ul className="dropdown-menu">
+                            <li><Link to="/categoria/collares" className="dropdown-item" onClick={toggleMenu}>Collares</Link></li>
+                            <li><Link to="/categoria/aretes" className="dropdown-item" onClick={toggleMenu}>Aretes</Link></li>
+                            <li><Link to="/categoria/conjuntos" className="dropdown-item" onClick={toggleMenu}>Conjuntos</Link></li>
+                            <li><Link to="/categoria/anillos" className="dropdown-item" onClick={toggleMenu}>Anillos</Link></li>
+                          </ul>
+                        </li>
+                        <li><Link to="/sobre-nosotros" className="nav-link" onClick={toggleMenu}><span className="nav-link-inner"><span className="nav-link-original sobre-nosotros">Sobre Nosotros</span><span className="nav-link-hover">Sobre Nosotros</span></span></Link></li>
+                        <li><Link to="/contactanos" className="nav-link" onClick={toggleMenu}><span className="nav-link-inner"><span className="nav-link-original">Contáctanos</span><span className="nav-link-hover">Contáctanos</span></span></Link></li>
+                    </ul>
+                </div>
 
-       </NavLink>
-    </div>
-    {/* Container for all content on the right side of the navbar. */}
-    <div className="nav__right-content">
-      {/* Unordered list for navigation links. Class is dynamic based on mobile menu state. */}
-      <ul className={`nav__links ${isMobileMenuOpen ? 'nav__links--open' : ''}`}>
-        {/* List item for the 'Inicio' link. */}
-        <li>
-          {/* NavLink to the home page. The class is set dynamically based on whether the link is active. */}
-          <NavLink to="/" className={({ isActive }) => isActive ? 'nav__link nav__link--active' : 'nav__link'}>
-            Inicio
-          </NavLink>
-        </li>
-        {/* List item for the 'Sobre nosotros' link. */}
-        <li>
-          {/* NavLink to the 'About Us' page with dynamic active styling. */}
-          <NavLink to="/sobre-nosotros" className={({ isActive }) => isActive ? 'nav__link nav__link--active' : 'nav__link'}>
-            Sobre nosotros
-          </NavLink>
-        </li>
-        {/* List item for the 'Productos' link. */}
-        <li>
-          {/* NavLink to the 'Products' page. Also closes the mobile menu on click. */}
-          <NavLink to="/products" className={({ isActive }) => isActive ? 'nav__link nav__link--active' : 'nav__link'} onClick={() => isMobileMenuOpen && toggleMobileMenu()}>
-            Productos
-          </NavLink>
-        </li>
-      </ul>
-        {/* Container for the action icons (shopping bag, user profile). */}
-        <div className="nav__icons">
-          {/* Link to the shopping cart page. */}
-          <NavLink to="/shop" className="nav__icon-link">
-            {/* Shopping bag icon. */}
-            <ShoppingBag className="nav__icon" />
-          </NavLink>
-          {/* Link to the user profile page. */}
-          <NavLink to="/profile">
-            {/* User profile icon. */}
-            <User className="nav__icon" />
-          </NavLink>
-        </div>
-      {/* Container for the mobile menu toggle icon (hamburger/X). */}
-      <div className="nav__mobile-menu-icon" onClick={toggleMobileMenu}>
-        {/* Conditionally renders the 'X' icon if the menu is open, or the 'Menu' icon if it's closed. */}
-        {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-      </div>
-    </div>
-  </nav>
-);
-}
+                <div className="nav-actions">
+                    <Link to="/perfil" className="nav-icon" aria-label="Perfil">
+                        <User size={26} />
+                    </Link>
+                    <Link to="/carrito" className="nav-icon nav-cart-icon" aria-label="Carrito de Compras">
+                        <ShoppingCart size={26} />
+                        {totalCount > 0 && (
+                            <span className={`nav-cart-badge${bump ? ' bump' : ''}`}>{totalCount}</span>
+                        )}
+                    </Link>
+                    <Link to="/login" className="nav-login-btn">Iniciar Sesión</Link>
+                    <div className="nav-toggle" onClick={toggleMenu}>
+                        {isOpen ? <X size={28} /> : <Menu size={28} />}
+                    </div>
+                </div>
+            </div>
+        </header>
+    );
+};
 
-// Exports the Nav component for use in other parts of the application.
 export default Nav;

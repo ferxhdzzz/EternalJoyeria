@@ -19,16 +19,10 @@
 }
 
 .grid-item {
-<<<<<<< HEAD
   background-color: #fdfdfd; /* Sets a very light gray background for each item. */
   border-radius: 12px; /* Adds rounded corners to the grid items. */
   padding: 10px; /* Adds padding inside each grid item. */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* Adds a subtle shadow for a floating effect. */
-=======
-  background-color: #fdfdfd;
-  border-radius: 12px;
-  padding: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
 }
@@ -36,7 +30,6 @@
 .grid-item:hover {
   transform: translateY(-8px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
->>>>>>> master
 }
 
 .grid-item img {
@@ -67,17 +60,13 @@
   }
 }
 
-<<<<<<< HEAD
-/* Responsive Design for mobile phones. */
-@media (max-width: 640px) { /* Applies styles for screens 640px wide or smaller. */
-=======
 .product-link {
   text-decoration: none;
   color: inherit;
 }
 
-@media (max-width: 640px) {
->>>>>>> master
+/* Responsive Design for mobile phones. */
+@media (max-width: 640px) { /* Applies styles for screens 640px wide or smaller. */
   .grid {
     grid-template-columns: 1fr; /* Changes the grid to a single-column layout. */
     gap: 40px 20px; /* Further adjusts the gap for very small screens. */

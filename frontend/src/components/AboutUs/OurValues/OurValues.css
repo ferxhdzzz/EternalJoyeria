@@ -7,7 +7,7 @@
 
 /* The main title of the section. */
 .our-values__title {
-  font-family: 'Playfair Display', serif; /* Uses an elegant serif font for the title. */
+  font-family: 'DM Sans', Arial, sans-serif; /* Cambiado a DM Sans */
   font-size: 3rem; /* Sets a large, impactful font size. */
   color: #0c3c3a; /* Uses a dark, teal-like color for high contrast and brand consistency. */
   margin-bottom: 4rem; /* Adds significant space below the title to separate it from the cards. */
@@ -45,7 +45,7 @@
 
 /* Styling for the title within each card. */
 .our-values__card-title {
-  font-family: 'Inter', sans-serif; /* Uses a clean sans-serif font for readability. */
+  font-family: 'DM Sans', Arial, sans-serif; /* Cambiado a DM Sans */
   font-size: 1.5rem; /* Sets the font size for the card's title. */
   font-weight: 600; /* Gives the title a semi-bold weight. */
   margin-bottom: 1rem; /* Adds space between the title and the description. */
@@ -55,7 +55,7 @@
 
 /* Styling for the description text within each card. */
 .our-values__card-description {
-  font-family: 'Inter', sans-serif; /* Uses a clean sans-serif font. */
+  font-family: 'DM Sans', Arial, sans-serif; /* Cambiado a DM Sans */
   font-size: 1.1rem; /* Sets a slightly smaller font size for the description. */
   line-height: 1.6; /* Improves readability with increased line spacing. */
   color: #CE91A5; /* Sets a default text color. */

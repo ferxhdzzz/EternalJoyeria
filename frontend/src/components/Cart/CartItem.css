@@ -33,7 +33,7 @@
 }
 
 .cart-item-name {
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 600;
   font-size: 1.1rem;
   color: #333;
@@ -41,7 +41,7 @@
 }
 
 .cart-item-price {
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 700;
   font-size: 1.1rem;
   color: #333;
@@ -50,7 +50,7 @@
 }
 
 .cart-item-style {
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 0.9rem;
   color: #777;
   margin: 0.25rem 0 1.5rem 0;
@@ -94,25 +94,8 @@
   color: #fff;
 }
 
-  background: #f7f7f7;
-  border: 1px solid #e0e0e0;
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #555;
-  transition: background-color 0.2s ease;
-}
-
-.quantity-btn:hover {
-  background-color: #f0f0f0;
-}
-
 .cart-item-quantity span {
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 600;
   font-size: 1.1rem;
   min-width: 20px;

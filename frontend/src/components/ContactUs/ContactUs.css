@@ -1,13 +1,13 @@
 .contact-us-container {
   padding: 4rem 2rem; /* Adds padding around the container. */
-  background-color: #FFFDFA; /* Sets a light background color for the entire section. */
+  background-color: #FFFFFF; /* Sets a white background color for the entire section. */
 }
 
 .contact-us {
   max-width: 800px; /* Sets the maximum width of the contact form container. */
   margin: 0 auto; /* Centers the container horizontally. */
   padding: 4rem 2rem; /* Adds padding inside the container. */
-  background-color: #F5C8C6; /* Sets a pinkish background color. */
+  background-color: #FFFFFF; /* Sets a white background color. */
   border-top-left-radius: 50vw; /* Creates a curved effect on the top-left corner. */
   border-top-right-radius: 50vw; /* Creates a curved effect on the top-right corner. */
   border-bottom-left-radius: 0; /* Keeps the bottom-left corner sharp. */
@@ -16,7 +16,7 @@
 }
 
 .contact-us__title {
-  font-family: 'Playfair Display', serif; /* Sets the font for the title. */
+  font-family: 'DM Sans', Arial, sans-serif; /* Cambiado a DM Sans */
   font-size: 2.8rem; /* Sets the size of the title font. */
   color: #333; /* Sets the color of the title text. */
   margin-bottom: 2.5rem; /* Adds space below the title. */
@@ -38,7 +38,7 @@
 
 .contact-us__form-group label {
   display: block; /* Makes the label a block-level element. */
-  font-family: 'Inter', sans-serif; /* Sets the font for the label. */
+  font-family: 'DM Sans', Arial, sans-serif; /* Cambiado a DM Sans */
   font-size: 0.8rem; /* Sets the font size for the label. */
   color: #5c5c5c; /* Sets the color of the label text. */
   margin-bottom: 0.4rem; /* Adds space below the label. */
@@ -53,7 +53,7 @@
   border: none; /* Removes the default border. */
   border-radius: 50px; /* Makes the corners of the form controls rounded. */
   background-color: #fff; /* Sets a white background for form controls. */
-  font-family: 'Inter', sans-serif; /* Sets the font for the text inside controls. */
+  font-family: 'DM Sans', Arial, sans-serif; /* Cambiado a DM Sans */
   font-size: 1rem; /* Sets the font size for the text inside controls. */
   color: #333; /* Sets the text color for the input. */
   box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height. */
@@ -91,7 +91,7 @@
   border-radius: 50px; /* Makes the button corners rounded. */
   background-color: #3A6A64; /* Sets a dark green background color. */
   color: #fff; /* Sets the text color to white. */
-  font-family: 'Inter', sans-serif; /* Sets the font for the button text. */
+  font-family: 'DM Sans', Arial, sans-serif; /* Cambiado a DM Sans */
   font-size: 1rem; /* Sets the font size for the button text. */
   font-weight: 500; /* Makes the button text semi-bold. */
   cursor: pointer; /* Changes the cursor to a pointer on hover. */
@@ -104,7 +104,7 @@
 }
 
 .contact-us__footer-text {
-  font-family: 'Inter', sans-serif; /* Sets the font for the footer text. */
+  font-family: 'DM Sans', Arial, sans-serif; /* Cambiado a DM Sans */
   font-size: 0.75rem; /* Sets a smaller font size for the footer text. */
   color: #5c5c5c; /* Sets the color of the footer text. */
   margin-top: 1rem; /* Adds space above the footer text. */
@@ -119,5 +119,18 @@
 
   .contact-us__title {
     font-size: 2.2rem; /* Reduces the title font size on smaller screens. */
+  }
+}
+
+.contact-title-appear {
+  opacity: 0;
+  transform: translateY(60px);
+  animation: appearUp 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+}
+
+@keyframes appearUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

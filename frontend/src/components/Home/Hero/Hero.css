@@ -110,3 +110,60 @@
     max-width: 250px; /* Makes the image even smaller on very small screens. */
   }
 }
+
+/* Bloom Hero Styles */
+.bloom-hero-bg {
+  position: relative;
+  min-height: 100vh;
+  /* overflow: hidden; */ /* Removed to prevent clipping issues */
+  display: flex;
+  align-items: flex-start;  /* Align to the top */
+  justify-content: center;
+  padding-top: 40vh;        /* Push content further down from the top */
+  box-sizing: border-box;
+}
+
+.bloom-hero {
+  position: relative; 
+  z-index: 10; 
+  text-align: center;
+  padding: 2rem;
+  margin-top: 10vh;  /* Additional push down */
+}
+
+.bloom-hero-hand-container {
+  position: absolute;
+  bottom: -15%; /* Lowered the hand to prevent overlap */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 900px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.bloom-hero-hand-img {
+  width: 100%;
+  height: auto;
+}
+
+.new-hero-button {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000; /* Highest priority */
+  display: inline-block;
+  padding: 1rem 2.5rem;
+  background-color: #FBCFE8;
+  color: #1F2937;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 50px;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.new-hero-button:hover {
+  transform: scale(1.05);
+  background-color: #F9A8D4;
+}
