@@ -8,90 +8,81 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;600;700&display=swap');
 
 /* 1. Page Wrapper: The very background of the page */
-body .home-page-wrapper {
-  background-color: #f9f9f9 !important; /* Light gray background, forced */
+.home-page-wrapper {
   min-height: 100vh;
+  width: 100%;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 4rem 2rem;
-  box-sizing: border-box;
+  flex-direction: column;
+  background-color: #FFFFFF;
+  overflow: hidden;
 }
 
 /* 2. Main Container: The "floating card" */
-.home-page-wrapper .home-container {
+.home-container {
+  flex: 1;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  background: radial-gradient(circle at 50% 0%, #fff5f5, #ffeae3) !important; /* Pink gradient, forced */
-  border-radius: 2rem;
-  padding: 4rem 2rem;
-  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.08);
-  box-sizing: border-box;
+  padding: calc(var(--header-height) + 2rem) clamp(1rem, 3vw, 2rem) 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 4vw, 4rem);
 }
 
 /* 3. Hero Component Styles (targeting classes inside Hero.jsx) */
-.home-container .hero-container {
+.hero-container {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
   text-align: center;
-  font-family: 'Inter', sans-serif;
-  gap: 1.25rem;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  padding: clamp(2rem, 4vw, 4rem) 0;
 }
 
-.hero-container .hero-trusted-text {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  background-color: #FEECEC;
-  color: #D96D6D;
-  padding: 0.5rem 1.25rem;
-  border-radius: 999px;
+.hero-trusted-text {
+  font-size: clamp(0.875rem, 1.5vw, 1rem);
+  color: #666;
+  margin-bottom: clamp(1rem, 2vw, 2rem);
 }
 
-.hero-container .hero-title {
-  font-family: 'DM Serif Display', serif;
-  font-size: 5.5rem;
-  font-weight: 400;
-  line-height: 1.05;
-  margin: 0;
-  color: #381E1C;
+.hero-title {
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: #1a1a1a;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-.hero-container .hero-subtitle {
-  font-size: 1.25rem;
+.hero-subtitle {
+  font-size: clamp(1rem, 2vw, 1.25rem);
   line-height: 1.6;
-  max-width: 550px;
-  margin: 0;
-  color: #836E6C;
+  color: #666;
+  max-width: 600px;
+  margin: 0 auto;
 }
-
-
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  body .home-page-wrapper {
-    padding: 2rem 1rem;
+  .home-container {
+    padding-top: calc(var(--header-height-mobile) + 1rem);
+    gap: clamp(1.5rem, 3vw, 3rem);
   }
 
-  .home-page-wrapper .home-container {
-    padding: 2rem 1.5rem;
-  }
-
-  .hero-container .hero-title {
-    font-size: 3.5rem;
-  }
-  .hero-container .hero-subtitle {
-    font-size: 1.1rem;
+  .hero-container {
+    padding: clamp(1.5rem, 3vw, 3rem) 0;
   }
 }
 
 @media (max-width: 480px) {
-  .hero-container .hero-title {
-    font-size: 2.8rem;
+  .home-container {
+    padding-top: var(--header-height-mobile);
+    gap: clamp(1rem, 2vw, 2rem);
+  }
+
+  .hero-container {
+    padding: clamp(1rem, 2vw, 2rem) 0;
   }
 }
 

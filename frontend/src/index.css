@@ -26,17 +26,70 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Reset básico para eliminar espacios innecesarios */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
 body {
   font-family: var(--font-family);
   color: var(--text-color);
   background-color: var(--background-color);
   line-height: 1.5;
-  overflow-x: hidden;
-  margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+/* Contenedor principal para todas las páginas */
+.page-container {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  position: relative;
+  min-height: calc(100vh - var(--header-height) - var(--footer-height));
+  padding: var(--header-height) 0 0;
+}
+
+/* Ajustes responsive para contenedores */
+@media (max-width: 768px) {
+  .page-container {
+    padding-top: calc(var(--header-height) - 10px);
+  }
+  
+  .container {
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-container {
+    padding-top: calc(var(--header-height) - 20px);
+  }
+  
+  .container {
+    padding: 0 0.75rem;
+  }
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -442,19 +495,6 @@ button {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-
-html, body, #root {
-  min-height: 100vh;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-#root > div {
-  flex: 1 0 auto;
-  display: flex;
-  flex-direction: column;
 }
 
 .bloom-footer {

@@ -1,6 +1,8 @@
 .contact-us-container {
   padding: 4rem 2rem; /* Adds padding around the container. */
   background-color: #FFFFFF; /* Sets a white background color for the entire section. */
+  overflow: hidden; /* Prevenir desbordamiento */
+  margin-bottom: 0; /* Eliminar espacio inferior */
 }
 
 .contact-us {
@@ -86,21 +88,49 @@
 }
 
 .contact-us__submit-btn {
-  padding: 1rem 3rem; /* Adds padding to the submit button. */
-  border: none; /* Removes the default border. */
-  border-radius: 50px; /* Makes the button corners rounded. */
-  background-color: #3A6A64; /* Sets a dark green background color. */
-  color: #fff; /* Sets the text color to white. */
-  font-family: 'DM Sans', Arial, sans-serif; /* Cambiado a DM Sans */
-  font-size: 1rem; /* Sets the font size for the button text. */
-  font-weight: 500; /* Makes the button text semi-bold. */
-  cursor: pointer; /* Changes the cursor to a pointer on hover. */
-  transition: background-color 0.3s ease; /* Adds a smooth transition for the background color. */
-  margin-top: 1.5rem; /* Adds space above the button. */
+  background-color: var(--accent-color, #FCE7F3);
+  color: var(--text-color, #1F2937);
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color, #FBCFE8);
+  overflow: hidden;
+  position: relative;
+  display: inline-block;
+  box-shadow: 0 2px 8px rgba(255, 174, 185, 0.07);
+  margin-top: 1.5rem;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+}
+
+.contact-us__submit-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transition: left 0.5s ease;
 }
 
 .contact-us__submit-btn:hover {
-  background-color: #2e5450; /* Darkens the background color on hover. */
+  background-color: #FBCFE8;
+  box-shadow: 0 4px 16px #ffd6de44;
+  transform: scale(1.04) translateY(-2px);
+}
+
+.contact-us__submit-btn:hover::before {
+  left: 100%;
+}
+
+.contact-us__submit-btn:active {
+  background-color: #ffd6de;
+  color: #b94a6c;
+  transform: scale(0.97);
 }
 
 .contact-us__footer-text {
@@ -111,6 +141,17 @@
   max-width: 300px; /* Sets a maximum width for the footer text to wrap. */
 }
 
+.success-message {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  width: 100%;
+  text-align: center;
+  font-weight: 500;
+}
+
 /* --- Responsive Design --- */
 @media (max-width: 768px) { /* Applies the following styles on screens 768px wide or smaller. */
   .contact-us {
@@ -119,6 +160,32 @@
 
   .contact-us__title {
     font-size: 2.2rem; /* Reduces the title font size on smaller screens. */
+  }
+  
+  .contact-us__form {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-us-container {
+    padding: 2rem 1rem;
+  }
+  
+  .contact-us {
+    padding: 2rem 1rem;
+    border-top-left-radius: 30vw;
+    border-top-right-radius: 30vw;
+  }
+
+  .contact-us__title {
+    font-size: 1.8rem;
+    margin-bottom: 1.8rem;
+  }
+  
+  .contact-us__submit-btn {
+    padding: 0.8rem 2.5rem;
+    font-size: 0.9rem;
   }
 }
 

@@ -2,24 +2,28 @@
   background: linear-gradient(to top, #fde6e9 0%, #fde6e9 40%, #fff 100%);
   color: #4B1717;
   font-family: 'DM Sans', Arial, sans-serif;
-  padding: 180px 0 120px 0;
-  margin-top: 120px;
-  margin-bottom: 40px;
+  padding: clamp(60px, 10vw, 180px) 0 clamp(40px, 8vw, 120px) 0;
+  margin-top: auto;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  overflow: hidden;
 }
 
 .bloom-footer__container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 clamp(1rem, 3vw, 2rem);
+  width: 100%;
 }
 
 .bloom-footer__main {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 60px;
+  gap: clamp(30px, 4vw, 60px);
   flex-wrap: wrap;
-  margin-top: 60px;
+  margin-top: clamp(30px, 4vw, 60px);
 }
 
 .bloom-footer__left {
@@ -101,7 +105,7 @@
 
 .bloom-footer__bottom {
   margin-top: 48px;
-  padding: 24px 0 40px 0;
+  padding: 24px 0 20px 0;
   border-top: 1px solid #f3d6d6;
   display: flex;
   flex-direction: column;
@@ -114,6 +118,7 @@
   font-size: 0.98rem;
   color: #4B1717;
   flex-wrap: wrap;
+  justify-content: center;
 }
 .bloom-footer__policies a {
   color: #4B1717;
@@ -128,41 +133,133 @@
   font-size: 0.98rem;
   color: #4B1717;
   margin-top: 2px;
+  text-align: center;
+}
+
+/* Estilos específicos para dispositivos móviles y tablets */
+.bloom-footer--mobile .bloom-footer__left,
+.bloom-footer--mobile .bloom-footer__socials,
+.bloom-footer--mobile .bloom-footer__phrase,
+.bloom-footer--mobile .bloom-footer__nav-col {
+  text-align: center;
+  align-items: center;
+}
+
+.bloom-footer--mobile .bloom-footer__nav {
+  justify-content: center;
+  width: 100%;
 }
 
 @media (max-width: 900px) {
-  .bloom-footer__main {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 40px;
+  .bloom-footer {
+    padding: clamp(40px, 8vw, 120px) 0 clamp(30px, 6vw, 80px) 0;
   }
+  
+  .bloom-footer__container {
+    padding: 0 clamp(0.75rem, 2vw, 1.5rem);
+  }
+  
+  .bloom-footer__main {
+    gap: clamp(20px, 3vw, 40px);
+  }
+  
+  .bloom-footer__left {
+    align-items: center;
+    text-align: center;
+  }
+  
+  .bloom-footer__phrase {
+    text-align: center;
+  }
+  
+  .bloom-footer__socials {
+    justify-content: center;
+  }
+  
   .bloom-footer__nav {
-    justify-content: flex-start;
+    justify-content: center;
+    width: 100%;
     gap: 32px;
   }
+  
+  .bloom-footer__nav-col {
+    text-align: center;
+  }
 }
+
 @media (max-width: 600px) {
+  .bloom-footer {
+    padding: clamp(30px, 6vw, 80px) 0 clamp(20px, 4vw, 50px) 0;
+  }
+  
   .bloom-footer__container {
-    padding: 0 10px;
+    padding: 0 1rem;
   }
+  
   .bloom-footer__main {
-    gap: 24px;
+    gap: clamp(15px, 2vw, 30px);
   }
+  
+  .bloom-footer__phrase {
+    font-size: 1.3rem;
+  }
+  
   .bloom-footer__nav {
     flex-direction: column;
-    gap: 18px;
+    gap: 24px;
+    width: 100%;
   }
+  
   .bloom-footer__nav-col {
     min-width: 0;
+    width: 100%;
+    text-align: center;
   }
+  
+  .bloom-footer__nav-col h4 {
+    margin-bottom: 12px;
+  }
+  
   .bloom-footer__bottom {
     margin-top: 32px;
     padding: 18px 0 10px 0;
   }
+  
+  .bloom-footer__policies {
+    font-size: 0.9rem;
+    text-align: center;
+  }
+  
+  .bloom-footer__copyright {
+    font-size: 0.9rem;
+  }
 }
 
-/* Eliminar cualquier border-radius en el footer y subelementos */
-.bloom-footer,
-.bloom-footer * {
-  border-radius: 0 !important;
+@media (max-width: 400px) {
+  .bloom-footer {
+    padding: 60px 0 40px 0;
+    margin-top: 40px;
+  }
+  
+  .bloom-footer__container {
+    padding: 0 15px;
+  }
+  
+  .bloom-footer__social-link {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* Asegurarnos de que el footer no interfiera con otros elementos */
+.bloom-footer {
+  clear: both;
+}
+
+/* Eliminar border-radius en el footer para dispositivos móviles */
+@media (max-width: 768px) {
+  .bloom-footer,
+  .bloom-footer * {
+    border-radius: 0 !important;
+  }
 }

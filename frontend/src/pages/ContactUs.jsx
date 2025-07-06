@@ -28,7 +28,7 @@ const ContactUsPage = () => {
           flexDirection: 'column', 
           alignItems: 'center', 
           justifyContent: 'center',
-          paddingTop: '100px', 
+          paddingTop: '115px', 
           paddingBottom: '40px',
           backgroundColor: '#FFFFFF'
         }}
@@ -63,6 +63,9 @@ const ContactUsPage = () => {
           ¿Tienes dudas, comentarios o sugerencias? ¡Escríbenos y te responderemos lo antes posible!
         </p>
       </div>
+      
+      <ContactUsComponent />
+      
       <Footer />
     </div>
   );

@@ -9,7 +9,6 @@ import OlvidarCont from "../components/registro/labelcont/LabelCont";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import Swal from 'sweetalert2';
 import '../styles/AuthStyles.css';
-import Footer from '../components/Footer';
 
 
 
@@ -118,7 +117,6 @@ const Login = () => {
           to="/registro"
         />
       </form>
-      <Footer />
     </div>
   );
 };

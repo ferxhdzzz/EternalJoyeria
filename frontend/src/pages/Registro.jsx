@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import Input from "../components/registro/inpungroup/InputGroup";
 import Button from "../components/registro/button/Button";
 import Label from "../components/registro/labels/LabelLog";
-import Footer from '../components/Footer';
 
 import "../styles/AuthStyles.css";
 
@@ -62,7 +61,6 @@ const Registro = ({ nextStep, formData, setFormData }) => {
       </div>
       <br />
       <Label textBefore="¿Ya tienes cuenta?" linkText="Inicia sesión" to="/login" />
-      <Footer />
     </form>
   );
 };
