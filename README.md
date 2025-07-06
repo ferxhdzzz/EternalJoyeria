@@ -73,6 +73,7 @@ EternalJoyeria/
     ├── public/
     ├── src/
         ├── assets/
+        ├── hooks/
         ├── components/
         ├── pages/
         ├── App.css
@@ -89,8 +90,74 @@ EternalJoyeria/
 ```
 
 
-## Configuraciones adicionales
+## Comandos para ejecutar el backend
+**inicializar el proyecto** : npm init-y
 
-Pendiente
+**ejecutar** : node index.js
+
+
+## Comandos para ejecutar el frontend
+**inicializar el proyecto** : npm create vite@latest
+
+**ejecutar** : npm run dev
+
+
+
+## Librerias instaladas en el backend
+
+
+- express
+
+- mongoose
+
+- dotenv
+
+- nodemailer
+
+- crypto
+
+- jsonwebtoken
+
+- bcryptjs
+
+- cookie-parser
+
+- multer-storage-cloudinary
+
+- multer
+
+- cloudinary
+
+- cors
+
+ 
+ ## Librerias instaladas en el frontend
+
+
+- framer-motion
+
+- gsap
+
+- lucide-react
+
+- react
+
+- react-dom
+
+- react-icons
+
+- react-router-dom
+
+- sweetalert2
+
+- multer-storage-cloudinary
+
+- swiper
+
+- recharts
+
+- react-hook-form
+
+
 
 

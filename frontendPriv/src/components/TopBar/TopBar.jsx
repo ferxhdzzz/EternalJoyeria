@@ -1,36 +1,57 @@
-import React from 'react';
-import { FaSearch, FaBell } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { FaSearch, FaBell, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
 import './TopBar.css';
 
-const TopBar = ({ userName, userImage }) => {
+const TopBar = ({ userName = "Yu Jimin", userImage = "/karinaaaaaa.jpg" }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const toggleMenu = () => setMenuOpen(!menuOpen);
+
   return (
     <div className="topbar">
-      <div className="left-section" /> {/* Espacio para balancear el centro */}
-
-      <div className="center-section">
-        <div className="search-container">
+      {/* Contenido normal para pantallas grandes */}
+      <div className="topbar-right">
+        <div className="search-box">
           <FaSearch className="search-icon" />
-          <input type="text" placeholder="Search your" />
+          <input type="text" placeholder="Buscar..." />
         </div>
-      </div>
 
-      <div className="right-section">
-        <div className="icon-circle">
-          <FaBell className="icon" />
+        <div className="icon-button">
+          <FaBell />
         </div>
-        <NavLink to="/ajustes" className="profile-link">
-          <img
-            src={userImage || "/chaeee.png"}
-            alt="Profile"
-            className="profile-pic"
-          />
-          <span className="profile-name">{userName || "Kim Chaewon"}</span>
+
+        <NavLink to="/ajustes" className="profile">
+          <img src={userImage} alt="Profile" className="profile-img" />
+          <span>{userName}</span>
         </NavLink>
       </div>
+
+      {/* Botón flechita para móviles */}
+      <button className="hamburger-btn" onClick={toggleMenu} aria-label="Toggle menu">
+        {menuOpen ? <FaChevronUp /> : <FaChevronDown />}
+      </button>
+
+      {/* Menú desplegable para móviles */}
+      {menuOpen && (
+        <div className="mobile-menu">
+          <div className="search-box mobile-search">
+            <FaSearch className="search-icon" />
+            <input type="text" placeholder="Buscar..." />
+          </div>
+
+          <div className="icon-button mobile-bell">
+            <FaBell />
+          </div>
+
+          <NavLink to="/ajustes" className="profile mobile-profile" onClick={() => setMenuOpen(false)}>
+            <img src={userImage} alt="Profile" className="profile-img" />
+            <span>{userName}</span>
+          </NavLink>
+        </div>
+      )}
     </div>
   );
 };
 
 export default TopBar;
-
