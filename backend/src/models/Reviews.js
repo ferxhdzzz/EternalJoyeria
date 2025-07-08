@@ -1,12 +1,11 @@
-// backend/src/models/Review.js
 import { Schema, model } from "mongoose";
 
 /*
-  Campos:
-    id_customer: Referencia al cliente
-    id_product: Referencia al producto
-    rank: Puntuación del producto (1 a 5)
-    comment: Comentario del cliente
+  Esquema de Reseñas (Reviews)
+  - id_customer: Referencia al cliente (obligatorio)
+  - id_product: Referencia al producto (obligatorio)
+  - rank: Puntuación del producto (1 a 5, obligatorio)
+  - comment: Comentario del cliente (obligatorio)
 */
 
 const reviewSchema = new Schema(
@@ -14,26 +13,27 @@ const reviewSchema = new Schema(
     id_customer: {
       type: Schema.Types.ObjectId,
       ref: "customers",
-      required: true,
+      required: true, // Debe existir un cliente
     },
     id_product: {
       type: Schema.Types.ObjectId,
       ref: "Products",
-      required: true,
+      required: true, // Debe existir un producto
     },
     rank: {
       type: Number,
-      required: true,
-      min: 1,
-      max: 5,
+      required: true, // Puntuación obligatoria
+      min: 1,          // Mínimo 1 estrella
+      max: 5,          // Máximo 5 estrellas
     },
     comment: {
       type: String,
-      required: true,
+      required: true, // Comentario obligatorio
+      trim: true,     // Quita espacios innecesarios
     },
   },
   {
-    timestamps: true,
+    timestamps: true, // Guarda fecha de creación/actualización
     strict: false,
   }
 );
