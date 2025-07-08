@@ -14,6 +14,34 @@
   height: calc(100% - 20px); /* Reduce la altura de la card */
 }
 
+.preview-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 10px;
+}
+
+.update-button {
+  background-color: #fca5a5;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: bold;
+  color: white;
+}
+
+.preview-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 10px;
+}
+
 .profile-header {
   display: flex;
   justify-content: space-between;
@@ -58,6 +86,7 @@
   justify-content: space-between;
 }
 
+
 .info-input {
   flex-grow: 1;
   border: 1px solid #ffffff;
@@ -66,6 +95,7 @@
   margin-right: 1rem;
   background-color: #fff;
   color: #555;
+  width: 255px;   
   font-size: 1rem;
 }
 

@@ -5,6 +5,8 @@ import ProfileCard from "../components/Ajustes/ProfileCard";
 import BackgroundRectangle from "../components/Ajustes/BackgroundRectangle";
 import "../styles/Ajustes.css";
 
+
+
 const Ajustes = () => {
   return (
     <div className="ajustes-page">

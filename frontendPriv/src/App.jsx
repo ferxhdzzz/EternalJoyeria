@@ -23,7 +23,7 @@ function App() {
         <Route path="/" element={<Home />} />
 
         {/* Auth Admin */}
-        <Route path="/loginAdmin" element={<Login />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/recuperacion" element={<RecuperacionContra />} />
         <Route path="/cambiar" element={<CambiarCont />} />
 

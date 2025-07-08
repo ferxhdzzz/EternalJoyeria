@@ -1,27 +1,27 @@
-import jsonwebtoken from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { config } from "../config.js";
 
-export const validateAuthToken = (allowedUserTypes = []) => {
+export function validateAuthToken(rolesPermitidos = []) {
   return (req, res, next) => {
+    const token = req.cookies.authToken;
+
+    if (!token) {
+      return res.status(401).json({ message: "Token no proporcionado" });
+    }
+
     try {
-      //1-Extraer el token de las cookies
-      const { authToken } = req.cookies;
+      const decoded = jwt.verify(token, config.JWT.JWT_SECRET);
 
-      //2- Si no existe el token, mensaje de error
-      if(!authToken){
-        res.json({message: "No auth token found, you must log in"})
+      if (rolesPermitidos.length && !rolesPermitidos.includes(decoded.userType)) {
+        return res.status(403).json({ message: "No tienes permiso" });
       }
 
-      //3- Extraer la información del token
-      const decoded = jsonwebtoken.verify(authToken, config.JWT.secret)
+      req.userId = decoded.id;
+      req.userType = decoded.userType;
 
-      //4-verificar si el rol puede ingresar o no
-      if(!allowedUserTypes.includes(decoded.userType)){
-        return res.json({message: "Access denied"})
-      }
-      next()
-    } catch (error) {
-        console.log("error"+error)
+      next();
+    } catch (err) {
+      return res.status(401).json({ message: "Token inválido" });
     }
   };
-};
+}

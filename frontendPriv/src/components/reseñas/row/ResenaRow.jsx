@@ -2,15 +2,19 @@ import React from "react";
 import EliminarButton from "../Boton/EliminarButton";
 import "./ResenaRow.css";
 
-const ResenaRow = ({ nombre, calificacion, comentario, email, compra, onEliminar }) => {
+const ResenaRow = ({ id_customer, rank, comment, onClick }) => {
+  const nombre = typeof id_customer === "object"
+    ? `${id_customer?.firstName || ""} ${id_customer?.lastName || ""}`
+    : id_customer;
+
   return (
     <tr className="resena-row">
       <td>{nombre}</td>
-      <td>{calificacion}</td>
-      <td>{comentario}</td>
-      <td>{email}</td>
-      <td>{compra}</td>
-      <td><EliminarButton onClick={onEliminar} /></td>
+      <td>{rank}</td>
+      <td>{comment}</td>
+      <td>
+        <EliminarButton onClick={onClick} confirmar /> {/* <--- solo aquí confirmás */}
+      </td>
     </tr>
   );
 };
