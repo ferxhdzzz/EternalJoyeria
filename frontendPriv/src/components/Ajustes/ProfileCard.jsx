@@ -40,6 +40,7 @@ const ProfileCard = () => {
   };
 
   const handleEdit = (field) => {
+    console.log(`Se hizo clic en el botón para editar: ${field}`);
     setEditingField(field);
   };
 
@@ -92,7 +93,7 @@ const ProfileCard = () => {
             {editingField === "nombre" ? (
               <Button text="Guardar" className="edit-button" />
             ) : (
-              <Button text="Editar" className="edit-button" onClick={() => handleEdit("nombre")} />
+              <Button text="Editar" className="edit-button" onClick={() => handleEdit("nombre")} /> //imprime un console log que verifique q le di click al boton
             )}
           </div>
           {errors.nombre && <p className="error-texto">{errors.nombre.message}</p>}

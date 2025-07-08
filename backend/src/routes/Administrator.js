@@ -10,7 +10,7 @@ const router = express.Router();
 const upload = multer({ dest: "public/" });
 
 // Rutas para administradores
-router.put("/me", validateAuthToken(["admin"]), upload.single("profilePicture"), adminController.updateCurrentAdmin);
+router.put("/me", upload.single("profilePicture"), adminController.updateCurrentAdmin);
 router.get("/me", validateAuthToken(["admin"]), adminController.getCurrentAdmin);
 
 router.route("/")

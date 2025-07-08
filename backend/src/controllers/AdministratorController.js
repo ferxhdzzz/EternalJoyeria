@@ -4,6 +4,10 @@
 import adminModel from "../models/Administrator.js";
 import bcryptjs from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
+import jsonwebtoken from "jsonwebtoken";
+import { config } from "../config.js";
+
+
 // Configurar Cloudinary
 
 cloudinary.config({
@@ -41,9 +45,22 @@ adminController.getadminById = async (req, res) => {
 
 adminController.updateCurrentAdmin = async (req, res) => {
   try {
-    console.log("Sesión del usuario:", req.session.userId);
+    console.log("Sesión del usuariossssssss:", req.userId);
 
-    const adminId = req.session.userId;
+    const token = req.cookies.authToken;
+
+    if (!token) {
+      return res.status(400).json({ message: "No se encontró token de recuperación." });
+    }
+
+    const decoded = jsonwebtoken.verify(token, config.JWT.JWT_SECRET);
+
+
+
+
+    const adminId = decoded.id;
+
+
     if (!adminId) {
       return res.status(401).json({ message: "No autenticado" });
     }
