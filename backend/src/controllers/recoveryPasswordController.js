@@ -9,7 +9,7 @@ import { config } from "../config.js";
 
 const passwordRecoveryController = {};
 
-// === Solicitar código ===
+//Solicitar código 
 passwordRecoveryController.requestCode = async (req, res) => {
   const { email, userType } = req.body;
 
@@ -57,7 +57,7 @@ passwordRecoveryController.requestCode = async (req, res) => {
   }
 };
 
-// === Verificar código (CORREGIDO) ===
+//Verificar código
 passwordRecoveryController.verifyCode = async (req, res) => {
   const { code } = req.body;
 
@@ -74,7 +74,6 @@ passwordRecoveryController.verifyCode = async (req, res) => {
       return res.status(400).json({ message: "Código incorrecto." });
     }
 
-    // ⚡️ CORRECCIÓN: quitar exp y iat antes de firmar de nuevo
     const { exp, iat, ...rest } = decoded;
 
     const newToken = jsonwebtoken.sign(
@@ -96,7 +95,7 @@ passwordRecoveryController.verifyCode = async (req, res) => {
   }
 };
 
-// === Nueva contraseña ===
+//Nueva contraseña
 passwordRecoveryController.newPassword = async (req, res) => {
   const { newPassword } = req.body;
 
