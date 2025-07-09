@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import AboutUs from './pages/AboutUs';
@@ -14,11 +16,26 @@ import HistorialPage from './pages/Historial';
 import ProductDetail from './pages/ProductDetail';
 import CheckoutPage from './pages/CheckoutPage';
 import { CartProvider } from './context/CartContext';
+import ContactUsPage from './pages/ContactUs';
+import DetailProduct from './pages/DetailProduct';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import CookiesPolicy from './pages/CookiesPolicy';
+import TermsPolicy from './pages/TermsPolicy';
 
 
 
 // This is the main component of the application, which acts as a container for all other components.
 function App() {
+  useEffect(() => {
+    AOS.init({
+      duration: 1000, // Duración de la animación reducida
+      once: true, // La animación solo ocurre una vez
+      offset: 50, // Reducir el offset para que la animación comience antes
+      easing: 'ease-out', // Cambiar la curva de animación para que sea más suave
+      delay: 0, // Sin retraso en las animaciones
+    });
+  }, []);
+
   // The return statement contains the JSX that will be rendered to the DOM.
   return (
     <CartProvider>
@@ -33,12 +50,21 @@ function App() {
 
 
         <Route path="/sobre-nosotros" element={<AboutUs />} />
-        <Route path="/products" element={<Products />} />
+        <Route path="/productos" element={<Products />} />
+        <Route path="/categoria" element={<Products />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/profile" element={<Profile />} />
-                <Route path="/shop" element={<CartPage />} />
-                  <Route path="/historial" element={<HistorialPage />} />
-<Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/perfil" element={<Profile />} />
+        <Route path="/carrito" element={<CartPage />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/shop" element={<CartPage />} />
+        <Route path="/historial" element={<HistorialPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/contactanos" element={<ContactUsPage />} />
+        <Route path="/detalle-producto/:id" element={<DetailProduct />} />
+        <Route path="/privacidad" element={<PrivacyPolicy />} />
+        <Route path="/cookies" element={<CookiesPolicy />} />
+        <Route path="/terminos" element={<TermsPolicy />} />
 
         {/* Define other routes here, e.g.:
         <Route path="/about" element={<About />} />

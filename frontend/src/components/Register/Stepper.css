@@ -39,3 +39,38 @@
 .step-connector.active {
   background-color: #d47a9a;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .stepper-wrapper {
+    margin-bottom: 1.5rem;
+  }
+  
+  .step {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+  
+  .step-connector {
+    margin: 0 8px;
+    max-width: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stepper-wrapper {
+    margin-bottom: 1rem;
+  }
+  
+  .step {
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+  }
+  
+  .step-connector {
+    margin: 0 6px;
+    max-width: 60px;
+  }
+}

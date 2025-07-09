@@ -12,3 +12,22 @@
 .buy-button:hover {
   background-color: #ff6fa4;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .buy-button {
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .buy-button {
+    padding: 8px 16px;
+    font-size: 13px;
+    border-radius: 5px;
+    width: 100%; /* Full width on mobile */
+    max-width: 200px;
+  }
+}

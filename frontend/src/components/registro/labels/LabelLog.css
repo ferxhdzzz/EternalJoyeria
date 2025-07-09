@@ -16,3 +16,18 @@
 .redirect-label a:hover {
   color: #ff7aef;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .redirect-label {
+    margin-top: 16px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .redirect-label {
+    margin-top: 12px;
+    font-size: 12px;
+  }
+}
