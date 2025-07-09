@@ -35,7 +35,6 @@ const customersSchema = new Schema(
     },
   },
   {
-    timestamps: true,
     strict: false,
   }
 );

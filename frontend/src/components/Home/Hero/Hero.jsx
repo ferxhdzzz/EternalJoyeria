@@ -1,25 +1,73 @@
-import React from 'react';
-import HeroButton from '../HeroButton/HeroButton';
-import './HomeHero.css'; // Specific styles for Home Hero
+import React, { useRef, useEffect } from 'react';
+import { gsap } from 'gsap';
+import './HomeHeroFixed.css';
+import handImage from '/Home/Hand.png';
+import { Link } from 'react-router-dom';
 
-// Defines the Hero functional component.
-const Hero = () => (
-  <main className="home-hero">
-    <div className="hero__content">
-      {/* The main heading (H1) of the hero section. */}
-      <h1>Brilla con Elegancia, Resplandece con Estilo</h1>
-      {/* A paragraph providing more details and context. */}
-      <p>
-        Cada pieza de nuestra colección está diseñada para realzar tu belleza y reflejar tu estilo único. Desde elegantes anillos hasta deslumbrantes collares, encuentra el brillo que te hará inolvidable.
-      </p>
-      {/* The HeroButton component is used here, with "Compra ahora" as its child text. */}
-      <HeroButton  to="/login">Compra ahora</HeroButton>
-    </div>
-    {/* This div is intended to hold an image, but it's currently empty. */}
-    <div className="hero__image">
-    </div>
-  </main>
-);
+const Hero = () => {
+  const badgeRef = useRef(null);
+  const titleRef = useRef(null);
+  const subtitleRef = useRef(null);
+  const btnRef = useRef(null);
+  const handRef = useRef(null);
 
-// Exports the Hero component to be used in other parts of the application.
+  useEffect(() => {
+    gsap.fromTo(
+      [badgeRef.current, titleRef.current, subtitleRef.current, btnRef.current],
+      {
+        opacity: 0,
+        y: 30,
+      },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 1.2,
+        ease: 'power3.out',
+        stagger: 0.14,
+      }
+    );
+
+    // Animate the hand image with a different effect
+    gsap.fromTo(
+      handRef.current,
+      {
+        opacity: 0,
+        scale: 0.8,
+        y: 50,
+      },
+      {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        duration: 1.5,
+        ease: 'power3.out',
+        delay: 0.6,
+      }
+    );
+  }, []);
+
+  return (
+    <div className="bloom-hero-bg">
+      <div className="bloom-hero">
+        <div className="badge-animation">
+          <span className="bloom-hero-badge" ref={badgeRef}>MÁS DE 20 CLIENTES SATISFECHOS</span>
+        </div>
+        
+        <div className="text-animation-group">
+          <h1 className="bloom-hero-title" ref={titleRef}>
+            <span className="line">Brilla con elegancia</span>
+            <span className="line">Resplandece con estilo</span>
+          </h1>
+          <p className="bloom-hero-subtitle" ref={subtitleRef}>
+            Cada pieza es una obra de arte, creada para realzar tu belleza y celebrar tus momentos más especiales. Descubre la joya que te define.
+          </p>
+        </div>
+      </div>
+      <div className="bloom-hero-hand-container">
+        <img src={handImage} alt="Hand" className="bloom-hero-hand-img" ref={handRef} />
+      </div>
+    </div>
+  );
+};
+
 export default Hero;

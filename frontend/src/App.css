@@ -5,6 +5,7 @@
 html, body {
   overflow-x: hidden;
   width: 100%;
+  background-color: #FFFFFF;
 }
 
 html {
@@ -20,7 +21,7 @@ body {
   font-family: 'Nunito', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #FFFFFF; /* White background */
+
   color: #132F3A; /* Default text color */
   overflow-x: hidden; /* Prevent horizontal scrolling */
 }
@@ -116,3 +117,8 @@ html {
   color: #888;
 }
 */
+
+/* Asegurarse de que los elementos con animaciones AOS tengan fondo blanco */
+[data-aos] {
+  background-color: #FFFFFF;
+}

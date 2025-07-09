@@ -1,6 +1,4 @@
 import { Router } from "express";
-
-=======
 import salesController from "../controllers/salesController.js";
 
 const router = Router();

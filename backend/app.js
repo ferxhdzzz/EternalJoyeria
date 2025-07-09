@@ -14,7 +14,9 @@ import salesRoutes from "./src/routes/sales.js"
 import ordersRoutes from "./src/routes/orders.js";
 import cookieParser from "cookie-parser";
 import adminRoutes from "./src/routes/Administrator.js";
+
 import { validateAuthToken } from "./src/middlewares/validateAuthToken.js";
+
 
 // Creo una constante que es igual a la libreria que importé
 const app = express();
@@ -44,6 +46,9 @@ app.use("/api/admins", validateAuthToken(['admin']), adminRoutes);
 app.use("/api/reviews", validateAuthToken(['admin', 'customer']), reviewsRouter);
 app.use("/api/sales", validateAuthToken(['admin']), salesRoutes);
 app.use("/api/orders", validateAuthToken(['admin', 'customer']), ordersRoutes);
+
+
+
 
 
 

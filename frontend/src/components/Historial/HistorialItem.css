@@ -42,3 +42,61 @@
   font-size: 1rem;
   color: #333;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .historial-item {
+    padding: 0.8rem 0;
+    gap: 1rem;
+  }
+  
+  .historial-item-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+  }
+  
+  .historial-item-name {
+    font-size: 0.9rem;
+  }
+  
+  .historial-item-quantity {
+    font-size: 0.8rem;
+  }
+  
+  .historial-item-price {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .historial-item {
+    padding: 0.6rem 0;
+    gap: 0.8rem;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .historial-item-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 4px;
+  }
+  
+  .historial-item-details {
+    width: 100%;
+  }
+  
+  .historial-item-name {
+    font-size: 0.8rem;
+  }
+  
+  .historial-item-quantity {
+    font-size: 0.75rem;
+  }
+  
+  .historial-item-price {
+    font-size: 0.8rem;
+  }
+}

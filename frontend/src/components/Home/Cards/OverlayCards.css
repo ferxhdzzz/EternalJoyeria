@@ -1,0 +1,155 @@
+.brillo-section {
+  padding: 120px 0;
+  background-color: white;
+  width: 100%;
+  min-height: 30vh;
+}
+
+.brillo-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 30px;
+}
+
+.brillo-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 80px;
+}
+
+.brillo-text {
+  flex: 1;
+  max-width: 520px;
+}
+
+.brillo-text h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 3.4rem;
+  font-weight: 700; /* Cambiado a 700 para que coincida con los otros títulos */
+  line-height: 1.1;
+  color: #4b1717;
+  margin: 0;
+  letter-spacing: -0.5px; /* Añadido para mejor legibilidad con el peso más ligero */
+}
+
+.brillo-description {
+  flex: 1;
+  max-width: 520px;
+  padding-top: 15px;
+}
+
+.brillo-description p {
+  font-family: 'Avenir', 'DM Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #6d4b4b;
+  margin: 0;
+  font-weight: 300;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .brillo-content {
+    flex-direction: column;
+    gap: 40px;
+  }
+  
+  .brillo-text, .brillo-description {
+    max-width: 100%;
+  }
+  
+  .brillo-section {
+    padding: 80px 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .brillo-text h2 {
+    font-size: 2.5rem;
+  }
+  
+  .brillo-description p {
+    font-size: 1rem;
+  }
+  
+  .brillo-section {
+    padding: 60px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .brillo-text h2 {
+    font-size: 2rem;
+  }
+  
+  .brillo-content {
+    gap: 30px;
+  }
+  
+  .brillo-section {
+    padding: 40px 0;
+  }
+}
+
+/* === ESTILOS PARA LOS VIDEOS SUPERPUESTOS (CARD CALIDAD EXCEPCIONAL) === */
+.hero-card-videos {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-card-video {
+  position: absolute;
+  border-radius: 15px;
+  object-fit: cover;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.video-1 {
+  width: 270px;
+  height: 190px;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-1deg);
+  z-index: 3;
+}
+
+.video-2 {
+  width: 210px;
+  height: 160px;
+  top: 10%;
+  right: 10%;
+  transform: rotate(3deg);
+  z-index: 2;
+}
+
+.video-3 {
+  width: 200px;
+  height: 150px;
+  bottom: 35%;
+  left: 15%;
+  transform: rotate(-2deg);
+  z-index: 1;
+}
+
+.hero-card-video:hover {
+  filter: brightness(1.1) saturate(1.1);
+}
+
+.hero-card-videos:hover .video-1 {
+  transform: translate(-50%, -50%) scale(1.05) rotate(0deg);
+}
+.hero-card-videos:hover .video-2 {
+  transform: scale(1.05) rotate(0deg);
+}
+.hero-card-videos:hover .video-3 {
+  transform: scale(1.05) rotate(0deg);
+}

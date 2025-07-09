@@ -31,16 +31,16 @@ function Sidebar() {
         </div>
 
         <nav className="menuu">
-          <NavLink to="/Dashboard" className="nav-link">
+          <NavLink to="/dashboard" className="nav-link">
             <FaCompass className="icon" /> <span>Menu</span>
           </NavLink>
-          <NavLink to="/productPriv" className="nav-link">
+          <NavLink to="/productos" className="nav-link">
             <FaBox className="icon" /> <span>Productos</span>
           </NavLink>
-          <NavLink to="/AddProduct" className="nav-link">
+          <NavLink to="/agregar-producto" className="nav-link">
             <FaPlusCircle className="icon" /> <span>Agregar productos</span>
           </NavLink>
-          <NavLink to="/HistorialCompras" className="nav-link">
+          <NavLink to="/historial-compras" className="nav-link">
             <FaTruck className="icon" /> <span>Compras</span>
           </NavLink>
           <NavLink to="/resenas" className="nav-link">

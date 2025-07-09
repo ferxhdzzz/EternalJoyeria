@@ -19,7 +19,7 @@
 
 /* The main title of the section. */
 .mission-vision__title {
-  font-family: 'Playfair Display', serif; /* Uses an elegant serif font. */
+  font-family: 'DM Sans', Arial, sans-serif; /* Cambiado a DM Sans */
   font-size: 2.8rem; /* Sets a large font size for the title. */
   color: #0c3c3a; /* Sets a dark, teal-like color. */
   text-align: center; /* Centers the title text. */
@@ -50,7 +50,7 @@
 
 /* Styling for the subheadings (h3) within the text blocks. */
 .mission-vision__text-block h3 {
-  font-family: 'Playfair Display', serif; /* Uses the same elegant font as the main title. */
+  font-family: 'DM Sans', Arial, sans-serif; /* Cambiado a DM Sans */
   font-size: 1.7rem; /* Sets the font size for the subheadings. */
   color: #0f0f0f; /* Sets a dark color for the text. */
   margin-bottom: 0.5rem; /* Adds a small space below the subheadings. */
@@ -59,7 +59,7 @@
 
 /* Styling for the paragraph text within the text blocks. */
 .mission-vision__text-block p {
-  font-family: 'Inter', sans-serif; /* Uses a clean, readable sans-serif font. */
+  font-family: 'DM Sans', Arial, sans-serif; /* Cambiado a DM Sans */
   font-size: 1rem; /* Sets a standard font size. */
   line-height: 1.6; /* Increases line spacing for better readability. */
   color: #3b3b3b; /* Sets a soft dark gray for the text. */
