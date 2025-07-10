@@ -65,13 +65,13 @@ app.use("/api/registerClients", registerCustomersRoutes);
 
 
 // Rutas protegidas
-app.use("/api/customers", validateAuthToken(['admin', 'customer']), customersRoutes);
-app.use("/api/categories", validateAuthToken(['admin', 'customer']), categoriesRouters);
-app.use("/api/products", validateAuthToken(['admin', 'customer']), productsRoutes);
-app.use("/api/admins", validateAuthToken(['admin']), adminRoutes);
-app.use("/api/reviews", validateAuthToken(['admin', 'customer']), reviewsRouter);
-app.use("/api/sales", validateAuthToken(['admin']), salesRoutes);
-app.use("/api/orders", validateAuthToken(['admin', 'customer']), ordersRoutes);
+app.use("/api/customers", /*validateAuthToken(["admin", "customer"]),*/ customersRoutes);
+app.use("/api/categories", /*validateAuthToken(["admin", "customer"]),*/ categoriesRouters);
+app.use("/api/products", /*validateAuthToken(["admin", "customer"]),*/ productsRoutes);
+app.use("/api/admins", /*validateAuthToken(["admin"]), */adminRoutes);
+app.use("/api/reviews", /*validateAuthToken(["admin", "customer"]),*/ reviewsRouter);
+app.use("/api/sales", /*validateAuthToken(["admin"]), */salesRoutes);
+app.use("/api/orders", /*validateAuthToken(["admin", "customer"]), */ordersRoutes);
 
 
 
