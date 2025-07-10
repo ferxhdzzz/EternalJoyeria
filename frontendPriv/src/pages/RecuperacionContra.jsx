@@ -30,11 +30,20 @@ const RecuperacionContra = () => {
   };
 
   return (
-    <div className="recover-wrapper">
+    <div className="recover-wrapper"
+      style={{
+        backgroundImage: `url("/recuperacionPriv.png")`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      
       <div className="recover-card">
         <BackArrow to="/loginAdmin" />
         <Logo />
 
+<h2 className="recover-title">Recuperar Contraseña</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Input
             label="Correo"

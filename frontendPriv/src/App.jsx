@@ -24,7 +24,11 @@ function App() {
       <Routes>
         {/* Rutas PÚBLICAS */}
         <Route path="/" element={<Home />} />
-        <Route path="/loginAdmin" element={<Login/>} />
+
+
+        {/* Auth Admin */}
+        <Route path="/login" element={<Login />} />
+
         <Route path="/recuperacion" element={<RecuperacionContra />} />
         <Route path="/cambiar" element={<CambiarCont />} />
         <Route path="/verificar-codigo" element={<VerificarCodigo />} />

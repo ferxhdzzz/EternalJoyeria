@@ -28,6 +28,7 @@ export const validateAuthToken = (allowedUserTypes = []) => {
     } catch (error) {
       console.error("Error al validar token:", error);
       return res.status(401).json({ message: "Token inválido o expirado" });
-    }
-  };
+    }
+  };
 };
+

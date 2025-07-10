@@ -1,0 +1,502 @@
+/* Hero Cards Section */
+.hero-cards-section {
+  padding: 60px 0;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  max-width: 1200px;
+  width: 100%;
+  padding: 0 24px;
+  justify-content: center;
+}
+
+.hero-cards-top-row {
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+}
+
+.hero-cards-bottom-row {
+  display: flex;
+  gap: 4px;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* Estilos para la card delgada */
+.hero-card-thin {
+  max-width: 350px;
+  width: 350px;
+  flex-shrink: 0;
+}
+
+.hero-card-container-thin {
+  height: 200px;
+}
+
+/* Estilos para la card ancha */
+.hero-card-wide {
+  flex: 1;
+  max-width: 760px;
+  min-width: 660px;
+}
+
+.hero-card-container-wide {
+  height: 200px;
+}
+
+.hero-card {
+  background: transparent;
+  border-radius: 20px;
+  border: 1px solid #f0f0f0;
+  overflow: hidden;
+  position: relative;
+}
+
+.hero-card:not(.hero-card-thin):not(.hero-card-wide) {
+  width: 48%;
+  flex: 1;
+  max-width: 600px;
+}
+
+.hero-card-container {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  overflow: hidden;
+  background: transparent;
+  border-radius: 20px 20px 0 0;
+}
+
+/* Contenedor de imágenes para el efecto collage */
+.hero-card-images {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Estilos base para las imágenes */
+.hero-card-image {
+  position: absolute;
+  border-radius: 20px;
+  object-fit: cover;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+/* Imagen 1 - Izquierda, más grande y superpuesta */
+.hero-card-image.image-1 {
+  width: 180px;
+  height: 240px;
+  top: 40px;
+  left: 40px;
+  z-index: 1;
+  transform: rotate(-15deg);
+}
+
+/* Imagen 2 - Centro, superpuesta sobre la primera */
+.hero-card-image.image-2 {
+  width: 190px;
+  height: 250px;
+  top: 60px;
+  left: 160px;
+  z-index: 2;
+  transform: rotate(12deg);
+}
+
+/* Imagen 3 - Derecha, superpuesta sobre la segunda */
+.hero-card-image.image-3 {
+  width: 185px;
+  height: 245px;
+  top: 45px;
+  right: 60px;
+  z-index: 3;
+  transform: rotate(-8deg);
+}
+
+/* Efecto hover en las imágenes */
+.hero-card:hover .hero-card-image {
+  transform: scale(1.05) rotate(0deg);
+}
+
+/* === ESTILOS PARA LOS VIDEOS SUPERPUESTOS (CARD DERECHA) === */
+
+.hero-card-videos {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-card-video {
+  position: absolute;
+  border-radius: 15px;
+  object-fit: cover;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+/* Video 1 - Principal (más grande) */
+.video-1 {
+  width: 270px;
+  height: 190px;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-1deg);
+  z-index: 3;
+}
+
+/* Video 2 - Superior derecha */
+.video-2 {
+  width: 210px;
+  height: 160px;
+  top: 10%;
+  right: 10%;
+  transform: rotate(3deg);
+  z-index: 2;
+}
+
+/* Video 3 - Inferior izquierda */
+.video-3 {
+  width: 200px;
+  height: 150px;
+  bottom: 35%;
+  left: 15%;
+  transform: rotate(-2deg);
+  z-index: 1;
+}
+
+/* Efectos hover para videos - igual que las imágenes */
+.hero-card:hover .video-1 {
+  transform: translate(-50%, -50%) scale(1.05) rotate(0deg);
+}
+
+.hero-card:hover .video-2 {
+  transform: scale(1.05) rotate(0deg);
+}
+
+.hero-card:hover .video-3 {
+  transform: scale(1.05) rotate(0deg);
+}
+
+/* Degradado elegante y sutil de abajo hacia arriba */
+.hero-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(
+    to top,
+    rgba(255, 225, 225, 0.6) 0%,
+    rgba(255, 225, 225, 0.3) 50%,
+    rgba(255, 225, 225, 0.1) 80%,
+    transparent 100%
+  );
+  transition: height 1.2s ease-out, background-color 1.2s ease-out, opacity 1.2s ease-out;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Efecto hover: el degradado se eleva más con elegancia */
+.hero-card:hover .hero-card-overlay {
+  height: 90%;
+  background: linear-gradient(
+    to top,
+    rgba(255, 225, 225, 0.8) 0%,
+    rgba(255, 225, 225, 0.5) 40%,
+    rgba(255, 225, 225, 0.2) 70%,
+    rgba(255, 225, 225, 0.05) 90%,
+    transparent 100%
+  );
+  opacity: 1;
+}
+
+.hero-card-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 30px;
+  text-align: center;
+  z-index: 10;
+}
+
+.hero-card-title {
+  font-family: 'Avenir', 'DM Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #4b1717;
+  margin-bottom: 15px;
+  line-height: 1.3;
+  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.8);
+}
+
+.hero-card-description {
+  font-family: 'DM Sans', Arial, Helvetica, sans-serif;
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+  margin: 0;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.7);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-cards-container {
+    flex-direction: column;
+    gap: 30px;
+    padding: 0 20px;
+  }
+  
+  .hero-card {
+    max-width: 100%;
+  }
+  
+  .hero-cards-section {
+    padding: 60px 0;
+  }
+  
+  .hero-card-video-container {
+    height: 250px;
+  }
+  
+  .hero-card-content {
+    padding: 25px;
+  }
+  
+  .hero-card-title {
+    font-size: 1.3rem;
+  }
+  
+  .hero-card-description {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-cards-section {
+    padding: 40px 0;
+  }
+  
+  .hero-card-video-container {
+    height: 200px;
+  }
+  
+  .hero-card-content {
+    padding: 20px;
+  }
+}
+
+.brillo-section {
+  padding: 120px 0 80px 0;
+  background-color: white;
+  width: 100%;
+  min-height: 30vh;
+}
+
+.brillo-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.brillo-title {
+  font-family: 'Avenir', 'DM Sans', Arial, Helvetica, sans-serif;
+  font-size: 3.4rem;
+  font-weight: 500;
+  line-height: 1.1;
+  color: #4b1717;
+  margin: 0 0 3rem 0;
+  letter-spacing: -0.5px;
+  text-align: center;
+}
+
+.testimonials-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 56px;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.card {
+  position: relative;
+  width: 340px;
+  height: 340px;
+  border-radius: 22px;
+  z-index: 1111;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 20px 20px 60px #bebebe, -20px -20px 60px #ffffff;
+}
+
+.bg {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 316px;
+  height: 316px;
+  z-index: 2;
+  background: rgba(255, 255, 255, .95);
+  backdrop-filter: blur(24px);
+  border-radius: 18px;
+  overflow: hidden;
+  outline: 2px solid white;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 36px 24px 24px 24px;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.profile-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 16px;
+  border: 3px solid #FFD9DF;
+  display: block;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.name, .stars, .review {
+  padding-left: 18px;
+}
+
+.name {
+  font-weight: bold;
+  font-size: 22px;
+  margin: 10px 0 4px 0;
+  width: 100%;
+  text-align: left;
+  display: block;
+}
+
+.stars {
+  color: #FFD700;
+  font-size: 20px;
+  margin-bottom: 14px;
+  width: 100%;
+  text-align: left;
+  display: block;
+}
+
+.review {
+  font-size: 17px;
+  color: #444;
+  word-break: break-word;
+  white-space: normal;
+  text-align: left;
+  margin-top: 10px;
+  margin-bottom: 0;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  align-self: flex-start;
+  justify-self: flex-start;
+}
+
+.blob {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background-color: #FFD9DF;
+  opacity: 1;
+  filter: blur(24px);
+  animation: blob-bounce 5s infinite ease;
+}
+
+@keyframes blob-bounce {
+  0% {
+    transform: translate(-100%, -100%) translate3d(0, 0, 0);
+  }
+  25% {
+    transform: translate(-100%, -100%) translate3d(100%, 0, 0);
+  }
+  50% {
+    transform: translate(-100%, -100%) translate3d(100%, 100%, 0);
+  }
+  75% {
+    transform: translate(-100%, -100%) translate3d(0, 100%, 0);
+  }
+}
+
+@media (max-width: 1200px) {
+  .testimonials-row {
+    max-width: 1100px;
+    gap: 32px;
+  }
+  .card {
+    width: 300px;
+    height: 300px;
+  }
+  .bg {
+    width: 270px;
+    height: 270px;
+    padding: 24px 12px 12px 12px;
+  }
+  .profile-image {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+@media (max-width: 900px) {
+  .testimonials-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    max-width: 100vw;
+  }
+  .card {
+    width: 90vw;
+    max-width: 340px;
+    height: 340px;
+  }
+  .bg {
+    width: 96%;
+    height: 92%;
+    padding: 18px;
+  }
+  .profile-image {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+
+
+

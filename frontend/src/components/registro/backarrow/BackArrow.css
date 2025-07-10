@@ -10,3 +10,16 @@
 .back-arrow:hover {
   color: #ff69b4; /* Rosita al pasar el cursor */
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .back-arrow {
+    margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .back-arrow {
+    margin-bottom: 8px;
+  }
+}

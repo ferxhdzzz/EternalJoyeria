@@ -16,3 +16,21 @@
 .inline-redirect-label a:hover {
   color: #555555;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .inline-redirect-label {
+    font-size: 13px;
+    margin-top: -12px;
+    margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .inline-redirect-label {
+    font-size: 12px;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    text-align: center; /* Center on very small screens */
+  }
+}

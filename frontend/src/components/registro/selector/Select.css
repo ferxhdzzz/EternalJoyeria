@@ -47,3 +47,56 @@
   background-color: white;
   color: black;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .input-wrapperr {
+    margin-bottom: 50px;
+    margin-top: 16px;
+  }
+  
+  .input-label {
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  
+  .phone-input-container {
+    border-radius: 15px;
+  }
+  
+  .country-select {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  
+  .phone-input {
+    padding: 8px 12px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .input-wrapperr {
+    margin-bottom: 40px;
+    margin-top: 12px;
+  }
+  
+  .input-label {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+  
+  .phone-input-container {
+    border-radius: 12px;
+  }
+  
+  .country-select {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+  
+  .phone-input {
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+}

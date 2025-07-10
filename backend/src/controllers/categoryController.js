@@ -1,17 +1,17 @@
 import Category from "../models/Category.js";
 import { v2 as cloudinary } from "cloudinary";
-
 // Configurar Cloudinary
+
 cloudinary.config({
   cloud_name: 'dosy4rouu',
   api_key: '712175425427873',
   api_secret: 'Yk2vqXqQ6aknOrT7FCoqEiWw31w',
 });
-
 const categoryController = {};
 
 /*
-  SELECT: Obtener todas las categorías ordenadas por nombre ASC.
+  SELECT: Obtener todas las categorías
+  Ordena por nombre ascendente.
 */
 categoryController.getAllCategories = async (req, res) => {
   try {
@@ -24,7 +24,7 @@ categoryController.getAllCategories = async (req, res) => {
 };
 
 /*
-  SELECT: Obtener una categoría por ID.
+  SELECT: Obtener una categoría por ID único.
 */
 categoryController.getCategoryById = async (req, res) => {
   try {
@@ -40,60 +40,52 @@ categoryController.getCategoryById = async (req, res) => {
 };
 
 /*
-  CREATE: Crear una categoría con validaciones robustas.
+  CREATE: Crear una categoría con nombre, descripción y una imagen obligatoria.
+  La imagen se sube a Cloudinary y se guarda su URL pública.
 */
 categoryController.createCategory = async (req, res) => {
-  const { name, description } = req.body;
+  const { name, description, image } = req.body;
 
   try {
     if (!name || !name.trim()) {
-      return res.status(400).json({ message: "El nombre de la categoría es obligatorio." });
+      return res.status(400).json({ message: "Category name is required" });
     }
 
     if (!description || !description.trim()) {
-      return res.status(400).json({ message: "La descripción de la categoría es obligatoria." });
+      return res.status(400).json({ message: "Category description is required" });
     }
 
-    if (!req.file) {
-      return res.status(400).json({ message: "La imagen de la categoría es obligatoria." });
+    if (!image || !image.trim()) {
+      return res.status(400).json({ message: "Category image URL is required" });
     }
 
-    const nameTrimmed = name.trim();
-
-    const existing = await Category.findOne({ name: nameTrimmed });
+    const existing = await Category.findOne({ name: name.trim() });
     if (existing) {
-      return res.status(400).json({ message: "Ya existe una categoría con este nombre." });
+      return res.status(400).json({ message: "A category with that name already exists" });
     }
-
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: "categorys",
-      allowed_formats: ["png", "jpg", "jpeg"],
-      transformation: [
-        { width: 600, height: 600, crop: "fill" },
-        { quality: "auto" }
-      ]
-    });
 
     const newCategory = new Category({
-      name: nameTrimmed,
+      name: name.trim(),
       description: description.trim(),
-      image: result.secure_url
+      image: image.trim(), // 
     });
 
     const savedCategory = await newCategory.save();
 
     res.status(201).json({
-      message: "Categoría creada correctamente.",
-      category: savedCategory
+      message: "Category created successfully",
+      category: savedCategory,
     });
   } catch (error) {
     console.error("Error creating category:", error);
-    res.status(500).json({ message: "Error del servidor al crear la categoría.", error: error.message });
+    res.status(500).json({ message: "Server error creating category", error: error.message });
   }
 };
 
 /*
-  UPDATE: Actualizar una categoría con validaciones.
+  UPDATE: Actualizar nombre, descripción y/o imagen de una categoría existente.
+  Si se envía una nueva imagen, se sube a Cloudinary y se reemplaza.
+  Nota: Aquí NO es obligatoria la imagen.
 */
 categoryController.updateCategory = async (req, res) => {
   const { name, description } = req.body;
@@ -101,48 +93,47 @@ categoryController.updateCategory = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
     if (!category) {
-      return res.status(404).json({ message: "Categoría no encontrada." });
+      return res.status(404).json({ message: "Category not found" });
     }
 
     if (!name || !name.trim()) {
-      return res.status(400).json({ message: "El nombre de la categoría es obligatorio." });
+      return res.status(400).json({ message: "Category name is required" });
     }
 
     if (!description || !description.trim()) {
-      return res.status(400).json({ message: "La descripción de la categoría es obligatoria." });
+      return res.status(400).json({ message: "Category description is required" });
     }
 
-    const nameTrimmed = name.trim();
-
-    const duplicate = await Category.findOne({ name: nameTrimmed, _id: { $ne: req.params.id } });
+    const duplicate = await Category.findOne({ name: name.trim(), _id: { $ne: req.params.id } });
     if (duplicate) {
-      return res.status(400).json({ message: "Ya existe otra categoría con ese nombre." });
+      return res.status(400).json({ message: "Another category already has that name" });
     }
 
-    category.name = nameTrimmed;
+    category.name = name.trim();
     category.description = description.trim();
 
-    if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: "categorys",
-        allowed_formats: ["png", "jpg", "jpeg"],
-        transformation: [
-          { width: 600, height: 600, crop: "fill" },
-          { quality: "auto" }
-        ]
-      });
-      category.image = result.secure_url;
-    }
-
+  if (req.file) {
+  const result = await cloudinary.uploader.upload(req.file.path, {
+    folder: "categorys",
+    allowed_formats: ["png", "jpg", "jpeg"],
+    transformation: [
+      { width: 600, height: 600, crop: "fill" },
+      { quality: "auto" }
+    ]
+  });
+  category.image = result.secure_url;
+} else if (req.body.image) {
+  category.image = req.body.image; // 
+}
     const updatedCategory = await category.save();
 
     res.status(200).json({
-      message: "Categoría actualizada correctamente.",
+      message: "Category updated successfully",
       category: updatedCategory
     });
   } catch (error) {
     console.error("Error updating category:", error);
-    res.status(500).json({ message: "Error del servidor al actualizar la categoría.", error: error.message });
+    res.status(500).json({ message: "Server error updating category", error: error.message });
   }
 };
 
@@ -153,15 +144,15 @@ categoryController.deleteCategory = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
     if (!category) {
-      return res.status(404).json({ message: "Categoría no encontrada." });
+      return res.status(404).json({ message: "Category not found" });
     }
 
     await category.deleteOne();
 
-    res.status(200).json({ message: "Categoría eliminada correctamente." });
+    res.status(200).json({ message: "Category deleted successfully" });
   } catch (error) {
     console.error("Error deleting category:", error);
-    res.status(500).json({ message: "Error del servidor al eliminar la categoría.", error: error.message });
+    res.status(500).json({ message: "Server error deleting category", error: error.message });
   }
 };
 

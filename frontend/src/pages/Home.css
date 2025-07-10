@@ -1,4 +1,88 @@
-.home-container {
-  width: 100%; /* Ensures the container takes the full width of its parent. */
-  min-height: 100vh; /* Ensures the container takes at least the full height of the viewport. */
+/*
+  HOME PAGE STYLES
+  This file contains all styles for the home page layout and the hero section.
+  Styles are intentionally made highly specific to override any conflicting global styles.
+*/
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;600;700&display=swap');
+
+/* 1. Page Wrapper: The very background of the page */
+.home-page-wrapper {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #FFFFFF;
+  overflow: hidden;
 }
+
+/* 2. Main Container: The "floating card" */
+.home-container {
+  flex: 1;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: calc(var(--header-height) + 2rem) clamp(1rem, 3vw, 2rem) 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 4vw, 4rem);
+}
+
+/* 3. Hero Component Styles (targeting classes inside Hero.jsx) */
+.hero-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  padding: clamp(2rem, 4vw, 4rem) 0;
+}
+
+.hero-trusted-text {
+  font-size: clamp(0.875rem, 1.5vw, 1rem);
+  color: #666;
+  margin-bottom: clamp(1rem, 2vw, 2rem);
+}
+
+.hero-title {
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: #1a1a1a;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.hero-subtitle {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.6;
+  color: #666;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .home-container {
+    padding-top: calc(var(--header-height-mobile) + 1rem);
+    gap: clamp(1.5rem, 3vw, 3rem);
+  }
+
+  .hero-container {
+    padding: clamp(1.5rem, 3vw, 3rem) 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-container {
+    padding-top: var(--header-height-mobile);
+    gap: clamp(1rem, 2vw, 2rem);
+  }
+
+  .hero-container {
+    padding: clamp(1rem, 2vw, 2rem) 0;
+  }
+}
+

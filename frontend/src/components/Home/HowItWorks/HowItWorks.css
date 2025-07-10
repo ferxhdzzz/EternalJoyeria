@@ -1,0 +1,354 @@
+.how-it-works-section {
+  padding: 0;
+  width: 100%;
+  position: relative;
+  margin-top: 30px;
+  background-color: #FFFFFF;
+}
+
+.white-space-top {
+  height: 50px;
+  width: 100%;
+  background-color: #FFFFFF;
+}
+
+.how-it-works-container {
+  background: linear-gradient(to bottom, #FFDEDE 0%, #FFE5E5 20%, #FFEEF0 40%, #FFF8FA 70%, #FFFFFF 90%);
+  border-top-left-radius: 48px;
+  border-top-right-radius: 48px;
+  padding: 80px 30px 100px 30px;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.how-it-works-content {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 50px;
+  align-items: center;
+}
+
+.how-it-works-text {
+  flex: 1;
+  padding-right: 20px;
+  text-align: left;
+}
+
+.how-it-works-text h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 3.2rem;
+  font-weight: 700;
+  color: #4b1717;
+  margin-bottom: 24px;
+  line-height: 1.1;
+}
+
+.how-it-works-text .subtitle {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.25rem;
+  color: #6d4b4b;
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: flex-start;
+  padding: 20px 20px 20px 0;
+  width: 100%;
+}
+
+/* Scoped card styles */
+.card-column .card {
+  background: rgba(255, 255, 255, 0.85);
+  padding: 30px 30px;
+  height: 200px;
+  width: 450px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: left;
+  color: #222;
+  transition: transform 0.4s ease, background 0.4s ease;
+  cursor: pointer;
+  box-shadow: none;
+  border: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.card-column .card p.tip {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.card-column .card p.second-text {
+  font-size: 1rem;
+  line-height: 1.4;
+  opacity: 0.9;
+  width: 100%;
+}
+
+.card-column .card:hover {
+  transform: scale(1.05);
+  box-shadow: none;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.8) 70%, rgba(255, 255, 255, 0) 100%);
+}
+
+.card-column:hover > .card:not(:hover) {
+  filter: blur(5px);
+  transform: scale(0.95);
+  opacity: 0.8;
+}
+
+.app-mockup-container {
+  flex: 1;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.app-mockups {
+  position: relative;
+  width: 100%;
+  height: 500px;
+}
+
+.app-mockup {
+  position: absolute;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  max-height: 450px;
+  object-fit: cover;
+}
+
+.mockup-1 {
+  width: 220px;
+  left: 0;
+  top: 30px;
+  z-index: 3;
+  transform: rotate(-5deg);
+}
+
+.mockup-2 {
+  width: 220px;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.mockup-3 {
+  width: 220px;
+  right: 0;
+  top: 30px;
+  z-index: 1;
+  transform: rotate(5deg);
+}
+
+.card-column {
+  flex: 0 0 550px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Left-align text inside cards */
+.card-column .card-content {
+  text-align: left;
+  align-items: flex-start;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .how-it-works-content {
+    flex-direction: column;
+    gap: 60px;
+  }
+
+  .how-it-works-text {
+    padding-right: 0;
+  }
+
+  .card {
+    width: 400px;
+  }
+
+  .app-mockups {
+    height: 400px;
+  }
+
+  .mockup-1, .mockup-2, .mockup-3 {
+    width: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  .how-it-works-container {
+    padding: 60px 20px;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+  }
+
+  .how-it-works-text h2 {
+    font-size: 2.2rem;
+  }
+
+  .card {
+    width: 350px;
+  }
+
+  .app-mockups {
+    height: 350px;
+  }
+
+  .mockup-1, .mockup-2, .mockup-3 {
+    width: 150px;
+  }
+
+  .phone { width: 260px; height: 500px; }
+  .phone-notch { width: 120px; height: 25px; }
+}
+
+@media (max-width: 480px) {
+  .how-it-works-container {
+    padding: 40px 15px;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+  }
+
+  .how-it-works-text h2 {
+    font-size: 1.8rem;
+  }
+
+  .how-it-works-text .subtitle {
+    font-size: 1rem;
+  }
+
+  .card {
+    width: 300px;
+  }
+
+  .app-mockups {
+    height: 300px;
+  }
+
+  .mockup-1, .mockup-3 {
+    width: 120px;
+  }
+
+  .mockup-2 {
+    width: 130px;
+  }
+
+  .phone { width: 220px; height: 420px; }
+  .phone-notch { width: 100px; height: 22px; }
+}
+
+.how-it-works-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 60px;
+  transform: translate(160px, 20px);
+}
+
+/* Phone mockup styles */
+.phone-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 10px;
+}
+
+.phones-image {
+  width: 520px;
+  height: auto;
+  animation: phone-float 6s ease-in-out infinite;
+}
+
+@keyframes phone-float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0); }
+}
+
+.phone {
+  width: 290px;
+  height: 550px;
+  background: #111;
+  border-radius: 40px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  border: 1px solid #333;
+  padding: 8px;
+}
+
+.phone-notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150px;
+  height: 30px;
+  background-color: #111;
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.phone-speaker {
+  width: 50px;
+  height: 4px;
+  background-color: #333;
+  border-radius: 4px;
+  position: absolute;
+  top: 10px;
+}
+
+.phone-camera {
+  width: 8px;
+  height: 8px;
+  background-color: #222;
+  border-radius: 50%;
+  position: absolute;
+  top: 10px;
+  right: 40px;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.3) inset, 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.phone-screen {
+  width: 100%;
+  height: 100%;
+  background: #000;
+  border-radius: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.phone-image-full {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Card title accent */
+.card-column .card-title {
+  color: #4B1717;
+  font-weight: 700;
+  font-size: 1.6rem;
+}

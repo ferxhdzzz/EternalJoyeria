@@ -71,7 +71,7 @@ const Login = () => {
     <div
       className="recover-wrapper"
       style={{
-        backgroundImage: `url("/loginneternal.png")`,
+        backgroundImage: `url("/Registro/loginneternal.png")`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",

@@ -1,6 +1,8 @@
 import express from "express";
 import multer from "multer";
 import adminController from "../controllers/AdministratorController.js";
+import { validateAuthToken } from "../middlewares/validateAuthToken.js";
+
 
 const router = express.Router();
 
@@ -8,9 +10,18 @@ const router = express.Router();
 const upload = multer({ dest: "public/" });
 
 // Rutas para administradores
-router
-  .route("/")
+router.put(
+  "/me",
+  validateAuthToken(["admin"]),
+  upload.single("profilePicture"),
+  adminController.updateCurrentAdmin
+);
+
+router.get("/me", validateAuthToken(["admin"]), adminController.getCurrentAdmin);
+
+router.route("/")
   .get(adminController.getadmins);
+
 
 // Rutas para operaciones por ID
 router

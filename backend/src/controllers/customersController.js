@@ -11,6 +11,35 @@ cloudinary.config({
 
 const customersController = {};
 
+
+// Obtener al cliente autenticado
+customersController.getCurrentCustomer = async (req, res) => {
+  try {
+    console.log("Sesión del usuario:", req.session.userId);
+    const userId = req.userId; // Viene del middleware
+
+    if (!userId) {
+      return res.status(401).json({ message: "No autenticado" });
+    }
+
+    const customer = await customersModel.findById(userId);
+
+    if (!customer) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    res.json(customer);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al obtener datos del usuario" });
+  }
+};
+
+
+
+
+
+
 // SELECT (Obtener todos los clientes)
 customersController.getcustomers = async (req, res) => {
   try {

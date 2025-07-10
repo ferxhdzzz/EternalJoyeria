@@ -7,6 +7,20 @@
   box-sizing: border-box;
   z-index: 10;
 }
+.custom-upload-button {
+  background-color: #f48fb1;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 25px;
+  cursor: pointer;
+  display: inline-block;
+  margin-top: 10px;
+}
+
+.custom-upload-button:hover {
+  background-color: #f06292;
+}
+
 
 /* 🖥️ Formulario flotante para pantallas grandes */
 @media (min-width: 1246px) {

@@ -6,7 +6,7 @@ const Logo = () => {
   return (
 <NavLink to="/">
 
-    <img src="/EternalLogo.png" alt="Eternal Logo" className="logo" />
+    <img src="/Products/EternalLogo.png" alt="Eternal Logo" className="logo" />
      </NavLink>
   );
 };
