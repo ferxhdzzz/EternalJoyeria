@@ -6,6 +6,7 @@ const useCategoriasAction = () => {
     try {
       const response = await fetch(`${api}/${id}`, {
         method: "DELETE",
+        credentials: "include",
       });
       if (!response.ok) throw new Error("Error al eliminar");
       toast.success("Categoría eliminada con éxito");

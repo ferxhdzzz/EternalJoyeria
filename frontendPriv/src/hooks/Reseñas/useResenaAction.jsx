@@ -9,6 +9,7 @@ const useReviewAction = (getReviews) => {
     try {
       const response = await fetch(`${api}/${id}`, {
         method: "DELETE",
+        credentials: "include",
       });
       toast.success("review deleted successfully");
       console.log("review deleted:", response);

@@ -35,44 +35,46 @@ const FormPage = ({ refreshCategories }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const newErrors = {};
-
+  
     if (!nombre.trim()) {
       newErrors.nombre = "El nombre es requerido.";
     } else if (!validarTextoSinNumeros(nombre)) {
       newErrors.nombre = "El nombre no debe contener números.";
+    } else if (nombre.trim().length < 5) {
+      newErrors.nombre = "El nombre debe tener al menos 5 caracteres.";
     }
-
+  
     if (!descripcion.trim()) {
       newErrors.descripcion = "La descripción es requerida.";
     } else if (!validarTextoSinNumeros(descripcion)) {
       newErrors.descripcion = "La descripción no debe contener números.";
+    } else if (descripcion.trim().length < 3) {
+      newErrors.descripcion = "La descripción debe tener al menos 3 caracteres.";
     }
-
+  
     if (!imageUrl || !imageUrl.trim()) {
       newErrors.image = "La imagen es requerida.";
     }
-
+  
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
-
-    // ✅ Mostrar sweet alert de subida
+  
     Swal.fire({
       title: "Subiendo categoría...",
       allowOutsideClick: false,
       showConfirmButton: false,
       didOpen: () => Swal.showLoading(),
     });
-
+  
     await saveCategorieForm({
       name: nombre.trim(),
       description: descripcion.trim(),
       image: imageUrl,
     });
-
-    // El success se maneja desde onSuccess en el hook
   };
+  
 
   const resetForm = () => {
     setNombre("");
