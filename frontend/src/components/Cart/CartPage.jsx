@@ -33,7 +33,7 @@ const CartPage = () => {
           <div className="empty-cart-text">
             <h1>¡Aún no hay<br />brillo en<br />tu carrito!</h1>
             <p>Descubre las piezas que harán eterno cada momento.</p>
-            <Link to="/products" className="empty-cart-button">
+            <Link to="/productos" className="empty-cart-button">
               Ver colección
             </Link>
           </div>

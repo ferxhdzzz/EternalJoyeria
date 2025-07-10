@@ -22,6 +22,7 @@ const Products = () => {
   const { addToCart } = useCart();
   const [toast, setToast] = useState(false);
   const productsRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 700);
 
   // Simular carga inicial
   useEffect(() => {
@@ -39,6 +40,14 @@ const Products = () => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 700);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Función para añadir al carrito y abrir el panel
@@ -141,11 +150,11 @@ const Products = () => {
       <div
         className="hero-product-content"
         style={{
-          alignItems: 'flex-start',
-          justifyContent: 'flex-start',
+          alignItems: isMobile ? 'center' : 'flex-start',
+          justifyContent: isMobile ? 'center' : 'flex-start',
           marginTop: '2rem',
           display: 'flex',
-          flexDirection: 'row',
+          flexDirection: isMobile ? 'column' : 'row',
           gap: '0.5rem',
           width: '100%',
           opacity: scrollY > 400 ? 1 : 0.7,
@@ -160,7 +169,7 @@ const Products = () => {
             width: 'auto',
             marginTop: '7rem',
             fontSize: '2.4rem',
-            marginLeft: '10.5rem',
+            marginLeft: isMobile ? '2rem' : '10.5rem',
             animation: 'fadeInLeft 0.8s ease-out'
           }}
         >
@@ -169,10 +178,11 @@ const Products = () => {
         <div
           style={{
             display: 'flex',
-            flexDirection: 'row',
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'center' : 'flex-start',
             gap: '2rem',
             marginTop: '3rem',
-            marginLeft: '3rem'
+            marginLeft: isMobile ? 0 : '3rem'
           }}
         >
           <div 
@@ -238,14 +248,14 @@ const Products = () => {
           flexDirection: 'column', 
           gap: '3.5rem', 
           marginTop: '8rem', 
-          marginLeft: '11rem', 
+          marginLeft: isMobile ? 0 : '11rem',
           marginBottom: '3rem',
           opacity: scrollY > 600 ? 1 : 0.7,
           transform: `translateY(${Math.max(0, scrollY - 600) * 0.1}px)`,
           transition: 'all 0.3s ease'
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'row', gap: '3.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'center' : 'flex-start', gap: '3.5rem' }}>
           {[
             { id: "anillo-orquidea", title: "Anillo de Orquídea", description: "Anillo artesanal con orquídea natural preservada en resina. Pieza única y elegante.", image: "/Products/AnilloOrchid.png" },
             { id: "collar-orquidea", title: "Collar de Orquídea", description: "Collar delicado con orquídea encapsulada, ideal para ocasiones especiales.", image: "/Products/CollarOrchid.png" },
@@ -277,7 +287,7 @@ const Products = () => {
             </div>
           ))}
         </div>
-        <div style={{ display: 'flex', flexDirection: 'row', gap: '3.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'center' : 'flex-start', gap: '3.5rem' }}>
           {[
             { id: "1", title: "Collar con corazón", description: "Un delicado collar que captura la esencia del amor y la elegancia, perfecto para cualquier ocasión.", image: "/Products/product1.png" },
             { id: "2", title: "Pulsera flor", description: "Esta pulsera floral añade un toque de naturaleza y feminidad a tu estilo, hecha a mano con detalles exquisitos.", image: "/Products/product2.png" },

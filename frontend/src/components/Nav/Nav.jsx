@@ -3,6 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import './Nav.css';
 import { Menu, X, ChevronDown, User, ShoppingCart } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import CleanLogo from './CleanLogo';
+import CleanHeader from './CleanHeader';
 
 const Nav = ({ cartOpen = false }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -12,6 +14,7 @@ const Nav = ({ cartOpen = false }) => {
     const prevCount = useRef(0);
     const totalCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1000);
+    const [isSmallMobile, setIsSmallMobile] = useState(window.innerWidth <= 480);
     const menuRef = useRef(null);
     const toggleRef = useRef(null);
     const location = useLocation();
@@ -26,7 +29,9 @@ const Nav = ({ cartOpen = false }) => {
     useEffect(() => {
         const handleResize = () => {
             const newIsMobile = window.innerWidth <= 1000;
+            const newIsSmallMobile = window.innerWidth <= 480;
             setIsMobile(newIsMobile);
+            setIsSmallMobile(newIsSmallMobile);
             if (!newIsMobile) {
                 setIsOpen(false);
                 setCategoryOpen(false);
@@ -78,12 +83,13 @@ const Nav = ({ cartOpen = false }) => {
     };
 
     return (
-        <header className={`header ${cartOpen ? 'header--cart-open' : ''}`}>
-            <div className="nav-container">
-                <Link to="/" className="nav-logo">
-                    <img src="/Products/EternalLogo.png" alt="Eternal Joyeria Logo" className="logo-image" />
-                </Link>
-
+        <>
+            <CleanHeader 
+                cartOpen={cartOpen} 
+                isMobile={isMobile} 
+                isSmallMobile={isSmallMobile}
+                menuOpen={isOpen && !isMobile}
+            >
                 <div 
                     ref={menuRef} 
                     className={`nav-menu ${isOpen ? 'show-menu' : ''} ${cartOpen ? 'nav-menu--cart-open' : ''}`}
@@ -97,7 +103,7 @@ const Nav = ({ cartOpen = false }) => {
                     )}
                     
                     <ul className="nav-list">
-                        <li><Link to="/productos" className="nav-link" onClick={toggleMenu}><span className="nav-link-inner"><span className="nav-link-original">Productos</span><span className="nav-link-hover">Productos</span></span></Link></li>
+                        <li><Link to="/productos" className="nav-link" onClick={toggleMenu}><span className="nav-link-inner">Productos</span></Link></li>
                         <li className="nav-categoria-dropdown">
                             <div className="nav-link nav-link-categoria" onClick={toggleCategory}>
                                 <span className="nav-link-text">Categoría</span>
@@ -110,8 +116,8 @@ const Nav = ({ cartOpen = false }) => {
                                 <li><Link to="/categoria/anillos" className="dropdown-item" onClick={toggleMenu}>Anillos</Link></li>
                             </ul>
                         </li>
-                        <li><Link to="/sobre-nosotros" className="nav-link" onClick={toggleMenu}><span className="nav-link-inner"><span className="nav-link-original sobre-nosotros">Sobre Nosotros</span><span className="nav-link-hover">Sobre Nosotros</span></span></Link></li>
-                        <li><Link to="/contactanos" className="nav-link" onClick={toggleMenu}><span className="nav-link-inner"><span className="nav-link-original">Contáctanos</span><span className="nav-link-hover">Contáctanos</span></span></Link></li>
+                        <li><Link to="/sobre-nosotros" className="nav-link" onClick={toggleMenu}><span className="nav-link-inner">Sobre Nosotros</span></Link></li>
+                        <li><Link to="/contactanos" className="nav-link" onClick={toggleMenu}><span className="nav-link-inner">Contáctanos</span></Link></li>
                     </ul>
                 </div>
 
@@ -139,11 +145,11 @@ const Nav = ({ cartOpen = false }) => {
                         )}
                     </Link>
                 </div>
-            </div>
+            </CleanHeader>
             
             {/* Overlay para cerrar el menú en móvil */}
-            {isOpen && isMobile && <div className="nav-overlay" onClick={() => setIsOpen(false)}></div>}
-        </header>
+            {/* {isOpen && isMobile && <div className="nav-overlay" onClick={() => setIsOpen(false)}></div>} */}
+        </>
     );
 };
 

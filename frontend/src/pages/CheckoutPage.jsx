@@ -50,14 +50,19 @@ const CheckoutPage = () => {
 
   const handlePay = (e) => {
     e.preventDefault();
-    // Validación simple
+    // Validación mejorada
     const newErrors = {};
     if (!name.trim()) newErrors.name = 'Nombre requerido';
     if (!email.trim()) newErrors.email = 'Correo requerido';
+    else if (!/^\S+@\S+\.\S+$/.test(email)) newErrors.email = 'Correo inválido';
     if (!address.trim()) newErrors.address = 'Dirección requerida';
     if (!city.trim()) newErrors.city = 'Ciudad requerida';
     if (!zip.trim()) newErrors.zip = 'Código postal requerido';
-    if (payment === 'card' && !card.trim()) newErrors.card = 'Número de tarjeta requerido';
+    else if (!/^\d{4,8}$/.test(zip)) newErrors.zip = 'Código postal inválido (4-8 dígitos)';
+    if (payment === 'card') {
+      if (!card.trim()) newErrors.card = 'Número de tarjeta requerido';
+      else if (!/^\d{13,16}$/.test(card)) newErrors.card = 'Tarjeta inválida (13-16 dígitos numéricos)';
+    }
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
     Swal.fire({

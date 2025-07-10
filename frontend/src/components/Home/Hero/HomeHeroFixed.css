@@ -118,16 +118,36 @@
 
 @media (max-width: 700px) {
   .bloom-hero-title { font-size: 2.4rem; }
-  .bloom-hero { padding: 100px 12px 0 12px; }
-  .bloom-hero-hand-container { margin-top: -80px; }
-  .bloom-hero-hand-img { width: 320px; transform: translateX(40px); }
-
+  .bloom-hero { padding: 240px 12px 0 12px; }
+  .bloom-hero-hand-container { margin-top: 240px; }
+  .bloom-hero-hand-img { width: 380px; transform: translateX(0px); }
+  .bloom-hero-title,
+  .bloom-hero-subtitle {
+    text-align: center !important;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .bloom-hero-subtitle {
+    transform: none !important;
+    max-width: 95vw;
+  }
 }
 
 @media (max-width: 480px) {
   .bloom-hero-title { font-size: 1.7rem; }
   .bloom-hero-badge { font-size: 0.7rem; padding: 6px 18px; }
-  .bloom-hero-hand-container { margin-top: -50px; }
-  .bloom-hero-hand-img { width: 240px; transform: translateX(25px); }
+  .bloom-hero-hand-container { margin-top: 320px; }
+  .bloom-hero { padding-top: 320px !important; }
+  .bloom-hero-hand-img { width: 320px; transform: translateX(-30px); }
   .bloom-hero-bg { border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; }
+  .bloom-hero-title,
+  .bloom-hero-subtitle {
+    text-align: center !important;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .bloom-hero-subtitle {
+    transform: none !important;
+    max-width: 98vw;
+  }
 }
