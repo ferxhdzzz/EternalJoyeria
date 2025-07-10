@@ -3,76 +3,88 @@ import { toast } from "react-toastify";
 
 const useDataAjustes = () => {
   const [uploading, setUploading] = useState(false);
+const uploadImage = async (file) => {
+  try {
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "upload_preset_eternaljoyeria");
 
-  const uploadImage = async (file) => {
-    try {
-      setUploading(true);
+    const response = await fetch("https://api.cloudinary.com/v1_1/dosy4rouu/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+    console.log("Respuesta de Cloudinary:", data); // ✅ Agregá esto
+
+    if (!response.ok) {
+      throw new Error(data.error?.message || "Cloudinary upload failed");
+    }
+
+    return data.secure_url;
+  } catch (error) {
+    toast.error("Error al subir la imagen: " + error.message);
+    return null;
+  } finally {
+    setUploading(false);
+  }
+};
+
+  
+const updateAdmin = async (data) => {
+  try {
+    let options;
+
+    if (data.file) {
       const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", "upload_preset_eternaljoyeria");
 
-      const response = await fetch(
-        "https://api.cloudinary.com/v1_1/dosy4rouu/upload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error?.message || "Error al subir imagen");
+      // Validar que los campos requeridos existen
+      if (!data.name || !data.email) {
+        throw new Error("El nombre y el correo son obligatorios");
       }
 
-      return data.secure_url;
-    } catch (error) {
-      toast.error("Error al subir la imagen: " + error.message);
-      return null;
-    } finally {
-      setUploading(false);
-    }
-  };
+      formData.append("name", data.name);
+      formData.append("email", data.email);
+      if (data.password) formData.append("password", data.password);
+      formData.append("profilePicture", data.file);
 
-  const updateAdmin = async (data) => {
-    try {
-      let options = {
+      console.log("🟡 Enviando FormData con:", [...formData.entries()]);
+
+      options = {
         method: "PUT",
-        credentials: "include", // para enviar cookies (sesión)
+        credentials: "include",
+        body: formData,
       };
-
-      // Si data contiene 'file' (imagen), usamos FormData
-      if (data.file) {
-        const formData = new FormData();
-        if (data.nombre) formData.append("name", data.nombre);
-        if (data.correo) formData.append("email", data.correo);
-        if (data.password) formData.append("password", data.password);
-        formData.append("profilePicture", data.file);
-        options.body = formData;
-        // No pongas headers, fetch los setea automáticamente
-      } else {
-        // Enviar JSON si no hay imagen
-        options.headers = { "Content-Type": "application/json" };
-        // Asegúrate de mapear keys a lo que espera el backend
-        options.body = JSON.stringify({
-          name: data.nombre,
-          email: data.correo,
+    } else {
+      options = {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
           password: data.password,
-        });
-      }
-
-      const res = await fetch("http://localhost:4000/api/admins/me", options);
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Error al actualizar perfil");
-      }
-
-      toast.success("Perfil actualizado correctamente");
-    } catch (error) {
-      toast.error(error.message || "Error al actualizar");
+          profilePicture: data.profilePicture,
+        }),
+      };
     }
-  };
+
+    const response = await fetch("http://localhost:4000/api/admins/me", options);
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Error al actualizar perfil");
+    }
+
+    toast.success("Perfil actualizado correctamente");
+    return result.admin;
+  } catch (error) {
+    toast.error(error.message || "Error al actualizar");
+    return null;
+  }
+};
+
 
   return {
     uploadImage,

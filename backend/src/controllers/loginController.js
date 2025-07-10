@@ -1,4 +1,3 @@
-// ===== IMPORTACIONES =====
 import customersModel from "../models/Customers.js";
 import adminModel from "../models/Administrator.js";
 import bcryptjs from "bcryptjs";
@@ -15,7 +14,7 @@ loginController.login = async (req, res) => {
   if (!email || !password) {
     return res.status(400).json({
       success: false,
-      message: "Email and password are required"
+      message: "Email and password are required",
     });
   }
 
@@ -23,7 +22,7 @@ loginController.login = async (req, res) => {
   if (!emailRegex.test(email)) {
     return res.status(400).json({
       success: false,
-      message: "Invalid email format"
+      message: "Invalid email format",
     });
   }
 
@@ -41,10 +40,9 @@ loginController.login = async (req, res) => {
       if (!isMatch) {
         return res.status(401).json({
           success: false,
-          message: "Invalid credentials"
+          message: "Invalid credentials",
         });
       }
-
     } else {
       userFound = await customersModel.findOne({ email: email.toLowerCase() });
 
@@ -55,7 +53,7 @@ loginController.login = async (req, res) => {
         if (!isMatch) {
           return res.status(401).json({
             success: false,
-            message: "Invalid credentials"
+            message: "Invalid credentials",
           });
         }
       }
@@ -64,7 +62,7 @@ loginController.login = async (req, res) => {
     if (!userFound) {
       return res.status(401).json({
         success: false,
-        message: "Invalid credentials"
+        message: "Invalid credentials",
       });
     }
 
@@ -72,60 +70,60 @@ loginController.login = async (req, res) => {
       {
         id: userFound._id,
         userType,
-        email: userFound.email
+        email: userFound.email,
       },
       config.JWT.JWT_SECRET,
       { expiresIn: config.JWT.expiresIn }
     );
 
-    // ✅ Guardar información del usuario en la sesión
-    req.session.user = {
-      _id: userFound._id,
-      name: userFound.name,
-      email: userFound.email,
-      userType
-    };
-
     res.cookie("authToken", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/',
-      maxAge: 24 * 60 * 60 * 1000
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     res.status(200).json({
       success: true,
       message: "Login successful",
-      userType,
+      userType: userType,
       user: {
         id: userFound._id,
         email: userFound.email,
-        name: userFound.name
-      }
+        name: userFound.name,
+      },
     });
-
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
 
-// ===== FUNCIÓN DE LOGOUT =====
-loginController.logout = (req, res) => {
-  res.clearCookie("authToken", {
-    path: '/',
-    sameSite: 'strict'
-  });
-  req.session.destroy(() => {
-    res.status(200).json({
-      success: true,
-      message: "Logout successful"
-    });
-  });
+// ===== FUNCIÓN CHECK ADMIN =====
+loginController.checkAdmin = (req, res) => {
+  try {
+    const { authToken } = req.cookies;
+
+    if (!authToken) {
+      return res.json({ ok: false, message: "No auth token found" });
+    }
+
+    const decoded = jsonwebtoken.verify(authToken, config.JWT.JWT_SECRET);
+
+    if (decoded.userType === "admin") {
+      return res.json({ ok: true });
+    } else {
+      return res.json({ ok: false, message: "Access denied" });
+    }
+  } catch (error) {
+    console.error("checkAdmin error:", error);
+    return res.json({ ok: false, message: "Invalid or expired token" });
+  }
 };
 
+// ===== EXPORTAR CONTROLADOR =====
 export default loginController;
