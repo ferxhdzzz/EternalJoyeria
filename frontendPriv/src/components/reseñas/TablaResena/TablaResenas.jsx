@@ -28,7 +28,7 @@ const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
             <th>Nombre</th>
             <th>Calificación</th>
             <th>Comentario</th>
-            <th></th>
+            <th>Compra</th>
           </tr>
         </thead>
         <tbody>

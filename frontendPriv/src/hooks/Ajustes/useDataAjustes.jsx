@@ -83,6 +83,13 @@ const updateAdmin = async (data) => {
     toast.error(error.message || "Error al actualizar");
     return null;
   }
+
+  
+if (!response.ok) throw new Error(result.message || "Error al actualizar");
+
+// Guarda en localStorage
+localStorage.setItem("adminName", result.admin.name);
+localStorage.setItem("adminImage", result.admin.profilePicture);
 };
 
 
