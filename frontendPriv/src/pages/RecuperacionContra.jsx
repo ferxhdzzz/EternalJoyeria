@@ -40,7 +40,7 @@ const RecuperacionContra = () => {
     >
       
       <div className="recover-card">
-        <BackArrow to="/loginAdmin" />
+        <BackArrow to="/login" />
         <Logo />
 
 <h2 className="recover-title">Recuperar Contraseña</h2>

@@ -64,7 +64,7 @@ const CambiarContra = () => {
           title: "¡Listo!",
           text: result.message,
           confirmButtonText: "Ir al login"
-        }).then(() => navigate("/loginAdmin"));
+        }).then(() => navigate("/login"));
       } else {
         Swal.fire("Error", result.message || "No se pudo actualizar.", "error");
       }
