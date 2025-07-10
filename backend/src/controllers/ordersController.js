@@ -3,15 +3,37 @@ import Product from "../models/Products.js";
 
 const ordersController = {};
 
-// CREATE: Crear orden con subtotal y total automáticos
+// CREATE: Crear orden con validación completa
 ordersController.createOrder = async (req, res) => {
   try {
     const { idCustomer, products } = req.body;
+
+    // Validar cliente
+    if (!idCustomer) {
+      return res.status(400).json({ message: "El cliente es obligatorio" });
+    }
+
+    // Validar productos
+    if (!Array.isArray(products) || products.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Debe incluir al menos un producto" });
+    }
 
     let total = 0;
 
     const productsWithSubtotal = await Promise.all(
       products.map(async (item) => {
+        if (!item.productId || !item.quantity) {
+          throw new Error("Cada producto debe tener ID y cantidad");
+        }
+
+        if (item.quantity <= 0 || !Number.isInteger(item.quantity)) {
+          throw new Error(
+            `Cantidad inválida para producto ${item.productId}`
+          );
+        }
+
         const product = await Product.findById(item.productId);
 
         if (!product) {
@@ -19,12 +41,13 @@ ordersController.createOrder = async (req, res) => {
         }
 
         const subtotal = product.price * item.quantity;
+
         total += subtotal;
 
         return {
           productId: item.productId,
           quantity: item.quantity,
-          subtotal: subtotal,
+          subtotal,
         };
       })
     );
@@ -33,12 +56,12 @@ ordersController.createOrder = async (req, res) => {
       idCustomer,
       products: productsWithSubtotal,
       total,
-      status: "no pagado", // por defecto
+      status: "no pagado",
     });
 
     await newOrder.save();
-    res.status(201).json(newOrder);
 
+    res.status(201).json(newOrder);
   } catch (error) {
     res.status(400).json({
       message: "Error al crear la orden",
@@ -82,17 +105,30 @@ ordersController.getOrder = async (req, res) => {
   }
 };
 
-// UPDATE: Actualizar una orden y recalcular subtotal y total
+// UPDATE: Actualizar una orden y recalcular totales
 ordersController.updateOrder = async (req, res) => {
   try {
     const { idCustomer, products, status } = req.body;
 
+    const updatedData = {};
     let total = 0;
     let productsWithSubtotal = [];
+
+    if (idCustomer) updatedData.idCustomer = idCustomer;
 
     if (products && products.length > 0) {
       productsWithSubtotal = await Promise.all(
         products.map(async (item) => {
+          if (!item.productId || !item.quantity) {
+            throw new Error("Cada producto debe tener ID y cantidad");
+          }
+
+          if (item.quantity <= 0 || !Number.isInteger(item.quantity)) {
+            throw new Error(
+              `Cantidad inválida para producto ${item.productId}`
+            );
+          }
+
           const product = await Product.findById(item.productId);
 
           if (!product) {
@@ -105,18 +141,15 @@ ordersController.updateOrder = async (req, res) => {
           return {
             productId: item.productId,
             quantity: item.quantity,
-            subtotal: subtotal,
+            subtotal,
           };
         })
       );
-    }
 
-    const updatedData = {};
-    if (idCustomer) updatedData.idCustomer = idCustomer;
-    if (productsWithSubtotal.length > 0) {
       updatedData.products = productsWithSubtotal;
       updatedData.total = total;
     }
+
     if (status && ["pagado", "no pagado"].includes(status)) {
       updatedData.status = status;
     }
@@ -132,7 +165,6 @@ ordersController.updateOrder = async (req, res) => {
     }
 
     res.json(updatedOrder);
-
   } catch (error) {
     res.status(400).json({
       message: "Error al actualizar la orden",
@@ -176,7 +208,6 @@ ordersController.markAsPaid = async (req, res) => {
       message: "Orden marcada como pagada",
       order: updatedOrder,
     });
-
   } catch (error) {
     res.status(400).json({
       message: "Error al marcar como pagada",

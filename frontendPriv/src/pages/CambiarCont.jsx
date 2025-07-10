@@ -58,11 +58,18 @@ const CambiarContra = () => {
 
     try {
       const result = await newPassword(password);
-      Swal.fire("Éxito", result.message, "success").then(() =>
-        navigate("/login")
-      );
+      if (result.message === "Contraseña actualizada correctamente.") {
+        Swal.fire({
+          icon: "success",
+          title: "¡Listo!",
+          text: result.message,
+          confirmButtonText: "Ir al login"
+        }).then(() => navigate("/loginAdmin"));
+      } else {
+        Swal.fire("Error", result.message || "No se pudo actualizar.", "error");
+      }
     } catch (error) {
-      Swal.fire("Error", "No se pudo actualizar la contraseña", "error");
+      Swal.fire("Error", "No se pudo actualizar la contraseña.", "error");
     }
   };
 
@@ -80,6 +87,7 @@ const CambiarContra = () => {
         <BackArrow to="/recuperacion" />
         <Logo />
         <h2 className="recover-title">Recuperar contraseña</h2>
+
         <div className="input-group-eye">
           <Input
             label="Nueva Contraseña"
@@ -115,6 +123,7 @@ const CambiarContra = () => {
         {errors.confirmPassword && (
           <p className="error-message">{errors.confirmPassword}</p>
         )}
+
         <Button text="Actualizar →" onClick={handleSubmit} />
       </div>
     </div>

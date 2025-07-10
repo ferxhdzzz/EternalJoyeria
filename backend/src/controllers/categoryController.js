@@ -67,7 +67,7 @@ categoryController.createCategory = async (req, res) => {
     const newCategory = new Category({
       name: name.trim(),
       description: description.trim(),
-      image: image.trim(), // ✅ usa la imagen subida desde el frontend
+      image: image.trim(), // 
     });
 
     const savedCategory = await newCategory.save();
@@ -123,7 +123,7 @@ categoryController.updateCategory = async (req, res) => {
   });
   category.image = result.secure_url;
 } else if (req.body.image) {
-  category.image = req.body.image; // 👈 USA la URL que ya subiste desde el frontend
+  category.image = req.body.image; // 
 }
     const updatedCategory = await category.save();
 
