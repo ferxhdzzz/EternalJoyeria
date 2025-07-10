@@ -9,7 +9,7 @@ export default function ProtectedRoute({ children }) {
   if (loading) return <p>Cargando...</p>; 
 
   if (!isAuth) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/loginAdmin" replace />;
   }
 
   return children;
