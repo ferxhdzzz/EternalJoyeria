@@ -39,9 +39,9 @@ export default function DetailProduct() {
       <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
       <Nav cartOpen={cartOpen} />
       <div style={{ height: '2.5rem' }} />
-      <div style={{ display: 'flex', gap: '1.5rem', margin: '6rem auto 3rem auto', maxWidth: 1200, alignItems: 'flex-start' }}>
+      <div className="detail-product-main" style={{ display: 'flex', gap: '1.5rem', margin: '6rem auto 3rem auto', maxWidth: 1200, alignItems: 'flex-start' }}>
         {/* Imagen principal */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+        <div className="detail-product-image-block" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
           <div style={{ background: '#fff', borderRadius: '2rem', boxShadow: '0 2px 16px #eee', padding: '2.5rem', marginBottom: '1.5rem', width: 400, height: 550, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
             <img
               className="detail-product-image"
@@ -81,7 +81,7 @@ export default function DetailProduct() {
           </div>
         </div>
         {/* Detalles del producto */}
-        <div style={{ flex: 1, minWidth: 320, maxWidth: 370, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'flex-start', marginLeft: 0, marginTop: '3.5rem' }}>
+        <div className="detail-product-details" style={{ flex: 1, minWidth: 320, maxWidth: 370, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'flex-start', marginLeft: 0, marginTop: '3.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', width: '100%', marginBottom: 8 }}>
             <div>
               <h2 style={{ fontSize: '1.35rem', fontWeight: 600, margin: 0, color: '#232323', letterSpacing: '-0.5px', lineHeight: 1.2 }}>{product.title}</h2>

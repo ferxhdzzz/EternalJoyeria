@@ -128,36 +128,6 @@ const Home = () => {
         transition: 'width 0.3s ease'
       }}></div>
 
-      {/* Navegación de secciones flotante */}
-      <div style={{
-        position: 'fixed',
-        right: '20px',
-        top: '50%',
-        transform: 'translateY(-50%)',
-        zIndex: 9999,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px'
-      }}>
-        {['hero', 'pitch', 'cards', 'reviews', 'how-it-works'].map((section) => (
-          <button
-            key={section}
-            onClick={() => scrollToSection(section)}
-            style={{
-              width: '12px',
-              height: '12px',
-              borderRadius: '50%',
-              border: 'none',
-              background: activeSection === section ? '#b94a6c' : '#ffd6de',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              transform: activeSection === section ? 'scale(1.5)' : 'scale(1)'
-            }}
-            title={section.charAt(0).toUpperCase() + section.slice(1)}
-          />
-        ))}
-      </div>
-
       <div 
         ref={(el) => sectionsRef.current.hero = el}
         style={getParallaxStyle(0.3)}
@@ -186,7 +156,7 @@ const Home = () => {
           transition: 'all 0.3s ease'
         }}
       >
-        <OverlayCards />
+        {/* <OverlayCards /> Eliminado por Codi */}
       </div>
       
       <div style={getParallaxStyle(0.2)}>

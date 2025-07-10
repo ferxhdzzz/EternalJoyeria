@@ -21,7 +21,11 @@ import DetailProduct from './pages/DetailProduct';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import CookiesPolicy from './pages/CookiesPolicy';
 import TermsPolicy from './pages/TermsPolicy';
-
+import PrivacyNotice from './pages/PrivacyNotice';
+import CategoriaCollares from './pages/CategoriaCollares';
+import CategoriaAretes from './pages/CategoriaAretes';
+import CategoriaConjuntos from './pages/CategoriaConjuntos';
+import CategoriaAnillos from './pages/CategoriaAnillos';
 
 
 // This is the main component of the application, which acts as a container for all other components.
@@ -52,6 +56,10 @@ function App() {
         <Route path="/sobre-nosotros" element={<AboutUs />} />
         <Route path="/productos" element={<Products />} />
         <Route path="/categoria" element={<Products />} />
+        <Route path="/categoria/collares" element={<CategoriaCollares />} />
+        <Route path="/categoria/aretes" element={<CategoriaAretes />} />
+        <Route path="/categoria/conjuntos" element={<CategoriaConjuntos />} />
+        <Route path="/categoria/anillos" element={<CategoriaAnillos />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/perfil" element={<Profile />} />
@@ -65,6 +73,7 @@ function App() {
         <Route path="/privacidad" element={<PrivacyPolicy />} />
         <Route path="/cookies" element={<CookiesPolicy />} />
         <Route path="/terminos" element={<TermsPolicy />} />
+        <Route path="/aviso-privacidad" element={<PrivacyNotice />} />
 
         {/* Define other routes here, e.g.:
         <Route path="/about" element={<About />} />

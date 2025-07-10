@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import './ContactUs.css';
-import TextInput from '../ui/Inputs/TextInput';
-import EmailInput from '../ui/Inputs/EmailInput';
-import TextareaInput from '../ui/Inputs/TextareaInput';
+import Input from '../registro/inpungroup/InputGroup';
 
 const ContactUs = () => {
   // Inicializa el estado para los datos del formulario
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    description: ''
+    phone: '',
+    subject: '',
+    description: '',
+    privacy: false
   });
 
   // Inicializa el estado para los errores de validación
@@ -20,8 +21,8 @@ const ContactUs = () => {
 
   // Maneja los cambios en los campos del formulario
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const { name, value, type, checked } = e.target;
+    setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
     
     // Limpiar errores cuando el usuario escribe
     if (errors[name]) {
@@ -41,11 +42,24 @@ const ContactUs = () => {
       newErrors.fullName = 'El nombre completo es obligatorio.';
     }
     
-    // Validación de email (la validación básica se hace en el componente EmailInput)
+    // Validación de email
     if (!formData.email.trim()) {
       newErrors.email = 'El correo electrónico es obligatorio.';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'El formato del correo electrónico no es válido.';
+    }
+
+    // Validación de teléfono (opcional, pero si se llena debe ser válido)
+    if (formData.phone.trim()) {
+      // Permite números, espacios, guiones y paréntesis, mínimo 8 dígitos
+      if (!/^[- +()0-9]{8,}$/.test(formData.phone.trim())) {
+        newErrors.phone = 'El teléfono debe ser válido (mínimo 8 dígitos, solo números y símbolos).';
+      }
+    }
+
+    // Validación de asunto
+    if (!formData.subject) {
+      newErrors.subject = 'Selecciona un asunto.';
     }
     
     // Validación de descripción
@@ -53,6 +67,11 @@ const ContactUs = () => {
       newErrors.description = 'La descripción es obligatoria.';
     } else if (formData.description.trim().length < 10) {
       newErrors.description = 'La descripción debe tener al menos 10 caracteres.';
+    }
+
+    // Validación de privacidad
+    if (!formData.privacy) {
+      newErrors.privacy = 'Debes aceptar el aviso de privacidad.';
     }
     
     setErrors(newErrors);
@@ -75,7 +94,10 @@ const ContactUs = () => {
         setFormData({
           fullName: '',
           email: '',
-          description: ''
+          phone: '',
+          subject: '',
+          description: '',
+          privacy: false
         });
         setSubmitSuccess(false);
       }, 3000);
@@ -86,43 +108,95 @@ const ContactUs = () => {
     <section className="contact-us-container">
       <div className="contact-us">
         <form className="contact-us__form" onSubmit={handleSubmit} noValidate>
-          <TextInput
+          <Input
             label="Nombre completo"
             name="fullName"
             value={formData.fullName}
             onChange={handleInputChange}
-            error={errors.fullName}
-            placeholder="Tu nombre completo"
           />
+          {errors.fullName && <p className="error-text">{errors.fullName}</p>}
           
-          <EmailInput
+          <Input
             label="Correo electrónico"
             name="email"
             value={formData.email}
             onChange={handleInputChange}
-            error={errors.email}
+            type="email"
           />
-          
-          <TextareaInput
-            label="Descripción"
+          {errors.email && <p className="error-text">{errors.email}</p>}
+
+          {/* Teléfono (opcional) */}
+          <Input
+            label="Teléfono (opcional)"
+            name="phone"
+            value={formData.phone}
+            onChange={handleInputChange}
+            type="tel"
+          />
+          {errors.phone && <p className="error-text">{errors.phone}</p>}
+
+          {/* Asunto (desplegable) */}
+          <div className="contact-us__form-group">
+            <label className="input-label" htmlFor="subject">Asunto</label>
+            <select
+              id="subject"
+              name="subject"
+              className="input"
+              value={formData.subject}
+              onChange={handleInputChange}
+              required
+              style={{ width: '100%' }}
+            >
+              <option value="">Selecciona una opción</option>
+              <option value="consulta">Consulta</option>
+              <option value="pedido">Pedido</option>
+              <option value="sugerencia">Sugerencia</option>
+              <option value="otro">Otro</option>
+            </select>
+            {errors.subject && <p className="error-text">{errors.subject}</p>}
+          </div>
+
+          <div className="input-wrapper">
+            <label className="input-label">Descripción</label>
+            <div className="input-container">
+              <textarea
             name="description"
             value={formData.description}
             onChange={handleInputChange}
-            error={errors.description}
+                className="input"
             placeholder="Cuéntanos cómo podemos ayudarte"
             maxLength={255}
-          />
+                style={{ minHeight: '80px', resize: 'none' }}
+              />
+            </div>
+            {errors.description && <p className="error-text">{errors.description}</p>}
+          </div>
+
+          {/* Checkbox de privacidad */}
+          <div className="contact-us__form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+            <input
+              type="checkbox"
+              id="privacy"
+              name="privacy"
+              checked={formData.privacy}
+              onChange={handleInputChange}
+              style={{ width: '18px', height: '18px' }}
+              required
+            />
+            <label htmlFor="privacy" style={{ fontSize: '0.95rem', color: '#b94a6c', fontWeight: 500, cursor: 'pointer', marginTop: '0.5rem' }}>
+              Acepto el <a href="/aviso-privacidad" target="_blank" rel="noopener noreferrer" style={{ color: '#b94a6c', textDecoration: 'underline' }}>aviso de privacidad</a>
+            </label>
+          </div>
+          {errors.privacy && <p className="error-text">{errors.privacy}</p>}
           
           <button type="submit" className="contact-us__submit-btn">
             Enviar
           </button>
-          
           {submitSuccess && (
             <p className="success-message">
               Mensaje enviado con éxito. ¡Gracias por contactarnos!
             </p>
           )}
-          
           <p className="contact-us__footer-text">
             Te contactaremos lo más pronto posible. Gracias por tus comentarios.
           </p>

@@ -7,15 +7,22 @@ import '../styles/Profile.css';
 import Footer from '../components/Footer';
 import '../styles/ProfileRedesign.css';
 
+// Página de perfil de usuario
 const Profile = () => {
+  // Estado para notificaciones
   const [notifications, setNotifications] = useState(true);
+  // Estado para la imagen de perfil
   const [profileImage, setProfileImage] = useState('/Perfil/foto-perfil.png');
+  // Estado para mostrar/ocultar el carrito
   const [cartOpen, setCartOpen] = useState(false);
+  // Estado para mostrar pantalla de carga
   const [isLoading, setIsLoading] = useState(true);
+  // Estado para saber qué campo se está editando
   const [editingField, setEditingField] = useState(null);
+  // Estado temporal para el valor editado
   const [tempValue, setTempValue] = useState('');
 
-  // Dummy data for demonstration
+  // Datos de usuario (simulados)
   const [user, setUser] = useState({
     name: 'Jennifer Teos',
     email: 't22jenn@gmail.com',
@@ -26,7 +33,7 @@ const Profile = () => {
     location: 'SV',
   });
 
-  // Simular carga inicial
+  // Simula la carga inicial (pantalla de loading)
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -34,6 +41,7 @@ const Profile = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Cambia la foto de perfil y muestra un pequeño efecto
   const handlePhotoChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -41,7 +49,7 @@ const Profile = () => {
       
       reader.onload = (event) => {
         setProfileImage(event.target.result);
-        // Efecto de éxito
+        // Efecto visual al actualizar la foto
         const btn = e.target.parentElement;
         btn.style.transform = 'scale(1.1)';
         setTimeout(() => {
@@ -53,11 +61,13 @@ const Profile = () => {
     }
   };
 
+  // Inicia la edición de un campo
   const handleEditClick = (field) => {
     setEditingField(field);
     setTempValue(user[field]);
   };
 
+  // Guarda el valor editado
   const handleSaveEdit = (field) => {
     setUser(prev => ({
       ...prev,
@@ -67,11 +77,13 @@ const Profile = () => {
     setTempValue('');
   };
 
+  // Cancela la edición
   const handleCancelEdit = () => {
     setEditingField(null);
     setTempValue('');
   };
 
+  // Permite guardar/cancelar con Enter/Escape
   const handleKeyPress = (e, field) => {
     if (e.key === 'Enter') {
       handleSaveEdit(field);
@@ -80,13 +92,14 @@ const Profile = () => {
     }
   };
 
+  // Cierra sesión con confirmación
   const handleLogout = () => {
-    // Efecto de confirmación antes de logout
     if (window.confirm('¿Estás seguro de que quieres desconectarte?')) {
       window.location.href = '/login';
     }
   };
 
+  // Renderiza un campo editable del perfil
   const renderField = (field, label, value, isPassword = false) => {
     const isEditing = editingField === field;
     
@@ -147,6 +160,7 @@ const Profile = () => {
     );
   };
 
+  // Muestra pantalla de carga mientras isLoading es true
   if (isLoading) {
     return (
       <div style={{
@@ -168,12 +182,15 @@ const Profile = () => {
     );
   }
 
+  // Render principal de la página de perfil
   return (
     <div>
       <Nav cartOpen={cartOpen} />
       <div className="profile-page" style={{minHeight: '100vh', background: '#fff', marginTop: '180px'}}>
+        {/* Barra rosa superior */}
         <div className="profile-bg-bar" style={{height: '80px', width: '1100px', maxWidth: '95vw', margin: '2rem auto 0 auto', background: '#eab5c5', borderRadius: '20px'}}></div>
         <div className="profile-redesign-container" style={{display: 'flex', gap: '2.5rem', justifyContent: 'center', alignItems: 'flex-start', marginTop: '-40px'}}>
+          {/* Card izquierda: datos personales */}
           <div className="profile-card left" style={{background: '#fff', borderRadius: '12px', boxShadow: '0 2px 12px #eab5c555', padding: '2.5rem 2rem', minWidth: 420, maxWidth: 520, minHeight: 420}}>
             <div className="profile-photo-section" style={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, gap: 18}}>
               <img 
@@ -201,11 +218,13 @@ const Profile = () => {
               {renderField('password', 'Tu contraseña', user.password, true)}
             </div>
           </div>
+          {/* Card derecha: configuraciones y acciones */}
           <div className="profile-card right" style={{background: '#fff', borderRadius: '12px', boxShadow: '0 2px 12px #eab5c555', padding: '2.5rem 2rem', minWidth: 420, maxWidth: 520, minHeight: 420}}>
             <div className="profile-settings-box">
               {renderField('language', 'Idioma', user.language)}
               {renderField('currency', 'Moneda', user.currency)}
               {renderField('location', 'Ubicacion', user.location)}
+              {/* Switch de notificaciones */}
               <div className="profile-settings-row" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12}}>
                 <div className="profile-info-label" style={{fontWeight: 500, fontSize: 14}}>Notificaciones</div>
                 <div className="checkbox-wrapper-5">
@@ -220,6 +239,7 @@ const Profile = () => {
                   </div>
                 </div>
               </div>
+              {/* Enlaces a políticas */}
               <div className="profile-settings-row" style={{marginBottom: 12}}>
                 <div className="profile-info-label" style={{fontWeight: 500, fontSize: 14, cursor: 'pointer'}} 
                      onClick={() => window.open('/privacy', '_blank')}>
@@ -232,6 +252,36 @@ const Profile = () => {
                   Términos y condiciones
                 </div>
               </div>
+              {/* Botón de historial de pedidos */}
+              <div className="profile-settings-row" style={{marginBottom: 12}}>
+                <button 
+                  className="order-history-btn" 
+                  style={{
+                    background: '#F0EFFA', 
+                    color: '#222', 
+                    border: 'none', 
+                    borderRadius: 8, 
+                    padding: '8px 16px', 
+                    fontWeight: 600, 
+                    fontSize: 14, 
+                    cursor: 'pointer',
+                    width: '100%',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = '#eab5c5';
+                    e.target.style.color = '#fff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = '#F0EFFA';
+                    e.target.style.color = '#222';
+                  }}
+                  onClick={() => window.location.href = '/historial'}
+                >
+                  📋 Historial de pedidos
+                </button>
+              </div>
+              {/* Botón para cerrar sesión */}
               <div className="profile-settings-row" style={{marginBottom: 12}}>
                 <button 
                   className="logout-btn" 

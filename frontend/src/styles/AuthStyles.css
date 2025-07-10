@@ -128,3 +128,33 @@ input:invalid ~ .error {
 .custom-button:active {
   transform: scale(0.97);
 }
+
+@media (max-width: 700px) {
+  .recover-card, .login-form {
+    max-width: 62vw;
+    padding: 1.2rem 0.5rem;
+    font-size: 0.95rem;
+  }
+  .recover-wrapper {
+    background-image: none !important;
+    overflow: hidden;
+  }
+  body {
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 480px) {
+  .recover-card, .login-form {
+    max-width: 80vw;
+    padding: 0.7rem 0.2rem;
+    font-size: 0.85rem;
+  }
+  .recover-wrapper {
+    background-image: none !important;
+    overflow: hidden;
+  }
+  body {
+    overflow: hidden;
+  }
+}

@@ -5,6 +5,7 @@ const EmailVerification = ({ nextStep, prevStep }) => {
     const [code, setCode] = useState(new Array(6).fill(""));
   const [isResendDisabled, setIsResendDisabled] = useState(false);
   const [timer, setTimer] = useState(0);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     let interval;
@@ -38,8 +39,15 @@ const EmailVerification = ({ nextStep, prevStep }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Validar que el código tenga 6 dígitos numéricos
+    const codeStr = code.join("");
+    if (!/^\d{6}$/.test(codeStr)) {
+      setError("El código debe tener exactamente 6 dígitos numéricos.");
+      return;
+    }
+    setError("");
     // Aquí se verificaría el código con el backend
-    console.log("Verifying code:", code.join(""));
+    console.log("Verifying code:", codeStr);
     nextStep();
   };
 
@@ -64,6 +72,7 @@ const EmailVerification = ({ nextStep, prevStep }) => {
             );
           })}
         </div>
+        {error && <p className="error-text" style={{textAlign:'center',marginTop:8}}>{error}</p>}
         <div className="resend-container">
           <button type="button" onClick={handleResendCode} disabled={isResendDisabled} className="resend-btn">
             {isResendDisabled ? `Enviar de nuevo en ${timer}s` : "Enviar código nuevamente"}
