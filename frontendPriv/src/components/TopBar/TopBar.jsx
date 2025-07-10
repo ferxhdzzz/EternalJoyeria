@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { FaSearch, FaBell, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
+import usePerfilAdmin from "../../hooks/Ajustes/useFetchAjustes";
 import './TopBar.css';
 
-const TopBar = ({ userName = "Yu Jimin", userImage = "/karinaaaaaa.jpg" }) => {
+const TopBar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { admin, loading } = usePerfilAdmin();
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
   return (
     <div className="topbar">
-      {/* Contenido normal para pantallas grandes */}
       <div className="topbar-right">
         <div className="search-box">
           <FaSearch className="search-icon" />
@@ -22,17 +23,19 @@ const TopBar = ({ userName = "Yu Jimin", userImage = "/karinaaaaaa.jpg" }) => {
         </div>
 
         <NavLink to="/ajustes" className="profile">
-          <img src={userImage} alt="Profile" className="profile-img" />
-          <span>{userName}</span>
+          <img
+            src={admin?.profilePicture || "/default-profile.jpg"}
+            alt="Profile"
+            className="profile-img"
+          />
+          <span>{admin?.name || "Cargando..."}</span>
         </NavLink>
       </div>
 
-      {/* Botón flechita para móviles */}
       <button className="hamburger-btn" onClick={toggleMenu} aria-label="Toggle menu">
         {menuOpen ? <FaChevronUp /> : <FaChevronDown />}
       </button>
 
-      {/* Menú desplegable para móviles */}
       {menuOpen && (
         <div className="mobile-menu">
           <div className="search-box mobile-search">
@@ -45,8 +48,12 @@ const TopBar = ({ userName = "Yu Jimin", userImage = "/karinaaaaaa.jpg" }) => {
           </div>
 
           <NavLink to="/ajustes" className="profile mobile-profile" onClick={() => setMenuOpen(false)}>
-            <img src={userImage} alt="Profile" className="profile-img" />
-            <span>{userName}</span>
+            <img
+              src={admin?.profilePicture || "/default-profile.jpg"}
+              alt="Profile"
+              className="profile-img"
+            />
+            <span>{admin?.name || "Cargando..."}</span>
           </NavLink>
         </div>
       )}

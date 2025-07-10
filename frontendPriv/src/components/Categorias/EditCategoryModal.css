@@ -1,0 +1,145 @@
+/* Fondo semitransparente blanco (más suave) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.85); /* blanco translúcido */
+  z-index: 999;
+   text-align: left; /* para que los textos no estén centrados */
+  padding-left: 60px; /* mueve el contenido un poco hacia la derecha */
+}
+
+/* Card modal centrada */
+.edit-modal-card {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff; /* fondo blanco sólido */
+  border-radius: 15px;
+  padding: 25px 30px;
+  width: 420px; /* un poco más ancho para inputs menores */
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centra horizontalmente todo */
+}
+
+/* Título */
+.modal-title {
+  text-align: center;
+  color: #000000;
+  margin-bottom: 15px;
+  font-weight: 700;
+    padding-left: 5px; /* opcional para que el título quede bien alineado */
+
+
+}
+
+/* Form */
+.edit-category-form label {
+  display: block;
+  margin-top: 10px;
+  font-weight: 600;
+  color: #000000;
+}
+
+/* Todos los inputs y textarea con ancho reducido */
+.edit-category-form input[type="text"],
+.edit-category-form textarea,
+.edit-category-form input[type="file"] {
+  width: 90%; /* un poco menos ancho para dejar espacio */
+  padding: 10px 15px;
+  margin-top: 5px;
+  border-radius: 25px;
+  border: 1.5px solid #000000;
+  font-size: 0.9rem;
+  color: #000000;
+  resize: vertical;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #fff;
+  text-align: left; /* texto alineado a la izquierda */
+  display: block;
+  margin-left: 5px; /* separa un poco del borde izquierdo */
+}
+
+/* Para que el input del nombre tenga estilo igual, debe usar las mismas clases */
+/* Si tienes input nombre sin clase, agrega la clase edit-category-form input[type="text"] */
+
+.edit-category-form textarea {
+  min-height: 60px;
+}
+
+.input-error {
+  border-color: #e03131;
+}
+
+/* Error message */
+.error {
+  color: #e03131;
+  font-size: 0.8rem;
+  margin-top: 3px;
+}
+
+/* Preview imagen */
+.image-preview-box {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #ad1457;
+}
+
+.preview-image {
+  margin-top: 5px;
+  max-width: 100%;
+  max-height: 150px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #f06292;
+  object-fit: contain;
+}
+
+/* Botones */
+.buttons-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.btn-primary {
+  background-color: #d6336c;
+  color: white;
+  padding: 8px 20px;
+  font-weight: 400; /* texto normal, sin negrita */
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #a82855;
+}
+
+.btn-primary:disabled {
+  background-color: #f8bbd0;
+  cursor: default;
+}
+
+.btn-secondary {
+  background-color: #f8bbd0;
+  color: #6b2a45;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 400; /* texto normal */
+  transition: background-color 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #e573a1;
+}

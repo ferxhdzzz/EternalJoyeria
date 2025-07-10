@@ -44,7 +44,7 @@ categoryController.getCategoryById = async (req, res) => {
   La imagen se sube a Cloudinary y se guarda su URL pública.
 */
 categoryController.createCategory = async (req, res) => {
-  const { name, description } = req.body;
+  const { name, description, image } = req.body;
 
   try {
     if (!name || !name.trim()) {
@@ -55,8 +55,8 @@ categoryController.createCategory = async (req, res) => {
       return res.status(400).json({ message: "Category description is required" });
     }
 
-    if (!req.file) {
-      return res.status(400).json({ message: "Category image is required" });
+    if (!image || !image.trim()) {
+      return res.status(400).json({ message: "Category image URL is required" });
     }
 
     const existing = await Category.findOne({ name: name.trim() });
@@ -64,26 +64,17 @@ categoryController.createCategory = async (req, res) => {
       return res.status(400).json({ message: "A category with that name already exists" });
     }
 
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: "categorys",
-      allowed_formats: ["png", "jpg", "jpeg"],
-      transformation: [
-        { width: 600, height: 600, crop: "fill" },
-        { quality: "auto" }
-      ]
-    });
-
     const newCategory = new Category({
       name: name.trim(),
       description: description.trim(),
-      image: result.secure_url
+      image: image.trim(), // ✅ usa la imagen subida desde el frontend
     });
 
     const savedCategory = await newCategory.save();
 
     res.status(201).json({
       message: "Category created successfully",
-      category: savedCategory
+      category: savedCategory,
     });
   } catch (error) {
     console.error("Error creating category:", error);
@@ -121,18 +112,19 @@ categoryController.updateCategory = async (req, res) => {
     category.name = name.trim();
     category.description = description.trim();
 
-    if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: "categorys",
-        allowed_formats: ["png", "jpg", "jpeg"],
-        transformation: [
-          { width: 600, height: 600, crop: "fill" },
-          { quality: "auto" }
-        ]
-      });
-      category.image = result.secure_url;
-    }
-
+  if (req.file) {
+  const result = await cloudinary.uploader.upload(req.file.path, {
+    folder: "categorys",
+    allowed_formats: ["png", "jpg", "jpeg"],
+    transformation: [
+      { width: 600, height: 600, crop: "fill" },
+      { quality: "auto" }
+    ]
+  });
+  category.image = result.secure_url;
+} else if (req.body.image) {
+  category.image = req.body.image; // 👈 USA la URL que ya subiste desde el frontend
+}
     const updatedCategory = await category.save();
 
     res.status(200).json({

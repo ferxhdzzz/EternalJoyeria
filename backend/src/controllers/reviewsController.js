@@ -1,12 +1,10 @@
-// backend/src/controllers/reviewsController.js
-
 import Review from "../models/Reviews.js";
 import Customer from "../models/Customers.js";
 import Product from "../models/Products.js";
 
 const reviewsController = {};
 
-// GET: Obtener todas las reviews
+// Obtener todas las reseñas
 reviewsController.getReviews = async (req, res) => {
   try {
     const reviews = await Review.find()
@@ -22,7 +20,7 @@ reviewsController.getReviews = async (req, res) => {
   }
 };
 
-// GET: Obtener una review por ID
+// Obtener una reseña por ID
 reviewsController.getReview = async (req, res) => {
   try {
     const review = await Review.findById(req.params.id)
@@ -42,7 +40,7 @@ reviewsController.getReview = async (req, res) => {
   }
 };
 
-// GET: Obtener todas las reviews de un producto específico
+// Obtener todas las reseñas de un producto específico
 reviewsController.getReviewsByProduct = async (req, res) => {
   const { id } = req.params;
 
@@ -64,11 +62,21 @@ reviewsController.getReviewsByProduct = async (req, res) => {
   }
 };
 
-// POST: Crear una nueva review
+// Crear una nueva reseña
 reviewsController.createReview = async (req, res) => {
   const { id_customer, id_product, rank, comment } = req.body;
 
   try {
+    // Validar campos obligatorios
+    if (!id_customer || !id_product || rank == null || !comment?.trim()) {
+      return res.status(400).json({ message: "All fields are required: customer, product, rank, comment" });
+    }
+
+    if (rank < 1 || rank > 5) {
+      return res.status(400).json({ message: "Rank must be between 1 and 5" });
+    }
+
+    // Validar existencia de cliente y producto
     const customer = await Customer.findById(id_customer);
     if (!customer) {
       return res.status(404).json({ message: "Customer not found" });
@@ -79,11 +87,12 @@ reviewsController.createReview = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
+    // Crear reseña
     const newReview = new Review({
       id_customer,
       id_product,
       rank,
-      comment,
+      comment: comment.trim(),
     });
 
     const savedReview = await newReview.save();
@@ -101,7 +110,7 @@ reviewsController.createReview = async (req, res) => {
   }
 };
 
-// PUT: Actualizar una review existente
+// Actualizar reseña
 reviewsController.updateReview = async (req, res) => {
   const { rank, comment } = req.body;
 
@@ -111,8 +120,21 @@ reviewsController.updateReview = async (req, res) => {
       return res.status(404).json({ message: "Review not found" });
     }
 
-    if (rank !== undefined) review.rank = rank;
-    if (comment !== undefined) review.comment = comment;
+    // Validar rank si se envía
+    if (rank !== undefined) {
+      if (rank < 1 || rank > 5) {
+        return res.status(400).json({ message: "Rank must be between 1 and 5" });
+      }
+      review.rank = rank;
+    }
+
+    // Validar comment si se envía
+    if (comment !== undefined) {
+      if (!comment.trim()) {
+        return res.status(400).json({ message: "Comment cannot be empty" });
+      }
+      review.comment = comment.trim();
+    }
 
     const updatedReview = await review.save();
 
@@ -129,7 +151,7 @@ reviewsController.updateReview = async (req, res) => {
   }
 };
 
-// DELETE: Eliminar una review
+// Eliminar reseña
 reviewsController.deleteReview = async (req, res) => {
   try {
     const deletedReview = await Review.findByIdAndDelete(req.params.id);

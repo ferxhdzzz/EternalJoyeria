@@ -1,9 +1,11 @@
-import React from 'react';
-import './Button.css';
+import React from "react";
+import "./Button.css";
 
-const Button = ({ text }) => {
+const Button = ({ text, type = "button" }) => {
   return (
-    <button className="main-button">{text}</button>
+    <button type={type} className="main-button">
+      {text}
+    </button>
   );
 };
 
