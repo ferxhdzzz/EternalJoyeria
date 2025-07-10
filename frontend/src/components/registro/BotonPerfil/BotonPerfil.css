@@ -21,3 +21,35 @@
 .boton-perfil:hover {
   opacity: 0.9;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .botones-contenedor {
+    margin-top: 16px;
+    padding: 0 16px;
+    margin-bottom: 40px;
+  }
+  
+  .boton-perfil {
+    padding: 8px 16px;
+    font-size: 13px;
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .botones-contenedor {
+    margin-top: 12px;
+    padding: 0 12px;
+    margin-bottom: 30px;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .boton-perfil {
+    padding: 6px 12px;
+    font-size: 12px;
+    min-width: auto;
+    width: 100%;
+  }
+}

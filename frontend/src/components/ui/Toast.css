@@ -1,0 +1,25 @@
+.toast-pastel {
+  position: fixed;
+  top: 2.2rem;
+  right: 2.2rem;
+  min-width: 220px;
+  max-width: 320px;
+  background: linear-gradient(90deg, #ffe4e7 60%, #ffd6de 100%);
+  color: #b94a6c;
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-size: 1.08rem;
+  font-weight: 700;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(185,74,108,0.10);
+  padding: 1.1rem 2.2rem 1.1rem 1.5rem;
+  opacity: 0;
+  transform: translateY(-30px) scale(0.98);
+  pointer-events: none;
+  z-index: 99999;
+  transition: opacity 0.32s cubic-bezier(.77,0,.18,1), transform 0.32s cubic-bezier(.77,0,.18,1);
+}
+.toast-pastel.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: all;
+} 

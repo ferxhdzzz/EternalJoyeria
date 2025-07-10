@@ -17,25 +17,15 @@ const ProductShowcase = () => (
       {/* A section for the descriptive text. */}
       <div className="text-section">
         {/* The main headline for the showcase. */}
-        <h2>Las mejores ofertas</h2>
-        {/* A paragraph providing more details about the offers. */}
-        <p>Disfruta de nuestras ofertas más exclusivas del momento.</p>
+        <h2>The Bloom Journal</h2>
+        <p>Discover expert insights, mindful tips, and guided practices to help you find balance and inner peace—one breath at a time.</p>
       </div>
       {/* A container for the showcased products. */}
       <div className="products">
         {/* Maps over the 'products' array to display each product. */}
         {products.map(({ id, name, price, img }) => (
-          // A container for a single product. The 'key' is crucial for React's rendering.
           <div key={id} className="product">
-            {/* The product image. */}
             <img src={img} alt={name} />
-            {/* A container for the product's information. */}
-            <div className="product-info">
-              {/* The product name. */}
-              <h4>{name}</h4>
-              {/* The product price. */}
-              <span>{price}</span>
-            </div>
           </div>
         ))}
       </div>

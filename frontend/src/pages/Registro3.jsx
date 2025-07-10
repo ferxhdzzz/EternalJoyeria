@@ -22,7 +22,7 @@ const RegistroPaso2 = () => {
   };
 
   return (
-    <div className="recover-wrapper" style={{ backgroundImage: `url("/registeeer.png")`, backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}>
+    <div className="recover-wrapper" style={{ backgroundImage: `url("/Registro/registeeer.png")`, backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}>
       <div className="recover-card">
         <BackArrow to="/registro2" />
         <Logo />

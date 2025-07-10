@@ -37,7 +37,7 @@ const MissionAndVision = () => {
       {/* This container holds the decorative image for the section. */}
       <div className="mission-vision__image-container">
         {/* The <img> element itself, with a descriptive alt text for accessibility. */}
-        <img src="/MisionAndVisionImage.png" alt="Modelo con joyas de EternalJoyeria" />
+        <img src="/AboutUs/MisionAndVisionImage.png" alt="Modelo con joyas de EternalJoyeria" />
       </div>
     </section>
   );

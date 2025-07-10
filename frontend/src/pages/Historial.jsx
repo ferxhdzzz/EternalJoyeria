@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Nav from '../components/Nav/Nav';
 import HistorialItem from '../components/Historial/HistorialItem';
+import SidebarCart from '../components/Cart/SidebarCart';
 import '../components/Cart/CartPage.css'; // Re-using cart styles for now
 import Footer from '../components/Footer';
 
@@ -51,10 +52,12 @@ const initialProducts = [
 
 const HistorialPage = () => {
   const [products] = useState(initialProducts);
+  const [cartOpen, setCartOpen] = useState(false);
 
   return (
     <>
-      <Nav />
+      <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+      <Nav cartOpen={cartOpen} />
       <div className="cart-page">
         <div className="cart-container">
           <h2>Tus compras realizadas</h2>

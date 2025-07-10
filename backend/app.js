@@ -16,6 +16,13 @@ import salesRoutes from "./src/routes/sales.js";
 import ordersRoutes from "./src/routes/orders.js";
 import adminRoutes from "./src/routes/Administrator.js";
 
+
+
+import { validateAuthToken } from "./src/middlewares/validateAuthToken.js";
+
+
+// Creo una constante que es igual a la libreria que importé
+
 const app = express();
 
 // ✅ Configurar CORS para permitir cookies entre frontend y backend
@@ -29,6 +36,7 @@ app.use(
 // ✅ Middleware para parsear JSON y cookies
 app.use(express.json());
 app.use(cookieParser());
+
 
 // ✅ Configurar express-session
 app.use(
@@ -45,17 +53,28 @@ app.use(
   })
 );
 
-// ✅ Rutas
-app.use("/api/customers", customersRoutes);
-app.use("/api/categories", categoriesRouters);
+
+// Definir las rutas de las funciones que tendrá la página web
+// Rutas públicas (sin autenticación)
+
 app.use("/api/login", loginRoutes);
 app.use("/api/logout", logoutRoutes);
 app.use("/api/recoveryPassword", recoveryPasswordRoutes);
-app.use("/api/products", productsRoutes);
 app.use("/api/registerClients", registerCustomersRoutes);
-app.use("/api/admins", adminRoutes);
-app.use("/api/reviews", reviewsRouter);
-app.use("/api/sales", salesRoutes);
-app.use("/api/orders", ordersRoutes);
+
+
+
+// Rutas protegidas
+app.use("/api/customers", validateAuthToken(['admin', 'customer']), customersRoutes);
+app.use("/api/categories", validateAuthToken(['admin', 'customer']), categoriesRouters);
+app.use("/api/products", validateAuthToken(['admin', 'customer']), productsRoutes);
+app.use("/api/admins", validateAuthToken(['admin']), adminRoutes);
+app.use("/api/reviews", validateAuthToken(['admin', 'customer']), reviewsRouter);
+app.use("/api/sales", validateAuthToken(['admin']), salesRoutes);
+app.use("/api/orders", validateAuthToken(['admin', 'customer']), ordersRoutes);
+
+
+
+
 
 export default app;
