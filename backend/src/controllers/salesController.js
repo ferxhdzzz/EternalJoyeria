@@ -1,4 +1,5 @@
 import Sale from "../models/sales.js";
+import Order from "../models/Orders.js";
 
 const salesController = {};
 
@@ -37,7 +38,15 @@ salesController.createSale = async (req, res) => {
 // READ: Obtener todas las ventas con status de la orden
 salesController.getSales = async (req, res) => {
   try {
-    const allSales = await Sale.find().populate("idOrder", "status total");
+    const allSales = await Sale.find()
+      .populate({
+        path: "idOrder",
+        populate: [
+          { path: "idCustomer", select: "firstName lastName email" },
+          { path: "products.productId", select: "name" }
+        ],
+        select: "status total products idCustomer"
+      });
     res.json(allSales);
   } catch (error) {
     res.status(500).json({ message: "Error fetching sales", error: error.message });
@@ -62,25 +71,31 @@ salesController.getSale = async (req, res) => {
 // UPDATE: Actualizar una venta
 salesController.updateSale = async (req, res) => {
   try {
-    const { idOrder, address } = req.body;
+    const { status, address } = req.body; // status es para la orden, address para la venta
 
-    const updatedData = {};
-    if (idOrder) updatedData.idOrder = idOrder;
-    if (address) updatedData.address = address;
-
-    const updatedSale = await Sale.findByIdAndUpdate(
-      req.params.id,
-      updatedData,
-      { new: true }
-    ).populate("idOrder", "status total");
-
-    if (!updatedSale) {
+    const sale = await Sale.findById(req.params.id);
+    if (!sale) {
       return res.status(404).json({ message: "Venta no encontrada" });
     }
 
+    // Actualizar el status de la orden si viene en el body
+    if (status) {
+      // Actualizamos directamente el documento Order referenciado
+      await Order.findByIdAndUpdate(sale.idOrder, { status: status });
+    }
+
+    // Actualizar la dirección en la venta
+    if (address) {
+      sale.address = address;
+      await sale.save();
+    }
+
+    // Recuperar la venta poblada con la orden actualizada
+    const populatedSale = await Sale.findById(sale._id).populate("idOrder", "status total");
+
     res.json({
       message: "Venta actualizada correctamente",
-      sale: updatedSale
+      sale: populatedSale
     });
 
   } catch (error) {

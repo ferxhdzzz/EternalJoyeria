@@ -1,32 +1,133 @@
-.products-private-page-containers {
+.dashboard-container {
   display: flex;
-  height: 100vh;
-  background-color: #FFF3F2;
-  overflow: hidden;
+  min-height: 100vh;
+  background-color: #fefaf8;
 }
 
-.sidebar-privates {
-  height: 100vh;
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.products-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.products-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.products-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+/* CARD del producto */
+.product-card {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  padding: 1rem;
+  gap: 1.5rem;
+  min-height: 200px;
+  transition: transform 0.2s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+}
+
+.product-image {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 0.8rem;
   flex-shrink: 0;
 }
 
-.main-content-wrappers {
+.product-details {
   flex: 1;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  position: relative;
-  padding-top: 14px;
+  justify-content: space-between;
+  height: 100%;
 }
 
-.main-content-privates {
-  flex-grow: 1;
+.product-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #444;
+  margin-bottom: 0.5rem;
+}
+
+.product-description {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+.product-price {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+
+.product-actions {
   display: flex;
-  flex-direction: column;
-  padding: 20px;
-  
+  gap: 1rem;
+  flex-wrap: wrap;       
+  justify-content: flex-start; 
 }
 
-.products-area-privates {
-  flex-grow: 1;
+.product-actions button {
+  flex: 1 1 120px;     
+  max-width: 150px;      
+  padding: 0.5rem 1.2rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  border: none;
+  background-color: #f8d5e2;
+  color: #333;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  text-align: center;
+}
+
+.product-actions button:hover {
+  background-color: #f4c1d2;
+}
+
+.product-actions button:nth-child(2) {
+  background-color: #eed7d7;
+}
+
+.product-actions button:nth-child(2):hover {
+  background-color: #e0bbbb;
+}
+
+/* Responsivo simple */
+@media (max-width: 480px) {
+  .product-actions {
+    justify-content: center; 
+  }
+
+  .product-actions button {
+    max-width: 100%;         
+  }
+}
+
+/* Mensaje sin productos */
+.no-products-message {
+  text-align: center;
+  font-size: 1.1rem;
+  padding: 2rem;
+  color: #777;
 }

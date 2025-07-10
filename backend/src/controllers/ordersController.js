@@ -1,5 +1,6 @@
 import Order from "../models/Orders.js";
 import Product from "../models/Products.js";
+import Customer from "../models/Customers.js";
 
 const ordersController = {};
 
@@ -7,6 +8,12 @@ const ordersController = {};
 ordersController.createOrder = async (req, res) => {
   try {
     const { idCustomer, products } = req.body;
+
+    // Validar que el cliente exista
+    const customerExists = await Customer.findById(idCustomer);
+    if (!customerExists) {
+      return res.status(400).json({ message: "Cliente no encontrado" });
+    }
 
     let total = 0;
 
@@ -24,7 +31,7 @@ ordersController.createOrder = async (req, res) => {
         return {
           productId: item.productId,
           quantity: item.quantity,
-          subtotal: subtotal,
+          subtotal,
         };
       })
     );
@@ -33,7 +40,7 @@ ordersController.createOrder = async (req, res) => {
       idCustomer,
       products: productsWithSubtotal,
       total,
-      status: "no pagado", // por defecto
+      status: "no pagado",
     });
 
     await newOrder.save();
@@ -47,12 +54,13 @@ ordersController.createOrder = async (req, res) => {
   }
 };
 
-// READ ALL: Obtener todas las órdenes
+// READ ALL: Obtener todas las órdenes con datos específicos
 ordersController.getOrders = async (req, res) => {
   try {
     const orders = await Order.find()
-      .populate("idCustomer")
-      .populate("products.productId");
+      .populate("idCustomer", "firstName lastName email")
+      .populate("products.productId", "name price discountPercentage finalPrice");
+
     res.json(orders);
   } catch (error) {
     res.status(500).json({
@@ -62,12 +70,12 @@ ordersController.getOrders = async (req, res) => {
   }
 };
 
-// READ ONE: Obtener una orden por ID
+// READ ONE: Obtener una orden por ID con datos específicos
 ordersController.getOrder = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
-      .populate("idCustomer")
-      .populate("products.productId");
+      .populate("idCustomer", "firstName lastName email")
+      .populate("products.productId", "name price discountPercentage finalPrice");
 
     if (!order) {
       return res.status(404).json({ message: "Orden no encontrada" });
@@ -82,13 +90,24 @@ ordersController.getOrder = async (req, res) => {
   }
 };
 
-// UPDATE: Actualizar una orden y recalcular subtotal y total
+// UPDATE: Actualizar solo el estado (o productos y cliente si quieres)
 ordersController.updateOrder = async (req, res) => {
   try {
     const { idCustomer, products, status } = req.body;
 
     let total = 0;
     let productsWithSubtotal = [];
+
+    // Validar que el cliente exista si se actualiza
+    const updatedData = {};
+
+    if (idCustomer) {
+      const customerExists = await Customer.findById(idCustomer);
+      if (!customerExists) {
+        return res.status(400).json({ message: "Cliente no encontrado" });
+      }
+      updatedData.idCustomer = idCustomer;
+    }
 
     if (products && products.length > 0) {
       productsWithSubtotal = await Promise.all(
@@ -105,18 +124,14 @@ ordersController.updateOrder = async (req, res) => {
           return {
             productId: item.productId,
             quantity: item.quantity,
-            subtotal: subtotal,
+            subtotal,
           };
         })
       );
-    }
-
-    const updatedData = {};
-    if (idCustomer) updatedData.idCustomer = idCustomer;
-    if (productsWithSubtotal.length > 0) {
       updatedData.products = productsWithSubtotal;
       updatedData.total = total;
     }
+
     if (status && ["pagado", "no pagado"].includes(status)) {
       updatedData.status = status;
     }
@@ -125,13 +140,18 @@ ordersController.updateOrder = async (req, res) => {
       req.params.id,
       updatedData,
       { new: true }
-    );
+    )
+      .populate("idCustomer", "firstName lastName email")
+      .populate("products.productId", "name price discountPercentage finalPrice");
 
     if (!updatedOrder) {
       return res.status(404).json({ message: "Orden no encontrada" });
     }
 
-    res.json(updatedOrder);
+    res.json({
+      message: "Orden actualizada correctamente",
+      order: updatedOrder,
+    });
 
   } catch (error) {
     res.status(400).json({
@@ -166,7 +186,9 @@ ordersController.markAsPaid = async (req, res) => {
       req.params.id,
       { status: "pagado" },
       { new: true }
-    );
+    )
+      .populate("idCustomer", "firstName lastName email")
+      .populate("products.productId", "name price discountPercentage finalPrice");
 
     if (!updatedOrder) {
       return res.status(404).json({ message: "Orden no encontrada" });
