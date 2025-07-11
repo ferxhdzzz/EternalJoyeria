@@ -9,7 +9,9 @@ const useFetchProduct = () => {
 
   const getProducts = async () => {
     try {
-      const { data } = await axios.get(API_URL);
+      const { data } = await axios.get(API_URL, {
+        withCredentials: true, // ← incluye cookies de sesión
+      });
       setProducts(data);
     } catch (error) {
       console.error("Error al obtener productos:", error.message);

@@ -9,7 +9,9 @@ export function useAddProduct() {
   const addProduct = async (productData) => {
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:4000/api/products", productData);
+      const response = await axios.post("http://localhost:4000/api/products", productData, {
+        withCredentials: true, // ← incluir cookies de sesión
+      });
       toast.success("Producto agregado correctamente");
       return response.data;
     } catch (error) {

@@ -10,7 +10,9 @@ export const useDataProduct = () => {
 
   const fetchProducts = async () => {
     try {
-      const { data } = await axios.get(API_URL);
+      const { data } = await axios.get(API_URL, {
+        withCredentials: true, // ← incluye cookies de sesión
+      });
       setProducts(data);
     } catch (error) {
       const message = error?.response?.data?.message || error.message || "Error desconocido";
@@ -20,7 +22,9 @@ export const useDataProduct = () => {
 
   const deleteProduct = async (id) => {
     try {
-      await axios.delete(`${API_URL}/${id}`);
+      await axios.delete(`${API_URL}/${id}`, {
+        withCredentials: true, // ← incluye cookies de sesión
+      });
       toast.success("Producto eliminado correctamente");
       fetchProducts();
     } catch (error) {
@@ -42,6 +46,7 @@ export const useDataProduct = () => {
 
       await axios.put(`${API_URL}/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true, // ← incluye cookies de sesión
       });
 
       toast.success("Producto actualizado correctamente");
@@ -65,6 +70,7 @@ export const useDataProduct = () => {
 
       await axios.post(API_URL, formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true, // ← incluye cookies de sesión
       });
 
       toast.success("Producto creado exitosamente");

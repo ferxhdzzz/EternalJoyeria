@@ -8,7 +8,9 @@ const ProductsManager = () => {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch("http://localhost:4000/api/products");
+      const res = await fetch("http://localhost:4000/api/products", {
+        credentials: "include", // ← incluye cookies de sesión
+      });
       const data = await res.json();
       setProducts(data);
     } catch (err) {

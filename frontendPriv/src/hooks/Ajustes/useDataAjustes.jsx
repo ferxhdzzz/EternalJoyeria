@@ -14,7 +14,6 @@ const uploadImage = async (file) => {
       method: "POST",
 
 
-      credentials: "include",
 
       body: formData,
     });

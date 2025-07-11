@@ -10,7 +10,9 @@ const EditSale = ({ saleId, onClose, onSave }) => {
   useEffect(() => {
     async function fetchSale() {
       try {
-        const res = await fetch(`http://localhost:4000/api/sales/${saleId}`);
+        const res = await fetch(`http://localhost:4000/api/sales/${saleId}`, {
+          credentials: "include", // ← incluye cookies de sesión
+        });
         const data = await res.json();
         const status = data?.idOrder?.status || "pendiente";
         setValue("status", status);
@@ -28,6 +30,7 @@ const EditSale = ({ saleId, onClose, onSave }) => {
       const response = await fetch(`http://localhost:4000/api/sales/${saleId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // ← incluye cookies de sesión
         body: JSON.stringify({ status: data.status }),
       });
 
@@ -37,7 +40,6 @@ const EditSale = ({ saleId, onClose, onSave }) => {
 
       toast.success("Estado de la venta actualizado correctamente");
 
-      // Esperar 1 segundo para que se vea la alerta antes de cerrar
       setTimeout(() => {
         if (onSave) onSave();
         onClose();

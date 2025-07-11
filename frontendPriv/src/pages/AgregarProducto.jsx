@@ -25,21 +25,23 @@ export default function AddProductPage() {
     images: [],
   });
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await axios.get("http://localhost:4000/api/categories");
-        const data = res.data;
-        const categoriesArray = Array.isArray(data) ? data : data.categories || [];
-        setCategories(categoriesArray);
-      } catch (error) {
-        console.error("Error al obtener categorías:", error);
-        setCategories([]);
-      }
-    };
+ useEffect(() => {
+  const fetchCategories = async () => {
+    try {
+      const res = await axios.get("http://localhost:4000/api/categories", {
+        withCredentials: true, // <-- para enviar cookies
+      });
+      const data = res.data;
+      const categoriesArray = Array.isArray(data) ? data : data.categories || [];
+      setCategories(categoriesArray);
+    } catch (error) {
+      console.error("Error al obtener categorías:", error);
+      setCategories([]);
+    }
+  };
 
-    fetchCategories();
-  }, []);
+  fetchCategories();
+}, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

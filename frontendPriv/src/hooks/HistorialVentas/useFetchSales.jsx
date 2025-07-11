@@ -9,13 +9,14 @@ const useFetchSales = () => {
     setLoading(true);
     const controller = new AbortController();
     try {
-      console.log("Haciendo fetch a sales..."); 
+      console.log("Haciendo fetch a sales...");
       const response = await fetch("http://localhost:4000/api/sales", {
         signal: controller.signal,
+        credentials: "include", // ← incluir cookies de sesión
       });
       if (!response.ok) throw new Error("Error al obtener ventas");
       const data = await response.json();
-      console.log("Data recibida:", data); 
+      console.log("Data recibida:", data);
       setSales(Array.isArray(data) ? data : []);
     } catch (error) {
       if (error.name !== "AbortError") {
@@ -31,7 +32,9 @@ const useFetchSales = () => {
 
   const getSaleById = async (id) => {
     try {
-      const response = await fetch(`http://localhost:4000/api/sales/${id}`);
+      const response = await fetch(`http://localhost:4000/api/sales/${id}`, {
+        credentials: "include", // ← incluir cookies de sesión
+      });
       if (!response.ok) throw new Error("Error al obtener venta por ID");
       const data = await response.json();
       return data;

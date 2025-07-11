@@ -5,19 +5,19 @@ const useSaleActions = (getSales) => {
   const navigate = useNavigate();
 
   const deleteSale = async (id) => {
-    // Confirmación antes de eliminar
     const confirmDelete = window.confirm("¿Estás seguro de eliminar esta venta?");
-    if (!confirmDelete) {
-      return;
-    }
+    if (!confirmDelete) return;
 
     try {
       const response = await fetch(`http://localhost:4000/api/sales/${id}`, {
         method: "DELETE",
+        credentials: "include", // ← incluir cookies de sesión
       });
+
       if (!response.ok) {
         throw new Error("Error al eliminar venta");
       }
+
       toast.success("Venta eliminada exitosamente");
     } catch (error) {
       console.error("Error al eliminar venta:", error);
@@ -28,7 +28,7 @@ const useSaleActions = (getSales) => {
   };
 
   const handleUpdateSale = (id) => {
-    navigate(`/historial-compras/${id}`);
+    navigate(`/HistorialCompras/${id}`);
   };
 
   return {

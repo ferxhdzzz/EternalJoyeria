@@ -15,7 +15,9 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
   useEffect(() => {
     const loadProduct = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/api/products/${productId}`);
+        const res = await fetch(`http://localhost:4000/api/products/${productId}`, {
+          credentials: "include", // ← enviar cookies de sesión
+        });
         if (!res.ok) throw new Error("Error al cargar el producto");
         const data = await res.json();
         setFormData({
@@ -46,6 +48,7 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
       const response = await fetch(`http://localhost:4000/api/products/${productId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // ← enviar cookies de sesión
         body: JSON.stringify(formData),
       });
 
@@ -56,7 +59,6 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
       toast.success("Producto actualizado correctamente");
 
       await refreshProducts();
-
       onClose();
     } catch (err) {
       console.error("Error al actualizar producto:", err);

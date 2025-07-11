@@ -16,8 +16,12 @@ const useDataSales = (methods) => {
 
   const getSaleById = async (id) => {
     try {
-      const response = await fetch(`http://localhost:4000/api/sales/${id}`);
+      const response = await fetch(`http://localhost:4000/api/sales/${id}`, {
+        credentials: "include", // ← incluir cookies de sesión
+      });
+
       if (!response.ok) throw new Error("Error al obtener venta por ID");
+
       const data = await response.json();
       return data;
     } catch (error) {
@@ -38,13 +42,14 @@ const useDataSales = (methods) => {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // ← incluir cookies de sesión
         body: JSON.stringify(cleanedData),
       });
 
       if (!response.ok) throw new Error("Error al actualizar venta");
 
       toast.success("Estado de venta actualizado exitosamente");
-      navigate("/historial-compras");
+      navigate("/HistorialCompras");
     } catch (error) {
       console.error("Error al actualizar venta:", error);
       toast.error("Error al actualizar venta");
