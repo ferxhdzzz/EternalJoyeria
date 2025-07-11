@@ -24,13 +24,28 @@
 }
 
 .error {
-  color: #e75480;
-  font-size: 13px;
-  margin-top: 2px;
-  margin-bottom: 12px;
-  opacity: 0;
-  transform: translateY(-8px);
-  transition: opacity 0.18s, transform 0.18s;
+  color: #b94a6c;
+  background: #ffe3e6;
+  border-radius: 8px;
+  padding: 6px 12px;
+  margin: 6px 0 18px 0;
+  font-size: 0.98rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(185,74,108,0.06);
+}
+
+/* Espaciado extra para error debajo de inputs */
+.input-group-eye + .error,
+input + .error,
+textarea + .error {
+  margin-bottom: 18px;
+}
+
+/* Espaciado para el botón principal */
+.button-container {
+  margin-top: 18px;
 }
 
 .error-visible {
@@ -127,6 +142,18 @@ input:invalid ~ .error {
 }
 .custom-button:active {
   transform: scale(0.97);
+}
+
+.swal2-title-custom {
+  color: #b94a6c !important;
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-weight: 700;
+}
+
+.swal2-popup-custom {
+  border-radius: 18px !important;
+  box-shadow: 0 8px 32px rgba(185,74,108,0.10) !important;
+  font-family: 'DM Sans', Arial, sans-serif;
 }
 
 @media (max-width: 700px) {

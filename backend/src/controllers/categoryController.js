@@ -115,7 +115,7 @@ categoryController.updateCategory = async (req, res) => {
   if (req.file) {
   const result = await cloudinary.uploader.upload(req.file.path, {
     folder: "categorys",
-    allowed_formats: ["png", "jpg", "jpeg"],
+    allowed_formats: ["png", "jpg", "jpeg", "PNG"],
     transformation: [
       { width: 600, height: 600, crop: "fill" },
       { quality: "auto" }

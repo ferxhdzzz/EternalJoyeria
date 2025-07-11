@@ -64,6 +64,23 @@ const handleChange = (e) => {
     const handleSubmit = () => {
     if (validateStep2()) {
       nextStep();
+    } else {
+      // Alerta visual si hay errores
+      let mensaje = '';
+      if (errors.email) mensaje += `${errors.email} <br>`;
+      if (errors.contra) mensaje += `${errors.contra} <br>`;
+      if (errors.phone) mensaje += `${errors.phone}`;
+      window.Swal && window.Swal.fire({
+        title: 'Datos inválidos',
+        html: mensaje,
+        icon: 'error',
+        confirmButtonColor: '#b94a6c',
+        background: '#fff',
+        customClass: {
+          title: 'swal2-title-custom',
+          popup: 'swal2-popup-custom',
+        }
+      });
     }
   };
 

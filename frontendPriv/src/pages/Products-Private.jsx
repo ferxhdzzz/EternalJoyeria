@@ -1,75 +1,138 @@
-import React from 'react';
-import SidebarPrivate from '../components/Sidebar/Sidebar';
-import TopNavbarPrivate from '../components/TopBar/TopBar';
-import ProductGridPrivate from '../components/Products-Private/ProductGrid-Private';
-import '../styles/PaginaProduct.css';
+import React, { useState } from "react";
+import Titulo from "../components/Componte-hook/Titulos";
+import SubTitulo from "../components/Componte-hook/SubTitulo";
+import Button from "../components/Componte-hook/Button";
+import Sidebar from "../components/Sidebar/Sidebar";
+import Topbar from "../components/TopBar/TopBar";
 
-const ProductsPrivate = () => {
- const productsData = [
-  {
-    id: 1,
-    images: ['/Products/categoria1.png', '/Products/categoria2.png'],
-    name: 'Anillo de Orquídeas',
-    originalPrice: 60.0,
-    discount: 10,
-    finalPrice: 50.0,
-  },
-  {
-    id: 2,
-    images: ['/Products/categoria2.png', '/Products/categoria1.png'],
-    name: 'Gancho de Orquídeas',
-    originalPrice: 60.0,
-    discount: 10,
-    finalPrice: 50.0,
-  },
-  {
-    id: 3,
-    images: ['/Products/categoria3.png', '/Products/categoria4.png'],
-    name: 'Collar con hortensias',
-    originalPrice: 60.0,
-    discount: 10,
-    finalPrice: 50.0,
-  },
-  {
-    id: 4,
-    images: ['/Products/categoria4.png', '/Products/categoria3.png'],
-    name: 'Collar de Orquídeas',
-    originalPrice: 60.0,
-    discount: 10,
-    finalPrice: 50.0,
-  },
-  {
-    id: 5,
-    images: ['/Products/categoria5.png', '/Products/categoria6.png'],
-    name: 'Collar con hortensias',
-    originalPrice: 60.0,
-    discount: 10,
-    finalPrice: 50.0,
-  },
-  {
-    id: 6,
-    images: ['/Products/categoria6.png', '/Products/categoria5.png'],
-    name: 'Gancho de Orquídeas',
-    originalPrice: 60.0,
-    discount: 10,
-    finalPrice: 50.0,
-  },
-];
+import EditProduct from "../hooks/Productos/EditProduct";
+import "../Styles/PaginaProduct.css";
+import { useDataProduct } from "../hooks/Productos/UseDataProduct";
 
+const Products = () => {
+  const { products, deleteProduct, fetchProducts } = useDataProduct();
+  const [editingProductId, setEditingProductId] = useState(null);
+
+  const closeModal = () => setEditingProductId(null);
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("¿Estás seguro que deseas eliminar este producto?");
+    if (confirmDelete) {
+      await deleteProduct(id);
+    }
+  };
 
   return (
-    <div className="products-private-page-containers">
-      <SidebarPrivate />
-      <div className="main-content-wrappers">
-        <TopNavbarPrivate />
-        <div className="main-content-privates">
-          <div className="products-area-privates">
-            <ProductGridPrivate products={productsData} />
+    <div className="dashboard-container">
+      <Sidebar />
+      <div className="main-content">
+        <Topbar />
+        <div className="products-container">
+          <div className="products-header">
+            <Titulo>Lista de Productos</Titulo>
+            <SubTitulo>Administra tus productos fácilmente</SubTitulo>
+          </div>
+
+          <div className="products-list">
+            {products.length === 0 ? (
+              <div className="no-products-message">
+                <p>No hay productos disponibles.</p>
+              </div>
+            ) : (
+              products.map((product) => {
+                let medidas = {};
+                if (product.measurements) {
+                  if (typeof product.measurements === "string") {
+                    try {
+                      medidas = JSON.parse(product.measurements);
+                    } catch (error) {
+                      console.error("Error al parsear medidas:", error);
+                    }
+                  } else if (typeof product.measurements === "object") {
+                    medidas = product.measurements;
+                  }
+                }
+
+                return (
+                  <div key={product._id} className="product-card">
+                    <h3>{product.name || "Sin nombre"}</h3>
+
+                    {Array.isArray(product.images) && product.images.length > 0 ? (
+                      <img
+                        src={product.images[0]}
+                        alt={product.name || "Producto"}
+                        className="product-image"
+                      />
+                    ) : (
+                      <p className="no-image">Sin imagen</p>
+                    )}
+
+                    <p>Descripción: {product.description || "Sin descripción"}</p>
+
+                    <p>
+                      Precio:{" "}
+                      {product.discountPercentage > 0 ? (
+                        <>
+                          <s>${product.price ?? "N/A"}</s> → <strong>${product.finalPrice ?? "N/A"}</strong>
+                        </>
+                      ) : (
+                        <>${product.price ?? "N/A"}</>
+                      )}
+                    </p>
+
+                    <p>Descuento: {product.discountPercentage ?? 0}%</p>
+                    <p>Categoría: {product.category_id?.name || "Sin categoría"}</p>
+
+                    <p
+                      style={{
+                        color:
+                          product.stock === 0
+                            ? "#dc3545"
+                            : product.stock <= 5
+                            ? "#ffc107"
+                            : "white",
+                        fontWeight: product.stock <= 5 ? "bold" : "normal",
+                      }}
+                    >
+                      Stock: {product.stock ?? 0}
+                    </p>
+
+                    {medidas && (
+                      <>
+                        {medidas.weight && <p>Peso: {medidas.weight}</p>}
+                        {medidas.height && <p>Altura: {medidas.height}</p>}
+                        {medidas.width && <p>Ancho: {medidas.width}</p>}
+                      </>
+                    )}
+
+                    <div className="product-actions">
+                      <Button onClick={() => setEditingProductId(product._id)}>
+                        Editar
+                      </Button>
+                      <Button
+                        onClick={() => handleDelete(product._id)}
+                        style={{ backgroundColor: "#dc3545" }}
+                      >
+                        Eliminar
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       </div>
+
+      {editingProductId && (
+        <EditProduct
+          productId={editingProductId}
+          onClose={closeModal}
+          refreshProducts={fetchProducts}
+        />
+      )}
     </div>
   );
 };
 
-export default ProductsPrivate;
+export default Products;

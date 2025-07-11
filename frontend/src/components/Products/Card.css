@@ -15,6 +15,7 @@
   border: 1px solid rgba(0, 0, 0, 0.05);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, sans-serif;
+  z-index: 99999 !important; /* Asegura que las cards estén por encima de todo */
 }
 
 .card__shine {
@@ -49,7 +50,7 @@
   flex-direction: column;
   gap: 1em;
   position: relative;
-  z-index: 2;
+  z-index: 99999 !important; /* Asegura que el contenido esté por encima de todo */
 }
 
 .card__badge {
@@ -70,7 +71,7 @@
 .card:hover .card__badge {
   transform: scale(1);
   opacity: 1;
-  z-index: 1;
+  z-index: 99999 !important; /* Asegura que el badge esté por encima de todo */
 }
 
 .card__image {
