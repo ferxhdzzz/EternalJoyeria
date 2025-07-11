@@ -29,10 +29,10 @@
   transform: translateY(-50%);
   background-color: #FFF3F2;
   border: none;
-  border-radius: 8px; /* antes era 50%, ahora menos redondo */
+  border-radius: 8px;
   cursor: pointer;
-  padding: 4px 6px; /* ❌ antes: 10px, ahora más pequeño */
-  font-size: 10px;  /* ❌ antes: 16px */
+  padding: 4px 6px;
+  font-size: 10px;
   color: #d696bf;
   z-index: 2;
 }

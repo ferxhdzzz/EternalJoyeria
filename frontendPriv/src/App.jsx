@@ -8,12 +8,15 @@ import CambiarCont from './pages/CambiarCont';
 import Dashboard from './pages/Dashboard';
 import Ajustes from './pages/Ajustes';
 import HistorialResenas from './pages/HistorialResenas';
-import ProductsPrivate from './pages/Products-Private';
-import AgregarProducto from './pages/AgregarProducto';
-import HistorialCompras from './pages/HistorialCompras';
+
 import Categorias from './pages/Caterorias';
 import VerificarCodigo from './pages/VerificarCodigo';
 
+
+import Resenas from './pages/HistorialResenas';
+import ProductPriv from './pages/Products-Private';
+import AddProduct from './pages/AgregarProducto';
+import HistoryShopping from './pages/HistorialCompras';
 
 // Componente para proteger rutas
 import ProtectedRoute from './components/ProtectedRoute';
@@ -37,7 +40,7 @@ function App() {
 
         {/* Rutas PRIVADAS */}
         <Route
-          path="/dashboard"
+          path="/Dashboard"
           element={
             <ProtectedRoute>
               <Dashboard />
@@ -61,26 +64,26 @@ function App() {
           }
         />
         <Route
-          path="/productos"
+          path="/productPriv"
           element={
             <ProtectedRoute>
-              <ProductsPrivate />
+              <ProductPriv />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/agregar-producto"
+          path="/AddProduct"
           element={
             <ProtectedRoute>
-              <AgregarProducto />
+              <AddProduct />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/historial-compras"
+          path="/HistorialCompras"
           element={
             <ProtectedRoute>
-              <HistorialCompras />
+              <HistoryShopping />
             </ProtectedRoute>
           }
         />
@@ -92,6 +95,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+         
       </Routes>
     </Router>
   );
