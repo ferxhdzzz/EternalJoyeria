@@ -9,11 +9,10 @@ import { config } from "../config.js";
 
 const passwordRecoveryController = {};
 
-// Solicitar código
+//Solicitar código 
 passwordRecoveryController.requestCode = async (req, res) => {
   const { email, userType } = req.body;
 
-  // Validar email
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ message: "El correo no es válido." });
   }
@@ -58,7 +57,7 @@ passwordRecoveryController.requestCode = async (req, res) => {
   }
 };
 
-// Verificar código
+//Verificar código
 passwordRecoveryController.verifyCode = async (req, res) => {
   const { code } = req.body;
 
@@ -75,8 +74,10 @@ passwordRecoveryController.verifyCode = async (req, res) => {
       return res.status(400).json({ message: "Código incorrecto." });
     }
 
+    const { exp, iat, ...rest } = decoded;
+
     const newToken = jsonwebtoken.sign(
-      { ...decoded, verified: true },
+      { ...rest, verified: true },
       config.JWT.JWT_SECRET,
       { expiresIn: "20m" }
     );
@@ -94,7 +95,7 @@ passwordRecoveryController.verifyCode = async (req, res) => {
   }
 };
 
-// Nueva contraseña
+//Nueva contraseña
 passwordRecoveryController.newPassword = async (req, res) => {
   const { newPassword } = req.body;
 
@@ -111,7 +112,6 @@ passwordRecoveryController.newPassword = async (req, res) => {
       return res.status(400).json({ message: "El código no está verificado." });
     }
 
-    // Validar nueva contraseña (igual que frontend)
     if (!newPassword || newPassword.length < 8 || !/[!@#$%^&*(),.?":{}|<>]/.test(newPassword)) {
       return res.status(400).json({
         message: "La contraseña debe tener mínimo 8 caracteres y al menos 1 carácter especial."

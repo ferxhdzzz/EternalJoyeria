@@ -17,17 +17,17 @@ const productSchema = new Schema(
   {
     name: {
       type: String,
-      require: true,
+      required: true,
     },
 
     description: {
       type: String,
-      require: true,
+      required: true,
     },
 
     price: {
       type: Number,
-      require: true,
+      required: true,
     },
 
     images: {
@@ -42,7 +42,7 @@ const productSchema = new Schema(
     category_id: {
       type: Schema.Types.ObjectId,
       ref: "categorys",
-      require: true,
+      required: true,
     },
 
     discountPercentage: {
@@ -54,7 +54,14 @@ const productSchema = new Schema(
 
     finalPrice: {
       type: Number,
-      require: true,
+      required: true,
+    },
+
+    stock: {
+      type: Number,
+      default: 1,
+      min: 1,
+      max: 20,
     },
   },
   {

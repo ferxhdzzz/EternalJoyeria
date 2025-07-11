@@ -12,5 +12,6 @@ router.get("/", reviewsController.getReviews);
 router.get("/:id", reviewsController.getReview);
 router.put("/:id", reviewsController.updateReview);
 router.delete("/:id", reviewsController.deleteReview);
+router.get("/product/:id", reviewsController.getReviewsByProduct);
 
 export default router;

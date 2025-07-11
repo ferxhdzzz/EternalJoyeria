@@ -1,9 +1,8 @@
-// Importar dependencias
+// backend/src/controllers/productController.js
 import Product from "../models/Products.js";
+import Category from "../models/Category.js";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs/promises";
-
-// Configurar Cloudinary
 
 cloudinary.config({
   cloud_name: 'dosy4rouu',
@@ -11,54 +10,30 @@ cloudinary.config({
   api_secret: 'Yk2vqXqQ6aknOrT7FCoqEiWw31w',
 });
 
-// Crear objeto para contener todos los métodos del controlador
 const productController = {};
 
-/*
-  SELECT: Obtener todos los productos
-  Este método busca todos los productos en la base de datos
-  y agrega la información de la categoría relacionada usando populate.
-*/
+// GET ALL
 productController.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate("category_id");
+    const products = await Product.find().populate("category_id", "name");
     res.json(products);
   } catch (error) {
-    res.status(500).json({
-      message: "Error fetching products",
-      error: error.message
-    });
+    res.status(500).json({ message: "Error fetching products", error: error.message });
   }
 };
 
-/*
-  SELECT: Obtener un producto específico
-  Este método busca un producto por su ID único y agrega la información
-  de la categoría relacionada usando populate.
-*/
+// GET BY ID
 productController.getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).populate("category_id");
-
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
+    const product = await Product.findById(req.params.id).populate("category_id", "name");
+    if (!product) return res.status(404).json({ message: "Product not found" });
     res.json(product);
   } catch (error) {
-    res.status(400).json({
-      message: "Error fetching product",
-      error: error.message
-    });
+    res.status(400).json({ message: "Error fetching product", error: error.message });
   }
 };
 
-/*
-  CREATE: Crear un nuevo producto
-  Este método recibe los datos del producto y las imágenes
-  desde un formulario tipo multipart/form-data. Las imágenes se suben a Cloudinary
-  y se guarda la URL pública en el array de imágenes del producto.
-*/
+// CREATE
 productController.createProduct = async (req, res) => {
   const {
     name,
@@ -66,16 +41,15 @@ productController.createProduct = async (req, res) => {
     price,
     measurements,
     category_id,
-    discountPercentage
+    discountPercentage,
+    stock
   } = req.body;
 
   try {
-    // Validar campos obligatorios
     if (!name || !name.trim() || !description || price == null || !category_id) {
       return res.status(400).json({ message: "Missing required product fields" });
     }
 
-    // Subir imágenes a Cloudinary (si hay archivos)
     let uploadedImages = [];
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
@@ -88,54 +62,56 @@ productController.createProduct = async (req, res) => {
           ]
         });
         uploadedImages.push(result.secure_url);
-        await fs.unlink(file.path); // Eliminar archivo temporal
+        await fs.unlink(file.path);
       }
     }
 
-    // Crear nueva instancia de producto
     const newProduct = new Product({
       name: name.trim(),
       description: description.trim(),
       price,
       images: uploadedImages,
-      measurements: measurements || {},
+      measurements: measurements ? JSON.parse(measurements) : {},
       category_id,
       discountPercentage: discountPercentage != null ? discountPercentage : null,
-      finalPrice: calculateFinalPrice(price, discountPercentage)
+      finalPrice: calculateFinalPrice(price, discountPercentage),
+      stock: stock ?? 1 // si no se envía, usa 1 por defecto
     });
 
-    // Guardar producto en la base de datos
     const savedProduct = await newProduct.save();
-
-    // Poblar categoría y enviar respuesta
-    const populatedProduct = await Product.findById(savedProduct._id).populate("category_id");
-
+    const populatedProduct = await Product.findById(savedProduct._id).populate("category_id", "name");
     res.status(201).json(populatedProduct);
   } catch (error) {
-    res.status(500).json({
-      message: "Error creating product",
-      error: error.message
-    });
+    res.status(500).json({ message: "Error creating product", error: error.message });
   }
 };
 
-/*
-  UPDATE: Actualizar un producto
-  Este método actualiza un producto existente, permitiendo subir nuevas imágenes
-  que se cargan a Cloudinary. Se recalcula el precio final y se devuelve el producto
-  actualizado con la información de la categoría relacionada.
-*/
+// UPDATE
 productController.updateProduct = async (req, res) => {
   const { id } = req.params;
-  const updates = req.body;
+  const updates = { ...req.body };
 
   try {
     const product = await Product.findById(id);
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
+    if (updates.category_name) {
+      const category = await Category.findOne({ name: updates.category_name.trim() });
+      if (!category) {
+        return res.status(400).json({ message: "Category name not found" });
+      }
+      updates.category_id = category._id;
+      delete updates.category_name;
     }
 
-    // Subir nuevas imágenes si se envían
+    if (updates.measurements && typeof updates.measurements === "string") {
+      try {
+        updates.measurements = JSON.parse(updates.measurements);
+      } catch {
+        // ignore invalid JSON
+      }
+    }
+
     if (req.files && req.files.length > 0) {
       let uploadedImages = [];
       for (const file of req.files) {
@@ -153,60 +129,41 @@ productController.updateProduct = async (req, res) => {
       product.images = uploadedImages;
     }
 
-    // Actualizar otros campos
     Object.keys(updates).forEach(key => {
       if (key !== "images") {
         product[key] = updates[key];
       }
     });
 
-    if (product.price != null) {
-      product.finalPrice = calculateFinalPrice(product.price, product.discountPercentage);
-    }
+    product.finalPrice = calculateFinalPrice(product.price, product.discountPercentage);
 
     const updatedProduct = await product.save();
-
-    const populatedProduct = await Product.findById(updatedProduct._id).populate("category_id");
-
+    const populatedProduct = await Product.findById(updatedProduct._id).populate("category_id", "name");
     res.status(200).json(populatedProduct);
+
   } catch (error) {
-    res.status(500).json({
-      message: "Error updating product",
-      error: error.message
-    });
+    res.status(500).json({ message: "Error updating product", error: error.message });
   }
 };
 
-/*
-  DELETE: Eliminar un producto
-  Este método elimina un producto de la base de datos por su ID único.
-*/
+// DELETE
 productController.deleteProduct = async (req, res) => {
   const { id } = req.params;
 
   try {
     const product = await Product.findById(id);
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    if (!product) return res.status(404).json({ message: "Product not found" });
 
     await product.deleteOne();
-
     res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {
-    res.status(500).json({
-      message: "Error deleting product",
-      error: error.message
-    });
+    res.status(500).json({ message: "Error deleting product", error: error.message });
   }
 };
 
-/*
-  Función utilitaria: Calcular precio final
-*/
 function calculateFinalPrice(price, discountPercentage) {
-  if (discountPercentage && discountPercentage > 0 && discountPercentage <= 100) {
-    return price - (price * (discountPercentage / 100));
+  if (discountPercentage && discountPercentage > 0 && discountPercentage < 100) {
+    return Number((price - (price * discountPercentage) / 100).toFixed(2));
   }
   return price;
 }
