@@ -17,6 +17,7 @@ const useDataCategorie = ({ reset, onSuccess }) => {
 
     const response = await fetch("https://api.cloudinary.com/v1_1/dosy4rouu/upload", {
       method: "POST",
+    
       body: formData,
     });
 
@@ -40,6 +41,7 @@ const useDataCategorie = ({ reset, onSuccess }) => {
     try {
       const response = await fetch(`${api}/${id}`, {
         method: "PUT",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedData),
       });
@@ -59,6 +61,7 @@ const useDataCategorie = ({ reset, onSuccess }) => {
     try {
       const response = await fetch(api, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
