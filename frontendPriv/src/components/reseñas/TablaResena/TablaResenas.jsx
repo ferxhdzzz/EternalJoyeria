@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import ResenaRow from "../row/ResenaRow";
 import ConfirmacionModal from "../modal/ConfirmacionModal";
+import Swal from "sweetalert2";  // <--- importar Swal
 import "./TablaResenas.css";
 
 const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
@@ -10,9 +11,27 @@ const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
     setResenaSeleccionada(review);
   };
 
-  const confirmarEliminacion = () => {
-    deleteReviews(resenaSeleccionada._id);
-    setResenaSeleccionada(null);
+  const confirmarEliminacion = async () => {
+    try {
+      await deleteReviews(resenaSeleccionada._id);  // esperar a que termine la eliminación
+      setResenaSeleccionada(null);
+
+      // Mostrar alerta de éxito
+      Swal.fire({
+        icon: "success",
+        title: "¡Eliminado correctamente!",
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      });
+    } catch (error) {
+      // Opcional: alerta de error si la eliminación falla
+      Swal.fire({
+        icon: "error",
+        title: "Error al eliminar",
+        text: error.message || "No se pudo eliminar la reseña.",
+      });
+    }
   };
 
   const cancelarEliminacion = () => {
@@ -48,10 +67,9 @@ const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
         </tbody>
       </table>
 
-      {/* Modal de confirmación */}
       {resenaSeleccionada && (
         <ConfirmacionModal
-          mensaje="¿Esta segura de eliminar esta reseña?"
+          mensaje="¿Está seguro de eliminar esta reseña?"
           onConfirmar={confirmarEliminacion}
           onCancelar={cancelarEliminacion}
         />

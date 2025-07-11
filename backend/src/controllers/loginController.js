@@ -36,6 +36,8 @@ loginController.login = async (req, res) => {
 
     if (adminFound) {
       userType = "admin";
+      console.log("el que acaba de iniciar es un admin")
+
       userFound = adminFound;
 
       const isMatch = await bcryptjs.compare(password, adminFound.password);
@@ -50,7 +52,7 @@ loginController.login = async (req, res) => {
 
       if (userFound) {
         userType = "customer";
-
+console.log("el que acaba de iniciar es un cliente")
         const isMatch = await bcryptjs.compare(password, userFound.password);
         if (!isMatch) {
           return res.status(401).json({
