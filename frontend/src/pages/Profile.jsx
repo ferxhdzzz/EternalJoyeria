@@ -186,9 +186,9 @@ const Profile = () => {
   return (
     <div>
       <Nav cartOpen={cartOpen} />
-      <div className="profile-page" style={{minHeight: '100vh', background: '#fff', marginTop: '180px'}}>
+      <div className="profile-page" style={{minHeight: '100vh', background: '#fff', marginTop: '180px', overflowY: 'auto', maxHeight: '100vh'}}>
         {/* Barra rosa superior */}
-        <div className="profile-bg-bar" style={{height: '80px', width: '1100px', maxWidth: '95vw', margin: '2rem auto 0 auto', background: '#eab5c5', borderRadius: '20px'}}></div>
+        {/* <div className="profile-bg-bar" style={{height: '80px', width: '1100px', maxWidth: '95vw', margin: '2rem auto 0 auto', background: '#eab5c5', borderRadius: '20px'}}></div> */}
         <div className="profile-redesign-container" style={{display: 'flex', gap: '2.5rem', justifyContent: 'center', alignItems: 'flex-start', marginTop: '-40px'}}>
           {/* Card izquierda: datos personales */}
           <div className="profile-card left" style={{background: '#fff', borderRadius: '12px', boxShadow: '0 2px 12px #eab5c555', padding: '2.5rem 2rem', minWidth: 420, maxWidth: 520, minHeight: 420}}>

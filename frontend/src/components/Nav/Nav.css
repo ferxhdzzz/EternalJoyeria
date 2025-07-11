@@ -449,7 +449,7 @@
     padding: 0 clamp(1rem, 2vw, 1.5rem);
     color: var(--text-color);
     font-size: clamp(0.9rem, 1.5vw, 1.07rem);
-    font-weight: 700;
+    font-weight: 400 !important;
     text-decoration: none;
     background: none;
     border: none;
@@ -537,6 +537,9 @@
     }
     .nav-menu {
         top: 60px !important;
+    }
+    .nav-link-categoria {
+        font-weight: 400 !important;
     }
 }
 
@@ -781,6 +784,11 @@
 
 .nav-link:hover::after {
     transform: scaleX(1);
+}
+
+.nav-link.active, .nav-link-categoria.active {
+  font-weight: 700 !important;
+  color: var(--primary-color, #000) !important;
 }
 
 @media (min-width: 1001px) {

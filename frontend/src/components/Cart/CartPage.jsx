@@ -107,7 +107,7 @@ const CartPage = () => {
               <span>Total</span>
               <span>${total.toFixed(2)}</span>
             </div>
-            <button className="cartpage-checkout-btn" onClick={() => navigate('/checkout')}>PROCEED TO CHECKOUT</button>
+            <button className="cartpage-checkout-btn" onClick={() => navigate('/checkout')}>Proceder al pago</button>
           </section>
         </div>
       </div>

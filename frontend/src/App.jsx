@@ -28,6 +28,7 @@ import CategoriaConjuntos from './pages/CategoriaConjuntos';
 import CategoriaAnillos from './pages/CategoriaAnillos';
 import PreguntasFrecuentes from './pages/PreguntasFrecuentes';
 import ScrollToTop from './components/ScrollToTop';
+import Blog from './pages/Blog';
 
 
 // This is the main component of the application, which acts as a container for all other components.
@@ -78,6 +79,7 @@ function App() {
         <Route path="/terminos" element={<TermsPolicy />} />
         <Route path="/aviso-privacidad" element={<PrivacyNotice />} />
         <Route path="/faq" element={<PreguntasFrecuentes />} />
+        <Route path="/blog" element={<Blog />} />
 
         {/* Define other routes here, e.g.:
         <Route path="/about" element={<About />} />

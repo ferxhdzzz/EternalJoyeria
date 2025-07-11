@@ -56,7 +56,7 @@ const SidebarCart = ({ isOpen, onClose }) => {
           onClick={() => { onClose(); navigate('/checkout'); }}
           disabled={cartItems.length === 0}
         >
-          CHECKOUT
+          PAGAR
         </button>
       </div>
     </div>

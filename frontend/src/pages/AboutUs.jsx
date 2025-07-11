@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './AboutUs.css';
 import Nav from '../components/Nav/Nav';
 import HeroAboutUs from '../components/AboutUs/HeroAboutUs/HeroAboutUs';
@@ -11,6 +11,11 @@ import SidebarCart from '../components/Cart/SidebarCart';
 // Defines the AboutUs page component.
 const AboutUs = () => {
   const [cartOpen, setCartOpen] = useState(false);
+
+  // Forzar scroll al tope al montar la página
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }, []);
 
   // The return statement contains the JSX that will be rendered to the DOM.
   return (

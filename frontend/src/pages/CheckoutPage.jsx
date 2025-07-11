@@ -28,6 +28,8 @@ const CheckoutPage = () => {
   const [zip, setZip] = useState('');
   const [payment, setPayment] = useState('card');
   const [card, setCard] = useState('');
+  const [expiry, setExpiry] = useState('');
+  const [cvv, setCvv] = useState('');
   const [errors, setErrors] = useState({});
   const [cartOpen, setCartOpen] = useState(false);
 
@@ -59,10 +61,12 @@ const CheckoutPage = () => {
     if (!city.trim()) newErrors.city = 'Ciudad requerida';
     if (!zip.trim()) newErrors.zip = 'Código postal requerido';
     else if (!/^\d{4,8}$/.test(zip)) newErrors.zip = 'Código postal inválido (4-8 dígitos)';
-    if (payment === 'card') {
-      if (!card.trim()) newErrors.card = 'Número de tarjeta requerido';
-      else if (!/^\d{13,16}$/.test(card)) newErrors.card = 'Tarjeta inválida (13-16 dígitos numéricos)';
-    }
+    if (!card.trim()) newErrors.card = 'Número de tarjeta requerido';
+    else if (!/^\d{13,16}$/.test(card)) newErrors.card = 'Tarjeta inválida (13-16 dígitos numéricos)';
+    if (!expiry.trim()) newErrors.expiry = 'Fecha de vencimiento requerida';
+    else if (!/^(0[1-9]|1[0-2])\/(\d{2})$/.test(expiry)) newErrors.expiry = 'Formato inválido (MM/AA)';
+    if (!cvv.trim()) newErrors.cvv = 'CVV requerido';
+    else if (!/^\d{3,4}$/.test(cvv)) newErrors.cvv = 'CVV inválido (3-4 dígitos)';
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
     Swal.fire({
@@ -114,20 +118,24 @@ const CheckoutPage = () => {
                   {errors.zip && <span className="ticket-error">{errors.zip}</span>}
                 </div>
               </div>
+              {/* Campos de tarjeta */}
               <div className="ticket-field">
-                <label>Método de pago</label>
-                <select value={payment} onChange={e => setPayment(e.target.value)}>
-                  <option value="card">Tarjeta de crédito/débito</option>
-                  <option value="paypal">PayPal</option>
-                </select>
+                <label>Número de tarjeta</label>
+                <input type="text" value={card} onChange={e => setCard(e.target.value)} maxLength={16} />
+                {errors.card && <span className="ticket-error">{errors.card}</span>}
               </div>
-              {payment === 'card' && (
+              <div className="ticket-field-row">
                 <div className="ticket-field">
-                  <label>Número de tarjeta</label>
-                  <input type="text" value={card} onChange={e => setCard(e.target.value)} maxLength={16} />
-                  {errors.card && <span className="ticket-error">{errors.card}</span>}
+                  <label>Fecha de vencimiento (MM/AA)</label>
+                  <input type="text" value={expiry} onChange={e => setExpiry(e.target.value)} maxLength={5} placeholder="MM/AA" />
+                  {errors.expiry && <span className="ticket-error">{errors.expiry}</span>}
                 </div>
-              )}
+                <div className="ticket-field">
+                  <label>Código de seguridad (CVV)</label>
+                  <input type="text" value={cvv} onChange={e => setCvv(e.target.value)} maxLength={4} />
+                  {errors.cvv && <span className="ticket-error">{errors.cvv}</span>}
+                </div>
+              </div>
               <button className="ticket-pay-btn" type="submit">Pagar ahora</button>
             </form>
           </section>

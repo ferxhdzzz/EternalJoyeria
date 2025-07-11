@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Nav from '../components/Nav/Nav';
 import Footer from '../components/Footer';
@@ -17,12 +17,26 @@ const Contact = () => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    // Solo permitir números en el campo de teléfono
+    if (name === "telefono") {
+      // Eliminar cualquier caracter que no sea número
+      const numericValue = value.replace(/[^0-9]/g, "");
+      setFormData(prev => ({
+        ...prev,
+        [name]: numericValue
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
     // Limpiar error del campo cuando el usuario empiece a escribir
     if (errors[name]) {
       setErrors(prev => ({
@@ -40,9 +54,9 @@ const Contact = () => {
     }
     
     if (!formData.email.trim()) {
-      newErrors.email = 'El Gmail es obligatorio';
+      newErrors.email = 'El correo electrónico es obligatorio';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'El formato del Gmail no es válido';
+      newErrors.email = 'El formato del correo electrónico no es válido';
     }
     
     if (!formData.asunto.trim()) {
@@ -131,7 +145,7 @@ const Contact = () => {
                 </svg>
               </div>
               <div className="contact-info-content">
-                <h3>Gmail</h3>
+                <h3>Correo electrónico</h3>
                 <p>EternalJoyeria@gmail.com</p>
               </div>
             </div>
@@ -182,7 +196,7 @@ const Contact = () => {
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="email">Gmail *</label>
+                    <label htmlFor="email">Correo electrónico *</label>
                     <input
                       type="email"
                       id="email"
@@ -190,7 +204,7 @@ const Contact = () => {
                       value={formData.email}
                       onChange={handleChange}
                       className={errors.email ? 'error' : ''}
-                      placeholder="tu@gmail.com"
+                      placeholder="Tu correo electrónico"
                     />
                     {errors.email && <span className="error-message">{errors.email}</span>}
                   </div>
@@ -206,6 +220,8 @@ const Contact = () => {
                       value={formData.telefono}
                       onChange={handleChange}
                       placeholder="+503 1234-5678"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                     />
                   </div>
 

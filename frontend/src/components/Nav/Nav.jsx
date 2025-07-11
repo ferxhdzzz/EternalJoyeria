@@ -103,9 +103,9 @@ const Nav = ({ cartOpen = false }) => {
                     )}
                     
                     <ul className="nav-list">
-                        <li><Link to="/productos" className="nav-link" onClick={toggleMenu}><span className="nav-link-inner">Productos</span></Link></li>
+                        <li><Link to="/productos" className={`nav-link${location.pathname.startsWith('/productos') ? ' active' : ''}`} onClick={toggleMenu}><span className="nav-link-inner">Productos</span></Link></li>
                         <li className="nav-categoria-dropdown">
-                            <div className="nav-link nav-link-categoria" onClick={toggleCategory}>
+                            <div className={`nav-link nav-link-categoria${location.pathname.startsWith('/categoria') ? ' active' : ''}`} onClick={toggleCategory}>
                                 <span className="nav-link-text">Categoría</span>
                                 <ChevronDown className={`nav-dropdown-icon ${categoryOpen ? 'rotate' : ''}`} size={18} />
                             </div>
@@ -116,8 +116,8 @@ const Nav = ({ cartOpen = false }) => {
                                 <li><Link to="/categoria/anillos" className="dropdown-item" onClick={toggleMenu}>Anillos</Link></li>
                             </ul>
                         </li>
-                        <li><Link to="/sobre-nosotros" className="nav-link" onClick={toggleMenu}><span className="nav-link-inner">Sobre Nosotros</span></Link></li>
-                        <li><Link to="/contactanos" className="nav-link" onClick={toggleMenu}><span className="nav-link-inner">Contáctanos</span></Link></li>
+                        <li><Link to="/sobre-nosotros" className={`nav-link${location.pathname.startsWith('/sobre-nosotros') ? ' active' : ''}`} onClick={toggleMenu}><span className="nav-link-inner">Sobre Nosotros</span></Link></li>
+                        <li><Link to="/contactanos" className={`nav-link${location.pathname.startsWith('/contactanos') ? ' active' : ''}`} onClick={toggleMenu}><span className="nav-link-inner">Contáctanos</span></Link></li>
                     </ul>
                 </div>
 
