@@ -39,6 +39,23 @@ const Registro = ({ nextStep, formData, setFormData }) => {
     setErrors(newErrors);
     if (Object.keys(newErrors).length === 0) {
       nextStep();
+    } else {
+      // Alerta visual si hay errores
+      let mensaje = '';
+      if (newErrors.name) mensaje += `${newErrors.name} <br>`;
+      if (newErrors.lastName) mensaje += `${newErrors.lastName} <br>`;
+      if (newErrors.user) mensaje += `${newErrors.user}`;
+      window.Swal && window.Swal.fire({
+        title: 'Datos inválidos',
+        html: mensaje,
+        icon: 'error',
+        confirmButtonColor: '#b94a6c',
+        background: '#fff',
+        customClass: {
+          title: 'swal2-title-custom',
+          popup: 'swal2-popup-custom',
+        }
+      });
     }
   };
 

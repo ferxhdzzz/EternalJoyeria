@@ -31,9 +31,11 @@ const CategoriaAnillos = () => (
       </div>
     </div>
     <div style={{ minHeight: '80vh', padding: '4rem 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3rem' }}>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3rem', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3rem', justifyContent: 'center', zIndex: 99999 }}>
         {anillos.map(product => (
-          <Card key={product.id} {...product} imageHeight={185} simplePrice={true} />
+          <div key={product.id} style={{ zIndex: 99999 }}>
+            <Card {...product} imageHeight={185} simplePrice={true} />
+          </div>
         ))}
       </div>
     </div>
