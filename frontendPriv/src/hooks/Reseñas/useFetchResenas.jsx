@@ -9,7 +9,7 @@ const useFecthReviews = () => {
   const getReviews = async () => {
     try {
       const response = await fetch(api, {
-        credentials: "include", // <--- agregado aquí
+        credentials: "include", // ← incluye cookies de sesión
       });
       if (!response.ok) {
         throw new Error("Error fetching Reviews");
@@ -22,11 +22,10 @@ const useFecthReviews = () => {
     }
   };
 
-  //función para obtener una review por su id
   const getReviewById = async (id) => {
     try {
       const response = await fetch(`${api}/${id}`, {
-        credentials: "include", // <--- y aquí
+        credentials: "include", // ← también aquí
       });
       if (!response.ok) {
         console.log("Failed to fetch review");
@@ -36,7 +35,6 @@ const useFecthReviews = () => {
       return data;
     } catch (error) {
       console.error("Error fetching review:", error);
-      console.log("Failed to fetch review");
       return null;
     }
   };

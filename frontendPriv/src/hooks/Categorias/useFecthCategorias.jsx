@@ -9,13 +9,12 @@ const useFecthCategorias = () => {
   const getCategories = async () => {
     try {
       const response = await fetch(api, {
-        credentials: "include", // <--- aquí
+        credentials: "include", // ← envía cookies de sesión
       });
-
       if (!response.ok) throw new Error("Error fetching categories");
       const data = await response.json();
       console.log("🐞 Data from API:", data);
-      setCategories(data.categories);
+      setCategories(data.categories); // 👈 aquí el fix
     } catch (error) {
       console.error("Error fetching categories:", error);
       toast.error("Error al obtener las categorías");
@@ -25,7 +24,7 @@ const useFecthCategorias = () => {
   const getCategorieById = async (id) => {
     try {
       const response = await fetch(`${api}/${id}`, {
-        credentials: "include", // <--- y aquí
+        credentials: "include", // ← también aquí
       });
       if (!response.ok) throw new Error("Failed to fetch category");
       const data = await response.json();

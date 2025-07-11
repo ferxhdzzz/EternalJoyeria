@@ -12,7 +12,10 @@ const uploadImage = async (file) => {
 
     const response = await fetch("https://api.cloudinary.com/v1_1/dosy4rouu/upload", {
       method: "POST",
+
+
       credentials: "include",
+
       body: formData,
     });
 
