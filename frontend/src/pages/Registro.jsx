@@ -1,3 +1,4 @@
+// Registro.js (Paso 1)
 import React, { useState } from "react";
 import Input from "../components/registro/inpungroup/InputGroup";
 import Button from "../components/registro/button/Button";
@@ -20,13 +21,11 @@ const Registro = ({ nextStep, formData, setFormData }) => {
     const newErrors = {};
     const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/;
 
-    if (!formData.name.trim()) newErrors.name = "El nombre es obligatorio.";
-    else if (!nameRegex.test(formData.name)) newErrors.name = "El nombre solo puede contener letras.";
+    if (!formData.firstName.trim()) newErrors.firstName = "El nombre es obligatorio.";
+    else if (!nameRegex.test(formData.firstName)) newErrors.firstName = "El nombre solo puede contener letras.";
 
     if (!formData.lastName.trim()) newErrors.lastName = "El apellido es obligatorio.";
     else if (!nameRegex.test(formData.lastName)) newErrors.lastName = "El apellido solo puede contener letras.";
-
-    // Se eliminó la validación del campo 'user' (Usuario)
 
     return newErrors;
   };
@@ -45,13 +44,11 @@ const Registro = ({ nextStep, formData, setFormData }) => {
       <h2 className="recover-title">Información Personal</h2>
       <p>Comencemos con tus datos básicos.</p>
 
-      <Input label="Nombre" name="name" value={formData.name} onChange={handleChange} />
-      {errors.name && <p className="error">{errors.name}</p>}
+      <Input label="Nombre" name="firstName" value={formData.firstName} onChange={handleChange} />
+      {errors.firstName && <p className="error">{errors.firstName}</p>}
 
       <Input label="Apellido" name="lastName" value={formData.lastName} onChange={handleChange} />
       {errors.lastName && <p className="error">{errors.lastName}</p>}
-
-      {/* Se eliminó el campo de "Usuario" */}
       
       <div className="button-container">
         <Button type="submit" text="Siguiente →" />
