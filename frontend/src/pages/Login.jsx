@@ -60,10 +60,24 @@ const Login = () => {
         confirmButtonText: '¡Genial!',
         confirmButtonColor: '#ff69b4',
       }).then(() => {
-        navigate("/products");
+        navigate("/productos");
       });
     } else {
-      console.log("Formulario inválido");
+      // Mostrar alerta visual si hay errores
+      let mensaje = '';
+      if (newErrors.email) mensaje += `${newErrors.email} <br>`;
+      if (newErrors.password) mensaje += `${newErrors.password}`;
+      Swal.fire({
+        title: 'Datos inválidos',
+        html: mensaje,
+        icon: 'error',
+        confirmButtonColor: '#b94a6c',
+        background: '#fff',
+        customClass: {
+          title: 'swal2-title-custom',
+          popup: 'swal2-popup-custom',
+        }
+      });
     }
   };
 

@@ -16,7 +16,7 @@ import HistorialPage from './pages/Historial';
 import ProductDetail from './pages/ProductDetail';
 import CheckoutPage from './pages/CheckoutPage';
 import { CartProvider } from './context/CartContext';
-import ContactUsPage from './pages/ContactUs';
+import Contact from './pages/ContactUs';
 import DetailProduct from './pages/DetailProduct';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import CookiesPolicy from './pages/CookiesPolicy';
@@ -26,6 +26,8 @@ import CategoriaCollares from './pages/CategoriaCollares';
 import CategoriaAretes from './pages/CategoriaAretes';
 import CategoriaConjuntos from './pages/CategoriaConjuntos';
 import CategoriaAnillos from './pages/CategoriaAnillos';
+import PreguntasFrecuentes from './pages/PreguntasFrecuentes';
+import ScrollToTop from './components/ScrollToTop';
 
 
 // This is the main component of the application, which acts as a container for all other components.
@@ -44,6 +46,7 @@ function App() {
   return (
     <CartProvider>
       <Router>
+      <ScrollToTop />
       <Routes>
 
         <Route path="/" element={<Home />} />
@@ -68,12 +71,13 @@ function App() {
         <Route path="/shop" element={<CartPage />} />
         <Route path="/historial" element={<HistorialPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/contactanos" element={<ContactUsPage />} />
+        <Route path="/contactanos" element={<Contact />} />
         <Route path="/detalle-producto/:id" element={<DetailProduct />} />
         <Route path="/privacidad" element={<PrivacyPolicy />} />
         <Route path="/cookies" element={<CookiesPolicy />} />
         <Route path="/terminos" element={<TermsPolicy />} />
         <Route path="/aviso-privacidad" element={<PrivacyNotice />} />
+        <Route path="/faq" element={<PreguntasFrecuentes />} />
 
         {/* Define other routes here, e.g.:
         <Route path="/about" element={<About />} />

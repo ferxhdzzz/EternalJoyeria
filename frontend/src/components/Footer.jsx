@@ -50,7 +50,7 @@ const Footer = () => {
             <div className="bloom-footer__nav-col">
               <h4>AYUDA</h4>
               <ul>
-                <li><Link to="/faq">Preguntas Frecuentes</Link></li>
+                <li><a href="/faq">Preguntas Frecuentes</a></li>
                 <li><Link to="/contactanos">Contacto</Link></li>
               </ul>
             </div>

@@ -192,7 +192,7 @@ const Products = () => {
             style={{
               transform: hoveredCard === 'promo-1' ? 'scale(1.05) translateY(-10px)' : 'scale(1)',
               transition: 'all 0.3s ease',
-              zIndex: hoveredCard === 'promo-1' ? 10 : 1
+              zIndex: 99999
             }}
           >
             <Card imageHeight={185} onAddToCart={handleAddToCart} />
@@ -204,7 +204,7 @@ const Products = () => {
             style={{
               transform: hoveredCard === 'promo-2' ? 'scale(1.05) translateY(-10px)' : 'scale(1)',
               transition: 'all 0.3s ease',
-              zIndex: hoveredCard === 'promo-2' ? 10 : 1
+              zIndex: 99999
             }}
           >
             <Card 
@@ -224,7 +224,7 @@ const Products = () => {
             style={{
               transform: hoveredCard === 'promo-3' ? 'scale(1.05) translateY(-10px)' : 'scale(1)',
               transition: 'all 0.3s ease',
-              zIndex: hoveredCard === 'promo-3' ? 10 : 1
+              zIndex: 99999
             }}
           >
             <Card 
@@ -270,7 +270,7 @@ const Products = () => {
               style={{
                 transform: hoveredCard === product.id ? 'scale(1.05) translateY(-10px)' : 'scale(1)',
                 transition: 'all 0.3s ease',
-                zIndex: hoveredCard === product.id ? 10 : 1,
+                zIndex: 99999,
                 animation: `fadeInUp 0.8s ease-out ${index * 0.1}s both`
               }}
             >
@@ -302,7 +302,7 @@ const Products = () => {
               style={{
                 transform: hoveredCard === product.id ? 'scale(1.05) translateY(-10px)' : 'scale(1)',
                 transition: 'all 0.3s ease',
-                zIndex: hoveredCard === product.id ? 10 : 1,
+                zIndex: 99999,
                 animation: `fadeInUp 0.8s ease-out ${(index + 4) * 0.1}s both`
               }}
             >

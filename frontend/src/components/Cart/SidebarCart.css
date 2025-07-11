@@ -7,7 +7,7 @@
   height: 100vh;
   background: #ffe4e7;
   box-shadow: -4px 0 24px rgba(0,0,0,0.08);
-  z-index: 9999;
+  z-index: 30000 !important;
   display: flex;
   flex-direction: column;
   transform: translateX(100%) scale(0.98);
