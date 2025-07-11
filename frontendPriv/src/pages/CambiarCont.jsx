@@ -5,7 +5,9 @@ import Input from "../components/registro/inpungroup/InputGroup";
 import Button from "../components/registro/button/Button";
 import BackArrow from "../components/registro/backarrow/BackArrow";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
-import '../styles/Recuperacion.css';
+import Swal from "sweetalert2";
+import useRecoverAdminPassword from "../hooks/recovery/useRecoverAdminPassword";
+import "../styles/Recuperacion.css";
 
 const CambiarContra = () => {
   const [form, setForm] = useState({ password: "", confirmPassword: "" });
@@ -13,6 +15,8 @@ const CambiarContra = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
+  const { newPassword } = useRecoverAdminPassword();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prevForm) => ({
@@ -21,31 +25,25 @@ const CambiarContra = () => {
     }));
   };
 
-
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const { password, confirmPassword } = form;
     let newErrors = { password: "", confirmPassword: "" };
     let hasError = false;
 
-    // Campo vacío
     if (!password) {
       newErrors.password = "Complete todos los campos.";
       hasError = true;
     } else {
-      // Longitud mínima
       if (password.length < 8) {
         newErrors.password = "Debe tener al menos 8 caracteres.";
         hasError = true;
       }
-
-      // Al menos un carácter especial
       if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
         newErrors.password = "Debe incluir al menos un carácter especial.";
         hasError = true;
       }
     }
 
-    // Confirmación
     if (!confirmPassword) {
       newErrors.confirmPassword = "Confirma tu contraseña.";
       hasError = true;
@@ -58,26 +56,38 @@ const CambiarContra = () => {
 
     if (hasError) return;
 
-    // Si todo es válido, continúa
-    navigate("/login");
+    try {
+      const result = await newPassword(password);
+      if (result.message === "Contraseña actualizada correctamente.") {
+        Swal.fire({
+          icon: "success",
+          title: "¡Listo!",
+          text: result.message,
+          confirmButtonText: "Ir al login"
+        }).then(() => navigate("/login"));
+      } else {
+        Swal.fire("Error", result.message || "No se pudo actualizar.", "error");
+      }
+    } catch (error) {
+      Swal.fire("Error", "No se pudo actualizar la contraseña.", "error");
+    }
   };
 
   return (
-
-
-    <div className="recover-wrapper"
+    <div
+      className="recover-wrapper"
       style={{
         backgroundImage: `url("/recuperacionPriv.png")`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
-      }}>
-
+      }}
+    >
       <div className="recover-card">
-
         <BackArrow to="/recuperacion" />
         <Logo />
         <h2 className="recover-title">Recuperar contraseña</h2>
+
         <div className="input-group-eye">
           <Input
             label="Nueva Contraseña"
@@ -86,7 +96,10 @@ const CambiarContra = () => {
             value={form.password}
             onChange={handleChange}
           />
-          <span className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
+          <span
+            className="eye-icon"
+            onClick={() => setShowPassword(!showPassword)}
+          >
             {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
           </span>
         </div>
@@ -110,6 +123,7 @@ const CambiarContra = () => {
         {errors.confirmPassword && (
           <p className="error-message">{errors.confirmPassword}</p>
         )}
+
         <Button text="Actualizar →" onClick={handleSubmit} />
       </div>
     </div>

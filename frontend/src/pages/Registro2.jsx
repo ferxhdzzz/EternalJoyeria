@@ -73,7 +73,7 @@ const handleChange = (e) => {
       <p>Asegura tu cuenta y elige cómo podemos contactarte.</p>
 
       <Input label="Correo" name="email" value={form.email} onChange={handleChange} />
-      {errors.email && <p className="error">{errors.email}</p>}
+      {errors.email && <p className="error error-visible">{errors.email}</p>}
 
       <Input
         label="Contraseña"
@@ -87,7 +87,7 @@ const handleChange = (e) => {
           </span>
         }
       />
-      {errors.contra && <p className="error">{errors.contra}</p>}
+      {errors.contra && <p className="error error-visible">{errors.contra}</p>}
 
       <Select
         label="Teléfono"
@@ -97,7 +97,7 @@ const handleChange = (e) => {
         country={form.country}
         onCountryChange={(e) => setForm((prev) => ({ ...prev, country: e.target.value }))}
       />
-      {errors.phone && <p className="error">{errors.phone}</p>}
+      {errors.phone && <p className="error error-visible">{errors.phone}</p>}
 
       <div className="navigation-buttons">
         <Button text="← Atrás" onClick={prevStep} />

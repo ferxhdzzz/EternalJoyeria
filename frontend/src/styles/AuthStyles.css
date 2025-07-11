@@ -24,10 +24,18 @@
 }
 
 .error {
-  color: red;
-  font-size: 12px;
-  margin-top: -40px;
+  color: #e75480;
+  font-size: 13px;
+  margin-top: 2px;
   margin-bottom: 12px;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.18s, transform 0.18s;
+}
+
+.error-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .input-group-eye {
@@ -70,4 +78,83 @@
   width: 100%;
   margin-top: 20px; /* Añade un poco de espacio arriba */
   padding-left: 130px; /* Ajuste final */
+}
+
+.recover-card input {
+  width: 100%;
+  padding: 12px 13px;
+  border: 1.2px solid #e4e4e4;
+  border-radius: 8px;
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-size: 1rem;
+  background: #fafbfc;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  color: #222;
+  box-shadow: 0 0 0 0px #ffd6de;
+}
+.recover-card input:focus {
+  border-color: #d1a6b4;
+  box-shadow: 0 0 0 2px #ffd6de;
+}
+.recover-card input:invalid {
+  border-color: #e75480;
+  box-shadow: 0 0 0 2px #ffe4e7;
+}
+input:invalid ~ .error {
+  opacity: 1;
+  transform: translateY(0);
+}
+.custom-button, .login-form .custom-button {
+  background: linear-gradient(90deg, #ffe4e7 60%, #ffd6de 100%);
+  color: #b94a6c;
+  border: none;
+  border-radius: 999px;
+  padding: 0.9em 2.2em;
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-size: 1.08rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(255, 174, 185, 0.07);
+  transition: background 0.18s, color 0.18s, transform 0.12s;
+  display: block;
+  margin: 1.5rem auto 0;
+}
+.custom-button:hover {
+  background: #ffd6de;
+  color: #e75480;
+  transform: scale(1.04);
+}
+.custom-button:active {
+  transform: scale(0.97);
+}
+
+@media (max-width: 700px) {
+  .recover-card, .login-form {
+    max-width: 62vw;
+    padding: 1.2rem 0.5rem;
+    font-size: 0.95rem;
+  }
+  .recover-wrapper {
+    background-image: none !important;
+    overflow: hidden;
+  }
+  body {
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 480px) {
+  .recover-card, .login-form {
+    max-width: 80vw;
+    padding: 0.7rem 0.2rem;
+    font-size: 0.85rem;
+  }
+  .recover-wrapper {
+    background-image: none !important;
+    overflow: hidden;
+  }
+  body {
+    overflow: hidden;
+  }
 }

@@ -11,3 +11,4 @@ router.put("/:id", salesController.updateSale);
 router.delete("/:id", salesController.deleteSale);
 
 export default router;
+

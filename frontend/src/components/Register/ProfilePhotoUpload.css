@@ -36,3 +36,66 @@
   justify-content: space-between;
   margin-top: 1rem;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .upload-container {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+  
+  .upload-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .upload-area {
+    padding: 2rem 1rem;
+    margin: 1rem 0;
+  }
+  
+  .upload-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  
+  .upload-text {
+    font-size: 0.9rem;
+  }
+  
+  .upload-button {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .upload-container {
+    padding: 1rem;
+    margin: 0.5rem;
+  }
+  
+  .upload-title {
+    font-size: 1.3rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  .upload-area {
+    padding: 1.5rem 0.8rem;
+    margin: 0.8rem 0;
+  }
+  
+  .upload-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  .upload-text {
+    font-size: 0.8rem;
+  }
+  
+  .upload-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+}

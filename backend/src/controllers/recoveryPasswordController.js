@@ -9,63 +9,55 @@ import { config } from "../config.js";
 
 const passwordRecoveryController = {};
 
-// Función para solicitar el código de recuperación (MEJORADA)
+//Solicitar código 
 passwordRecoveryController.requestCode = async (req, res) => {
-  const { email, userType } = req.body; // Ahora recibimos el tipo de usuario
+  const { email, userType } = req.body;
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ message: "El correo no es válido." });
+  }
+
+  if (userType !== "client" && userType !== "admin") {
+    return res.status(400).json({ message: "Tipo de usuario inválido." });
+  }
 
   try {
-    let userFound;
-    let modelToUse;
+    const Model = userType === "client" ? clientsModel : adminModel;
+    const userFound = await Model.findOne({ email });
 
-    // Determinar qué modelo usar según el tipo de usuario
-    if (userType === "client") {
-      userFound = await clientsModel.findOne({ email });
-      modelToUse = "client";
-    } else if (userType === "admin") {
-      userFound = await adminModel.findOne({ email });
-      modelToUse = "admin";
-    } else {
-      return res.status(400).json({ message: "Invalid user type" });
-    }
-
-    // Si no se encuentra el usuario, devolver mensaje de error
     if (!userFound) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "Usuario no encontrado." });
     }
 
-    // Generar un código aleatorio de 5 dígitos
     const code = Math.floor(10000 + Math.random() * 90000).toString();
 
-    // Guardamos toda la información en un token JWT
     const token = jsonwebtoken.sign(
-      { email, code, userType: modelToUse, verified: false },
+      { email, code, userType, verified: false },
       config.JWT.JWT_SECRET,
       { expiresIn: "20m" }
     );
 
-    // Guardar el token en una cookie con duración de 20 minutos
-    res.cookie("tokenRecoveryCode", token, { 
-      maxAge: 20 * 60 * 1000, 
-      path: '/',
-      sameSite: 'lax'
+    res.cookie("tokenRecoveryCode", token, {
+      maxAge: 20 * 60 * 1000,
+      sameSite: "lax",
+      path: "/"
     });
 
-    // Enviar el correo electrónico con el código de verificación
     await sendEmail(
       email,
-      "Your verification code",
-      "Hello! Your password recovery code",
+      "Código de recuperación",
+      "Tu código es:",
       HTMLRecoveryEmail(code)
     );
 
-    res.json({ message: "Recovery email sent successfully" });
+    res.json({ message: "Correo de recuperación enviado correctamente." });
   } catch (error) {
-    console.log("Error in requestCode: " + error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Error in requestCode:", error);
+    res.status(500).json({ message: "Error interno del servidor." });
   }
 };
 
-// FUNCIÓN PARA VERIFICAR EL CÓDIGO (sin cambios)
+//Verificar código
 passwordRecoveryController.verifyCode = async (req, res) => {
   const { code } = req.body;
 
@@ -73,41 +65,37 @@ passwordRecoveryController.verifyCode = async (req, res) => {
     const token = req.cookies.tokenRecoveryCode;
 
     if (!token) {
-      return res.status(400).json({ message: "No recovery token found" });
+      return res.status(400).json({ message: "No se encontró token de recuperación." });
     }
 
     const decoded = jsonwebtoken.verify(token, config.JWT.JWT_SECRET);
 
     if (decoded.code !== code) {
-      return res.status(400).json({ message: "Invalid code" });
+      return res.status(400).json({ message: "Código incorrecto." });
     }
 
-    // Marcar el token como verificado
+    const { exp, iat, ...rest } = decoded;
+
     const newToken = jsonwebtoken.sign(
-      {
-        email: decoded.email,
-        code: decoded.code,
-        userType: decoded.userType,
-        verified: true,
-      },
+      { ...rest, verified: true },
       config.JWT.JWT_SECRET,
       { expiresIn: "20m" }
     );
 
-    res.cookie("tokenRecoveryCode", newToken, { 
+    res.cookie("tokenRecoveryCode", newToken, {
       maxAge: 20 * 60 * 1000,
-      path: '/',
-      sameSite: 'lax'
+      sameSite: "lax",
+      path: "/"
     });
 
-    res.json({ message: "Code verified successfully" });
+    res.json({ message: "Código verificado correctamente." });
   } catch (error) {
-    console.log("Error in verifyCode: " + error);
-    res.status(500).json({ message: "Token expired or invalid" });
+    console.error("Error in verifyCode:", error);
+    res.status(400).json({ message: "Token inválido o expirado." });
   }
 };
 
-// FUNCIÓN PARA ASIGNAR LA NUEVA CONTRASEÑA (MEJORADA)
+//Nueva contraseña
 passwordRecoveryController.newPassword = async (req, res) => {
   const { newPassword } = req.body;
 
@@ -115,64 +103,44 @@ passwordRecoveryController.newPassword = async (req, res) => {
     const token = req.cookies.tokenRecoveryCode;
 
     if (!token) {
-      return res.status(400).json({ message: "No recovery token found" });
+      return res.status(400).json({ message: "No se encontró token de recuperación." });
     }
 
     const decoded = jsonwebtoken.verify(token, config.JWT.JWT_SECRET);
 
     if (!decoded.verified) {
-      return res.status(400).json({ message: "Code not verified" });
+      return res.status(400).json({ message: "El código no está verificado." });
     }
 
-    const { email, userType } = decoded;
-
-    // Encriptar la nueva contraseña
-    const hashedPassword = await bcryptjs.hash(newPassword, 10);
-
-    let updatedUser;
-
-    // Actualizar según el tipo de usuario
-    if (userType === "client") {
-      // Verificar que la nueva contraseña no sea igual a la actual
-      const currentUser = await clientsModel.findOne({ email });
-      const isSamePassword = await bcryptjs.compare(newPassword, currentUser.password);
-      
-      if (isSamePassword) {
-        return res.status(400).json({ message: "New password must be different from current password" });
-      }
-
-      updatedUser = await clientsModel.findOneAndUpdate(
-        { email },
-        { password: hashedPassword },
-        { new: true }
-      );
-    } else if (userType === "admin") {
-      // Verificar que la nueva contraseña no sea igual a la actual
-      const currentUser = await adminModel.findOne({ email });
-      const isSamePassword = await bcryptjs.compare(newPassword, currentUser.password);
-      
-      if (isSamePassword) {
-        return res.status(400).json({ message: "New password must be different from current password" });
-      }
-
-      updatedUser = await adminModel.findOneAndUpdate(
-        { email },
-        { password: hashedPassword },
-        { new: true }
-      );
+    if (!newPassword || newPassword.length < 8 || !/[!@#$%^&*(),.?":{}|<>]/.test(newPassword)) {
+      return res.status(400).json({
+        message: "La contraseña debe tener mínimo 8 caracteres y al menos 1 carácter especial."
+      });
     }
 
-    if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
+    const Model = decoded.userType === "client" ? clientsModel : adminModel;
+    const user = await Model.findOne({ email: decoded.email });
+
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado." });
     }
 
-    // Eliminar el token de las cookies por seguridad
+    const isSame = await bcryptjs.compare(newPassword, user.password);
+    if (isSame) {
+      return res.status(400).json({
+        message: "La nueva contraseña debe ser diferente de la actual."
+      });
+    }
+
+    const hashed = await bcryptjs.hash(newPassword, 10);
+
+    await Model.findOneAndUpdate({ email: decoded.email }, { password: hashed });
+
     res.clearCookie("tokenRecoveryCode");
-
-    res.json({ message: "Password updated successfully" });
+    res.json({ message: "Contraseña actualizada correctamente." });
   } catch (error) {
-    console.log("Error in newPassword: " + error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Error in newPassword:", error);
+    res.status(400).json({ message: "Token inválido o expirado." });
   }
 };
 

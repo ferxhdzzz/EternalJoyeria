@@ -1,133 +1,170 @@
-// Importar el modelo Review desde la carpeta models
 import Review from "../models/Reviews.js";
 import Customer from "../models/Customers.js";
+import Product from "../models/Products.js";
 
-// Crear objeto para contener todos los métodos del controlador
 const reviewsController = {};
 
-//GET review
+// Obtener todas las reseñas
 reviewsController.getReviews = async (req, res) => {
   try {
-    // Buscar todas las reviews y poblar datos del cliente relacionado
-    const reviews = await Review.find().populate("id_customer");
+    const reviews = await Review.find()
+      .populate({ path: "id_customer", select: "-password" })
+      .populate("id_product");
 
-    // Enviar respuesta exitosa con todas las reviews
     res.json(reviews);
   } catch (error) {
-    // Manejo de errores del servidor
     res.status(500).json({
       message: "Error fetching reviews",
-      error: error.message
+      error: error.message,
     });
   }
 };
 
-//GET review por ID
+// Obtener una reseña por ID
 reviewsController.getReview = async (req, res) => {
   try {
-    // Buscar review por ID y poblar datos del cliente relacionado
-    const review = await Review.findById(req.params.id).populate("id_customer");
+    const review = await Review.findById(req.params.id)
+      .populate({ path: "id_customer", select: "-password" })
+      .populate("id_product");
 
-    // Verificar si la review existe
     if (!review) {
       return res.status(404).json({ message: "Review not found" });
     }
 
-    // Enviar respuesta exitosa con la review encontrada
     res.json(review);
   } catch (error) {
-    // Manejo de errores (ID inválido u otros)
     res.status(400).json({
       message: "Error fetching review",
-      error: error.message
+      error: error.message,
     });
   }
 };
 
-//POST review
-reviewsController.createReview = async (req, res) => {
-  const { id_customer, rank, comment } = req.body;
+// Obtener todas las reseñas de un producto específico
+reviewsController.getReviewsByProduct = async (req, res) => {
+  const { id } = req.params;
 
   try {
-    // Validar que el cliente existe
+    const reviews = await Review.find({ id_product: id })
+      .populate({ path: "id_customer", select: "-password" })
+      .populate("id_product");
+
+    if (!reviews || reviews.length === 0) {
+      return res.status(404).json({ message: "No reviews found for this product" });
+    }
+
+    res.json(reviews);
+  } catch (error) {
+    res.status(400).json({
+      message: "Error fetching reviews for product",
+      error: error.message,
+    });
+  }
+};
+
+// Crear una nueva reseña
+reviewsController.createReview = async (req, res) => {
+  const { id_customer, id_product, rank, comment } = req.body;
+
+  try {
+    // Validar campos obligatorios
+    if (!id_customer || !id_product || rank == null || !comment?.trim()) {
+      return res.status(400).json({ message: "All fields are required: customer, product, rank, comment" });
+    }
+
+    if (rank < 1 || rank > 5) {
+      return res.status(400).json({ message: "Rank must be between 1 and 5" });
+    }
+
+    // Validar existencia de cliente y producto
     const customer = await Customer.findById(id_customer);
     if (!customer) {
       return res.status(404).json({ message: "Customer not found" });
     }
 
-    // Crear la nueva review
+    const product = await Product.findById(id_product);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    // Crear reseña
     const newReview = new Review({
       id_customer,
+      id_product,
       rank,
-      comment
+      comment: comment.trim(),
     });
 
-    // Guardar la review
     const savedReview = await newReview.save();
 
-    // Buscar la review recién creada y poblar datos del cliente
-    const populatedReview = await Review.findById(savedReview._id).populate("id_customer");
+    const populatedReview = await Review.findById(savedReview._id)
+      .populate({ path: "id_customer", select: "-password" })
+      .populate("id_product");
 
-    // Enviar respuesta exitosa con la review creada
     res.status(201).json(populatedReview);
   } catch (error) {
-    // Manejo de errores del servidor
     res.status(400).json({
       message: "Error creating review",
-      error: error.message
+      error: error.message,
     });
   }
 };
 
-//UPDATE review
+// Actualizar reseña
 reviewsController.updateReview = async (req, res) => {
   const { rank, comment } = req.body;
 
   try {
-    // Buscar review por ID
     const review = await Review.findById(req.params.id);
     if (!review) {
       return res.status(404).json({ message: "Review not found" });
     }
 
-    // Actualizar campos de la review
-    if (rank !== undefined) review.rank = rank;
-    if (comment !== undefined) review.comment = comment;
+    // Validar rank si se envía
+    if (rank !== undefined) {
+      if (rank < 1 || rank > 5) {
+        return res.status(400).json({ message: "Rank must be between 1 and 5" });
+      }
+      review.rank = rank;
+    }
 
-    // Guardar cambios
+    // Validar comment si se envía
+    if (comment !== undefined) {
+      if (!comment.trim()) {
+        return res.status(400).json({ message: "Comment cannot be empty" });
+      }
+      review.comment = comment.trim();
+    }
+
     const updatedReview = await review.save();
 
-    // Buscar la review actualizada y poblar datos del cliente
-    const populatedReview = await Review.findById(updatedReview._id).populate("id_customer");
+    const populatedReview = await Review.findById(updatedReview._id)
+      .populate({ path: "id_customer", select: "-password" })
+      .populate("id_product");
 
-    // Enviar respuesta exitosa con la review actualizada
     res.status(200).json(populatedReview);
   } catch (error) {
-    // Manejo de errores del servidor
     res.status(400).json({
       message: "Error updating review",
-      error: error.message
+      error: error.message,
     });
   }
 };
 
-//DELETE review
+// Eliminar reseña
 reviewsController.deleteReview = async (req, res) => {
   try {
-    // Buscar y eliminar la review por ID
     const deletedReview = await Review.findByIdAndDelete(req.params.id);
 
     if (!deletedReview) {
       return res.status(404).json({ message: "Review not found" });
     }
 
-    // Enviar respuesta exitosa
     res.json({ message: "Review deleted successfully" });
   } catch (error) {
-    // Manejo de errores del servidor
     res.status(400).json({
       message: "Error deleting review",
-      error: error.message
+      error: error.message,
     });
   }
 };

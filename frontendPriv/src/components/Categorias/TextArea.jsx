@@ -1,20 +1,20 @@
-import React from 'react';
-import './TextArea.css';
+import React from "react";
+import "./TextArea.css";
 
-const TextArea = ({ label, placeholder, rows = 5, value, onChange, error }) => {
+const TextArea = React.forwardRef(({ label, placeholder, rows = 5, error, ...props }, ref) => {
   return (
     <div className="textarea-container">
       <label className="textarea-label">{label}</label>
       <textarea
         placeholder={placeholder}
         rows={rows}
-        value={value}
-        onChange={onChange}
+        ref={ref}
         className="textarea-field"
-      ></textarea>
+        {...props}
+      />
       {error && <span className="error-message">{error}</span>}
     </div>
   );
-};
+});
 
 export default TextArea;

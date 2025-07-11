@@ -1,27 +1,42 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
+import Swal from 'sweetalert2';
 import {
   FaBox, FaTruck, FaPlusCircle, FaShoppingCart,
   FaTags, FaUsers, FaCog,
   FaCompass, FaSignOutAlt, FaBars, FaTimes
 } from 'react-icons/fa';
+import useDataLogout from '../../hooks/Logout/useDataLogout';
 
 function Sidebar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  const navigate = useNavigate();
+  const { logoutUser } = useDataLogout(navigate);
+
+  const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: '¿Cerrar sesión?',
+      text: 'Tu sesión se cerrará',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'Cancelar',
+    });
+
+    if (result.isConfirmed) {
+      logoutUser();
+    }
   };
 
   return (
     <div className={`sidebar-wrapper ${isMenuOpen ? 'open' : ''}`}>
-      {/* Botón de hamburguesa visible en pantallas pequeñas */}
       <button className="hamburger-button" onClick={toggleMenu}>
         {isMenuOpen ? <FaTimes /> : <FaBars />}
       </button>
 
-      {/* Sidebar principal */}
       <div className="sidebarr">
         <div className="logop">
           <NavLink to="/">
@@ -31,16 +46,16 @@ function Sidebar() {
         </div>
 
         <nav className="menuu">
-          <NavLink to="/Dashboard" className="nav-link">
+          <NavLink to="/dashboard" className="nav-link">
             <FaCompass className="icon" /> <span>Menu</span>
           </NavLink>
-          <NavLink to="/productPriv" className="nav-link">
+          <NavLink to="/productos" className="nav-link">
             <FaBox className="icon" /> <span>Productos</span>
           </NavLink>
-          <NavLink to="/AddProduct" className="nav-link">
+          <NavLink to="/agregar-producto" className="nav-link">
             <FaPlusCircle className="icon" /> <span>Agregar productos</span>
           </NavLink>
-          <NavLink to="/HistorialCompras" className="nav-link">
+          <NavLink to="/historial-compras" className="nav-link">
             <FaTruck className="icon" /> <span>Compras</span>
           </NavLink>
           <NavLink to="/resenas" className="nav-link">
@@ -55,9 +70,10 @@ function Sidebar() {
         </nav>
 
         <div className="settings">
-          <NavLink to="/cerrarsesion" className="nav-link">
-            <FaSignOutAlt className="icon" /> <span>Cerrar sesión</span>
-          </NavLink>
+     <button className="nav-link" onClick={handleLogout}>
+  <FaSignOutAlt className="icon" /> <span>Cerrar sesión</span>
+</button>
+
         </div>
       </div>
     </div>

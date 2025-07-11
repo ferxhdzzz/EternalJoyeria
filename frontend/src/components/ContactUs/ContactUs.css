@@ -1,34 +1,86 @@
 .contact-us-container {
-  padding: 4rem 2rem; /* Adds padding around the container. */
-  background-color: #FFFDFA; /* Sets a light background color for the entire section. */
+  min-height: 100vh;
+  width: 100%;
+  background: none;
+  overflow: hidden; /* Prevenir desbordamiento */
+  margin: 0; /* Eliminar espacio inferior */
+  padding: 0;
+  position: relative;
+}
+.contact-us-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  background: linear-gradient(180deg, #ffe4ed 0%, #fff 100%);
+  pointer-events: none;
+}
+
+.contact-us-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.contact-us-flower {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 2px 8px #ffd6de88);
+  animation: appearUp 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+}
+
+.contact-us-title {
+  font-family: 'Inter', 'DM Sans', Arial, sans-serif;
+  font-size: 2.2rem;
+  color: #b94a6c;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 8px #ffd6de33;
+}
+
+.contact-us-subtitle {
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-size: 1.1rem;
+  color: #b94a6c;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  max-width: 400px;
+  line-height: 1.4;
 }
 
 .contact-us {
-  max-width: 800px; /* Sets the maximum width of the contact form container. */
-  margin: 0 auto; /* Centers the container horizontally. */
-  padding: 4rem 2rem; /* Adds padding inside the container. */
-  background-color: #F5C8C6; /* Sets a pinkish background color. */
-  border-top-left-radius: 50vw; /* Creates a curved effect on the top-left corner. */
-  border-top-right-radius: 50vw; /* Creates a curved effect on the top-right corner. */
-  border-bottom-left-radius: 0; /* Keeps the bottom-left corner sharp. */
-  border-bottom-right-radius: 0; /* Keeps the bottom-right corner sharp. */
-  text-align: center; /* Centers the text content inside. */
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 2.5rem 2rem;
+  background-color: #fff;
+  border-radius: 32px;
+  box-shadow: 0 8px 32px 0 #ffd6de33, 0 1.5px 8px 0 #b94a6c11;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  animation: appearUp 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
 }
 
 .contact-us__title {
-  font-family: 'Playfair Display', serif; /* Sets the font for the title. */
+  font-family: 'DM Sans', Arial, sans-serif; /* Cambiado a DM Sans */
   font-size: 2.8rem; /* Sets the size of the title font. */
   color: #333; /* Sets the color of the title text. */
   margin-bottom: 2.5rem; /* Adds space below the title. */
 }
 
 .contact-us__form {
-  display: flex; /* Enables flexbox layout for the form. */
-  flex-direction: column; /* Stacks form elements vertically. */
-  align-items: center; /* Centers form elements horizontally. */
-  gap: 1.2rem; /* Adds space between form elements. */
-  max-width: 450px; /* Sets the maximum width of the form. */
-  margin: 0 auto; /* Centers the form horizontally. */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 .contact-us__form-group {
@@ -38,25 +90,34 @@
 
 .contact-us__form-group label {
   display: block; /* Makes the label a block-level element. */
-  font-family: 'Inter', sans-serif; /* Sets the font for the label. */
+  font-family: 'DM Sans', Arial, sans-serif; /* Cambiado a DM Sans */
   font-size: 0.8rem; /* Sets the font size for the label. */
   color: #5c5c5c; /* Sets the color of the label text. */
   margin-bottom: 0.4rem; /* Adds space below the label. */
   padding-left: 1rem; /* Adds padding to the left of the label. */
 }
 
-.contact-us__form-group input,
-.contact-us__form-group textarea,
-.contact-us__form-group select {
-  width: 100%; /* Makes form controls take the full width. */
-  padding: 0.9rem 1.2rem; /* Adds padding inside the form controls. */
-  border: none; /* Removes the default border. */
-  border-radius: 50px; /* Makes the corners of the form controls rounded. */
-  background-color: #fff; /* Sets a white background for form controls. */
-  font-family: 'Inter', sans-serif; /* Sets the font for the text inside controls. */
-  font-size: 1rem; /* Sets the font size for the text inside controls. */
-  color: #333; /* Sets the text color for the input. */
-  box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height. */
+.input-label {
+  font-size: 15px;
+  color: #b94a6c;
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: 0.2px;
+}
+
+.input {
+  border: 2px solid #ffd6de;
+  border-radius: 20px;
+  padding: 12px 16px;
+  font-size: 16px;
+  color: #b94a6c;
+  background: #fff;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  box-shadow: 0 1.5px 8px 0 #ffd6de22;
+}
+.input:focus {
+  border-color: #b94a6c;
+  box-shadow: 0 0 0 4px #ffd6de44;
 }
 
 .phone-input-group {
@@ -86,38 +147,115 @@
 }
 
 .contact-us__submit-btn {
-  padding: 1rem 3rem; /* Adds padding to the submit button. */
-  border: none; /* Removes the default border. */
-  border-radius: 50px; /* Makes the button corners rounded. */
-  background-color: #3A6A64; /* Sets a dark green background color. */
-  color: #fff; /* Sets the text color to white. */
-  font-family: 'Inter', sans-serif; /* Sets the font for the button text. */
-  font-size: 1rem; /* Sets the font size for the button text. */
-  font-weight: 500; /* Makes the button text semi-bold. */
-  cursor: pointer; /* Changes the cursor to a pointer on hover. */
-  transition: background-color 0.3s ease; /* Adds a smooth transition for the background color. */
-  margin-top: 1.5rem; /* Adds space above the button. */
+  background-color: #ffd6de;
+  color: #b94a6c;
+  padding: 0.9rem 2.2rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border: none;
+  box-shadow: 0 2px 8px #ffd6de44;
+  margin-top: 1.5rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
 }
-
 .contact-us__submit-btn:hover {
-  background-color: #2e5450; /* Darkens the background color on hover. */
+  background: #fbcfe8;
+  color: #fff;
+  transform: scale(1.04) translateY(-2px);
 }
 
 .contact-us__footer-text {
-  font-family: 'Inter', sans-serif; /* Sets the font for the footer text. */
+  font-family: 'DM Sans', Arial, sans-serif; /* Cambiado a DM Sans */
   font-size: 0.75rem; /* Sets a smaller font size for the footer text. */
   color: #5c5c5c; /* Sets the color of the footer text. */
   margin-top: 1rem; /* Adds space above the footer text. */
   max-width: 300px; /* Sets a maximum width for the footer text to wrap. */
 }
 
+.success-message {
+  background: linear-gradient(90deg, #e8f5e9 60%, #ffd6de 100%);
+  color: #b94a6c;
+  padding: 1.1rem;
+  border-radius: 16px;
+  margin-top: 1.2rem;
+  width: 100%;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px #ffd6de44;
+  border: 1.5px solid #ffd6de;
+}
+
 /* --- Responsive Design --- */
-@media (max-width: 768px) { /* Applies the following styles on screens 768px wide or smaller. */
+@media (max-width: 700px) {
   .contact-us {
-    padding: 3rem 1rem; /* Reduces padding on smaller screens. */
+    padding: 0.5rem 0;
+    border-radius: 12px;
+    max-width: 65vw;
+    background: transparent;
+    margin-left: 6vw;
+  }
+  .contact-us-title {
+    font-size: 1.5rem;
+  }
+  .contact-us-header {
+    margin-bottom: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-us-container {
+    padding: 2rem 1rem;
+  }
+  
+  .contact-us {
+    padding: 0.5rem 0;
+    border-top-left-radius: 18px;
+    max-width: 74vw;
+    background: transparent;
+    margin-left: 6vw;
   }
 
   .contact-us__title {
-    font-size: 2.2rem; /* Reduces the title font size on smaller screens. */
+    font-size: 1.8rem;
+    margin-bottom: 1.8rem;
+  }
+  
+  .contact-us__submit-btn {
+    padding: 0.8rem 2.5rem;
+    font-size: 0.9rem;
+  }
+
+  .contact-us__form-group label,
+  .input-label {
+    font-size: 0.95rem;
+    padding-left: 0.5rem;
+  }
+  .contact-us__form-group select.input {
+    font-size: 1rem;
+    padding: 10px 12px;
+    border-radius: 16px;
+  }
+  .contact-us__form-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+  }
+  .contact-us__form {
+    gap: 0.8rem;
+  }
+}
+
+.contact-title-appear {
+  opacity: 0;
+  transform: translateY(60px);
+  animation: appearUp 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+}
+
+@keyframes appearUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

@@ -1,138 +1,204 @@
-import React, { useState } from 'react'; // Imports React and the useState hook for managing component state.
-import './ContactUs.css'; // Imports the stylesheet for the ContactUs component.
+import React, { useState } from 'react';
+import './ContactUs.css';
+import Input from '../registro/inpungroup/InputGroup';
 
-// Defines the ContactUs functional component.
 const ContactUs = () => {
-  // Initializes the state for the form data using the useState hook.
+  // Inicializa el estado para los datos del formulario
   const [formData, setFormData] = useState({
-    name: '', // Field for the user's name.
-    countryCode: '+503', // Field for the selected country code, defaults to El Salvador.
-    phone: '', // Field for the user's phone number.
-    email: '', // Field for the user's email address.
-    comments: '', // Field for the user's comments.
+    fullName: '',
+    email: '',
+    phone: '',
+    subject: '',
+    description: '',
+    privacy: false
   });
 
-  // Initializes the state for form validation errors.
+  // Inicializa el estado para los errores de validación
   const [errors, setErrors] = useState({});
+  
+  // Estado para mostrar mensaje de éxito
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  // Handles changes in the input fields.
+  // Maneja los cambios en los campos del formulario
   const handleInputChange = (e) => {
-    // Destructures the name and value from the event target (the input element).
-    const { name, value } = e.target;
-
-    // Special handling for the 'phone' input field.
-    if (name === 'phone') {
-      // Gets the current country code from the form data state.
-      const { countryCode } = formData;
-      // Sets the maximum allowed length for the phone number based on the country code.
-      const maxLength = countryCode === '+503' ? 8 : 10;
-      // Allows the update only if the value consists of digits and does not exceed the max length.
-      if (/^[0-9]*$/.test(value) && value.length <= maxLength) {
-        // Updates the state with the new value for the phone field.
-        setFormData({ ...formData, [name]: value });
-      }
-    } else {
-      // For all other fields, updates the state with the new value.
-      setFormData({ ...formData, [name]: value });
+    const { name, value, type, checked } = e.target;
+    setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
+    
+    // Limpiar errores cuando el usuario escribe
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
     }
   };
 
-  // Validates the form data.
+  // Valida el formulario antes de enviarlo
   const validateForm = () => {
-    // Creates an empty object to store any new errors.
     const newErrors = {};
-    // Checks if the name field is empty after trimming whitespace.
-    if (!formData.name.trim()) newErrors.name = 'El nombre es obligatorio.';
-    // Checks if the email field matches a standard email format.
-    if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'El correo electrónico no es válido.';
     
-    // Determines the required phone number length based on the country code.
-    const phoneLength = formData.countryCode === '+503' ? 8 : 10;
-    // Checks if the phone number has the required length.
-    if (formData.phone.length !== phoneLength) {
-      newErrors.phone = `El número debe tener ${phoneLength} dígitos.`;
+    // Validación de nombre completo
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = 'El nombre completo es obligatorio.';
+    }
+    
+    // Validación de email
+    if (!formData.email.trim()) {
+      newErrors.email = 'El correo electrónico es obligatorio.';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'El formato del correo electrónico no es válido.';
     }
 
-    // Checks if the comments field is empty after trimming whitespace.
-    if (!formData.comments.trim()) newErrors.comments = 'Los comentarios son obligatorios.';
+    // Validación de teléfono (opcional, pero si se llena debe ser válido)
+    if (formData.phone.trim()) {
+      // Permite números, espacios, guiones y paréntesis, mínimo 8 dígitos
+      if (!/^[- +()0-9]{8,}$/.test(formData.phone.trim())) {
+        newErrors.phone = 'El teléfono debe ser válido (mínimo 8 dígitos, solo números y símbolos).';
+      }
+    }
 
-    // Updates the errors state with any new errors found.
+    // Validación de asunto
+    if (!formData.subject) {
+      newErrors.subject = 'Selecciona un asunto.';
+    }
+    
+    // Validación de descripción
+    if (!formData.description.trim()) {
+      newErrors.description = 'La descripción es obligatoria.';
+    } else if (formData.description.trim().length < 10) {
+      newErrors.description = 'La descripción debe tener al menos 10 caracteres.';
+    }
+
+    // Validación de privacidad
+    if (!formData.privacy) {
+      newErrors.privacy = 'Debes aceptar el aviso de privacidad.';
+    }
+    
     setErrors(newErrors);
-    // Returns true if no errors were found, and false otherwise.
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handles the form submission.
+  // Maneja el envío del formulario
   const handleSubmit = (e) => {
-    // Prevents the default browser behavior for form submission (page reload).
     e.preventDefault();
-    // If the form is valid...
+    
     if (validateForm()) {
-      // Logs the form data to the console (placeholder for actual submission logic).
+      // Aquí iría la lógica para enviar los datos a un servidor
       console.log('Formulario válido, enviando datos:', formData);
-      // Future logic for sending the form data to a server would go here.
+      
+      // Muestra el mensaje de éxito
+      setSubmitSuccess(true);
+      
+      // Limpia el formulario después de 3 segundos
+      setTimeout(() => {
+        setFormData({
+          fullName: '',
+          email: '',
+          phone: '',
+          subject: '',
+          description: '',
+          privacy: false
+        });
+        setSubmitSuccess(false);
+      }, 3000);
     }
   };
 
-  // The return statement contains the JSX that will be rendered to the DOM.
   return (
-    // The main container for the contact us section.
     <section className="contact-us-container">
-      {/* The inner container for the form itself. */}
       <div className="contact-us">
-        {/* The title of the contact form. */}
-        <h2 className="contact-us__title">Contactanos</h2>
-        {/* The form element with a submit handler and noValidate to disable default browser validation. */}
         <form className="contact-us__form" onSubmit={handleSubmit} noValidate>
-          {/* A group for the name input field and its label. */}
+          <Input
+            label="Nombre completo"
+            name="fullName"
+            value={formData.fullName}
+            onChange={handleInputChange}
+          />
+          {errors.fullName && <p className="error-text">{errors.fullName}</p>}
+          
+          <Input
+            label="Correo electrónico"
+            name="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            type="email"
+          />
+          {errors.email && <p className="error-text">{errors.email}</p>}
+
+          {/* Teléfono (opcional) */}
+          <Input
+            label="Teléfono (opcional)"
+            name="phone"
+            value={formData.phone}
+            onChange={handleInputChange}
+            type="tel"
+          />
+          {errors.phone && <p className="error-text">{errors.phone}</p>}
+
+          {/* Asunto (desplegable) */}
           <div className="contact-us__form-group">
-            {/* The label for the name input. */}
-            <label htmlFor="name">Nombre y Apellido</label>
-            {/* The text input for the user's name. */}
-            <input type="text" id="name" name="name" value={formData.name} onChange={handleInputChange} />
-            {/* Conditionally renders an error message if there is a name error. */}
-            {errors.name && <p className="error-text">{errors.name}</p>}
+            <label className="input-label" htmlFor="subject">Asunto</label>
+            <select
+              id="subject"
+              name="subject"
+              className="input"
+              value={formData.subject}
+              onChange={handleInputChange}
+              required
+              style={{ width: '100%' }}
+            >
+              <option value="">Selecciona una opción</option>
+              <option value="consulta">Consulta</option>
+              <option value="pedido">Pedido</option>
+              <option value="sugerencia">Sugerencia</option>
+              <option value="otro">Otro</option>
+            </select>
+            {errors.subject && <p className="error-text">{errors.subject}</p>}
           </div>
-          {/* A group for the phone number input and its label. */}
-          <div className="contact-us__form-group">
-            {/* The label for the phone input. */}
-            <label htmlFor="phone">Número telefónico</label>
-            {/* A group for the country code selector and the phone number input. */}
-            <div className="phone-input-group">
-              {/* The dropdown for selecting the country code. */}
-              <select name="countryCode" value={formData.countryCode} onChange={handleInputChange}>
-                <option value="+503">SV (+503)</option> {/* Option for El Salvador. */}
-                <option value="+1">US (+1)</option> {/* Option for the United States. */}
-              </select>
-              {/* The telephone input for the user's phone number. */}
-              <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleInputChange} />
+
+          <div className="input-wrapper">
+            <label className="input-label">Descripción</label>
+            <div className="input-container">
+              <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleInputChange}
+                className="input"
+            placeholder="Cuéntanos cómo podemos ayudarte"
+            maxLength={255}
+                style={{ minHeight: '80px', resize: 'none' }}
+              />
             </div>
-            {/* Conditionally renders an error message if there is a phone error. */}
-            {errors.phone && <p className="error-text">{errors.phone}</p>}
+            {errors.description && <p className="error-text">{errors.description}</p>}
           </div>
-          {/* A group for the email input field and its label. */}
-          <div className="contact-us__form-group">
-            {/* The label for the email input. */}
-            <label htmlFor="email">Correo</label>
-            {/* The email input for the user's email address. */}
-            <input type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} />
-            {/* Conditionally renders an error message if there is an email error. */}
-            {errors.email && <p className="error-text">{errors.email}</p>}
+
+          {/* Checkbox de privacidad */}
+          <div className="contact-us__form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+            <input
+              type="checkbox"
+              id="privacy"
+              name="privacy"
+              checked={formData.privacy}
+              onChange={handleInputChange}
+              style={{ width: '18px', height: '18px' }}
+              required
+            />
+            <label htmlFor="privacy" style={{ fontSize: '0.95rem', color: '#b94a6c', fontWeight: 500, cursor: 'pointer', marginTop: '0.5rem' }}>
+              Acepto el <a href="/aviso-privacidad" target="_blank" rel="noopener noreferrer" style={{ color: '#b94a6c', textDecoration: 'underline' }}>aviso de privacidad</a>
+            </label>
           </div>
-          {/* A group for the comments textarea and its label. */}
-          <div className="contact-us__form-group">
-            {/* The label for the comments textarea. */}
-            <label htmlFor="comments">Agrega tus comentarios</label>
-            {/* The textarea for the user's comments. */}
-            <textarea id="comments" name="comments" value={formData.comments} onChange={handleInputChange}></textarea>
-            {/* Conditionally renders an error message if there is a comments error. */}
-            {errors.comments && <p className="error-text">{errors.comments}</p>}
-          </div>
-          {/* The submit button for the form. */}
-          <button type="submit" className="contact-us__submit-btn">Enviar</button>
-          {/* A footer text to inform the user about the next steps. */}
+          {errors.privacy && <p className="error-text">{errors.privacy}</p>}
+          
+          <button type="submit" className="contact-us__submit-btn">
+            Enviar
+          </button>
+          {submitSuccess && (
+            <p className="success-message">
+              Mensaje enviado con éxito. ¡Gracias por contactarnos!
+            </p>
+          )}
           <p className="contact-us__footer-text">
-            Te contactaremos lo más pronto posible, muchas gracias por tus comentarios.
+            Te contactaremos lo más pronto posible. Gracias por tus comentarios.
           </p>
         </form>
       </div>
@@ -140,5 +206,4 @@ const ContactUs = () => {
   );
 };
 
-// Exports the ContactUs component to be used in other parts of the application.
 export default ContactUs;

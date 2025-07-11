@@ -1,0 +1,153 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap');
+
+/* =====  HERO WRAPPER (Gradient + Rounded corners) ===== */
+.bloom-hero-bg {
+  width: 100%;
+  min-height: 130vh;            /* extra altura para que la imagen no se corte */
+  background: linear-gradient(to bottom, #ffffff 0%, #ffffff 20%, #ffecec 55%, #ffdada 100%);
+  border-bottom-left-radius: 48px;
+  border-bottom-right-radius: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+
+  overflow: hidden;
+  position: relative;
+}
+
+/* =====  HERO INNER (contenidos de texto y botón) ===== */
+.bloom-hero {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 180px 24px 0 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+.bloom-hero-badge {
+  background: #ffe6e6;
+  color: #a85a5a;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 8px 28px;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.bloom-hero-title {
+  font-family: 'DM Sans', sans-serif;
+  color: #4b1717;
+  font-size: 4.2rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.07;
+  margin: 0 0 24px 0;
+}
+
+.bloom-hero-title .line {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.bloom-hero-subtitle {
+  color: #6d4b4b;
+  font-size: 1.08rem;
+  font-weight: 700;
+  text-align: center;
+  max-width: 460px;
+  margin-bottom: 34px;
+  transform: translateX(200px);
+}
+
+.bloom-hero-btn {
+  background: #4b1717;
+  color: #fff;
+  font-family: 'Avenir', 'DM Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.07rem;
+  font-weight: 700;
+  border: 2px solid #4b1717;
+  border-radius: 999px;
+  padding: 13px 38px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.bloom-hero-btn:hover {
+  background-color: transparent;
+  color: #4b1717;
+  border-color: #4b1717;
+}
+
+/* =====  HAND IMAGE ===== */
+.bloom-hero-hand-container {
+  align-items: center;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: -180px;
+}
+
+.bloom-hero-hand-img {
+  width: 650px;
+  max-width: 90vw;
+  object-fit: contain;
+  margin-bottom: 0;
+  transform: translateX(60px);
+  z-index: 3;
+  /* sin cuadro ni sombra */
+}
+
+/* =====  MEDIA QUERIES ===== */
+.badge-animation {
+  transform: translateY(-50px);
+}
+
+.badge-animation,
+.text-animation-group {
+  width: 100%;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .bloom-hero-title { font-size: 2.4rem; }
+  .bloom-hero { padding: 240px 12px 0 12px; }
+  .bloom-hero-hand-container { margin-top: 240px; }
+  .bloom-hero-hand-img { width: 380px; transform: translateX(0px); }
+  .bloom-hero-title,
+  .bloom-hero-subtitle {
+    text-align: center !important;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .bloom-hero-subtitle {
+    transform: none !important;
+    max-width: 95vw;
+  }
+}
+
+@media (max-width: 480px) {
+  .bloom-hero-title { font-size: 1.7rem; }
+  .bloom-hero-badge { font-size: 0.7rem; padding: 6px 18px; }
+  .bloom-hero-hand-container { margin-top: 320px; }
+  .bloom-hero { padding-top: 320px !important; }
+  .bloom-hero-hand-img { width: 320px; transform: translateX(-30px); }
+  .bloom-hero-bg { border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; }
+  .bloom-hero-title,
+  .bloom-hero-subtitle {
+    text-align: center !important;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .bloom-hero-subtitle {
+    transform: none !important;
+    max-width: 98vw;
+  }
+}

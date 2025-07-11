@@ -1,61 +1,60 @@
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+
 import Logo from "../components/registro/logo/Logo";
 import Input from "../components/registro/inpungroup/InputGroup";
 import Button from "../components/registro/button/Button";
 import BackArrow from "../components/registro/backarrow/BackArrow";
 import OlvidarCont from "../components/registro/labelcont/LabelCont";
+
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
-import '../styles/Recuperacion.css';
+import "../styles/Recuperacion.css";
 
-
-
-const Login = () => {
-  const [form, setForm] = useState({ email: "", code: "" });
-  const [errors, setErrors] = useState({ email: "", code: "" });
-const [showPassword, setShowPassword] = useState(false);
-
+export default function Login() {
+  const { register, handleSubmit, formState: { errors } } = useForm();
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prevForm) => ({
-      ...prevForm,
-      [name]: value,
-    }));
-  };
+  const onSubmit = async (data) => {
+    console.log("Form submitted:", data);
+    try {
+      const response = await fetch("http://localhost:4000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+      });
 
+      const result = await response.json();
 
+      if (!response.ok) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: result.message || "Credenciales incorrectas",
+        });
+        return;
+      }
 
-
-  const handleSubmit = () => {
-    const { email, code } = form;
-    let newErrors = { email: "", code: "" };
-    let hasError = false;
-
-    // Validar correo
-    if (!email) {
-      newErrors.email = "Complete todos los campos";
-      hasError = true;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "El correo no es válido.";
-      hasError = true;
+      Swal.fire({
+        icon: "success",
+        title: "¡Bienvenido/a de vuelta!",
+        text: "Has iniciado sesión exitosamente.",
+      }).then(() => navigate("/dashboard"));
+    } catch (error) {
+      console.error(error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Error de conexión con el servidor.",
+      });
     }
-
-    // Validar contraseña
-    if (!code) {
-      newErrors.code = "Complete todos los campos";
-      hasError = true;
-    }
-
-    setErrors(newErrors);
-
-    if (hasError) return;
-
-    // Si no hay errores, redirige
-    navigate("/Dashboard");
   };
-
 
   return (
     <div
@@ -67,45 +66,39 @@ const [showPassword, setShowPassword] = useState(false);
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="recover-card">
+      <form className="recover-card" onSubmit={handleSubmit(onSubmit)}>
         <BackArrow to="/" />
         <Logo />
-        <h2 className="recover-title">Iniciar sesion</h2>
+        <h2 className="recover-title">Iniciar sesión</h2>
 
-        
         <Input
           label="Correo"
-          name="email"
-          value={form.email}
-          onChange={handleChange}
+          {...register("email", { required: "El correo es obligatorio." })}
         />
-        {errors.email && <p className="error-message">{errors.email}</p>}
+        {errors.email && (
+          <p className="error-message">{errors.email.message}</p>
+        )}
 
-<div className="input-group-eye">
- <Input
-          label="Contraseña"
-          name="code"
-               type={showPassword ? "text" : "password"}
-          value={form.code}
-          onChange={handleChange}
-        />
- <span className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
+        <div className="input-group-eye">
+          <Input
+            label="Contraseña"
+            type={showPassword ? "text" : "password"}
+            {...register("password", { required: "La contraseña es obligatoria." })}
+          />
+          <span
+            className="eye-icon"
+            onClick={() => setShowPassword(!showPassword)}
+          >
             {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
           </span>
-</div>
-       
-        {errors.code && <p className="error-message">{errors.code}</p>}
-        <OlvidarCont
-          text="¿Olvidaste tu contraseña?"
-          to="/recuperacion"
-        />
-        <Button text="      Ingresar        →      " onClick={handleSubmit} />
-       
-      </div>
+        </div>
+        {errors.password && (
+          <p className="error-message">{errors.password.message}</p>
+        )}
 
-
+        <OlvidarCont text="¿Olvidaste tu contraseña?" to="/recuperacion" />
+        <Button type="submit" text="Ingresar →" />
+      </form>
     </div>
   );
-};
-
-export default Login;
+}

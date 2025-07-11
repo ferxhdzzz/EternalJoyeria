@@ -1,39 +1,196 @@
-import React, { useEffect } from 'react'; // Imports React and the useEffect hook for handling side effects.
-import './Home.css'; // Imports the specific stylesheet for the Home page.
+import React, { useEffect, useState, useRef } from 'react';
+// import './Home.css';
 
 import Nav from '../components/Nav/Nav';
 import Hero from '../components/Home/Hero/Hero';
+import HeroCards from '../components/Home/HeroCards/HeroCards';
+import HomePitch from '../components/Home/Pitch/HomePitch';
+import OverlayCards from '../components/Home/Cards/OverlayCards';
+import ElegantCards from '../components/Home/Cards/ElegantCards';
+import HowItWorks from '../components/Home/HowItWorks/HowItWorks';
+import Reviews from '../components/Home/reseñas/Reviews';
+import SidebarCart from '../components/Cart/SidebarCart';
+import { useCart } from '../context/CartContext';
 import Footer from '../components/Footer';
+// import Testimonials from '../components/ui/Testimonials';
 
-// Defines the Home page component.
 const Home = () => {
-  // The useEffect hook is used to run side effects in the component.
-  useEffect(() => {
-    // When the component mounts, it sets the body's overflow style to 'hidden' to prevent scrolling.
-    document.body.style.overflow = 'hidden';
-    // The cleanup function is returned to be executed when the component unmounts.
-    return () => {
-      // It resets the body's overflow style to 'auto' to restore the default scrolling behavior.
-      document.body.style.overflow = 'auto';
-    };
-  }, []); // The empty dependency array ensures this effect runs only once when the component mounts.
+  const [cartOpen, setCartOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [scrollY, setScrollY] = useState(0);
+  const [activeSection, setActiveSection] = useState('hero');
+  const { cartItems } = useCart();
+  const sectionsRef = useRef({});
 
-  // The return statement contains the JSX that will be rendered to the DOM.
-  return (
-    // React Fragment (<>) is used to group multiple elements without adding an extra node to the DOM.
-    <>
-      {/* Renders the navigation bar. Its fixed position places it above other content. */}
-      <Nav />
-      {/* This div is the main container for the home page content, styled with a background image. */}
-      <div className="home-container">
-        {/* Renders the hero section, which contains the main heading and call-to-action. */}
-        <Hero />
-        {/* A placeholder comment indicating where other page sections could be added. */}
-        {/* Other sections of the home page can go here */}
+  useEffect(() => {
+    // Hide scrollbar on the body when Home component is mounted
+    document.body.style.overflow = 'hidden';
+    // Set background color to white
+    document.body.style.backgroundColor = '#FFFFFF';
+
+    // Simular carga inicial
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      document.body.style.overflow = 'auto';
+    }, 1500);
+
+    // Scroll event listener
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      setScrollY(currentScrollY);
+      
+      // Determinar sección activa
+      const sections = Object.keys(sectionsRef.current);
+      for (let section of sections) {
+        const element = sectionsRef.current[section];
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= 100 && rect.bottom >= 100) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    // Restore scrollbar when component is unmounted
+    return () => {
+      clearTimeout(timer);
+      document.body.style.overflow = 'auto';
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []); // Empty dependency array ensures this runs only once on mount
+
+  // Función para hacer scroll suave a una sección
+  const scrollToSection = (sectionId) => {
+    const element = sectionsRef.current[sectionId];
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
+  // Efecto de parallax para elementos
+  const getParallaxStyle = (speed = 0.5) => ({
+    transform: `translateY(${scrollY * speed}px)`,
+    transition: 'transform 0.1s ease-out'
+  });
+
+  if (isLoading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        background: '#FFFFFF',
+        flexDirection: 'column',
+        gap: '2rem'
+      }}>
+        <div style={{
+          width: '120px',
+          height: '120px',
+          borderRadius: '50%',
+          background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
+          backgroundSize: '200px 100%',
+          animation: 'shimmer 1.5s infinite'
+        }}></div>
+        <div style={{
+          fontSize: '1.5rem',
+          fontWeight: '600',
+          color: '#333',
+          animation: 'fadeInUp 0.8s ease-out'
+        }}>
+          Cargando Eternal Joyería...
+        </div>
       </div>
-    </>
+    );
+  }
+
+  return (
+    <div style={{ backgroundColor: '#FFFFFF' }}>
+      <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+      <Nav cartOpen={cartOpen} />
+      
+      {/* Indicador de progreso de scroll */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: `${(scrollY / (document.body.scrollHeight - window.innerHeight)) * 100}%`,
+        height: '3px',
+        background: 'linear-gradient(90deg, #ffd6de, #b94a6c)',
+        zIndex: 10000,
+        transition: 'width 0.3s ease'
+      }}></div>
+
+      <div 
+        ref={(el) => sectionsRef.current.hero = el}
+        style={getParallaxStyle(0.3)}
+      >
+        <Hero />
+      </div>
+      
+      <div 
+        ref={(el) => sectionsRef.current.pitch = el}
+        data-aos="fade-up"
+        style={{
+          opacity: scrollY > 200 ? 1 : 0.7,
+          transform: `translateY(${Math.max(0, scrollY - 200) * 0.1}px)`,
+          transition: 'all 0.3s ease'
+        }}
+      >
+        <HomePitch />
+      </div>
+      
+      <div 
+        ref={(el) => sectionsRef.current.cards = el}
+        data-aos="fade-up"
+        style={{
+          opacity: scrollY > 400 ? 1 : 0.7,
+          transform: `translateY(${Math.max(0, scrollY - 400) * 0.1}px)`,
+          transition: 'all 0.3s ease'
+        }}
+      >
+        {/* <OverlayCards /> Eliminado por Codi */}
+      </div>
+      
+      <div style={getParallaxStyle(0.2)}>
+        <HeroCards />
+      </div>
+      
+      <div 
+        ref={(el) => sectionsRef.current.reviews = el}
+        data-aos="fade-up" 
+        style={{ 
+          backgroundColor: '#FFFFFF',
+          opacity: scrollY > 600 ? 1 : 0.7,
+          transform: `translateY(${Math.max(0, scrollY - 600) * 0.1}px)`,
+          transition: 'all 0.3s ease'
+        }}
+      >
+        <Reviews />
+      </div>
+      
+      <div 
+        ref={(el) => sectionsRef.current['how-it-works'] = el}
+        data-aos="fade-up"
+        style={{
+          opacity: scrollY > 800 ? 1 : 0.7,
+          transform: `translateY(${Math.max(0, scrollY - 800) * 0.1}px)`,
+          transition: 'all 0.3s ease'
+        }}
+      >
+        <HowItWorks />
+      </div>
+      
+      <Footer />
+    </div>
   );
 };
 
-// Exports the Home component to be used in the application's routing setup.
 export default Home;

@@ -1,0 +1,167 @@
+/* Contenedor principal */
+.elegant-cards-container {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  padding: 0 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  margin-top: 80px;
+  margin-bottom: 100px;
+}
+
+/* Estilo base para ambas tarjetas */
+.elegant-card {
+  flex: 1;
+  min-width: 300px;
+  max-width: 500px;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: white;
+}
+
+.elegant-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+}
+
+/* Contenido de la tarjeta */
+.card-content {
+  padding: 30px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+}
+
+.card-content h3 {
+  font-family: 'Avenir', 'DM Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #2d2d2d;
+  margin: 0 0 12px 0;
+  line-height: 1.2;
+}
+
+.card-content p {
+  font-family: 'DM Sans', Arial, Helvetica, sans-serif;
+  font-size: 1rem;
+  color: #666;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.card-link {
+  display: inline-block;
+  font-family: 'Avenir', 'DM Sans', Arial, Helvetica, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #8b5a2b;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  position: relative;
+  padding-right: 20px;
+  align-self: flex-start;
+}
+
+.card-link::after {
+  content: '→';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: transform 0.3s ease;
+}
+
+.card-link:hover {
+  color: #6b4423;
+}
+
+.card-link:hover::after {
+  transform: translate(5px, -50%);
+}
+
+/* Imagen de la tarjeta */
+.card-image {
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  transition: transform 0.5s ease;
+}
+
+.elegant-card:hover .card-image img {
+  transform: scale(1.05);
+}
+
+/* Estilos específicos para la primera tarjeta */
+.elegant-card:first-child .card-image {
+  background: linear-gradient(135deg, #f8f3ed 0%, #e8e0d8 100%);
+}
+
+/* Estilos específicos para la segunda tarjeta */
+.elegant-card:last-child .card-image {
+  background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+}
+
+/* Efecto de borde sutil */
+.elegant-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 16px;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(0,0,0,0.03) 0%, rgba(0,0,0,0.1) 100%);
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .elegant-cards-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+  
+  .elegant-card {
+    width: 100%;
+    max-width: 500px;
+  }
+}
+
+@media (max-width: 480px) {
+  .elegant-card {
+    min-width: 280px;
+  }
+  
+  .card-content {
+    padding: 25px 20px;
+  }
+  
+  .card-content h3 {
+    font-size: 1.5rem;
+  }
+}

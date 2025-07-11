@@ -16,7 +16,8 @@ export const validateAuthToken = (allowedUserTypes = []) => {
       const decoded = jwt.verify(authToken, config.JWT.JWT_SECRET);
 
       // 4. Verificar tipo de usuario si se especificaron roles permitidos
-      if (allowedUserTypes.length && !allowedUserTypes.includes(decoded.userType)) {
+      if (!allowedUserTypes.includes("admin")) {
+console.log("entro a este if")
         return res.status(403).json({ message: "Acceso denegado. No tienes permisos suficientes." });
       }
 
@@ -24,10 +25,13 @@ export const validateAuthToken = (allowedUserTypes = []) => {
       req.userId = decoded.id;
       req.userType = decoded.userType;
 
+      
+console.log("asdf")
       next();
     } catch (error) {
       console.error("Error al validar token:", error);
       return res.status(401).json({ message: "Token inválido o expirado" });
-    }
-  };
+    }
+  };
 };
+

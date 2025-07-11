@@ -59,19 +59,19 @@
   
 /* The main title of the section, 'Mi historia'. */
 .my-story__title {
-    font-family: 'Playfair Display', serif; /* Uses an elegant serif font for the title. */
-    font-size: 3rem; /* Sets a large, impactful font size. */
-    color: #0c3c3a; /* Sets a dark, teal-like color for the title. */
-    margin-bottom: 1.5rem; /* Adds space below the title. */
-    font-weight: 600; /* Sets a semi-bold font weight. */
+    font-family: 'DM Sans', Arial, sans-serif; /* Cambiado a DM Sans */
+    font-size: 3rem;
+    color: #0c3c3a;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
 }
   
 /* The main paragraph of text. */
 .my-story__text {
-    font-family: 'Inter', sans-serif; /* Uses a clean sans-serif font for readability. */
-    font-size: 1.1rem; /* Sets a comfortable reading font size. */
-    line-height: 1.8; /* Increases line spacing for better readability. */
-    color: #333; /* Sets a standard dark gray for the body text. */
+    font-family: 'DM Sans', Arial, sans-serif; /* Cambiado a DM Sans */
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #333;
 }
   
 /* --- Responsive Design --- */
@@ -146,4 +146,8 @@
       padding: 0.7rem 1.5rem; /* Adjusts button padding for mobile. */
       font-size: 0.9rem; /* Reduces button font size for mobile. */
     }
+}
+
+.my-story-container {
+    margin-top: 5rem;
 }
