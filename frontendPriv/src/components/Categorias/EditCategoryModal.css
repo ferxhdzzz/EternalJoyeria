@@ -109,9 +109,9 @@
   margin-top: 20px;
 }
 
-.btn-primary {
-  background-color: #d6336c;
-  color: white;
+.btn-primarycat {
+  background-color: #f8bbd0;
+  color:  #6b2a45;
   padding: 8px 20px;
   font-weight: 400; /* texto normal, sin negrita */
   border: none;
@@ -129,12 +129,12 @@
   cursor: default;
 }
 
-.btn-secondary {
+.btn-secondarycat {
   background-color: #f8bbd0;
   color: #6b2a45;
   padding: 8px 20px;
   border: none;
-  border-radius: 12px;
+  border-radius: 25px;
   cursor: pointer;
   font-weight: 400; /* texto normal */
   transition: background-color 0.3s ease;

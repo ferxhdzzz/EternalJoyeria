@@ -6,9 +6,29 @@
 
 .main-content {
   flex: 1;
-  padding: 2rem;
+  padding: 4rem;
   overflow-y: auto;
 }
+
+.topbar-wrapper {
+  top: 0;
+  left: 292px; /* o el ancho de tu Sidebar */
+  right: 0;
+  height: 100px;
+  z-index: 50;
+    overflow: hidden; /* 👈 importante */
+
+
+  padding-top: 1;
+ 
+}
+
+
+/* Acomoda el contenido para no quedar debajo del topbar */
+.main-content {
+  margin-top: 60px;
+}
+
 
 .products-container {
   max-width: 1200px;
@@ -37,6 +57,14 @@
   gap: 1.5rem;
   min-height: 200px;
   transition: transform 0.2s ease;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  text-align: center;
 }
 
 .product-card:hover {
@@ -78,6 +106,8 @@
   color: #333;
   margin-bottom: 1rem;
 }
+
+
 
 
 .product-actions {

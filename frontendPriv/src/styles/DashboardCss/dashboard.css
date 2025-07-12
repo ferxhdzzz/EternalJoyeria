@@ -23,6 +23,25 @@
   justify-content: space-between;
   align-items: stretch;
 }
+/* Scrollbar claro para WebKit (Chrome, Edge, Safari) */
+.main-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background-color: #ccc; /* Gris clarito */
+  border-radius: 10px;
+}
+
+.main-content::-webkit-scrollbar-track {
+  background-color: #f5f5f5; /* fondo aún más clarito */
+}
+
+/* Firefox */
+.main-content {
+  scrollbar-width: thin;
+  scrollbar-color: #ccc #f5f5f5;
+}
 
 .bottom-section {
   display: flex;

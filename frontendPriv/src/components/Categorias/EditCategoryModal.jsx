@@ -123,10 +123,10 @@ const EditCategoryModal = ({ categorie, onClose, refreshCategories }) => {
           </div>
 
           <div className="buttons-row">
-            <button type="submit" disabled={uploading} className="btn-primary">
+            <button type="submit" disabled={uploading} className="btn-primarycat">
               {uploading ? "Subiendo..." : "Guardar"}
             </button>
-            <button type="button" onClick={onClose} className="btn-secondary">
+            <button type="button"  onClick={onClose} className="btn-secondarycat">
               Cancelar
             </button>
           </div>

@@ -12,7 +12,7 @@ const reviewSchema = new Schema(
   {
     id_customer: {
       type: Schema.Types.ObjectId,
-      ref: "customers",
+      ref: "Customers",
       required: true, // Debe existir un cliente
     },
     id_product: {

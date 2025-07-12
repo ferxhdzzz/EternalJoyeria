@@ -10,13 +10,20 @@ export function useAddProduct() {
     setLoading(true);
     try {
       const response = await axios.post("http://localhost:4000/api/products", productData, {
-        withCredentials: true, // ← incluir cookies de sesión
+        withCredentials: true,
       });
       toast.success("Producto agregado correctamente");
       return response.data;
     } catch (error) {
       toast.error("Error al agregar el producto");
-      console.error("Error al agregar producto:", error);
+
+      // ✅ Aquí está el log detallado del error
+      console.error("Error al agregar producto:", {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+
       return null;
     } finally {
       setLoading(false);

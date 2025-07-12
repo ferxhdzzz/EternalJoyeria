@@ -16,7 +16,9 @@ const HistorialResenas = () => {
 
   return (
     <div className="page-layout">
-      <Nav />
+      <div className="sidebar-fixed">
+        <Nav />
+      </div>
       <div className="main-area">
         <TopBar />
         <div className="content-area">

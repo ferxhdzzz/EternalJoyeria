@@ -22,7 +22,7 @@ const useDataCategorie = ({ reset, onSuccess }) => {
     });
 
     const data = await response.json();
-    console.log("Respuesta de Cloudinary:", data); // ✅ Agregá esto
+    console.log("Respuesta de Cloudinary:", data);
 
     if (!response.ok) {
       throw new Error(data.error?.message || "Cloudinary upload failed");
@@ -75,7 +75,7 @@ const useDataCategorie = ({ reset, onSuccess }) => {
 
       toast.success("Categoría guardada con éxito");
       if (onSuccess) onSuccess(); // para el sweet alert
-      getCategories(); // ✅ actualizar sin refrescar
+      getCategories(); // ctualizar sin refrescar
     } catch (error) {
       console.log("Error al guardar:", error);
     } finally {

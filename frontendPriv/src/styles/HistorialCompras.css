@@ -4,6 +4,10 @@
   min-height: 100vh;
   padding: 20px;
 }
+.topbar-wrapper {
+  margin-top: 20px;
+  
+}
 
 /* Contenedor principal de historial compras */
 .historial-compras-container {
@@ -373,7 +377,7 @@
   padding: 8px 16px;
   border-radius: 8px;
   border: none;
-  font-weight: bold;
+  font-weight: normal;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -388,7 +392,7 @@
   padding: 8px 16px;
   border-radius: 8px;
   border: none;
-  font-weight: bold;
+font-weight: normal;
   cursor: pointer;
   transition: all 0.3s ease;
 }

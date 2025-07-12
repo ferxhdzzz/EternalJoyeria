@@ -4,6 +4,12 @@
   background-color: #FFF3F2;
   overflow: hidden; /* ❌ impide que toda la pantalla scrollee */
 }
+.product-grid-private {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  width: 100%;
+}
 
 .sidebar-privater {
   height: 100vh;
