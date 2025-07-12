@@ -372,25 +372,13 @@ const Registro = () => {
   };
 
   return (
-    <div
-      className="recover-wrapper"
-      style={{
-        backgroundImage: currentStep === 3 
-          ? `url("/Registro/registeeer.png")` 
-          : `url("/Registro/loginneternal.png")`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
-    >
-      <div className="recover-card">
-        <BackArrow onClick={handlePrevStep} />
-        <Stepper currentStep={currentStep} />
-        <div className="registro-content">
-          {renderStep()}
-        </div>
+    <>
+      <BackArrow onClick={handlePrevStep} />
+      <Stepper currentStep={currentStep} />
+      <div className="registro-content">
+        {renderStep()}
       </div>
-    </div>
+    </>
   );
 };
 

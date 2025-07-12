@@ -66,7 +66,7 @@ const useRegistro = () => {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:4000/api/registerClients/verify', {
+      const response = await fetch('http://localhost:4000/api/registerClients/verifyCodeEmail', {
         method: 'POST',
         credentials: 'include',
         headers: {
