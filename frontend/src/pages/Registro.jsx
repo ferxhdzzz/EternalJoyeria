@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import useRegistro from "../hooks/useRegistro";
+import useRegistro from "../hooks/Registro/useRegistro";
 import Input from "../components/registro/inpungroup/InputGroup";
 import Button from "../components/registro/button/Button";
 import Select from "../components/registro/selector/Select";
