@@ -1,11 +1,11 @@
-// src/components/PublicRoute.jsx
 import { Navigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 const PublicRoute = ({ children }) => {
-  const isPublicSession = localStorage.getItem("isPublicSession") === "true";
+  const { isPublicSession } = useContext(AuthContext);
 
   if (!isPublicSession) {
-    // Si no tiene sesión, redirige a login o home
     return <Navigate to="/login" replace />;
   }
 

@@ -22,8 +22,8 @@ export const config = {
   },
 
   smtp: {
-    user: process.env.USER_EMAIL ,
-    pass: process.env.USER_PASS, 
+    user: process.env.USER_EMAIL,
+    pass: process.env.USER_PASS,
   },
 
   cloudinary: {
