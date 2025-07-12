@@ -37,7 +37,7 @@ const useRegistro = () => {
         }
       }
 
-      const response = await fetch('http://localhost:3000/api/registerClients', {
+      const response = await fetch('http://localhost:4000/api/registerClients', {
         method: 'POST',
         credentials: 'include', // Importante para las cookies
         body: form, // No agregar Content-Type, el navegador lo hace automáticamente
@@ -66,7 +66,7 @@ const useRegistro = () => {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:3000/api/registerClients/verify', {
+      const response = await fetch('http://localhost:4000/api/registerClients/verify', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -97,7 +97,7 @@ const useRegistro = () => {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:3000/api/registerClients/resend-code', {
+      const response = await fetch('http://localhost:4000/api/registerClients/resend-code', {
         method: 'POST',
         credentials: 'include',
         headers: {
