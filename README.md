@@ -158,6 +158,11 @@ EternalJoyeria/
 
 - react-hook-form
 
+  ## Nomenclatura utlizada para backend y frontend
+
+  - camelCase
+
+
 
 
 
