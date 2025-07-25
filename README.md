@@ -1,4 +1,4 @@
-# Eternal Joyeria
+# Sistema administrativo para venta de joyeria Eternal Joyeria
 
  Eternal joyeria es una tienda en linea que esta pensada para vender joyas, especificamnete joyas hechas a mano con relacion a las flores, es una plataforma e-commerce, y esta construida con el stack mern 
  
