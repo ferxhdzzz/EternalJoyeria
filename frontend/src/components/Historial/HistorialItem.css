@@ -1,102 +1,564 @@
+/* HistorialItem - Diseño Mejorado y Cómodo */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:wght@400;500;600;700&display=swap');
+
 .historial-item {
-  display: flex;
-  align-items: center;
-  padding: 1rem 0;
-  border-bottom: 1px solid #f0f0f0;
-  gap: 1.5rem;
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.08);
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.historial-item:last-child {
-  border-bottom: none;
+.historial-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  border-color: rgba(0,0,0,0.12);
+}
+
+.historial-item-content {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+  gap: 1.5rem;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* Image Container */
+.historial-item-image-container {
+  position: relative;
+  flex-shrink: 0;
 }
 
 .historial-item-image {
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
+  width: 100px;
+  height: 100px;
+  border-radius: 12px;
   object-fit: cover;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-.historial-item-details {
-  flex-grow: 1;
+.historial-item:hover .historial-item-image {
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
 }
 
-.historial-item-name {
-  font-family: 'Nunito', sans-serif;
+.image-overlay {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+}
+
+.quantity-badge {
+  background: #4b1717;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
   font-weight: 600;
-  font-size: 1rem;
-  color: #333;
-  margin: 0 0 0.25rem 0;
+  font-family: 'DM Sans', sans-serif;
+  box-shadow: 0 2px 8px rgba(75,23,23,0.3);
 }
 
-.historial-item-quantity {
-  font-family: 'Nunito', sans-serif;
-  font-size: 0.9rem;
-  color: #777;
+/* Product Details */
+.historial-item-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.product-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #4b1717;
   margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  line-height: 1.3;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
-.historial-item-price {
-  font-family: 'Nunito', sans-serif;
+.product-description {
+  font-size: 0.85rem;
+  color: #6d4b4b;
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.order-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.order-number {
+  font-size: 0.8rem;
+  color: #4b1717;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: 0.02em;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.order-date {
+  font-size: 0.75rem;
+  color: #8b6b6b;
+  text-transform: capitalize;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Right Section */
+.historial-item-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.status-container {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.status-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.price-container {
+  text-align: right;
+  min-width: 0;
+  position: relative;
+}
+
+/* Eliminar cualquier pseudo-elemento o flecha que pueda aparecer */
+.price-container::before,
+.price-container::after,
+.price-amount::before,
+.price-amount::after,
+.price-label::before,
+.price-label::after {
+  content: none !important;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+}
+
+/* Eliminar cualquier elemento hijo que pueda ser una flecha */
+.price-container > *::before,
+.price-container > *::after,
+.price-amount > *::before,
+.price-amount > *::after,
+.price-label > *::before,
+.price-label > *::after {
+  content: none !important;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+}
+
+/* Eliminar cualquier elemento que contenga flechas */
+.price-container [class*="arrow"],
+.price-container [class*="chevron"],
+.price-container [class*="dropdown"],
+.price-container [class*="select"],
+.price-amount [class*="arrow"],
+.price-amount [class*="chevron"],
+.price-amount [class*="dropdown"],
+.price-amount [class*="select"],
+.price-label [class*="arrow"],
+.price-label [class*="chevron"],
+.price-label [class*="dropdown"],
+.price-label [class*="select"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+}
+
+.price-amount {
+  font-size: 1.3rem;
   font-weight: 700;
-  font-size: 1rem;
-  color: #333;
+  color: #4b1717;
+  font-family: 'DM Sans', sans-serif;
+  margin-bottom: 0.2rem;
+  line-height: 1.2;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  position: relative;
 }
 
-/* Responsive Design */
+/* Eliminar cualquier pseudo-elemento o flecha que pueda aparecer */
+.price-amount::before,
+.price-amount::after {
+  content: none !important;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+}
+
+.price-label {
+  font-size: 0.7rem;
+  color: #8b6b6b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+  font-family: 'DM Sans', sans-serif;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Eliminar cualquier pseudo-elemento o flecha que pueda aparecer */
+.price-label::before,
+.price-label::after {
+  content: none !important;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+}
+
+/* Hover Effects */
+.historial-item-hover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.3s ease;
+  border-radius: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.historial-item:hover .historial-item-hover {
+  opacity: 1;
+}
+
+.hover-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.reorder-btn, .details-btn {
+  background: rgba(255,255,255,0.95);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #4a4a4a;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'DM Sans', sans-serif;
+  min-width: 120px;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.reorder-btn:hover, .details-btn:hover {
+  background: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Responsive Design Mejorado */
+@media (max-width: 1200px) {
+  .historial-item-content {
+    padding: 1.2rem;
+    gap: 1.2rem;
+  }
+  
+  .historial-item-image {
+    width: 90px;
+    height: 90px;
+  }
+  
+  .product-name {
+    font-size: 1.1rem;
+  }
+}
+
 @media (max-width: 768px) {
-  .historial-item {
-    padding: 0.8rem 0;
+  .historial-item-content {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.2rem;
     gap: 1rem;
+  }
+  
+  .historial-item-image {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .historial-item-right {
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    gap: 1rem;
+  }
+  
+  .status-container {
+    padding: 0.3rem 0.6rem;
+  }
+  
+  .price-amount {
+    font-size: 1.2rem;
+  }
+  
+  .hover-content {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+  
+  .reorder-btn, .details-btn {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.8rem;
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .historial-item-content {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+  
+  .historial-item-image {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .product-name {
+    font-size: 1rem;
+    line-height: 1.2;
+  }
+  
+  .product-description {
+    font-size: 0.8rem;
+  }
+  
+  .historial-item-right {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  
+  .status-container {
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .status-text {
+    font-size: 0.75rem;
+  }
+  
+  .price-amount {
+    font-size: 1.1rem;
+  }
+  
+  .price-label {
+    font-size: 0.65rem;
+  }
+  
+  .hover-content {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  
+  .reorder-btn, .details-btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+    min-width: 90px;
+  }
+}
+
+@media (max-width: 360px) {
+  .historial-item-content {
+    padding: 0.75rem;
+    gap: 0.5rem;
   }
   
   .historial-item-image {
     width: 60px;
     height: 60px;
-    border-radius: 6px;
   }
   
-  .historial-item-name {
+  .product-name {
     font-size: 0.9rem;
   }
   
-  .historial-item-quantity {
-    font-size: 0.8rem;
-  }
-  
-  .historial-item-price {
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .historial-item {
-    padding: 0.6rem 0;
-    gap: 0.8rem;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-  
-  .historial-item-image {
-    width: 50px;
-    height: 50px;
-    border-radius: 4px;
-  }
-  
-  .historial-item-details {
-    width: 100%;
-  }
-  
-  .historial-item-name {
-    font-size: 0.8rem;
-  }
-  
-  .historial-item-quantity {
+  .product-description {
     font-size: 0.75rem;
   }
   
-  .historial-item-price {
+  .order-number {
+    font-size: 0.75rem;
+  }
+  
+  .order-date {
+    font-size: 0.7rem;
+  }
+  
+  .status-container {
+    padding: 0.2rem 0.4rem;
+  }
+  
+  .status-text {
+    font-size: 0.7rem;
+  }
+  
+  .price-amount {
+    font-size: 1rem;
+  }
+  
+  .price-label {
+    font-size: 0.6rem;
+  }
+  
+  .reorder-btn, .details-btn {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.7rem;
+    min-width: 80px;
+  }
+}
+
+/* Orientación Landscape en móviles */
+@media (max-width: 768px) and (orientation: landscape) {
+  .historial-item-content {
+    flex-direction: row;
+    text-align: left;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .historial-item-image {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .historial-item-right {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+  
+  .hover-content {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  
+  .reorder-btn, .details-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    min-width: 100px;
+  }
+}
+
+/* Tablets en modo portrait */
+@media (min-width: 481px) and (max-width: 768px) {
+  .historial-item-content {
+    flex-direction: row;
+    text-align: left;
+    padding: 1.2rem;
+    gap: 1.2rem;
+  }
+  
+  .historial-item-image {
+    width: 85px;
+    height: 85px;
+  }
+  
+  .historial-item-right {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.75rem;
+  }
+  
+  .hover-content {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .reorder-btn, .details-btn {
+    padding: 0.5rem 1rem;
     font-size: 0.8rem;
+    min-width: 110px;
   }
 }

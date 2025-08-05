@@ -1,0 +1,138 @@
+/* Estilos específicos para la página de productos en pantallas grandes */
+
+/* Contenedor principal de productos */
+.products-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 8rem;
+  margin-bottom: 3rem;
+  opacity: 1;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Filas de productos */
+.products-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  justify-content: center;
+  align-items: start;
+  width: 100%;
+}
+
+/* Contenedor individual de cada card */
+.product-card-container {
+  transform: scale(1);
+  transition: all 0.3s ease;
+  z-index: 99999;
+  display: flex;
+  justify-content: center;
+}
+
+.product-card-container:hover {
+  transform: scale(1.05) translateY(-10px);
+}
+
+/* Media queries para pantallas grandes */
+@media (min-width: 1400px) {
+  .products-container {
+    gap: 2rem;
+    margin-top: 10rem;
+    margin-bottom: 4rem;
+    max-width: 1400px;
+  }
+  
+  .products-row {
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1600px) {
+  .products-container {
+    gap: 2.5rem;
+    margin-top: 12rem;
+    margin-bottom: 5rem;
+    max-width: 1600px;
+  }
+  
+  .products-row {
+    gap: 2rem;
+  }
+}
+
+@media (min-width: 1920px) {
+  .products-container {
+    gap: 3rem;
+    margin-top: 15rem;
+    margin-bottom: 6rem;
+    max-width: 1800px;
+  }
+  
+  .products-row {
+    gap: 2.5rem;
+  }
+}
+
+/* Mantener responsive móvil */
+@media (max-width: 1200px) {
+  .products-row {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .products-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .products-container {
+    margin-left: 0;
+    gap: 0.75rem;
+    margin-top: 4rem;
+    max-width: 100%;
+  }
+  
+  .products-row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .product-card-container {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.product-card-container {
+  animation: fadeInUp 0.8s ease-out both;
+}
+
+.product-card-container:nth-child(1) { animation-delay: 0.1s; }
+.product-card-container:nth-child(2) { animation-delay: 0.2s; }
+.product-card-container:nth-child(3) { animation-delay: 0.3s; }
+.product-card-container:nth-child(4) { animation-delay: 0.4s; }
+.product-card-container:nth-child(5) { animation-delay: 0.5s; }
+.product-card-container:nth-child(6) { animation-delay: 0.6s; }
+.product-card-container:nth-child(7) { animation-delay: 0.7s; }
+.product-card-container:nth-child(8) { animation-delay: 0.8s; } 

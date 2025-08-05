@@ -6,6 +6,7 @@ html, body {
   overflow-x: hidden;
   width: 100%;
   background-color: #FFFFFF;
+  max-width: 100vw;
 }
 
 html {
@@ -24,6 +25,7 @@ body {
 
   color: #132F3A; /* Default text color */
   overflow-x: hidden; /* Prevent horizontal scrolling */
+  max-width: 100vw;
 }
 
 /*
@@ -46,6 +48,8 @@ button:focus-visible {
   min-height: 100vh; /* Ensures the root container takes at least the full height of the viewport. */
   display: flex; /* Enables flexbox layout for the root container. */
   flex-direction: column; /* Stacks the direct children of the root container vertically. */
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 /* General responsive typography (optional but recommended). */
@@ -58,12 +62,24 @@ html {
   html {
     font-size: 15px; /* Slightly reduces the base font size for better readability on smaller screens. */
   }
+  
+  html, body, #root {
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
+  }
 }
 
 /* Media query for mobile-sized screens. */
 @media (max-width: 480px) {
   html {
     font-size: 14px; /* Further reduces the base font size for small mobile devices. */
+  }
+  
+  html, body, #root {
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
   }
 }
 
@@ -76,6 +92,7 @@ html {
   overflow: hidden; /* Prevent any scrolling */
   padding-top: 60px; /* Add padding to prevent content from being hidden behind fixed Nav */
   box-sizing: border-box;
+  max-width: 100vw;
 }
 
 /* The following styles are the default styles provided by Vite when creating a new React project. */
@@ -121,4 +138,44 @@ html {
 /* Asegurarse de que los elementos con animaciones AOS tengan fondo blanco */
 [data-aos] {
   background-color: #FFFFFF;
+}
+
+/* Reglas adicionales para eliminar scroll horizontal */
+.App {
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+}
+
+/* Asegurar que todos los contenedores principales no tengan overflow horizontal */
+main, section, div {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Reglas específicas para dispositivos móviles */
+@media (max-width: 768px) {
+  .App {
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
+  }
+  
+  .home-container {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 480px) {
+  .App {
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
+  }
+  
+  .home-container {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
 }

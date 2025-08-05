@@ -11,6 +11,7 @@ import Nav from '../components/Nav/Nav';
 import SidebarCart from '../components/Cart/SidebarCart';
 import { useCart } from '../context/CartContext';
 import Toast from '../components/ui/Toast';
+import './Products.css';
 
 // Defines the Products page component.
 const Products = () => {
@@ -243,19 +244,13 @@ const Products = () => {
       {/* 8 nuevas cards en dos filas de 4, al final */}
       <div 
         ref={productsRef}
+        className="products-container"
         style={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          gap: '3.5rem', 
-          marginTop: '8rem', 
-          marginLeft: isMobile ? 0 : '11rem',
-          marginBottom: '3rem',
           opacity: scrollY > 600 ? 1 : 0.7,
-          transform: `translateY(${Math.max(0, scrollY - 600) * 0.1}px)`,
-          transition: 'all 0.3s ease'
+          transform: `translateY(${Math.max(0, scrollY - 600) * 0.1}px)`
         }}
       >
-        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'center' : 'flex-start', gap: '3.5rem' }}>
+        <div className="products-row">
           {[
             { id: "anillo-orquidea", title: "Anillo de Orquídea", description: "Anillo artesanal con orquídea natural preservada en resina. Pieza única y elegante.", image: "/Products/AnilloOrchid.png" },
             { id: "collar-orquidea", title: "Collar de Orquídea", description: "Collar delicado con orquídea encapsulada, ideal para ocasiones especiales.", image: "/Products/CollarOrchid.png" },
@@ -265,13 +260,11 @@ const Products = () => {
             <div 
               key={product.id}
               data-product-id={product.id}
+              className="product-card-container"
               onMouseEnter={() => handleCardHover(product.id)}
               onMouseLeave={handleCardLeave}
               style={{
-                transform: hoveredCard === product.id ? 'scale(1.05) translateY(-10px)' : 'scale(1)',
-                transition: 'all 0.3s ease',
-                zIndex: 99999,
-                animation: `fadeInUp 0.8s ease-out ${index * 0.1}s both`
+                transform: hoveredCard === product.id ? 'scale(1.05) translateY(-10px)' : 'scale(1)'
               }}
             >
               <Card 
@@ -287,7 +280,7 @@ const Products = () => {
             </div>
           ))}
         </div>
-        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'center' : 'flex-start', gap: '3.5rem' }}>
+        <div className="products-row">
           {[
             { id: "1", title: "Collar con corazón", description: "Un delicado collar que captura la esencia del amor y la elegancia, perfecto para cualquier ocasión.", image: "/Products/product1.png" },
             { id: "2", title: "Pulsera flor", description: "Esta pulsera floral añade un toque de naturaleza y feminidad a tu estilo, hecha a mano con detalles exquisitos.", image: "/Products/product2.png" },
@@ -297,13 +290,11 @@ const Products = () => {
             <div 
               key={product.id}
               data-product-id={product.id}
+              className="product-card-container"
               onMouseEnter={() => handleCardHover(product.id)}
               onMouseLeave={handleCardLeave}
               style={{
-                transform: hoveredCard === product.id ? 'scale(1.05) translateY(-10px)' : 'scale(1)',
-                transition: 'all 0.3s ease',
-                zIndex: 99999,
-                animation: `fadeInUp 0.8s ease-out ${(index + 4) * 0.1}s both`
+                transform: hoveredCard === product.id ? 'scale(1.05) translateY(-10px)' : 'scale(1)'
               }}
             >
               <Card 
