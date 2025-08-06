@@ -51,7 +51,7 @@ app.use(
 app.use("/api/login", loginRoutes);
 app.use("/api/logout", logoutRoutes);
 app.use("/api/recoveryPassword", recoveryPasswordRoutes);
-app.use("/api/registerClients", registerCustomersRoutes);
+app.use("/api/registerCustomers", registerCustomersRoutes);
 
 // Rutas protegidas
 app.use("/api/customers", validateAuthToken(["admin", "customer"]), customersRoutes);
