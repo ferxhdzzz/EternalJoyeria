@@ -1,10 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './Nav.css';
-import { Menu, X, ChevronDown, User, ShoppingCart } from 'lucide-react';
+import { Menu, X, ChevronDown, User, Package } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import CleanLogo from './CleanLogo';
 import CleanHeader from './CleanHeader';
+
+// Icono de carrito personalizado más compacto
+const CartIcon = ({ size = 24 }) => (
+    <svg 
+        width={size} 
+        height={size} 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+        style={{ minWidth: size, minHeight: size }}
+    >
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 0 1-8 0"/>
+    </svg>
+);
 
 const Nav = ({ cartOpen = false }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -15,6 +34,7 @@ const Nav = ({ cartOpen = false }) => {
     const totalCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1000);
     const [isSmallMobile, setIsSmallMobile] = useState(window.innerWidth <= 480);
+    const [isTinyMobile, setIsTinyMobile] = useState(window.innerWidth <= 320);
     const menuRef = useRef(null);
     const toggleRef = useRef(null);
     const location = useLocation();
@@ -30,8 +50,10 @@ const Nav = ({ cartOpen = false }) => {
         const handleResize = () => {
             const newIsMobile = window.innerWidth <= 1000;
             const newIsSmallMobile = window.innerWidth <= 480;
+            const newIsTinyMobile = window.innerWidth <= 320;
             setIsMobile(newIsMobile);
             setIsSmallMobile(newIsSmallMobile);
+            setIsTinyMobile(newIsTinyMobile);
             if (!newIsMobile) {
                 setIsOpen(false);
                 setCategoryOpen(false);
@@ -88,6 +110,7 @@ const Nav = ({ cartOpen = false }) => {
                 cartOpen={cartOpen} 
                 isMobile={isMobile} 
                 isSmallMobile={isSmallMobile}
+                isTinyMobile={isTinyMobile}
                 menuOpen={isOpen && !isMobile}
             >
                 <div 
@@ -135,11 +158,11 @@ const Nav = ({ cartOpen = false }) => {
                     </Link>
                     
                     <Link to="/perfil" className="nav-icon nav-icon-user" aria-label="Perfil">
-                        <User size={26} />
+                        <User size={22} />
                     </Link>
                     
                     <Link to="/carrito" className="nav-icon nav-cart-icon" aria-label="Carrito de Compras">
-                        <ShoppingCart size={26} />
+                        <CartIcon size={22} />
                         {totalCount > 0 && (
                             <span className={`nav-cart-badge${bump ? ' bump' : ''}`}>{totalCount}</span>
                         )}

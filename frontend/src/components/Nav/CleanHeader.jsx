@@ -1,7 +1,20 @@
 import React from 'react';
 import CleanLogo from './CleanLogo';
 
-const CleanHeader = ({ children, cartOpen, isMobile, isSmallMobile, menuOpen }) => {
+const CleanHeader = ({ children, cartOpen, isMobile, isSmallMobile, isTinyMobile, menuOpen }) => {
+    // Determinar el padding basado en el tamaño de pantalla
+    const getPadding = () => {
+        if (isTinyMobile) {
+            return '0 0.05rem';
+        } else if (isSmallMobile) {
+            return '0 0.1rem';
+        } else if (isMobile) {
+            return '0 clamp(0.15rem, 1vw, 0.4rem)';
+        } else {
+            return '0 clamp(0.3rem, 2vw, 0.8rem)';
+        }
+    };
+
     return (
         <header 
             className={menuOpen ? 'header header--menu-open' : 'header'}
@@ -31,9 +44,9 @@ const CleanHeader = ({ children, cartOpen, isMobile, isSmallMobile, menuOpen }) 
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     height: isMobile ? '100%' : 'calc(70px + 1rem)',
-                    maxWidth: '1400px',
+                    maxWidth: '1300px',
                     margin: '0 auto',
-                    padding: isMobile ? '0 clamp(0.75rem, 2vw, 1rem)' : '0 clamp(1rem, 3vw, 1.5rem)',
+                    padding: getPadding(),
                     width: '100%',
                     // Force no effects
                     transform: 'none !important',
