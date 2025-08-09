@@ -323,7 +323,7 @@ const Registro = () => {
       case 4:
         return (
           <EmailVerification 
-            nextStep={() => navigate("/login")} 
+            nextStep={() => navigate("/productos")} 
             prevStep={prevStep} 
             email={formData.email}
             loading={loading}

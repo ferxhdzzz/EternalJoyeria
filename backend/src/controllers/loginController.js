@@ -129,5 +129,24 @@ loginController.checkAdmin = (req, res) => {
   }
 };
 
+// 
+loginController.me = (req, res) => {
+  try {
+    const { authToken } = req.cookies;
+    if (!authToken) return res.status(200).json({ ok: false });
+
+    const decoded = jsonwebtoken.verify(authToken, config.JWT.JWT_SECRET);
+    return res.status(200).json({
+      ok: true,
+      id: decoded.id,
+      userType: decoded.userType,
+      email: decoded.email,
+    });
+  } catch {
+    return res.status(200).json({ ok: false });
+  }
+};
+
+
 // ===== EXPORTAR CONTROLADOR =====
 export default loginController;
