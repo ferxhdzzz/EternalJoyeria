@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { products } from '../data/products';
 import Nav from '../components/Nav/Nav';
 import './DetailProduct.css';
 import { useCart } from '../context/CartContext';
 import SidebarCart from '../components/Cart/SidebarCart';
 import Footer from '../components/Footer';
+import ReviewsSection from '../components/Reviews/ReviewsSection';
 
 export default function DetailProduct() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const product = products.find(p => p.id === id);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState(product?.sizes?.[0] || '');
@@ -32,6 +34,11 @@ export default function DetailProduct() {
       size: selectedSize || 'default',
     });
     setCartOpen(true);
+  };
+
+  // Función para navegar a los ajustes de ubicación en el perfil
+  const handleLocationClick = () => {
+    navigate('/perfil?section=ubicacion');
   };
 
   return (
@@ -129,7 +136,12 @@ export default function DetailProduct() {
             <svg width="14" height="14" fill="none" stroke="#b48be4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M16 3v4M8 3v4"/></svg>
             <div>
               <div style={{ fontWeight: 700, color: '#23233a', fontSize: 11 }}>Envio gratis a El Salvador</div>
-              <div style={{ color: '#b48be4', fontWeight: 500, fontSize: 10, textDecoration: 'underline', cursor: 'pointer', marginTop: 1 }}>Ingresa para ver tu ubicacion</div>
+              <div 
+                onClick={handleLocationClick}
+                style={{ color: '#b48be4', fontWeight: 500, fontSize: 10, textDecoration: 'underline', cursor: 'pointer', marginTop: 1 }}
+              >
+                Ingresa para ver tu ubicacion
+              </div>
             </div>
           </div>
           <div style={{ background: '#fff', borderRadius: 8, boxShadow: '0 2px 8px #eee', padding: '0.6rem 0.8rem', display: 'flex', alignItems: 'center', gap: 7, border: '1px solid #f3eaff', width: '100%' }}>
@@ -141,6 +153,15 @@ export default function DetailProduct() {
           </div>
         </div>
       </div>
+      
+      {/* Sección de reseñas */}
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
+        <ReviewsSection 
+          productId={product.id} 
+          productName={product.title} 
+        />
+      </div>
+      
       <Footer />
     </>
   );

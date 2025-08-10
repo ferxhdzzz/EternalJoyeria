@@ -194,7 +194,8 @@
     left: 50%;
     transform: translate(-55%, -100%);
     z-index: 2;
-    overflow: visible;
+    overflow: hidden;
+    overflow-x: hidden;
 }
 
 .nav-menu-header {
@@ -255,6 +256,8 @@
     align-items: center;
     gap: clamp(0.3rem, 1vw, 0.5rem); /* Gap responsivo */
     list-style: none;
+    overflow: hidden;
+    overflow-x: hidden;
 }
 
 .nav-link {
@@ -449,96 +452,7 @@
     50% { transform: scale(1.2); }
 }
 
-.nav-categoria-dropdown {
-    position: relative;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.nav-link-categoria {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 clamp(1rem, 2vw, 1.5rem);
-    color: var(--text-color);
-    font-size: clamp(0.9rem, 1.5vw, 1.07rem);
-    font-weight: 400 !important;
-    text-decoration: none;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 1;
-    border-radius: 9999px;
-    gap: 4px;
-    height: 1.5em;
-    line-height: 1.5em;
-    text-align: center;
-    width: auto;
-}
-
-.nav-dropdown-icon {
-    transition: transform 0.3s ease;
-    margin-left: 5px;
-}
-
-.nav-dropdown-icon.rotate {
-    transform: rotate(180deg);
-}
-
-.dropdown-menu {
-    position: absolute;
-    top: calc(100% + 5px);
-    left: 50%;
-    transform: translateX(-50%);
-    background: white;
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 0.5rem 0;
-    min-width: 180px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    z-index: 1000;
-    text-align: center;
-    list-style: none;
-}
-
-.nav-categoria-dropdown:hover .dropdown-menu,
-.dropdown-menu.show {
-    opacity: 1;
-    visibility: visible;
-}
-
-.dropdown-item {
-    display: block;
-    padding: 0.75rem 1.5rem;
-    color: var(--text-color);
-    text-decoration: none;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    text-align: center;
-    width: 100%;
-}
-
-.dropdown-item::before {
-    display: none !important;
-}
-
-.dropdown-item:hover {
-    background: var(--accent-color);
-    color: #b94a6c;
-    transform: translateX(5px);
-}
-
-.dropdown-item:hover::before {
-    width: 100%;
-}
+/* Estilos eliminados - Productos ahora es un enlace simple */
 
 /* Por defecto, el overlay empieza debajo del header de 70px */
 .nav-overlay {
@@ -554,24 +468,10 @@
     .nav-menu {
         top: 60px !important;
     }
-    .nav-link-categoria {
-        font-weight: 400 !important;
-    }
+
 }
 
-@media (max-width: 900px) {
-    .dropdown-menu {
-        position: static;
-        transform: none;
-        opacity: 1;
-        visibility: visible;
-        box-shadow: none;
-        border: none;
-        background: transparent;
-        padding: 0;
-        margin-top: 0.5rem;
-    }
-}
+/* Estilos de dropdown eliminados */
 
 @media screen and (max-width: 1000px) {
     .header {
@@ -696,37 +596,7 @@
         display: none;
     }
 
-    .dropdown-menu {
-        position: static;
-        transform: none;
-        opacity: 1;
-        visibility: visible;
-        box-shadow: none;
-        border: none;
-        background: transparent;
-        padding: 0;
-        margin: 0.3rem auto;
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease;
-        width: 100%;
-        text-align: center;
-    }
-    
-    .dropdown-menu.show {
-        max-height: 500px;
-        margin: 0.3rem auto;
-    }
-    
-    .dropdown-item {
-        padding: 0.6rem 0.8rem;
-        text-align: center;
-        margin: 0.1rem 0;
-        width: 100%;
-        color: #000000;
-        font-weight: 500;
-        text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
-    }
+    /* Estilos de dropdown eliminados */
 
     .nav-login-btn {
         padding: 0.4rem 0.8rem;
@@ -739,13 +609,6 @@
     .nav-icon {
         width: 1.5rem;
         height: 1.5rem;
-    }
-
-    .nav-link-categoria {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
     }
 }
 
@@ -804,13 +667,6 @@
 
     .nav-cart-badge {
         right: -2px;
-    }
-
-    .nav-link-categoria {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
     }
 }
 
@@ -890,9 +746,9 @@
     transform: scaleX(1);
 }
 
-.nav-link.active, .nav-link-categoria.active {
-  font-weight: 700 !important;
-  color: var(--primary-color, #000) !important;
+.nav-link.active {
+    font-weight: 700 !important;
+    color: var(--primary-color, #000) !important;
 }
 
 @media (min-width: 1001px) {

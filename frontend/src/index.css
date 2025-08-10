@@ -33,6 +33,57 @@
   box-sizing: border-box;
 }
 
+/* Eliminar barras de scroll en todos los elementos */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Asegurar que no haya overflow que cause scroll */
+.card,
+.card__content,
+.card__text,
+.card__description,
+.card__footer,
+.card__button,
+.card__button svg,
+.nav-menu,
+.nav-list,
+.dropdown-menu,
+.products-container,
+.products-row,
+.product-card-container {
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+}
+
+/* Eliminar scroll horizontal en contenedores principales */
+html, body, #root, .App, .page-container {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+}
+
+/* Eliminar scroll en elementos específicos */
+.nav-menu,
+.dropdown-menu,
+.products-container {
+  overflow: hidden !important;
+}
+
+/* Asegurar que las tarjetas no tengan scroll */
+.card {
+  overflow: hidden !important;
+}
+
+.card__content {
+  overflow: visible !important;
+}
+
 html, body {
   height: 100%;
   width: 100%;
@@ -606,4 +657,55 @@ select:not([class*="country-select"]):not([class*="phone-select"]) {
 
 select:not([class*="country-select"]):not([class*="phone-select"])::-ms-expand {
   display: none !important;
+}
+
+/* Reglas adicionales para eliminar scrolls innecesarios */
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+*::-webkit-scrollbar-track {
+  display: none !important;
+}
+
+*::-webkit-scrollbar-thumb {
+  display: none !important;
+}
+
+*::-webkit-scrollbar-corner {
+  display: none !important;
+}
+
+/* Eliminar scroll horizontal en todos los contenedores */
+.container,
+.section,
+.main,
+.hero,
+.footer,
+.header {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+}
+
+/* Asegurar que no haya scroll en elementos específicos */
+.nav-menu,
+.products-container,
+.products-row,
+.product-card-container {
+  overflow: hidden !important;
+  overflow-x: hidden !important;
+}
+
+/* Eliminar scroll en elementos de texto */
+p, h1, h2, h3, h4, h5, h6, span, div {
+  overflow-wrap: break-word !important;
+  word-wrap: break-word !important;
+  hyphens: auto !important;
 }

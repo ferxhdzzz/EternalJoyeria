@@ -30,7 +30,12 @@ const Profile = () => {
     password: '**********',
     language: 'Español',
     currency: 'USD',
-    location: 'SV',
+    // Campos de dirección expandidos
+    street: 'Calle Principal #123',
+    city: 'San Salvador',
+    department: 'San Salvador',
+    zipCode: '1101',
+    country: 'El Salvador',
   });
 
   // Simula la carga inicial (pantalla de loading)
@@ -97,6 +102,33 @@ const Profile = () => {
     if (window.confirm('¿Estás seguro de que quieres desconectarte?')) {
       window.location.href = '/login';
     }
+  };
+
+  // Función para copiar la dirección completa al portapapeles
+  const copyAddressToClipboard = () => {
+    const fullAddress = `${user.street}, ${user.city}, ${user.department}, ${user.zipCode}, ${user.country}`;
+    navigator.clipboard.writeText(fullAddress).then(() => {
+      // Mostrar notificación temporal
+      const notification = document.createElement('div');
+      notification.textContent = 'Dirección copiada al portapapeles';
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #4CAF50;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        z-index: 10000;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        animation: slideIn 0.3s ease;
+      `;
+      document.body.appendChild(notification);
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    });
   };
 
   // Renderiza un campo editable del perfil
@@ -186,7 +218,7 @@ const Profile = () => {
   return (
     <div>
       <Nav cartOpen={cartOpen} />
-      <div className="profile-page" style={{minHeight: '100vh', background: '#fff', marginTop: '180px', overflowY: 'auto', maxHeight: '100vh'}}>
+             <div className="profile-page" style={{minHeight: '100vh', background: '#fff', marginTop: '180px'}}>
         {/* Barra rosa superior */}
         {/* <div className="profile-bg-bar" style={{height: '80px', width: '1100px', maxWidth: '95vw', margin: '2rem auto 0 auto', background: '#eab5c5', borderRadius: '20px'}}></div> */}
         <div className="profile-redesign-container" style={{display: 'flex', gap: '2.5rem', justifyContent: 'center', alignItems: 'flex-start', marginTop: '-40px'}}>
@@ -211,47 +243,66 @@ const Profile = () => {
                 />
               </label>
             </div>
-            <div className="profile-info-box">
-              {renderField('name', 'Tu nombre', user.name)}
-              {renderField('email', 'Tu correo', user.email)}
-              {renderField('phone', 'Tu telefono', user.phone)}
-              {renderField('password', 'Tu contraseña', user.password, true)}
-            </div>
+                         <div className="profile-info-box">
+               {renderField('name', 'Tu nombre', user.name)}
+               {renderField('email', 'Tu correo', user.email)}
+               {renderField('phone', 'Tu telefono', user.phone)}
+               {renderField('password', 'Tu contraseña', user.password, true)}
+               
+                               {/* Sección de configuraciones adicionales */}
+                <div style={{marginTop: 20, paddingTop: 15, borderTop: '1px solid #f0f0f0'}}>
+                  <h4 style={{fontSize: 16, fontWeight: 600, color: '#333', marginBottom: 15}}>Configuraciones</h4>
+                 
+                 {/* Switch de notificaciones */}
+                 <div className="profile-settings-row" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12}}>
+                   <div className="profile-info-label" style={{fontWeight: 500, fontSize: 14}}>Notificaciones</div>
+                   <div className="checkbox-wrapper-5">
+                     <div className="check">
+                       <input
+                         type="checkbox"
+                         id="check-5"
+                         checked={notifications}
+                         onChange={() => setNotifications((n) => !n)}
+                       />
+                       <label htmlFor="check-5"></label>
+                     </div>
+                   </div>
+                 </div>
+                 
+                 {/* Enlaces a políticas */}
+                 <div className="profile-settings-row" style={{marginBottom: 12}}>
+                   <div className="profile-info-label" style={{fontWeight: 500, fontSize: 14, cursor: 'pointer', color: '#666'}} 
+                        onClick={() => window.open('/privacy', '_blank')}>
+                     Política de privacidad
+                   </div>
+                 </div>
+                 <div className="profile-settings-row" style={{marginBottom: 12}}>
+                   <div className="profile-info-label" style={{fontWeight: 500, fontSize: 14, cursor: 'pointer', color: '#666'}}
+                        onClick={() => window.open('/terms', '_blank')}>
+                     Términos y condiciones
+                   </div>
+                 </div>
+               </div>
+             </div>
           </div>
           {/* Card derecha: configuraciones y acciones */}
           <div className="profile-card right" style={{background: '#fff', borderRadius: '12px', boxShadow: '0 2px 12px #eab5c555', padding: '2.5rem 2rem', minWidth: 420, maxWidth: 520, minHeight: 420}}>
             <div className="profile-settings-box">
               {renderField('language', 'Idioma', user.language)}
               {renderField('currency', 'Moneda', user.currency)}
-              {renderField('location', 'Ubicacion', user.location)}
-              {/* Switch de notificaciones */}
-              <div className="profile-settings-row" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12}}>
-                <div className="profile-info-label" style={{fontWeight: 500, fontSize: 14}}>Notificaciones</div>
-                <div className="checkbox-wrapper-5">
-                  <div className="check">
-                    <input
-                      type="checkbox"
-                      id="check-5"
-                      checked={notifications}
-                      onChange={() => setNotifications((n) => !n)}
-                    />
-                    <label htmlFor="check-5"></label>
-                  </div>
-                </div>
+              
+                             {/* Sección de dirección */}
+               <div style={{marginBottom: 20, paddingTop: 10, borderTop: '1px solid #f0f0f0'}}>
+                 <h4 style={{fontSize: 16, fontWeight: 600, color: '#333', marginBottom: 15}}>Información de Dirección</h4>
+                {renderField('street', 'Calle y número', user.street)}
+                {renderField('city', 'Ciudad', user.city)}
+                {renderField('department', 'Departamento', user.department)}
+                {renderField('zipCode', 'Código postal', user.zipCode)}
+                {renderField('country', 'País', user.country)}
+                
+                
               </div>
-              {/* Enlaces a políticas */}
-              <div className="profile-settings-row" style={{marginBottom: 12}}>
-                <div className="profile-info-label" style={{fontWeight: 500, fontSize: 14, cursor: 'pointer'}} 
-                     onClick={() => window.open('/privacy', '_blank')}>
-                  Política de privacidad
-                </div>
-              </div>
-              <div className="profile-settings-row" style={{marginBottom: 12}}>
-                <div className="profile-info-label" style={{fontWeight: 500, fontSize: 14, cursor: 'pointer'}}
-                     onClick={() => window.open('/terms', '_blank')}>
-                  Términos y condiciones
-                </div>
-              </div>
+              
               {/* Botón de historial de pedidos */}
               <div className="profile-settings-row" style={{marginBottom: 12}}>
                 <button 
@@ -277,9 +328,9 @@ const Profile = () => {
                     e.target.style.color = '#222';
                   }}
                   onClick={() => window.location.href = '/historial'}
-                >
-                  📋 Historial de pedidos
-                </button>
+                                 >
+                   Historial de pedidos
+                 </button>
               </div>
               {/* Botón para cerrar sesión */}
               <div className="profile-settings-row" style={{marginBottom: 12}}>

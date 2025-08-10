@@ -1,111 +1,118 @@
-import React, { useState, useEffect, useRef } from 'react';
-import Hero from "../components/Products/Hero";
-import ProductShowcase from '../components/Products/ProductShowcase';
-import Categories from '../components/Products/Categories';
-import ProductGrid from '../components/Products/ProductGrid';
-import CardsRow from '../components/Products/CardsRow';
-import Card from '../components/Products/Card';
-import Footer from '../components/Footer';
-import RatingBox from '../components/Products/RatingBox';
-import Nav from '../components/Nav/Nav';
-import SidebarCart from '../components/Cart/SidebarCart';
-import { useCart } from '../context/CartContext';
-import Toast from '../components/ui/Toast';
-import './Products.css';
+// Importaciones necesarias para la página de productos
+import React, { useState, useEffect, useRef } from 'react'; // React y hooks para estado, efectos y referencias
+import Hero from "../components/Products/Hero"; // Componente hero de la página de productos
+import ProductShowcase from '../components/Products/ProductShowcase'; // Componente de exhibición de productos
+import Categories from '../components/Products/Categories'; // Componente de categorías
+import ProductGrid from '../components/Products/ProductGrid'; // Componente de grilla de productos
+import CardsRow from '../components/Products/CardsRow'; // Componente de fila de tarjetas
+import Card from '../components/Products/Card'; // Componente de tarjeta individual
+import Footer from '../components/Footer'; // Componente del pie de página
+import RatingBox from '../components/Products/RatingBox'; // Componente de caja de calificación
+import Nav from '../components/Nav/Nav'; // Componente de navegación
+import SidebarCart from '../components/Cart/SidebarCart'; // Componente del carrito lateral
+import { useCart } from '../context/CartContext'; // Hook del contexto del carrito
+import Toast from '../components/ui/Toast'; // Componente de notificación toast
+import './Products.css'; // Estilos CSS específicos de la página de productos
 
-// Defines the Products page component.
+// Define el componente de la página de productos
 const Products = () => {
-  const [cartOpen, setCartOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [scrollY, setScrollY] = useState(0);
-  const [hoveredCard, setHoveredCard] = useState(null);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const { addToCart } = useCart();
-  const [toast, setToast] = useState(false);
-  const productsRef = useRef(null);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 700);
+  // Estados para controlar el comportamiento de la página
+  const [cartOpen, setCartOpen] = useState(false); // Estado del carrito lateral (abierto/cerrado)
+  const [isLoading, setIsLoading] = useState(true); // Estado de carga inicial
+  const [scrollY, setScrollY] = useState(0); // Posición actual del scroll
+  const [hoveredCard, setHoveredCard] = useState(null); // ID de la tarjeta sobre la que está el hover
+  const [filteredProducts, setFilteredProducts] = useState([]); // Productos filtrados (no usado actualmente)
+  const { addToCart } = useCart(); // Función para agregar al carrito desde el contexto
+  const [toast, setToast] = useState(false); // Estado de la notificación toast
+  const productsRef = useRef(null); // Referencia al contenedor de productos
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 700); // Estado para detectar dispositivos móviles
 
-  // Simular carga inicial
+  // Efecto: Simular carga inicial de la página
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsLoading(false);
+      setIsLoading(false); // Finalizar estado de carga después de 1 segundo
     }, 1000);
-    return () => clearTimeout(timer);
+    return () => clearTimeout(timer); // Limpiar timer al desmontar
   }, []);
 
-  // Scroll event listener
+  // Efecto: Listener para eventos de scroll
   useEffect(() => {
     const handleScroll = () => {
-      setScrollY(window.scrollY);
+      setScrollY(window.scrollY); // Actualizar posición del scroll
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll); // Agregar listener
+    return () => window.removeEventListener('scroll', handleScroll); // Limpiar listener
   }, []);
 
+  // Efecto: Detectar cambios de tamaño de pantalla para responsive design
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 700);
+      setIsMobile(window.innerWidth <= 700); // Actualizar estado móvil
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize); // Agregar listener
+    return () => window.removeEventListener('resize', handleResize); // Limpiar listener
   }, []);
 
-  // Función para añadir al carrito y abrir el panel
+  // Función para añadir productos al carrito y abrir el panel lateral
   const handleAddToCart = (product) => {
-    addToCart(product);
-    setCartOpen(true);
-    setToast(true);
+    addToCart(product); // Agregar producto al carrito
+    setCartOpen(true); // Abrir carrito lateral
+    setToast(true); // Mostrar notificación toast
     
-    // Efecto de éxito
+    // Efecto visual de éxito en la tarjeta
     const card = document.querySelector(`[data-product-id="${product.id}"]`);
     if (card) {
-      card.style.transform = 'scale(1.05)';
+      card.style.transform = 'scale(1.05)'; // Escalar la tarjeta
       setTimeout(() => {
-        card.style.transform = 'scale(1)';
-      }, 200);
+        card.style.transform = 'scale(1)'; // Volver al tamaño normal
+      }, 200); // Después de 200ms
     }
   };
 
-  // Función para manejar hover en las cards
+  // Función para manejar el hover sobre las tarjetas de productos
   const handleCardHover = (productId) => {
-    setHoveredCard(productId);
+    setHoveredCard(productId); // Establecer ID de la tarjeta con hover
   };
 
+  // Función para manejar cuando el mouse sale de una tarjeta
   const handleCardLeave = () => {
-    setHoveredCard(null);
+    setHoveredCard(null); // Limpiar ID de tarjeta con hover
   };
 
-  // Efecto de parallax para elementos
+  // Función para crear efecto de parallax en elementos
   const getParallaxStyle = (speed = 0.5) => ({
-    transform: `translateY(${scrollY * speed}px)`,
-    transition: 'transform 0.1s ease-out'
+    transform: `translateY(${scrollY * speed}px)`, // Mover elemento basado en scroll
+    transition: 'transform 0.1s ease-out' // Transición suave
   });
 
+  // Renderizado del estado de carga inicial
   if (isLoading) {
     return (
       <div style={{
-        minHeight: '100vh',
+        minHeight: '100vh', // Altura mínima de toda la pantalla
         display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        background: '#FFFFFF',
-        flexDirection: 'column',
-        gap: '2rem'
+        justifyContent: 'center', // Centrar horizontalmente
+        alignItems: 'center', // Centrar verticalmente
+        background: '#FFFFFF', // Fondo blanco
+        flexDirection: 'column', // Dirección de columna
+        gap: '2rem' // Espacio entre elementos
       }}>
+        {/* Spinner de carga animado */}
         <div style={{
           width: '120px',
           height: '120px',
-          borderRadius: '50%',
-          background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
+          borderRadius: '50%', // Forma circular
+          background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)', // Gradiente
           backgroundSize: '200px 100%',
-          animation: 'shimmer 1.5s infinite'
+          animation: 'shimmer 1.5s infinite' // Animación de brillo
         }}></div>
+        {/* Texto de carga */}
         <div style={{
           fontSize: '1.5rem',
           fontWeight: '600',
           color: '#333',
-          animation: 'fadeInUp 0.8s ease-out'
+          animation: 'fadeInUp 0.8s ease-out' // Animación de aparición
         }}>
           Cargando productos...
         </div>
@@ -113,30 +120,30 @@ const Products = () => {
     );
   }
 
-  // The return statement contains the JSX that will be rendered to the DOM.
+  // El return contiene el JSX que se renderizará en el DOM
   return (
-    // React Fragment (<>) is used to group multiple elements without adding an extra node to the DOM.
+    // Fragmento de React (<>) se usa para agrupar múltiples elementos sin agregar un nodo extra al DOM
     <>
-      <Toast message="¡Producto añadido al carrito!" show={toast} onClose={() => setToast(false)} />
-      <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+      <Toast message="¡Producto añadido al carrito!" show={toast} onClose={() => setToast(false)} /> {/* Notificación toast */}
+      <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} /> {/* Carrito lateral */}
       
-      {/* Indicador de progreso de scroll */}
+      {/* Indicador de progreso de scroll - Barra superior que muestra el progreso */}
       <div style={{
-        position: 'fixed',
+        position: 'fixed', // Posición fija en la parte superior
         top: 0,
         left: 0,
-        width: `${(scrollY / (document.body.scrollHeight - window.innerHeight)) * 100}%`,
-        height: '3px',
-        background: 'linear-gradient(90deg, #ffd6de, #b94a6c)',
-        zIndex: 10000,
-        transition: 'width 0.3s ease'
+        width: `${(scrollY / (document.body.scrollHeight - window.innerHeight)) * 100}%`, // Ancho basado en progreso
+        height: '3px', // Altura de la barra
+        background: 'linear-gradient(90deg, #ffd6de, #b94a6c)', // Gradiente rosa
+        zIndex: 10000, // Z-index alto para estar por encima de todo
+        transition: 'width 0.3s ease' // Transición suave
       }}></div>
 
-      {/* Renders the navigation bar at the top of the page. */}
+      {/* Renderiza la barra de navegación en la parte superior de la página */}
       <Nav cartOpen={cartOpen} />
       
-      {/* Renders the hero section specific to the Products page. */}
-      <div style={getParallaxStyle(0.3)}>
+      {/* Renderiza la sección hero específica de la página de productos */}
+      <div style={getParallaxStyle(0.3)}> {/* Efecto parallax suave */}
         <Hero />
       </div>
       
@@ -188,24 +195,22 @@ const Products = () => {
         >
           <div 
             data-product-id="promo-1"
+            className="product-card-container"
             onMouseEnter={() => handleCardHover('promo-1')}
             onMouseLeave={handleCardLeave}
             style={{
-              transform: hoveredCard === 'promo-1' ? 'scale(1.05) translateY(-10px)' : 'scale(1)',
-              transition: 'all 0.3s ease',
-              zIndex: 99999
+              transform: hoveredCard === 'promo-1' ? 'scale(1.05) translateY(-10px)' : 'scale(1)'
             }}
           >
             <Card imageHeight={185} onAddToCart={handleAddToCart} />
           </div>
           <div 
             data-product-id="promo-2"
+            className="product-card-container"
             onMouseEnter={() => handleCardHover('promo-2')}
             onMouseLeave={handleCardLeave}
             style={{
-              transform: hoveredCard === 'promo-2' ? 'scale(1.05) translateY(-10px)' : 'scale(1)',
-              transition: 'all 0.3s ease',
-              zIndex: 99999
+              transform: hoveredCard === 'promo-2' ? 'scale(1.05) translateY(-10px)' : 'scale(1)'
             }}
           >
             <Card 
@@ -220,12 +225,11 @@ const Products = () => {
           </div>
           <div 
             data-product-id="promo-3"
+            className="product-card-container"
             onMouseEnter={() => handleCardHover('promo-3')}
             onMouseLeave={handleCardLeave}
             style={{
-              transform: hoveredCard === 'promo-3' ? 'scale(1.05) translateY(-10px)' : 'scale(1)',
-              transition: 'all 0.3s ease',
-              zIndex: 99999
+              transform: hoveredCard === 'promo-3' ? 'scale(1.05) translateY(-10px)' : 'scale(1)'
             }}
           >
             <Card 
@@ -311,10 +315,10 @@ const Products = () => {
           ))}
         </div>
       </div>
-      <Footer />
+      <Footer /> {/* Pie de página */}
     </>
   );
 };
 
-// Exports the Products component to be used in the application's routing setup.
+// Exporta el componente Products para ser usado en la configuración de enrutamiento de la aplicación
 export default Products;

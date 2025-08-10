@@ -275,17 +275,40 @@ const Contact = () => {
           </div>
         </div>
 
+        {/* Sección del mapa embebido */}
         <div className="contact-map">
-          <div className="map-placeholder">
-            <div className="map-content">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
-              </svg>
-              <h3>Ubicación</h3>
-              <p>San Salvador, El Salvador</p>
-              <button className="map-button" onClick={() => window.open('https://www.google.com/maps/place/San+Salvador,+El+Salvador', '_blank')}>
-                Ver en Google Maps
-              </button>
+          <div className="map-container">
+            <h3 className="map-title">Nuestra Ubicación</h3>
+            <p className="map-subtitle">San Salvador, El Salvador</p>
+            
+            {/* Mapa embebido de Google Maps */}
+            <div className="map-iframe-container">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d124225.123456789!2d-89.1875!3d13.6929!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8f633067b3a5a8a5%3A0x1b1b1b1b1b1b1b1b!2sSan+Salvador%2C+El+Salvador!5e0!3m2!1ses!2ses!4v1234567890123"
+                width="100%"
+                height="450"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Ubicación de Eternal Joyería en San Salvador, El Salvador"
+              ></iframe>
+            </div>
+            
+            {/* Información adicional del mapa */}
+            <div className="map-info">
+              <div className="map-info-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
+                </svg>
+                <span>Centro de San Salvador</span>
+              </div>
+              <div className="map-info-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
+                </svg>
+                <span>Fácil acceso y estacionamiento disponible</span>
+              </div>
             </div>
           </div>
         </div>
