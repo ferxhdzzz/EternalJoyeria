@@ -1,0 +1,1 @@
+//para mientras no se cree el navigation en la web, se crea este navigation en la app movil
