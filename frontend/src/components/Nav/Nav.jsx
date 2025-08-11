@@ -150,53 +150,53 @@ const Nav = ({ cartOpen = false }) => {
                 >
                     <CleanLogo isMobile={isMobile} isSmallMobile={isSmallMobile} />
                     
-                    <div 
-                        ref={menuRef} 
-                        className={`nav-menu ${isOpen ? 'show-menu' : ''} ${cartOpen ? 'nav-menu--cart-open' : ''}`}
-                    >
-                        {isMobile && (
-                            <div className="nav-menu-header">
-                                <button className="nav-close-btn" onClick={toggleMenu}>
-                                    <X size={24} />
-                                </button>
-                            </div>
-                        )}
-                        
-                        <ul className="nav-list">
+                <div 
+                    ref={menuRef} 
+                    className={`nav-menu ${isOpen ? 'show-menu' : ''} ${cartOpen ? 'nav-menu--cart-open' : ''}`}
+                >
+                    {isMobile && (
+                        <div className="nav-menu-header">
+                            <button className="nav-close-btn" onClick={toggleMenu}>
+                                <X size={24} />
+                            </button>
+                        </div>
+                    )}
+                    
+                    <ul className="nav-list">
                             <ProductsMenu 
                                 isMobile={isMobile} 
                                 toggleMenu={toggleMenu} 
                                 location={location} 
                             />
-                            <li><Link to="/sobre-nosotros" className={`nav-link${location.pathname.startsWith('/sobre-nosotros') ? ' active' : ''}`} onClick={toggleMenu}><span className="nav-link-inner">Sobre Nosotros</span></Link></li>
-                            <li><Link to="/contactanos" className={`nav-link${location.pathname.startsWith('/contactanos') ? ' active' : ''}`} onClick={toggleMenu}><span className="nav-link-inner">Contáctanos</span></Link></li>
-                        </ul>
-                    </div>
+                        <li><Link to="/sobre-nosotros" className={`nav-link${location.pathname.startsWith('/sobre-nosotros') ? ' active' : ''}`} onClick={toggleMenu}><span className="nav-link-inner">Sobre Nosotros</span></Link></li>
+                        <li><Link to="/contactanos" className={`nav-link${location.pathname.startsWith('/contactanos') ? ' active' : ''}`} onClick={toggleMenu}><span className="nav-link-inner">Contáctanos</span></Link></li>
+                    </ul>
+                </div>
 
-                    <div className="nav-actions">
-                        <div 
-                            ref={toggleRef}
-                            className="nav-toggle" 
-                            onClick={toggleMenu}
-                        >
-                            {isOpen ? <X size={28} /> : <Menu size={28} />}
-                        </div>
-                        
-                        <Link to="/login" className="nav-login-btn">
-                            Iniciar Sesión
-                        </Link>
-                        
-                        <Link to="/perfil" className="nav-icon nav-icon-user" aria-label="Perfil">
-                            <User size={22} />
-                        </Link>
-                        
-                        <Link to="/carrito" className="nav-icon nav-cart-icon" aria-label="Carrito de Compras">
-                            <CartIcon size={22} />
-                            {totalCount > 0 && (
-                                <span className={`nav-cart-badge${bump ? ' bump' : ''}`}>{totalCount}</span>
-                            )}
-                        </Link>
+                <div className="nav-actions">
+                    <div 
+                        ref={toggleRef}
+                        className="nav-toggle" 
+                        onClick={toggleMenu}
+                    >
+                        {isOpen ? <X size={28} /> : <Menu size={28} />}
                     </div>
+                    
+                    <Link to="/login" className="nav-login-btn">
+                        Iniciar Sesión
+                    </Link>
+                    
+                    <Link to="/perfil" className="nav-icon nav-icon-user" aria-label="Perfil">
+                        <User size={22} />
+                    </Link>
+                    
+                    <Link to="/carrito" className="nav-icon nav-cart-icon" aria-label="Carrito de Compras">
+                        <CartIcon size={22} />
+                        {totalCount > 0 && (
+                            <span className={`nav-cart-badge${bump ? ' bump' : ''}`}>{totalCount}</span>
+                        )}
+                    </Link>
+                </div>
                 </div>
             </header>
             
