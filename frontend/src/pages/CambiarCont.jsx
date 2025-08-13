@@ -1,93 +1,103 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+
+import useRecoverCustomerPassword from "../hooks/recovery/useRecoverCustomerPassword";
 import Logo from "../components/registro/logo/Logo";
 import Input from "../components/registro/inpungroup/InputGroup";
 import Button from "../components/registro/button/Button";
 import BackArrow from "../components/registro/backarrow/BackArrow";
-import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
-import '../styles/AuthStyles.css';
+import "../styles/Recuperacion.css";
 
-const CambiarContra = () => {
+const hasSpecial = (s) => /[!@#$%^&*(),.?":{}|<>_\-\[\]\\;/+=~`]/.test(s);
+
+export default function CambiarCont() {
+  const navigate = useNavigate();
+  const { resetPassword } = useRecoverCustomerPassword();
+
+  useEffect(() => {
+    if (sessionStorage.getItem("rp_verified") !== "1") {
+      Swal.fire("Acceso no válido", "Primero verifica tu código.", "warning")
+        .then(() => navigate("/recuperacion"));
+    }
+  }, [navigate]);
+
   const [form, setForm] = useState({ password: "", confirmPassword: "" });
   const [errors, setErrors] = useState({ password: "", confirmPassword: "" });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const navigate = useNavigate();
+  const [showPass, setShowPass] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prevForm) => ({
-      ...prevForm,
-      [name]: value,
-    }));
+    setForm((p) => ({ ...p, [name]: value }));
   };
 
-
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const { password, confirmPassword } = form;
-    let newErrors = { password: "", confirmPassword: "" };
-    let hasError = false;
+    const newErr = { password: "", confirmPassword: "" };
+    let invalid = false;
 
-    // Campo vacío
     if (!password) {
-      newErrors.password = "Complete todos los campos.";
-      hasError = true;
+      newErr.password = "Complete todos los campos."; invalid = true;
     } else {
-      // Longitud mínima
-      if (password.length < 8) {
-        newErrors.password = "Debe tener al menos 8 caracteres.";
-        hasError = true;
-      }
-
-      // Al menos un carácter especial
-      if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-        newErrors.password = "Debe incluir al menos un carácter especial.";
-        hasError = true;
-      }
+      if (password.length < 8) { newErr.password = "Debe tener al menos 8 caracteres."; invalid = true; }
+      if (!hasSpecial(password)) { newErr.password = "Debe incluir al menos un carácter especial."; invalid = true; }
     }
 
-    // Confirmación
-    if (!confirmPassword) {
-      newErrors.confirmPassword = "Confirma tu contraseña.";
-      hasError = true;
-    } else if (confirmPassword !== password) {
-      newErrors.confirmPassword = "Las contraseñas no coinciden.";
-      hasError = true;
+    if (!confirmPassword) { newErr.confirmPassword = "Confirma tu contraseña."; invalid = true; }
+    else if (confirmPassword !== password) { newErr.confirmPassword = "Las contraseñas no coinciden."; invalid = true; }
+
+    setErrors(newErr);
+    if (invalid) {
+      Swal.fire("Revisa los campos", "Corrige las validaciones marcadas.", "error");
+      return;
     }
 
-    setErrors(newErrors);
+    const res = await resetPassword(password);
 
-    if (hasError) return;
-
-    // Si todo es válido, continúa
-    navigate("/login");
+    if (res.ok) {
+      Swal.fire({
+        icon: "success",
+        title: "¡Listo!",
+        text: res.message || "Contraseña actualizada correctamente.",
+        confirmButtonText: "Ir al login",
+      }).then(() => {
+        sessionStorage.removeItem("rp_email");
+        sessionStorage.removeItem("rp_verified");
+        navigate("/login");
+      });
+    } else {
+      const msg = res.message || "No se pudo actualizar.";
+      Swal.fire("Error", msg, "error");
+    }
   };
 
   return (
-
-
-    <div className="recover-wrapper"
+    <div
+      className="recover-wrapper"
       style={{
-        backgroundImage: `url("/fondoact.png")`,
+        backgroundImage: `url("/recuperacionPriv.png")`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
-      }}>
-
+      }}
+    >
       <div className="recover-card">
-
-        <BackArrow to="/recuperacion" />
+        <BackArrow to="/verificar-codigo" />
         <Logo />
         <h2 className="recover-title">Recuperar contraseña</h2>
+
         <div className="input-group-eye">
           <Input
             label="Nueva Contraseña"
             name="password"
-            type={showPassword ? "text" : "password"}
+            type={showPass ? "text" : "password"}
             value={form.password}
             onChange={handleChange}
           />
-          <span className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
-            {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
+          <span className="eye-icon" onClick={() => setShowPass((v) => !v)}>
+            {showPass ? <AiFillEyeInvisible /> : <AiFillEye />}
           </span>
         </div>
         {errors.password && <p className="error-message">{errors.password}</p>}
@@ -96,24 +106,18 @@ const CambiarContra = () => {
           <Input
             label="Confirmar contraseña"
             name="confirmPassword"
-            type={showConfirmPassword ? "text" : "password"}
+            type={showConfirm ? "text" : "password"}
             value={form.confirmPassword}
             onChange={handleChange}
           />
-          <span
-            className="eye-icon"
-            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-          >
-            {showConfirmPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
+          <span className="eye-icon" onClick={() => setShowConfirm((v) => !v)}>
+            {showConfirm ? <AiFillEyeInvisible /> : <AiFillEye />}
           </span>
         </div>
-        {errors.confirmPassword && (
-          <p className="error-message">{errors.confirmPassword}</p>
-        )}
+        {errors.confirmPassword && <p className="error-message">{errors.confirmPassword}</p>}
+
         <Button text="Actualizar →" onClick={handleSubmit} />
       </div>
     </div>
   );
-};
-
-export default CambiarContra;
+}
