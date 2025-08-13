@@ -102,7 +102,8 @@ const useContactForm = () => {
   /**
    * Función principal para enviar el mensaje de contacto
    */
-  const sendContactMessage = useCallback(async (e, apiUrl = '/api/contactus/send') => {
+  const apiUrl = 'http://localhost:4000/api/contactus/send'
+  const sendContactMessage = useCallback(async (e) => {
     // Prevenir comportamiento por defecto del formulario
     if (e?.preventDefault) {
       e.preventDefault();
