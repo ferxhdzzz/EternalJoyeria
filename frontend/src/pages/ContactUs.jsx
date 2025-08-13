@@ -21,6 +21,17 @@ const ContactUs = () => {
     isFormValid
   } = useContactForm();
 
+  // Función para manejar el cambio en el campo de teléfono
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    // Solo permitir números, espacios, guiones y el signo +, máximo 15 caracteres
+    const phoneRegex = /^[0-9\s\-+]*$/;
+    
+    if (phoneRegex.test(value) && value.length <= 15) {
+      handleChange(e);
+    }
+  };
+
   // Función para manejar el envío del formulario
   const onSubmit = (e) => {
     handleSubmit(e, '/api/contactus/send');
@@ -231,7 +242,7 @@ const ContactUs = () => {
                       id="phone"
                       name="phone"
                       value={formData.phone}
-                      onChange={handleChange}
+                      onChange={handlePhoneChange}
                       className={errors.phone ? 'error' : ''}
                       placeholder="+503 1234-5678"
                       aria-invalid={errors.phone ? 'true' : 'false'}
