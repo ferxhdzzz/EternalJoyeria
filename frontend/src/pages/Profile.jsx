@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Swal from "sweetalert2";
 import Nav from '../components/Nav/Nav';
 import ProfileDetails from '../components/Profile/ProfileDetails';
 import ProfilePhotoSection from '../components/Profile/ProfilePhotoSection';
@@ -93,11 +94,61 @@ const Profile = () => {
   };
 
   // Cierra sesión con confirmación
-  const handleLogout = () => {
-    if (window.confirm('¿Estás seguro de que quieres desconectarte?')) {
-      window.location.href = '/login';
+const handleLogout = async () => {
+  const confirmResult = await Swal.fire({
+    title: "¿Cerrar sesión?",
+    text: "Se cerrará tu sesión actual",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#e75480", // rosa Eternal Joyería
+    cancelButtonColor: "#aaa",
+    confirmButtonText: "Sí, cerrar sesión",
+    cancelButtonText: "Cancelar"
+  });
+
+  if (!confirmResult.isConfirmed) return;
+
+  Swal.fire({
+    title: "Cerrando sesión...",
+    text: "Por favor espera",
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
     }
-  };
+  });
+
+  try {
+    const res = await fetch("http://localhost:4000/api/logout", {
+      method: "POST",
+      credentials: "include", // para enviar y eliminar cookies de sesión
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) throw new Error("Error al cerrar sesión");
+
+    Swal.fire({
+      title: "Sesión cerrada",
+      text: "Serás redirigido al inicio de sesión",
+      icon: "success",
+      timer: 1500,
+      showConfirmButton: false
+    });
+
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 1500);
+    
+  } catch (error) {
+    console.error("Error cerrando sesión:", error);
+    Swal.fire({
+      title: "Error",
+      text: "No se pudo cerrar sesión. Intenta de nuevo.",
+      icon: "error"
+    });
+  }
+};
 
   // Renderiza un campo editable del perfil
   const renderField = (field, label, value, isPassword = false) => {
@@ -278,7 +329,7 @@ const Profile = () => {
                   }}
                   onClick={() => window.location.href = '/historial'}
                 >
-                  📋 Historial de pedidos
+                 Historial de pedidos
                 </button>
               </div>
               {/* Botón para cerrar sesión */}
