@@ -115,7 +115,7 @@ const LoginScreen = ({ navigation }) => {
   const handleLogin = () => {
     validateForm();
     if (isFormValid) {
-      console.log('Iniciando sesión con:', email, password);
+      console.log('Iniciando sesión con:', JSON.stringify({ email, password }));
       // Simular datos de usuario para la demo
       const mockUserData = {
         firstName: 'Usuario',

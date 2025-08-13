@@ -219,14 +219,14 @@ const RegisterScreen = ({ navigation }) => {
   const handleRegister = () => {
     validateForm();
     if (isFormValid) {
-      console.log('Registrando usuario:', {
+      console.log('Registrando usuario:', JSON.stringify({
         firstName,
         lastName,
         username,
         email,
         phone,
         password
-      });
+      }));
       // Crear datos de usuario para la demo
       const userData = {
         firstName,

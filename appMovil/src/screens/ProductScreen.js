@@ -13,7 +13,8 @@ import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
-const ProductScreen = ({ navigation, userData }) => {
+const ProductScreen = ({ route, userData }) => {
+  const navigation = route.params?.navigation;
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
@@ -27,14 +28,14 @@ const ProductScreen = ({ navigation, userData }) => {
     {
       id: 1,
       name: 'Collar de Perlas',
-      price: '$89.99',
+      price: 89.99,
       image: require('../../assets/Productos/collarorchidmorado.png'),
       category: 'Collares'
     },
     {
       id: 2,
       name: 'Collar Dorado',
-      price: '$129.99',
+      price: 129.99,
       image: require('../../assets/Productos/collarorchidrosado.png'),
       category: 'Collares'
     },
@@ -42,14 +43,14 @@ const ProductScreen = ({ navigation, userData }) => {
     {
       id: 3,
       name: 'Aretes de Diamante',
-      price: '$199.99',
+      price: 199.99,
       image: require('../../assets/Productos/aretedoradomargarita.png'),
       category: 'Aretes'
     },
     {
       id: 4,
       name: 'Aretes de Plata',
-      price: '$79.99',
+      price: 79.99,
       image: require('../../assets/Productos/aretedoradorosa.png'),
       category: 'Aretes'
     },
@@ -57,45 +58,45 @@ const ProductScreen = ({ navigation, userData }) => {
     {
       id: 5,
       name: 'Pulsera Elegante',
-      price: '$149.99',
-      image: 'https://via.placeholder.com/150x150/FFDDDD/666666?text=💫',
+      price: 149.99,
+      image: require('../../assets/Productos/pulserauna.png'),
       category: 'Pulseras'
     },
     {
       id: 6,
       name: 'Pulsera de Oro',
-      price: '$299.99',
-      image: 'https://via.placeholder.com/150x150/FFDDDD/666666?text=🔥',
+      price: 299.99,
+      image: require('../../assets/Productos/pulserados.png'),
       category: 'Pulseras'
     },
     // Conjuntos
     {
       id: 7,
       name: 'Set Completo',
-      price: '$399.99',
+      price: 399.99,
       image: require('../../assets/Productos/conjuntoorchidblanco.png'),
       category: 'Conjuntos'
     },
     {
       id: 8,
       name: 'Colección Premium',
-      price: '$599.99',
-      image: 'https://via.placeholder.com/150x150/FFDDDD/666666?text=💎',
+      price: 599.99,
+      image: require('../../assets/Productos/conjuntoorchidamarillo.png'),
       category: 'Conjuntos'
     },
     // Peinetas
     {
       id: 9,
       name: 'Peineta Decorativa',
-      price: '$45.99',
-      image: 'https://via.placeholder.com/150x150/FFDDDD/666666?text=🌸',
+      price: 45.99,
+      image: require('../../assets/Productos/peinetarosa.png'),
       category: 'Peinetas'
     },
     {
       id: 10,
       name: 'Peineta Elegante',
-      price: '$65.99',
-      image: 'https://via.placeholder.com/150x150/FFDDDD/666666?text=🌺',
+      price: 65.99,
+      image: require('../../assets/Productos/peinetablanca.png'),
       category: 'Peinetas'
     }
   ]);
@@ -144,9 +145,12 @@ const ProductScreen = ({ navigation, userData }) => {
       </View>
       <View style={styles.productInfo}>
         <Text style={styles.productName}>{product.name}</Text>
-        <Text style={styles.productPrice}>{product.price}</Text>
+        <Text style={styles.productPrice}>${product.price}</Text>
       </View>
-      <TouchableOpacity style={styles.addToCartButton}>
+      <TouchableOpacity 
+        style={styles.addToCartButton}
+        onPress={() => navigation.navigate('ProductDetail', { product })}
+      >
         <Ionicons name="add" size={20} color="#fff" />
       </TouchableOpacity>
     </View>
