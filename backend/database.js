@@ -2,8 +2,8 @@
 import mongoose from "mongoose";
 
 // 1- Configuro la URI usando la variable de entorno (con fallback local)
-const URI = process.env.DB_URI || "mongodb://localhost:27017/EternalJoyeria";
-mongoose.connect(URI);
+const uri = process.env.dbUri || "mongodb://localhost:27017/EternalJoyeria";
+mongoose.connect(uri);
 
 // Obtengo la conexión
 const connection = mongoose.connection;

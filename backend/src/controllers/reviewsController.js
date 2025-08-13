@@ -1,6 +1,15 @@
 import Review from "../models/Reviews.js";
 import Customer from "../models/Customers.js";
 import Product from "../models/Products.js";
+import { v2 as cloudinary } from "cloudinary";
+
+
+
+cloudinary.config({
+  cloud_name: 'dosy4rouu',
+  api_key: '712175425427873',
+  api_secret: 'Yk2vqXqQ6aknOrT7FCoqEiWw31w',
+});
 
 const reviewsController = {};
 
@@ -33,7 +42,7 @@ reviewsController.getReview = async (req, res) => {
 
     res.json(review);
   } catch (error) {
-    res.status(400).json({
+    res.status(5400).json({
       message: "Error fetching review",
       error: error.message,
     });
@@ -55,7 +64,7 @@ reviewsController.getReviewsByProduct = async (req, res) => {
 
     res.json(reviews);
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       message: "Error fetching reviews for product",
       error: error.message,
     });
@@ -86,6 +95,21 @@ reviewsController.createReview = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
+ let uploadedImages = [];
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const result = await cloudinary.uploader.upload(file.path, {
+          folder: "products",
+          allowed_formats: ["png", "jpg", "jpeg", "PNG", "JPG"],
+          transformation: [
+            { width: 800, height: 800, crop: "fill" },
+            { quality: "auto" }
+          ]
+        });
+        uploadedImages.push(result.secure_url);
+        await fs.unlink(file.path);
+      }
+    }
 
     // Crear reseña
     const newReview = new Review({
@@ -93,6 +117,7 @@ reviewsController.createReview = async (req, res) => {
       id_product,
       rank,
       comment: comment.trim(),
+      images: uploadedImages,
     });
 
     const savedReview = await newReview.save();
@@ -103,7 +128,7 @@ reviewsController.createReview = async (req, res) => {
 
     res.status(201).json(populatedReview);
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       message: "Error creating review",
       error: error.message,
     });
@@ -144,7 +169,7 @@ reviewsController.updateReview = async (req, res) => {
 
     res.status(200).json(populatedReview);
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       message: "Error updating review",
       error: error.message,
     });
@@ -162,7 +187,7 @@ reviewsController.deleteReview = async (req, res) => {
 
     res.json({ message: "Review deleted successfully" });
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       message: "Error deleting review",
       error: error.message,
     });

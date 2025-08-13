@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ResenaRow from "../row/ResenaRow";
 import ConfirmacionModal from "../modal/ConfirmacionModal";
-import Swal from "sweetalert2";  // <--- importar Swal
+import Swal from "sweetalert2";
 import "./TablaResenas.css";
 
 const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
@@ -13,10 +13,9 @@ const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
 
   const confirmarEliminacion = async () => {
     try {
-      await deleteReviews(resenaSeleccionada._id);  // esperar a que termine la eliminación
+      await deleteReviews(resenaSeleccionada._id);
       setResenaSeleccionada(null);
 
-      // Mostrar alerta de éxito
       Swal.fire({
         icon: "success",
         title: "¡Eliminado correctamente!",
@@ -25,7 +24,6 @@ const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
         timerProgressBar: true,
       });
     } catch (error) {
-      // Opcional: alerta de error si la eliminación falla
       Swal.fire({
         icon: "error",
         title: "Error al eliminar",
@@ -39,33 +37,37 @@ const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
   };
 
   return (
+    <div className="tabla-resenas-wrapper">
     <div className="tabla-resenas-container">
-      <h2>{titulo}</h2>
-      <table className="tabla-resenas">
-        <thead>
+  <h2>{titulo}</h2>
+  <div className="tabla-scroll-wrapper">
+    <table className="tabla-resenas">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Calificación</th>
+          <th>Comentario</th>
+          <th>Compra</th>
+        </tr>
+      </thead>
+      <tbody>
+        {reviews.length > 0 ? (
+          reviews.map((review) => (
+            <ResenaRow
+              key={review._id}
+              {...review}
+              onClick={() => handleEliminarClick(review)}
+            />
+          ))
+        ) : (
           <tr>
-            <th>Nombre</th>
-            <th>Calificación</th>
-            <th>Comentario</th>
-            <th>Compra</th>
+            <td colSpan="4">No hay reseñas disponibles.</td>
           </tr>
-        </thead>
-        <tbody>
-          {reviews.length > 0 ? (
-            reviews.map((review) => (
-              <ResenaRow
-                key={review._id}
-                {...review}
-                onClick={() => handleEliminarClick(review)}
-              />
-            ))
-          ) : (
-            <tr>
-              <td colSpan="4">No hay reseñas disponibles.</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+        )}
+      </tbody>
+    </table>
+  </div>
+</div>
 
       {resenaSeleccionada && (
         <ConfirmacionModal

@@ -1,41 +1,63 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
-import useFecthCategorias from "./useFecthCategorias";
 
 const api = "http://localhost:4000/api/categories";
 
-const useDataCategorie = ({ reset, onSuccess }) => {
-  const { getCategories } = useFecthCategorias();
+const useDataCategorias = ({ reset, onSuccess } = {}) => {
+  const [categories, setCategories] = useState([]);
   const [uploading, setUploading] = useState(false);
 
- const uploadImage = async (file) => {
-  try {
-    setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "upload_preset_eternaljoyeria");
+  const getCategories = async () => {
+    try {
+      const res = await fetch(api, { credentials: "include" });
+      const data = await res.json();
 
-    const response = await fetch("https://api.cloudinary.com/v1_1/dosy4rouu/upload", {
-      method: "POST",
-    
-      body: formData,
-    });
-
-    const data = await response.json();
-    console.log("Respuesta de Cloudinary:", data);
-
-    if (!response.ok) {
-      throw new Error(data.error?.message || "Cloudinary upload failed");
+      if (Array.isArray(data)) {
+        setCategories(data);
+      } else if (Array.isArray(data.categories)) {
+        setCategories(data.categories);
+      } else {
+        toast.error("La respuesta del servidor no es válida.");
+        setCategories([]);
+      }
+    } catch (error) {
+      toast.error("Error al obtener categorías: " + error.message);
+      setCategories([]);
     }
+  };
 
-    return data.secure_url;
-  } catch (error) {
-    toast.error("Error al subir la imagen: " + error.message);
-    return null;
-  } finally {
-    setUploading(false);
-  }
-};
+  useEffect(() => {
+    getCategories();
+  }, []);
+
+  const uploadImage = async (file) => {
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "upload_preset_eternaljoyeria");
+
+      const response = await fetch(
+        "https://api.cloudinary.com/v1_1/dosy4rouu/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error?.message || "Cloudinary upload failed");
+      }
+
+      return data.secure_url;
+    } catch (error) {
+      toast.error("Error al subir la imagen: " + error.message);
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const editCategorieById = async (id, updatedData) => {
     try {
@@ -48,12 +70,11 @@ const useDataCategorie = ({ reset, onSuccess }) => {
 
       if (!response.ok) throw new Error("Error al actualizar");
       toast.success("Categoría actualizada con éxito");
-      getCategories(); // refrescar categorías
+      await getCategories();
     } catch (error) {
-      console.error("Error al editar:", error);
       toast.error("Error al editar categoría");
     } finally {
-      reset();
+      if (reset) reset();
     }
   };
 
@@ -74,21 +95,23 @@ const useDataCategorie = ({ reset, onSuccess }) => {
       }
 
       toast.success("Categoría guardada con éxito");
-      if (onSuccess) onSuccess(); // para el sweet alert
-      getCategories(); // ctualizar sin refrescar
+      if (onSuccess) onSuccess();
+      await getCategories();
     } catch (error) {
-      console.log("Error al guardar:", error);
+      toast.error("Error al guardar categoría");
     } finally {
-      reset();
+      if (reset) reset();
     }
   };
 
   return {
+    categories,
+    uploading,
+    getCategories,
     uploadImage,
     editCategorieById,
     saveCategorieForm,
-    uploading,
   };
 };
 
-export default useDataCategorie;
+export default useDataCategorias;

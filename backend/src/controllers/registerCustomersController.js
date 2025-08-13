@@ -1,21 +1,22 @@
-// 📁 controllers/registerCustomersController.js
+// importación de librerías necesarias
+import jsonwebtoken from "jsonwebtoken"; // para generar y verificar tokens jwt
+import bcryptjs from "bcryptjs"; // para encriptar contraseñas
+import crypto from "crypto"; // módulo de node para generar valores aleatorios
+import { v2 as cloudinary } from "cloudinary"; // servicio para subir y gestionar imágenes en la nube
+import clientsModel from "../models/Customers.js"; // modelo mongoose de clientes
+import { config } from "../config.js"; // configuración global del proyecto
+import { sendMail, HTMLEmailVerification } from "../utils/mailVerify.js"; // utilidades para enviar correos de verificación
+import { HTMLWelcomeEmail } from "../utils/HTMLWelcomeEmail.js"; // plantilla de correo de bienvenida
 
-import jsonwebtoken from "jsonwebtoken";
-import bcryptjs from "bcryptjs";
-import crypto from "crypto";
-import { v2 as cloudinary } from "cloudinary";
-import clientsModel from "../models/Customers.js";
-import { config } from "../config.js";
-import { sendMail, HTMLEmailVerification } from "../utils/mailVerify.js";
-import { HTMLWelcomeEmail } from "../utils/HTMLWelcomeEmail.js";
+// configuración de credenciales de cloudinary desde variables de entorno
 
-// Configurar Cloudinary para almacenamiento de imágenes
 cloudinary.config({
   cloud_name: config.cloudinary.cloud_name,
   api_key: config.cloudinary.api_key,
   api_secret: config.cloudinary.api_secret,
 });
 
+// objeto controlador para registrar clientes
 const registerCustomersController = {};
 
 // ===== UTILIDADES DE VALIDACIÓN =====
@@ -44,7 +45,7 @@ const validateVerificationCode = (code) => /^\d{6}$/.test(code);
 // ===== FUNCIONES PRINCIPALES =====
 
 /**
- * 🚀 REGISTRO DE CLIENTE
+ *  REGISTRO DE CLIENTE
  * Procesa el registro de un nuevo cliente incluyendo:
  * - Validación de datos
  * - Subida de imagen de perfil (opcional)
@@ -52,29 +53,32 @@ const validateVerificationCode = (code) => /^\d{6}$/.test(code);
  * - Generación de código de verificación
  * - Envío de email de verificación
  */
+
 registerCustomersController.registerClient = async (req, res) => {
-  const { firstName, lastName, email, password, phone } = req.body;
-  let profilePictureURL = "";
+  const { firstName, lastName, email, password, phone } = req.body; // desestructuración de datos recibidos
+  let profilePictureURL = ""; // variable para guardar la url de la imagen de perfil
 
   try {
-    // ===== VALIDACIONES DE ENTRADA =====
-    
-    // Verificar que todos los campos requeridos estén presentes
+
+    // validación de campos obligatorios
+
     if (!firstName || !lastName || !email || !password || !phone) {
-      return res.status(400).json({ message: "All fields are required." });
+      return res.status(400).json({ message: "all fields are required." });
     }
 
-    // Normalizar el email (minúsculas y sin espacios)
-    const emailNormalized = email.trim().toLowerCase();
 
-    // Validar formato de email
+    const emailNormalized = email.trim().toLowerCase(); // normaliza el email para evitar duplicados por mayúsculas o espacios
+
+    // validación del formato de email
+
     if (!validateEmail(emailNormalized)) {
-      return res.status(400).json({ message: "Invalid email format." });
+      return res.status(400).json({ message: "invalid email format." });
     }
 
-    // Validar fortaleza de contraseña
+
+    // validación de la contraseña
     if (!validatePassword(password)) {
-      return res.status(400).json({ message: "Password must be at least 6 characters." });
+      return res.status(400).json({ message: "password must be at least 6 characters." });
     }
 
     // Validar que el teléfono no esté vacío después de trim
@@ -125,6 +129,7 @@ registerCustomersController.registerClient = async (req, res) => {
     }
 
     // ===== CREAR NUEVO CLIENTE EN BASE DE DATOS =====
+
     const newClient = new clientsModel({
       firstName: firstName.trim(),
       lastName: lastName.trim(),
@@ -133,8 +138,10 @@ registerCustomersController.registerClient = async (req, res) => {
       phone: phone.trim(),
       profilePicture: profilePictureURL,
       isVerified: false, // Cliente inicia como no verificado
+
     });
 
+    // guardar en base de datos
     await newClient.save();
 
     // ===== GENERAR CÓDIGO DE VERIFICACIÓN =====
@@ -150,8 +157,8 @@ registerCustomersController.registerClient = async (req, res) => {
         expiresAt,
         userId: newClient._id // Incluir ID del usuario para mayor seguridad
       },
-      config.JWT.JWT_SECRET,
-      { expiresIn: config.JWT.expiresIn }
+      config.jwt.jwtSecret,
+      { expiresIn: config.jwt.expiresIn }
     );
 
     // Log para debugging (solo en desarrollo)
@@ -203,12 +210,14 @@ registerCustomersController.registerClient = async (req, res) => {
 };
 
 /**
- * 🚀 VERIFICAR CÓDIGO DE EMAIL
+ *  VERIFICAR CÓDIGO DE EMAIL
  * Valida el código de verificación enviado por email y activa la cuenta del cliente
  */
+
 registerCustomersController.verifyCodeEmail = async (req, res) => {
-  const { verificationCode } = req.body;
-  const token = req.cookies.verificationToken;
+  const { verificationCode } = req.body; // código recibido desde el cliente
+  const token = req.cookies.verificationToken; // token guardado en la cookie
+
 
   try {
     // ===== VALIDACIONES INICIALES =====
@@ -236,7 +245,7 @@ registerCustomersController.verifyCodeEmail = async (req, res) => {
     // ===== VERIFICAR Y DECODIFICAR TOKEN JWT =====
     let decoded;
     try {
-      decoded = jsonwebtoken.verify(token, config.JWT.JWT_SECRET);
+      decoded = jsonwebtoken.verify(token, config.jwt.jwtSecret);
     } catch (jwtError) {
       // Limpiar cookie inválida
       res.clearCookie("verificationToken");
@@ -283,6 +292,7 @@ registerCustomersController.verifyCodeEmail = async (req, res) => {
     }
 
     // ===== BUSCAR Y ACTUALIZAR EL CLIENTE =====
+
     const client = await clientsModel.findOneAndUpdate(
       { 
         _id: userId, // Usar ID del token para mayor seguridad
@@ -298,8 +308,9 @@ registerCustomersController.verifyCodeEmail = async (req, res) => {
       { new: true } // Retornar documento actualizado
     );
 
+
     // Log para debugging (solo en desarrollo)
-    if (process.env.NODE_ENV !== "production") {
+    if (process.env.nodeEnv !== "production") {
       console.log("CLIENT UPDATE RESULT:", client ? {
         id: client._id, 
         email: client.email, 
@@ -308,8 +319,12 @@ registerCustomersController.verifyCodeEmail = async (req, res) => {
       } : "Client not found or already verified");
     }
 
+    console.log("updated client:", client);
+
+
     // Verificar que se encontró y actualizó el cliente
     if (!client) {
+
       return res.status(404).json({ 
         message: "Client not found or already verified." 
       });
@@ -327,7 +342,7 @@ registerCustomersController.verifyCodeEmail = async (req, res) => {
         HTMLWelcomeEmail(client.firstName)
       );
       
-      if (process.env.NODE_ENV !== "production") {
+      if (process.env.nodeEnv !== "production") {
         console.log("Welcome email sent successfully to:", client.email);
       }
     } catch (emailError) {
@@ -412,12 +427,12 @@ registerCustomersController.resendVerificationCode = async (req, res) => {
         expiresAt,
         userId: client._id // Incluir ID para consistencia
       },
-      config.JWT.JWT_SECRET,
-      { expiresIn: config.JWT.expiresIn }
+      config.jwt.jwtSecret,
+      { expiresIn: config.jwt.expiresIn }
     );
 
     // Log para debugging (solo en desarrollo)
-    if (process.env.NODE_ENV !== "production") {
+    if (process.env.nodeEnv !== "production") {
       console.log("New verification code generated (resend):", verificationCode);
     }
 
@@ -439,7 +454,7 @@ registerCustomersController.resendVerificationCode = async (req, res) => {
     // ===== ACTUALIZAR COOKIE CON NUEVO TOKEN =====
     res.cookie("verificationToken", tokenCode, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.nodeEnv === "production",
       maxAge: 2 * 60 * 60 * 1000, // 2 horas
       sameSite: "lax",
       path: "/",
@@ -453,6 +468,7 @@ registerCustomersController.resendVerificationCode = async (req, res) => {
   } catch (error) {
     console.error("Error resending verification code:", error);
     res.status(500).json({ message: "Server error while resending code." });
+
   }
 };
 

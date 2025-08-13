@@ -21,7 +21,7 @@ import { validateAuthToken } from "./src/middlewares/validateAuthToken.js";
 
 const app = express();
 
-// ✅ CORREGIDO: CORS para ambos puertos (5173 y 5174)
+// CORS para ambos puertos (5173 y 5174)
 app.use(
   cors({
     origin: ["http://localhost:5173", "http://localhost:5174"],
@@ -33,7 +33,7 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-// ✅ Sesiones (cookies)
+//Sesiones (cookies)
 app.use(
   session({
     secret: "eternaljoyeria",

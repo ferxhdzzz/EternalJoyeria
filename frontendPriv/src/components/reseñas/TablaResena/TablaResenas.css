@@ -14,25 +14,24 @@
 }
 
 /* Scroll horizontal en pantallas menores o iguales a 676px */
-@media (max-width: 676px) {
+@media (max-width: 983px) {
   .tabla-resenas-container {
     overflow-x: auto;
     overflow-y: auto; /* mantener scroll vertical */
     width: 100%;
-    padding-left: 0;
+    padding-left: 2;
     padding-right: 0;
-    margin: 0 auto;
-    max-width: 100vw;
+    margin: 0; /* quita el centrado automático */
+    max-width: 50vw; /* permite que ocupe todo el ancho disponible */
     max-height: 70vh;
     display: block;
     -webkit-overflow-scrolling: touch;
   }
 
   .tabla-resenas {
-    min-width: 900px; /* ajusta según necesites para que no se corte nada */
+    min-width: 900px; /* para que no se corte nada */
   }
 }
-
 /* Scrollbar vertical y horizontal igual que compras */
 .tabla-resenas-container::-webkit-scrollbar {
   width: 8px;

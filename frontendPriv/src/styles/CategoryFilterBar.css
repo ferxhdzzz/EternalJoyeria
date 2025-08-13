@@ -1,0 +1,27 @@
+.category-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 3rem; /* separa la barra del contenido */
+  justify-content: center;
+}
+
+.category-filter-bar button {
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 0.7rem;
+  background-color: #ffe5ee;
+  color: #d6336c;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.category-filter-bar button:hover {
+  background-color: #f9c5da;
+}
+
+.category-filter-bar button.active {
+  background-color: #d6336c;
+  color: #fff;
+}

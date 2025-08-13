@@ -158,8 +158,8 @@ loginController.login = async (req, res) => {
         userType,
         email: userFound.email,
       },
-      config.JWT.JWT_SECRET,
-      { expiresIn: config.JWT.expiresIn }
+      config.jwt.jwtSecret,
+      { expiresIn: config.jwt.expiresIn }
     );
 
     // ===== ESTABLECER COOKIE CON EL TOKEN =====
@@ -203,8 +203,10 @@ loginController.checkAdmin = (req, res) => {
       return res.json({ ok: false, message: "No auth token found" });
     }
 
+
     // Verificar y decodificar el token JWT
-    const decoded = jsonwebtoken.verify(authToken, config.JWT.JWT_SECRET);
+
+    const decoded = jsonwebtoken.verify(authToken, config.jwt.jwtSecret);
 
     // Verificar si el usuario es admin
     if (decoded.userType === "admin") {

@@ -9,16 +9,10 @@ import "../styles/AddProducts/AgregarProducto.css";
 
 // DEFINICIÓN DEL COMPONENTE PRINCIPAL
 export default function AddProductPage() {
-  // ACCESO A LA FUNCIÓN PERSONALIZADA PARA AGREGAR PRODUCTOS
   const { addProduct } = useAddProduct();
-
-  // ESTADO PARA INDICAR CARGA DURANTE LA SUBIDA
   const [loading, setLoading] = useState(false);
-
-  // ESTADO PARA GUARDAR CATEGORÍAS OBTENIDAS DEL SERVIDOR
   const [categories, setCategories] = useState([]);
 
-  // ESTADO PARA MANEJAR LOS DATOS DEL FORMULARIO
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -34,7 +28,6 @@ export default function AddProductPage() {
     images: [],
   });
 
-  // EFECTO PARA OBTENER CATEGORÍAS AL CARGAR EL COMPONENTE
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -61,11 +54,9 @@ export default function AddProductPage() {
     fetchCategories();
   }, []);
 
-  // MANEJADOR PARA CAMBIOS EN LOS CAMPOS DEL FORMULARIO
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    // VERIFICA SI ES UN CAMPO DE MEDIDA PARA ACTUALIZARLO CORRECTAMENTE
     if (["weight", "height", "width"].includes(name)) {
       setFormData((prev) => ({
         ...prev,
@@ -82,7 +73,6 @@ export default function AddProductPage() {
     }
   };
 
-  // MANEJADOR PARA SUBIR IMÁGENES
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     setFormData((prev) => ({
@@ -91,7 +81,6 @@ export default function AddProductPage() {
     }));
   };
 
-  // MANEJADOR PARA ELIMINAR UNA IMAGEN POR ÍNDICE
   const handleRemoveImage = (indexToRemove) => {
     setFormData((prev) => ({
       ...prev,
@@ -99,11 +88,9 @@ export default function AddProductPage() {
     }));
   };
 
-  // MANEJADOR PARA ENVIAR EL FORMULARIO
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // VALIDACIÓN DE CATEGORÍA
     if (!formData.category_id) {
       Swal.fire({
         icon: "warning",
@@ -114,9 +101,18 @@ export default function AddProductPage() {
       return;
     }
 
+    if (formData.images.length === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "Falta imagen",
+        text: "Debes subir al menos una imagen del producto",
+        confirmButtonColor: "#d6336c",
+      });
+      return;
+    }
+
     setLoading(true);
 
-    // CONSTRUCCIÓN DEL FORMULARIO MULTIPARTE
     const data = new FormData();
     data.append("name", formData.name);
     data.append("description", formData.description);
@@ -130,12 +126,10 @@ export default function AddProductPage() {
       data.append("images", file);
     });
 
-    // ENVÍO DEL PRODUCTO AL SERVIDOR
     try {
       await addProduct(data);
       setLoading(false);
 
-      // MENSAJE DE ÉXITO
       await Swal.fire({
         icon: "success",
         title: "Producto agregado",
@@ -143,7 +137,6 @@ export default function AddProductPage() {
         confirmButtonColor: "#d6336c",
       });
 
-      // OPCIONAL: LIMPIAR EL FORMULARIO LUEGO DE ENVIAR
       setFormData({
         name: "",
         description: "",
@@ -169,15 +162,11 @@ export default function AddProductPage() {
     }
   };
 
-  // RETORNO DEL COMPONENTE
   return (
     <div className="container-main">
-      {/* SIDEBAR A LA IZQUIERDA */}
       <Sidebar />
 
-      {/* CONTENIDO PRINCIPAL */}
       <div className="main-content">
-        {/* BARRA SUPERIOR */}
         <div className="topbar-wrapper">
           <TopBar />
         </div>
@@ -185,10 +174,8 @@ export default function AddProductPage() {
         <br />
         <br />
 
-        {/* CONTENIDO DEL FORMULARIO */}
         <div className="add-product-content">
           <form className="form" onSubmit={handleSubmit}>
-            {/* PRIMERA FILA: CAMPOS DE NOMBRE, PRECIO, DESCUENTO Y STOCK */}
             <div className="form-row">
               <div className="form-group">
                 <label>Nombre del producto</label>
@@ -235,7 +222,6 @@ export default function AddProductPage() {
               </div>
             </div>
 
-            {/* CAMPO DE DESCRIPCIÓN */}
             <div className="form-group">
               <label>Descripción</label>
               <textarea
@@ -248,7 +234,6 @@ export default function AddProductPage() {
               />
             </div>
 
-            {/* SELECCIÓN DE CATEGORÍA */}
             <div className="form-group">
               <label>Categoría</label>
               <select
@@ -269,7 +254,6 @@ export default function AddProductPage() {
               </select>
             </div>
 
-            {/* CAMPOS DE MEDIDAS: LARGO, ANCHO, PESO */}
             <div className="measurements-section">
               <h4>Medidas</h4>
               <div className="measurements-grid">
@@ -306,7 +290,6 @@ export default function AddProductPage() {
               </div>
             </div>
 
-            {/* SECCIÓN DE SUBIDA DE IMÁGENES */}
             <div className="images-section">
               <h4>Imágenes</h4>
               <div className="image-upload-area">
@@ -323,7 +306,6 @@ export default function AddProductPage() {
                   </label>
                 </div>
 
-                {/* MENSAJE SI NO HAY IMÁGENES */}
                 {formData.images.length === 0 && (
                   <div className="image-placeholder">
                     <span>Vista previa de la imagen</span>
@@ -331,7 +313,6 @@ export default function AddProductPage() {
                 )}
               </div>
 
-              {/* PREVISUALIZACIÓN DE IMÁGENES SUBIDAS */}
               {formData.images.length > 0 && (
                 <div className="preview">
                   {formData.images.map((file, index) => (
@@ -354,7 +335,6 @@ export default function AddProductPage() {
               )}
             </div>
 
-            {/* BOTÓN DE ENVÍO DEL FORMULARIO */}
             <button type="submit" disabled={loading} className="prod">
               {loading ? "Agregando..." : "Agregar Producto"}
             </button>

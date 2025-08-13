@@ -1,12 +1,14 @@
 import customersModel from "../models/Customers.js";
 import bcryptjs from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
+import { config } from "../config.js";
+
 
 // Configurar Cloudinary
 cloudinary.config({
-  cloud_name: 'dosy4rouu',
-  api_key: '712175425427873',
-  api_secret: 'Yk2vqXqQ6aknOrT7FCoqEiWw31w',
+  cloud_name: config.cloudinary.cloud_name,
+  api_key: config.cloudinary.api_key,
+  api_secret:  config.cloudinary.api_secret,
 });
 
 const customersController = {};

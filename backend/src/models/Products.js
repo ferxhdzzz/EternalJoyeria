@@ -18,25 +18,31 @@ const productSchema = new Schema(
     name: {
       type: String,
       required: true,
+        minlength: 3,
+      
     },
 
     description: {
       type: String,
       required: true,
+        minlength: 5,
     },
 
     price: {
       type: Number,
       required: true,
+        minlength: 1,
     },
 
     images: {
       type: [String],
       default: [],
+      required: true,
     },
 
     measurements: {
       type: Object,
+      required: true
     },
 
     category_id: {
@@ -49,7 +55,7 @@ const productSchema = new Schema(
       type: Number,
       default: null,
       min: 0,
-      max: 100,
+      max: 90,
     },
 
     finalPrice: {
@@ -59,6 +65,7 @@ const productSchema = new Schema(
 
     stock: {
       type: Number,
+      required: true,
       default: 1,
       min: 1,
       max: 20,
