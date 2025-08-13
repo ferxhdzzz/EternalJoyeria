@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Nav from '../components/Nav/Nav';
 import Footer from '../components/Footer';
@@ -17,13 +17,35 @@ const ContactUs = () => {
     submitError,
     handleChange,
     handleSubmit,
-    clearMessages
+    clearMessages,
+    isFormValid
   } = useContactForm();
 
   // Función para manejar el envío del formulario
   const onSubmit = (e) => {
     handleSubmit(e, '/api/contactus/send');
   };
+
+  // Scroll al top cuando hay errores para mejor UX
+  useEffect(() => {
+    if (submitError && Object.keys(errors).length > 0) {
+      const firstErrorElement = document.querySelector('.error');
+      if (firstErrorElement) {
+        firstErrorElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }
+    }
+  }, [errors, submitError]);
+
+  // Auto-dismiss de mensajes después de un tiempo
+  useEffect(() => {
+    if (submitSuccess) {
+      const timer = setTimeout(clearMessages, 8000); // 8 segundos
+      return () => clearTimeout(timer);
+    }
+  }, [submitSuccess, clearMessages]);
 
   return (
     <>
@@ -33,6 +55,9 @@ const ContactUs = () => {
         <section className="hero hero-product-banner">
           <div className="hero-product-content">
             <h1 className="hero-product-title">Contáctanos</h1>
+            <p className="hero-subtitle">
+              Estamos aquí para ayudarte. Envíanos tu consulta y te responderemos pronto.
+            </p>
           </div>
         </section>
 
@@ -59,6 +84,7 @@ const ContactUs = () => {
               <div className="contact-info-content">
                 <h3>Teléfono</h3>
                 <p>+503 1234-5678</p>
+                <small>WhatsApp disponible</small>
               </div>
             </div>
 
@@ -71,6 +97,7 @@ const ContactUs = () => {
               <div className="contact-info-content">
                 <h3>Email</h3>
                 <p>EternalJoyeria@gmail.com</p>
+                <small>Respuesta en 24 horas</small>
               </div>
             </div>
 
@@ -83,6 +110,7 @@ const ContactUs = () => {
               <div className="contact-info-content">
                 <h3>Horarios</h3>
                 <p>Lun - Vie: 9:00 - 18:00<br />Sáb: 10:00 - 16:00</p>
+                <small>Dom: Cerrado</small>
               </div>
             </div>
           </div>
@@ -96,13 +124,14 @@ const ContactUs = () => {
 
               {/* Mensaje de éxito */}
               {submitSuccess && (
-                <div className="success-message">
+                <div className="success-message" role="alert">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/>
                   </svg>
                   ¡Mensaje enviado exitosamente! Te responderemos pronto.
                   <button 
                     onClick={clearMessages}
+                    aria-label="Cerrar mensaje de éxito"
                     style={{ 
                       background: 'none', 
                       border: 'none', 
@@ -119,13 +148,14 @@ const ContactUs = () => {
 
               {/* Mensaje de error */}
               {submitError && (
-                <div className="error-message">
+                <div className="error-message" role="alert">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/>
                   </svg>
                   {submitError}
                   <button 
                     onClick={clearMessages}
+                    aria-label="Cerrar mensaje de error"
                     style={{ 
                       background: 'none', 
                       border: 'none', 
@@ -140,7 +170,7 @@ const ContactUs = () => {
                 </div>
               )}
 
-              <form onSubmit={onSubmit} className="contact-form">
+              <form onSubmit={onSubmit} className="contact-form" noValidate>
                 <div className="form-row">
                   <div className="form-group">
                     <label htmlFor="fullName">Nombre completo *</label>
@@ -152,8 +182,19 @@ const ContactUs = () => {
                       onChange={handleChange}
                       className={errors.fullName ? 'error' : ''}
                       placeholder="Tu nombre completo"
+                      required
+                      aria-invalid={errors.fullName ? 'true' : 'false'}
+                      aria-describedby={errors.fullName ? 'fullName-error' : undefined}
                     />
-                    {errors.fullName && <span className="error-message">{errors.fullName}</span>}
+                    {errors.fullName && (
+                      <span 
+                        id="fullName-error" 
+                        className="error-message" 
+                        role="alert"
+                      >
+                        {errors.fullName}
+                      </span>
+                    )}
                   </div>
 
                   <div className="form-group">
@@ -166,8 +207,19 @@ const ContactUs = () => {
                       onChange={handleChange}
                       className={errors.email ? 'error' : ''}
                       placeholder="tu@email.com"
+                      required
+                      aria-invalid={errors.email ? 'true' : 'false'}
+                      aria-describedby={errors.email ? 'email-error' : undefined}
                     />
-                    {errors.email && <span className="error-message">{errors.email}</span>}
+                    {errors.email && (
+                      <span 
+                        id="email-error" 
+                        className="error-message" 
+                        role="alert"
+                      >
+                        {errors.email}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -182,8 +234,18 @@ const ContactUs = () => {
                       onChange={handleChange}
                       className={errors.phone ? 'error' : ''}
                       placeholder="+503 1234-5678"
+                      aria-invalid={errors.phone ? 'true' : 'false'}
+                      aria-describedby={errors.phone ? 'phone-error' : undefined}
                     />
-                    {errors.phone && <span className="error-message">{errors.phone}</span>}
+                    {errors.phone && (
+                      <span 
+                        id="phone-error" 
+                        className="error-message" 
+                        role="alert"
+                      >
+                        {errors.phone}
+                      </span>
+                    )}
                   </div>
 
                   <div className="form-group">
@@ -196,8 +258,19 @@ const ContactUs = () => {
                       onChange={handleChange}
                       className={errors.subject ? 'error' : ''}
                       placeholder="¿En qué podemos ayudarte?"
+                      required
+                      aria-invalid={errors.subject ? 'true' : 'false'}
+                      aria-describedby={errors.subject ? 'subject-error' : undefined}
                     />
-                    {errors.subject && <span className="error-message">{errors.subject}</span>}
+                    {errors.subject && (
+                      <span 
+                        id="subject-error" 
+                        className="error-message" 
+                        role="alert"
+                      >
+                        {errors.subject}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -211,14 +284,26 @@ const ContactUs = () => {
                     className={errors.message ? 'error' : ''}
                     placeholder="Cuéntanos más sobre tu consulta..."
                     rows="6"
+                    required
+                    aria-invalid={errors.message ? 'true' : 'false'}
+                    aria-describedby={errors.message ? 'message-error' : undefined}
                   ></textarea>
-                  {errors.message && <span className="error-message">{errors.message}</span>}
+                  {errors.message && (
+                    <span 
+                      id="message-error" 
+                      className="error-message" 
+                      role="alert"
+                    >
+                      {errors.message}
+                    </span>
+                  )}
                 </div>
 
                 <button 
                   type="submit" 
-                  className={`submit-button ${isSubmitting ? 'loading' : ''}`}
-                  disabled={isSubmitting}
+                  className={`submit-button ${isSubmitting ? 'loading' : ''} ${!isFormValid ? 'disabled' : ''}`}
+                  disabled={isSubmitting || !isFormValid}
+                  aria-describedby="submit-help"
                 >
                   {isSubmitting ? (
                     <>
@@ -231,6 +316,10 @@ const ContactUs = () => {
                     'Enviar mensaje'
                   )}
                 </button>
+                
+                <p id="submit-help" className="form-help">
+                  Los campos marcados con * son obligatorios
+                </p>
               </form>
             </div>
           </div>
@@ -244,7 +333,11 @@ const ContactUs = () => {
               </svg>
               <h3>Ubicación</h3>
               <p>San Salvador, El Salvador</p>
-              <button className="map-button" onClick={() => window.open('https://www.google.com/maps/place/San+Salvador,+El+Salvador', '_blank')}>
+              <button 
+                className="map-button" 
+                onClick={() => window.open('https://www.google.com/maps/place/San+Salvador,+El+Salvador', '_blank')}
+                aria-label="Abrir ubicación en Google Maps"
+              >
                 Ver en Google Maps
               </button>
             </div>

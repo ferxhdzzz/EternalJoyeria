@@ -1,42 +1,56 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
+/**
+ * Custom hook useContactForm para manejar el formulario de contacto
+ * Gestiona validaciones, envío y estados del formulario
+ */
 const useContactForm = () => {
-  // Estado unificado para todo el formulario
-  const [state, setState] = useState({
-    // Datos del formulario
-    formData: {
-      fullName: '',
-      email: '',
-      phone: '',
-      subject: '',
-      message: ''
-    },
-    // Estados de validación y envío
-    errors: {},
-    isSubmitting: false,
-    submitSuccess: false,
-    submitError: ''
+  // Estados para controlar el comportamiento del hook
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+
+  // Estado unificado para los datos del formulario
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: ''
   });
 
-  // Función para actualizar cualquier parte del estado
-  const updateState = (updates) => {
-    setState(prev => ({ ...prev, ...updates }));
-  };
+  // Estados de validación por campo
+  const [fieldErrors, setFieldErrors] = useState({});
 
-  // Función para manejar cambios en los inputs
-  const handleChange = (e) => {
+  /**
+   * Función para manejar cambios en los inputs del formulario
+   * Actualiza el estado y limpia errores relacionados
+   */
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     
-    updateState({
-      formData: { ...state.formData, [name]: value },
-      errors: { ...state.errors, [name]: '' },
-      submitError: ''
+    // Actualizar datos del formulario
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Limpiar error del campo específico si existe
+    setFieldErrors(prev => {
+      if (prev[name]) {
+        const { [name]: removed, ...rest } = prev;
+        return rest;
+      }
+      return prev;
     });
-  };
+    
+    // Limpiar error general si existe
+    if (error) {
+      setError(null);
+    }
+  }, [error]);
 
-  // Función de validación
-  const validateForm = () => {
-    const { formData } = state;
+  /**
+   * Función de validación del formulario
+   */
+  const validateForm = useCallback(() => {
     const errors = {};
     
     // Validar nombre completo
@@ -55,9 +69,13 @@ const useContactForm = () => {
       errors.email = 'El formato del email no es válido';
     }
     
-    // Validar teléfono (opcional)
-    if (formData.phone.trim() && !/^[\+]?[\d\s\-\(\)]{8,15}$/.test(formData.phone.trim())) {
-      errors.phone = 'Formato de teléfono inválido';
+    // Validar teléfono (opcional, pero si se proporciona debe ser válido)
+    if (formData.phone.trim()) {
+      // Regex mejorado para teléfonos salvadoreños e internacionales
+      const phoneRegex = /^(\+503\s?)?[2-7]\d{3}-?\d{4}$|^(\+\d{1,3}\s?)?[\d\s\-\(\)]{8,15}$/;
+      if (!phoneRegex.test(formData.phone.trim())) {
+        errors.phone = 'Formato de teléfono inválido (ej: +503 1234-5678)';
+      }
     }
     
     // Validar asunto
@@ -79,148 +97,181 @@ const useContactForm = () => {
     }
     
     return errors;
-  };
+  }, [formData]);
 
-  // Función principal para manejar el envío del formulario
-  const handleSubmit = async (e, apiUrl = '/api/contactus/send') => {
-    e.preventDefault();
-    
-    const errors = validateForm();
-    
-    if (Object.keys(errors).length > 0) {
-      updateState({ errors });
-      return;
+  /**
+   * Función principal para enviar el mensaje de contacto
+   */
+  const sendContactMessage = useCallback(async (e, apiUrl = '/api/contactus/send') => {
+    // Prevenir comportamiento por defecto del formulario
+    if (e?.preventDefault) {
+      e.preventDefault();
     }
 
-    // Iniciar envío
-    updateState({ 
-      isSubmitting: true, 
-      submitError: '', 
-      errors: {} 
-    });
-    
+    // Evitar envíos múltiples si ya está en progreso
+    if (loading) return { success: false, error: 'Envío en progreso...' };
+
+    // Resetear estados al iniciar nueva operación
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+    setFieldErrors({});
+
     try {
+      // Validar formulario del lado del cliente
+      const errors = validateForm();
+      
+      if (Object.keys(errors).length > 0) {
+        setFieldErrors(errors);
+        throw new Error('Por favor corrige los errores en el formulario');
+      }
+
+      // Preparar datos limpios para enviar
+      const cleanData = {
+        fullName: formData.fullName.trim(),
+        email: formData.email.trim().toLowerCase(),
+        phone: formData.phone.trim(),
+        subject: formData.subject.trim(),
+        message: formData.message.trim()
+      };
+
+      // Realizar petición HTTP con timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos timeout
+
       const response = await fetch(apiUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName: state.formData.fullName.trim(),
-          email: state.formData.email.trim().toLowerCase(),
-          phone: state.formData.phone.trim(),
-          subject: state.formData.subject.trim(),
-          message: state.formData.message.trim()
-        }),
-      });
-
-      // Verificar respuesta
-      if (!response.ok) {
-        let errorMessage = `Error del servidor (${response.status})`;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch {
-          errorMessage = `Error del servidor: ${response.statusText || response.status}`;
-        }
-        throw new Error(errorMessage);
-      }
-
-      // Parsear respuesta
-      const text = await response.text();
-      if (!text) throw new Error('Respuesta vacía del servidor');
-      
-      try {
-        JSON.parse(text);
-      } catch {
-        throw new Error('Respuesta inválida del servidor');
-      }
-
-      // Éxito - resetear formulario y mostrar mensaje
-      updateState({
-        formData: {
-          fullName: '',
-          email: '',
-          phone: '',
-          subject: '',
-          message: ''
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        submitSuccess: true,
-        isSubmitting: false
+        body: JSON.stringify(cleanData),
+        signal: controller.signal,
       });
-      
-      // Ocultar mensaje de éxito después de 5 segundos
-      setTimeout(() => {
-        updateState({ submitSuccess: false });
-      }, 5000);
-      
-    } catch (error) {
-      console.error('Error submitting contact form:', error);
-      
-      let errorMessage = 'Error al enviar el mensaje. Por favor intenta nuevamente.';
-      
-      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-        errorMessage = 'No se puede conectar con el servidor. Verifica tu conexión a internet.';
-      } else if (error.message.includes('404')) {
-        errorMessage = 'Servicio no encontrado. Por favor contacta al administrador.';
-      } else if (error.message.includes('500')) {
-        errorMessage = 'Error interno del servidor. Por favor intenta más tarde.';
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-      
-      updateState({ 
-        submitError: errorMessage,
-        isSubmitting: false 
-      });
-    }
-  };
 
-  // Función para resetear todo
-  const resetForm = () => {
-    setState({
-      formData: {
+      clearTimeout(timeoutId);
+
+      // Parsear respuesta JSON del servidor
+      const data = await response.json();
+
+      // Si la respuesta no es exitosa, lanzar error con el mensaje del servidor
+      if (!response.ok) {
+        // Manejar errores específicos del servidor
+        if (response.status === 429) {
+          throw new Error('Demasiadas solicitudes. Por favor espera antes de intentar de nuevo.');
+        }
+        throw new Error(data.message || `Error ${response.status}: ${response.statusText}`);
+      }
+
+      // Si llegamos aquí, el envío fue exitoso
+      setSuccess(true);
+      
+      // Resetear formulario después del envío exitoso
+      setFormData({
         fullName: '',
         email: '',
         phone: '',
         subject: '',
         message: ''
-      },
-      errors: {},
-      isSubmitting: false,
-      submitSuccess: false,
-      submitError: ''
+      });
+
+      // Ocultar mensaje de éxito después de 5 segundos
+      setTimeout(() => {
+        setSuccess(false);
+      }, 5000);
+
+      return { success: true, data };
+
+    } catch (err) {
+      console.error('Error en sendContactMessage:', err);
+      let errorMessage = err.message || 'Error desconocido al enviar el mensaje';
+      
+      // Personalizar mensajes de error según el tipo
+      if (err.name === 'AbortError') {
+        errorMessage = 'La solicitud tardó demasiado. Por favor intenta de nuevo.';
+      } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
+        errorMessage = 'No se puede conectar con el servidor. Verifica tu conexión a internet.';
+      } else if (errorMessage.includes('404')) {
+        errorMessage = 'Servicio no encontrado. Por favor contacta al administrador.';
+      } else if (errorMessage.includes('500')) {
+        errorMessage = 'Error interno del servidor. Por favor intenta más tarde.';
+      }
+      
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+
+    } finally {
+      setLoading(false);
+    }
+  }, [formData, loading, validateForm]);
+
+  /**
+   * Función utilitaria para limpiar mensajes de error y éxito
+   */
+  const clearMessages = useCallback(() => {
+    setError(null);
+    setSuccess(false);
+  }, []);
+
+  /**
+   * Función utilitaria para limpiar solo errores
+   */
+  const clearError = useCallback(() => setError(null), []);
+
+  /**
+   * Función para resetear completamente el formulario
+   */
+  const resetForm = useCallback(() => {
+    setFormData({
+      fullName: '',
+      email: '',
+      phone: '',
+      subject: '',
+      message: ''
     });
-  };
+    setFieldErrors({});
+    setError(null);
+    setSuccess(false);
+    setLoading(false);
+  }, []);
 
-  // Función para limpiar mensajes
-  const clearMessages = () => {
-    updateState({ 
-      submitSuccess: false, 
-      submitError: '' 
-    });
-  };
+  /**
+   * Estado computado para saber si el formulario es válido
+   */
+  const isFormValid = useMemo(() => {
+    return Object.keys(validateForm()).length === 0 && 
+           formData.fullName.trim() && 
+           formData.email.trim() && 
+           formData.subject.trim() && 
+           formData.message.trim();
+  }, [validateForm, formData]);
 
-  // Estado computado para validación
-  const isFormValid = Object.keys(validateForm()).length === 0 && 
-                     state.formData.fullName.trim() && 
-                     state.formData.email.trim() && 
-                     state.formData.subject.trim() && 
-                     state.formData.message.trim();
-
+  // Retornar todas las funciones y estados para uso en componentes
   return {
-    // Estados
-    formData: state.formData,
-    errors: state.errors,
-    isSubmitting: state.isSubmitting,
-    submitSuccess: state.submitSuccess,
-    submitError: state.submitError,
+    // Estados del formulario
+    formData,
+    fieldErrors,
+    loading,
+    error,
+    success,
     isFormValid,
     
-    // Funciones
+    // Funciones principales
     handleChange,
-    handleSubmit,
-    resetForm,
+    sendContactMessage,
+    
+    // Funciones utilitarias
+    validateForm,
     clearMessages,
-    validateForm
+    clearError,
+    resetForm,
+    
+    // Aliases para compatibilidad con el código existente
+    isSubmitting: loading,
+    submitError: error,
+    submitSuccess: success,
+    handleSubmit: sendContactMessage,
+    errors: fieldErrors
   };
 };
 
