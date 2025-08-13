@@ -2,8 +2,8 @@
 import nodemailer from "nodemailer";
 import { config } from "../config.js";
 
-// Configurar el transporter
-const transporter = nodemailer.createTransporter({
+// Configurar el transporter (CORREGIDO: createTransport en lugar de createTransporter)
+const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 465,
   secure: true,

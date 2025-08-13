@@ -1,6 +1,6 @@
 // 📁 controllers/contactusController.js
 
-import { sendMail, HTMLContactusEmail } from "../utils/email.js";
+import { sendMail, HTMLContactusEmail } from "../utils/HTMLContactusEmail.js";
 import { config } from "../config.js";
 
 const contactusController = {};

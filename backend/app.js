@@ -15,7 +15,7 @@ import reviewsRouter from "./src/routes/reviews.js";
 import salesRoutes from "./src/routes/sales.js";
 import ordersRoutes from "./src/routes/orders.js";
 import adminRoutes from "./src/routes/Administrator.js";
-import contactusRoutes from "./routes/contactusRoutes.js";
+import contactusRoutes from "./src/routes/contactusRoutes.js";
 
 import { validateAuthToken } from "./src/middlewares/validateAuthToken.js";
 
