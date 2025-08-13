@@ -16,6 +16,8 @@ router
 // Rutas para operaciones por ID
 router
   .route("/:id")
+  // Obtener cliente por ID
+  .get(customersController.getCustomerById)
   // Actualizar cliente (con posible imagen)
   .put(upload.single("profilePicture"), customersController.updatecustomers)
   // Eliminar cliente

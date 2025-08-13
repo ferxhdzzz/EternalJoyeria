@@ -25,6 +25,20 @@ customersController.getcustomers = async (req, res) => {
   }
 };
 
+// SELECT (Obtener un cliente por ID)
+customersController.getCustomerById = async (req, res) => {
+  try {
+    const customer = await customersModel.findById(req.params.id);
+    if (!customer) {
+      return res.status(404).json({ message: "Cliente no encontrado" });
+    }
+    res.json(customer);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al obtener cliente" });
+  }
+};
+
 // DELETE (Eliminar cliente por ID)
 customersController.deletecustomers = async (req, res) => {
   try {

@@ -53,6 +53,21 @@ app.use("/api/logout", logoutRoutes);
 app.use("/api/recoveryPassword", recoveryPasswordRoutes);
 app.use("/api/registerClients", registerCustomersRoutes);
 
+// Ruta de prueba para verificar conexión
+app.get("/api/test", (req, res) => {
+  res.json({ message: "Backend funcionando correctamente! 🚀" });
+});
+
+// Ruta temporal para listar clientes (solo para desarrollo)
+app.get("/api/customers-list", async (req, res) => {
+  try {
+    const customers = await import("./src/models/Customers.js").then(m => m.default.find());
+    res.json(customers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Rutas protegidas
 app.use("/api/customers", validateAuthToken(["admin", "customer"]), customersRoutes);
 app.use("/api/categories", validateAuthToken(["admin", "customer"]), categoriesRouters);
