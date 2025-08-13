@@ -31,6 +31,13 @@ const reviewSchema = new Schema(
       required: true, // Comentario obligatorio
       trim: true,     // Quita espacios innecesarios
     },
+    
+     images: {
+      type: [String],
+      default: [],
+      required: true,
+    },
+
   },
   {
     timestamps: true, // Guarda fecha de creación/actualización

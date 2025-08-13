@@ -8,6 +8,7 @@ const router = Router();
  * Description: User login (returns a JWT cookie if successful)
  */
 router.post("/", loginController.login);
+
 router.get("/checkAdmin", loginController.checkAdmin);
 
 export default router;

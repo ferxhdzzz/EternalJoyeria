@@ -5,6 +5,9 @@ const administratorSchema = new Schema(
     name: {
       type: String,
       required: true,
+       minlength: 3,
+      unique: true,  // Para evitar correos duplicados
+      trim: true, // Esto elimina los espacios en blanco al inicio y al final del texto antes de guardarlo.
     },
     email: {
       type: String,

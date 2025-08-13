@@ -161,3 +161,29 @@
   padding: 2rem;
   color: #777;
 }
+.category-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  justify-content: center;
+}
+
+.category-filter-button {
+  padding: 0.5rem 1rem;
+  background-color: #fce3ec;
+  border: none;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.category-filter-button:hover {
+  background-color: #f4c1d2;
+}
+
+.category-filter-button.active {
+  background-color: #d6336c;
+  color: white;
+}

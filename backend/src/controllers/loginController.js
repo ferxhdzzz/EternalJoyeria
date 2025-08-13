@@ -76,8 +76,8 @@ console.log("el que acaba de iniciar es un cliente")
         userType,
         email: userFound.email,
       },
-      config.JWT.JWT_SECRET,
-      { expiresIn: config.JWT.expiresIn }
+      config.jwt.jwtSecret,
+      { expiresIn: config.jwt.expiresIn }
     );
 
     res.cookie("authToken", token, {
@@ -116,7 +116,7 @@ loginController.checkAdmin = (req, res) => {
       return res.json({ ok: false, message: "No auth token found" });
     }
 
-    const decoded = jsonwebtoken.verify(authToken, config.JWT.JWT_SECRET);
+    const decoded = jsonwebtoken.verify(authToken, config.jwt.jwtSecret);
 
     if (decoded.userType === "admin") {
       return res.json({ ok: true });

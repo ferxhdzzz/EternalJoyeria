@@ -47,7 +47,7 @@ ordersController.createOrder = async (req, res) => {
     res.status(201).json(newOrder);
 
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       message: "Error al crear la orden",
       error: error.message,
     });
@@ -83,7 +83,7 @@ ordersController.getOrder = async (req, res) => {
 
     res.json(order);
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       message: "Error al obtener la orden",
       error: error.message,
     });
@@ -154,7 +154,7 @@ ordersController.updateOrder = async (req, res) => {
     });
 
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       message: "Error al actualizar la orden",
       error: error.message,
     });
@@ -172,7 +172,7 @@ ordersController.deleteOrder = async (req, res) => {
 
     res.json({ message: "Orden eliminada correctamente" });
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       message: "Error al eliminar la orden",
       error: error.message,
     });
@@ -200,7 +200,7 @@ ordersController.markAsPaid = async (req, res) => {
     });
 
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       message: "Error al marcar como pagada",
       error: error.message,
     });

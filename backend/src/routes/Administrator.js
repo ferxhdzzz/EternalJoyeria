@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-import adminController from "../controllers/AdministratorController.js";
+import adminController from "../controllers/administratorController.js";
 import { validateAuthToken } from "../middlewares/validateAuthToken.js";
 
 

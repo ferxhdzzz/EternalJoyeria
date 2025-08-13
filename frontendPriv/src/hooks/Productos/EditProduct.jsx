@@ -1,32 +1,23 @@
-// IMPORTACIÓN DE DEPENDENCIAS
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import Button from "../../components/Categorias/Button";
 import "./EditDataProduct.css";
 
-// COMPONENTE PRINCIPAL DE EDICIÓN DE PRODUCTO
 const EditProduct = ({ productId, onClose, refreshProducts }) => {
-  // ESTADOS PARA FORMULARIO Y MANEJO DE CATEGORÍAS E IMÁGENES
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     price: "",
-    finalPrice: "",
     discountPercentage: "",
     stock: "",
     category_id: "",
-    images: [],
   });
 
-  // IMÁGENES PARA PREVISUALIZACIÓN, NUEVAS IMÁGENES Y LAS AGREGADAS
+  // previewImages ahora guarda objetos: { url: string, isNew: boolean, file?: File }
   const [previewImages, setPreviewImages] = useState([]);
-  const [newImages, setNewImages] = useState({});
-  const [addedImages, setAddedImages] = useState([]);
 
-  // CARGAR DATOS DEL PRODUCTO CUANDO CAMBIA EL PRODUCTO ID
   useEffect(() => {
     const loadProduct = async () => {
       try {
@@ -36,7 +27,6 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
         if (!res.ok) throw new Error("Error al cargar el producto");
         const data = await res.json();
 
-        // SETEAR DATOS AL FORMULARIO
         setFormData({
           name: data.name || "",
           description: data.description || "",
@@ -44,25 +34,22 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
           category_id: data.category_id?._id || "",
           discountPercentage: data.discountPercentage || "",
           stock: data.stock || "",
-          images: data.images || [],
         });
-        setPreviewImages(data.images || []);
-        setNewImages({});
-        setAddedImages([]);
+
+        // Setear imágenes existentes como objetos { url, isNew: false }
+        const imagesData = (data.images || []).map((url) => ({
+          url,
+          isNew: false,
+        }));
+        setPreviewImages(imagesData);
       } catch (err) {
         console.error(err);
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "No se pudo cargar el producto",
-          confirmButtonColor: "#d6336c",
-        });
+        Swal.fire({ icon: "error", title: "Error", text: "No se pudo cargar el producto" });
       }
     };
     loadProduct();
   }, [productId]);
 
-  // CARGAR CATEGORÍAS DESDE EL BACKEND
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -72,19 +59,17 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
         setCategories(Array.isArray(res.data) ? res.data : res.data.categories || []);
       } catch (error) {
         console.error("Error al obtener categorías:", error);
-        setCategories([]);
       }
     };
     fetchCategories();
   }, []);
 
-  // ACTUALIZAR FORMULARIO
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // REEMPLAZAR IMAGEN AL HACER CLICK SOBRE ELLA
+  // Reemplazar imagen existente
   const handleImageClick = (index) => {
     const input = document.createElement("input");
     input.type = "file";
@@ -92,94 +77,95 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
     input.onchange = (e) => {
       const file = e.target.files[0];
       if (file) {
-        setNewImages((prev) => ({ ...prev, [index]: file }));
-        setPreviewImages((prev) =>
-          prev.map((img, i) => (i === index ? URL.createObjectURL(file) : img))
-        );
+        // Liberar URL anterior si era nueva imagen
+        if (previewImages[index].isNew) {
+          URL.revokeObjectURL(previewImages[index].url);
+        }
+        const newUrl = URL.createObjectURL(file);
+        setPreviewImages((prev) => {
+          const copy = [...prev];
+          copy[index] = { url: newUrl, isNew: true, file };
+          return copy;
+        });
       }
     };
     input.click();
   };
 
-  // AGREGAR NUEVAS IMÁGENES AL FORMULARIO
+  // Agregar imágenes nuevas
   const handleAddImages = (e) => {
     const files = Array.from(e.target.files);
-    const newPreviews = files.map((file) => URL.createObjectURL(file));
-    setAddedImages((prev) => [...prev, ...files]);
-    setPreviewImages((prev) => [...prev, ...newPreviews]);
+
+    // Filtrar para evitar duplicados (mismo nombre y tamaño)
+    const filteredFiles = files.filter((file) => {
+      return !previewImages.some(
+        (img) =>
+          img.isNew &&
+          img.file &&
+          img.file.name === file.name &&
+          img.file.size === file.size &&
+          img.file.lastModified === file.lastModified
+      );
+    });
+
+    if (filteredFiles.length === 0) {
+      e.target.value = "";
+      return;
+    }
+
+    const newImagesObjs = filteredFiles.map((file) => ({
+      url: URL.createObjectURL(file),
+      isNew: true,
+      file,
+    }));
+
+    setPreviewImages((prev) => [...prev, ...newImagesObjs]);
+
+    e.target.value = "";
   };
 
-  // ELIMINAR IMAGEN DEL FORMULARIO
+  // Eliminar imagen (sea nueva o existente)
   const handleDeleteImage = (index) => {
     Swal.fire({
       title: "¿Eliminar esta imagen?",
-      text: "No podrás recuperarla después",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#d6336c",
-      cancelButtonColor: "#aaa",
       confirmButtonText: "Sí, eliminar",
     }).then((result) => {
       if (result.isConfirmed) {
-        setPreviewImages((prev) => prev.filter((_, i) => i !== index));
-
-        // SI ES IMAGEN ORIGINAL
-        const originalImagesCount = formData.images.length;
-        if (index < originalImagesCount) {
-          setFormData((prev) => ({
-            ...prev,
-            images: prev.images.filter((_, i) => i !== index),
-          }));
-          setNewImages((prev) => {
-            const updated = { ...prev };
-            delete updated[index];
-            return updated;
-          });
-        } else {
-          // SI ES IMAGEN NUEVA
-          const idxAdded = index - originalImagesCount;
-          setAddedImages((prev) => prev.filter((_, i) => i !== idxAdded));
-        }
-
-        Swal.fire({
-          icon: "success",
-          title: "Imagen eliminada",
-          confirmButtonColor: "#d6336c",
-          timer: 1500,
-          showConfirmButton: false,
+        setPreviewImages((prev) => {
+          // Liberar URL si es imagen nueva
+          if (prev[index].isNew) {
+            URL.revokeObjectURL(prev[index].url);
+          }
+          return prev.filter((_, i) => i !== index);
         });
       }
     });
   };
 
-  // ENVIAR FORMULARIO ACTUALIZADO
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const form = new FormData();
 
-      // AGREGAR CAMPOS NORMALES
       Object.entries(formData).forEach(([key, value]) => {
-        if (key !== "images") form.append(key, value);
+        form.append(key, value);
       });
 
-      // IMÁGENES ORIGINALES QUE SE CONSERVAN
-      const existingImages = previewImages.filter(
-        (img, i) => typeof img === "string" && !(i in newImages)
-      );
+      // Imágenes existentes (urls)
+      const existingImages = previewImages
+        .filter((img) => !img.isNew)
+        .map((img) => img.url);
       form.append("existingImages", JSON.stringify(existingImages));
 
-      // IMÁGENES REEMPLAZADAS
-      Object.entries(newImages).forEach(([index, file]) => {
-        form.append("images", file);
-        form.append("replaceIndex", index);
-      });
-
-      // NUEVAS IMÁGENES
-      addedImages.forEach((file) => {
-        form.append("images", file);
-      });
+      // Imágenes nuevas (archivos)
+      previewImages
+        .filter((img) => img.isNew && img.file)
+        .forEach((img) => {
+          form.append("images", img.file);
+        });
 
       const res = await fetch(`http://localhost:4000/api/products/${productId}`, {
         method: "PUT",
@@ -191,29 +177,15 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
       if (!res.ok) throw new Error(resJson.message || "Error al actualizar el producto");
 
       await refreshProducts();
-
       setLoading(false);
-      await Swal.fire({
-        icon: "success",
-        title: "Producto actualizado",
-        text: "El producto se actualizó correctamente.",
-        confirmButtonColor: "#d6336c",
-      });
-
+      Swal.fire({ icon: "success", title: "Producto actualizado" });
       onClose();
     } catch (err) {
       setLoading(false);
-      console.error("Error al actualizar producto:", err);
-      Swal.fire({
-        icon: "error",
-        title: "Error al actualizar",
-        text: err.message || "Ocurrió un error inesperado",
-        confirmButtonColor: "#d6336c",
-      });
+      Swal.fire({ icon: "error", title: "Error", text: err.message });
     }
   };
 
-  // RENDERIZADO DEL MODAL DE EDICIÓN
   return (
     <>
       <div className="modal-overlay" onClick={onClose} />
@@ -287,7 +259,7 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
             {previewImages.map((img, index) => (
               <div key={index} style={{ position: "relative" }}>
                 <img
-                  src={img}
+                  src={img.url}
                   alt={`preview-${index}`}
                   className="editable-img"
                   onClick={() => handleImageClick(index)}
@@ -341,5 +313,4 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
   );
 };
 
-// EXPORTAR COMPONENTE
 export default EditProduct;

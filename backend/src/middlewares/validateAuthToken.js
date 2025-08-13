@@ -13,7 +13,7 @@ export const validateAuthToken = (allowedUserTypes = []) => {
       }
 
       // 3. Verificar y decodificar el token
-      const decoded = jwt.verify(authToken, config.JWT.JWT_SECRET);
+      const decoded = jwt.verify(authToken, config.jwt.jwtSecret);
 
       // 4. Verificar tipo de usuario si se especificaron roles permitidos
       if (!allowedUserTypes.includes("admin")) {
@@ -26,7 +26,7 @@ console.log("entro a este if")
       req.userType = decoded.userType;
 
       
-console.log("asdf")
+
       next();
     } catch (error) {
       console.error("Error al validar token:", error);
