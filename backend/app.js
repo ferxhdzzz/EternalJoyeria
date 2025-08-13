@@ -15,6 +15,7 @@ import reviewsRouter from "./src/routes/reviews.js";
 import salesRoutes from "./src/routes/sales.js";
 import ordersRoutes from "./src/routes/orders.js";
 import adminRoutes from "./src/routes/Administrator.js";
+import contactusRoutes from "./src/routes/contactusRoutes.js";
 
 import { validateAuthToken } from "./src/middlewares/validateAuthToken.js";
 
@@ -51,7 +52,8 @@ app.use(
 app.use("/api/login", loginRoutes);
 app.use("/api/logout", logoutRoutes);
 app.use("/api/recoveryPassword", recoveryPasswordRoutes);
-app.use("/api/registerClients", registerCustomersRoutes);
+app.use("/api/registerCustomers", registerCustomersRoutes);
+app.use("/api/contactus", contactusRoutes);
 
 // Rutas protegidas
 app.use("/api/customers", validateAuthToken(["admin", "customer"]), customersRoutes);

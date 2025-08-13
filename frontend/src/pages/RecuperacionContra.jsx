@@ -1,57 +1,43 @@
-import React, { useState } from "react";
+import React from "react";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+
+import useRecoverCustomerPassword from "../hooks/recovery/useRecoverCustomerPassword";
 import Logo from "../components/registro/logo/Logo";
 import Input from "../components/registro/inpungroup/InputGroup";
 import Button from "../components/registro/button/Button";
 import BackArrow from "../components/registro/backarrow/BackArrow";
-import '../styles/AuthStyles.css';
+import "../styles/Recuperacion.css";
 
-const RecoverPassword = () => {
-const [form, setForm] = useState({ email: "", code: "" });
-const [errors, setErrors] = useState({ email: "", code: "" });
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+export default function RecuperacionContra() {
   const navigate = useNavigate();
+  const { requestCode, loading } = useRecoverCustomerPassword();
+  const { register, handleSubmit, formState: { errors } } = useForm({ defaultValues: { email: "" } });
 
-  const handleChange = (e) => {
-  const { name, value } = e.target;
-  setForm((prevForm) => ({
-    ...prevForm,
-    [name]: value,
-  }));
-};
-
-
-const handleSubmit = () => {
-  const { email, code } = form;
-  let newErrors = { email: "", code: "" };
-  let hasError = false;
-
-  if (!email) {
-    newErrors.email = "El correo es obligatorio.";
-    hasError = true;
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    newErrors.email = "El correo no es válido.";
-    hasError = true;
-  }
-
-  if (!code) {
-    newErrors.code = "El código es obligatorio.";
-    hasError = true;
-  }
-
-  setErrors(newErrors);
-
-  if (hasError) return;
-
-  // Si pasa las validaciones, navegar o continuar
-  navigate("/cambiar");
-};
+  const onSubmit = async ({ email }) => {
+    if (!emailRegex.test(email)) {
+      Swal.fire("Correo inválido", "Revisa el formato del correo.", "error");
+      return;
+    }
+    const res = await requestCode(email);
+    if (res.ok) {
+      Swal.fire("Código enviado", res.message || "Revisa tu correo.", "success");
+      sessionStorage.setItem("rp_email", email);
+      navigate("/verificar-codigo");
+    } else {
+      const msg = res.message || (res.status === 404 ? "El correo no existe." : "No se pudo enviar el código.");
+      Swal.fire("Error", msg, "error");
+    }
+  };
 
   return (
     <div
       className="recover-wrapper"
       style={{
-        backgroundImage: `url("/fondoEternal.png")`,
+        backgroundImage: `url("/recuperacionPriv.png")`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
@@ -60,25 +46,20 @@ const handleSubmit = () => {
       <div className="recover-card">
         <BackArrow to="/login" />
         <Logo />
-       <Input
-  label="Correo"
-  name="email"
-  value={form.email}
-  onChange={handleChange}
-/>
-{errors.email && <p className="error-message">{errors.email}</p>}
+        <h2 className="recover-title">Recuperar Contraseña</h2>
 
-<Input
-  label="Código de confirmacion"
-  name="code"
-  value={form.code}
-  onChange={handleChange}
-/>
-{errors.code && <p className="error-message">{errors.code}</p>}
-        <Button text="enviar  →" onClick={handleSubmit} />
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Input
+            label="Correo"
+            {...register("email", {
+              required: "El correo es obligatorio",
+              pattern: { value: emailRegex, message: "Formato de correo inválido" },
+            })}
+          />
+          {errors.email && <p className="error-message">{errors.email.message}</p>}
+          <Button type="submit" text={loading ? "Enviando..." : "Enviar código →"} />
+        </form>
       </div>
     </div>
   );
-};
-
-export default RecoverPassword;
+}

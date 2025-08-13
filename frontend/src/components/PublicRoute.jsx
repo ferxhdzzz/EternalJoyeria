@@ -1,13 +1,13 @@
+// src/components/PublicRoute.jsx
 import { Navigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 
 const PublicRoute = ({ children }) => {
-  const { isPublicSession } = useContext(AuthContext);
+  const { isPublicSession, loading } = useContext(AuthContext);
 
-  if (!isPublicSession) {
-    return <Navigate to="/login" replace />;
-  }
+  if (loading) return null; 
+  if (!isPublicSession) return <Navigate to="/login" replace />;
 
   return children;
 };

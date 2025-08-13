@@ -1,91 +1,62 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Nav from '../components/Nav/Nav';
 import Footer from '../components/Footer';
+import useContactForm from '../hooks/ContactUs/useContactForm';
 import '../styles/Contact.css';
 
-const Contact = () => {
-  const [formData, setFormData] = useState({
-    nombre: '',
-    email: '',
-    telefono: '',
-    asunto: '',
-    mensaje: ''
-  });
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+const ContactUs = () => {
   const navigate = useNavigate();
+  
+  // Usar el hook personalizado
+  const {
+    formData,
+    errors,
+    isSubmitting,
+    submitSuccess,
+    submitError,
+    handleChange,
+    handleSubmit,
+    clearMessages,
+    isFormValid
+  } = useContactForm();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Limpiar error del campo cuando el usuario empiece a escribir
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+  // Función para manejar el cambio en el campo de teléfono
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    // Solo permitir números, espacios, guiones y el signo +, máximo 15 caracteres
+    const phoneRegex = /^[0-9\s\-+]*$/;
+    
+    if (phoneRegex.test(value) && value.length <= 15) {
+      handleChange(e);
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.nombre.trim()) {
-      newErrors.nombre = 'El nombre es obligatorio';
-    }
-    
-    if (!formData.email.trim()) {
-      newErrors.email = 'El Gmail es obligatorio';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'El formato del Gmail no es válido';
-    }
-    
-    if (!formData.asunto.trim()) {
-      newErrors.asunto = 'El asunto es obligatorio';
-    }
-    
-    if (!formData.mensaje.trim()) {
-      newErrors.mensaje = 'El mensaje es obligatorio';
-    } else if (formData.mensaje.trim().length < 10) {
-      newErrors.mensaje = 'El mensaje debe tener al menos 10 caracteres';
-    }
-    
-    return newErrors;
+  // Función para manejar el envío del formulario
+  const onSubmit = (e) => {
+    handleSubmit(e, '/api/contactus/send');
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const newErrors = validateForm();
-    
-    if (Object.keys(newErrors).length === 0) {
-      setIsSubmitting(true);
-      
-      // Simular envío del formulario
-      setTimeout(() => {
-        setIsSubmitting(false);
-        setSubmitSuccess(true);
-        setFormData({
-          nombre: '',
-          email: '',
-          telefono: '',
-          asunto: '',
-          mensaje: ''
+  // Scroll al top cuando hay errores para mejor UX
+  useEffect(() => {
+    if (submitError && Object.keys(errors).length > 0) {
+      const firstErrorElement = document.querySelector('.error');
+      if (firstErrorElement) {
+        firstErrorElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
         });
-        
-        // Mostrar mensaje de éxito por 3 segundos
-        setTimeout(() => {
-          setSubmitSuccess(false);
-        }, 3000);
-      }, 1500);
-    } else {
-      setErrors(newErrors);
+      }
     }
-  };
+  }, [errors, submitError]);
+
+  // Auto-dismiss de mensajes después de un tiempo
+  useEffect(() => {
+    if (submitSuccess) {
+      const timer = setTimeout(clearMessages, 8000); // 8 segundos
+      return () => clearTimeout(timer);
+    }
+  }, [submitSuccess, clearMessages]);
 
   return (
     <>
@@ -95,6 +66,9 @@ const Contact = () => {
         <section className="hero hero-product-banner">
           <div className="hero-product-content">
             <h1 className="hero-product-title">Contáctanos</h1>
+            <p className="hero-subtitle">
+              Estamos aquí para ayudarte. Envíanos tu consulta y te responderemos pronto.
+            </p>
           </div>
         </section>
 
@@ -121,6 +95,7 @@ const Contact = () => {
               <div className="contact-info-content">
                 <h3>Teléfono</h3>
                 <p>+503 1234-5678</p>
+                <small>WhatsApp disponible</small>
               </div>
             </div>
 
@@ -131,8 +106,9 @@ const Contact = () => {
                 </svg>
               </div>
               <div className="contact-info-content">
-                <h3>Gmail</h3>
+                <h3>Email</h3>
                 <p>EternalJoyeria@gmail.com</p>
+                <small>Respuesta en 24 horas</small>
               </div>
             </div>
 
@@ -145,6 +121,7 @@ const Contact = () => {
               <div className="contact-info-content">
                 <h3>Horarios</h3>
                 <p>Lun - Vie: 9:00 - 18:00<br />Sáb: 10:00 - 16:00</p>
+                <small>Dom: Cerrado</small>
               </div>
             </div>
           </div>
@@ -156,33 +133,83 @@ const Contact = () => {
                 Completa el formulario y nos pondremos en contacto contigo pronto.
               </p>
 
+              {/* Mensaje de éxito */}
               {submitSuccess && (
-                <div className="success-message">
+                <div className="success-message" role="alert">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/>
                   </svg>
                   ¡Mensaje enviado exitosamente! Te responderemos pronto.
+                  <button 
+                    onClick={clearMessages}
+                    aria-label="Cerrar mensaje de éxito"
+                    style={{ 
+                      background: 'none', 
+                      border: 'none', 
+                      color: 'inherit', 
+                      cursor: 'pointer',
+                      marginLeft: '10px',
+                      fontSize: '18px'
+                    }}
+                  >
+                    ×
+                  </button>
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="contact-form">
+              {/* Mensaje de error */}
+              {submitError && (
+                <div className="error-message" role="alert">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/>
+                  </svg>
+                  {submitError}
+                  <button 
+                    onClick={clearMessages}
+                    aria-label="Cerrar mensaje de error"
+                    style={{ 
+                      background: 'none', 
+                      border: 'none', 
+                      color: 'inherit', 
+                      cursor: 'pointer',
+                      marginLeft: '10px',
+                      fontSize: '18px'
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+
+              <form onSubmit={onSubmit} className="contact-form" noValidate>
                 <div className="form-row">
                   <div className="form-group">
-                    <label htmlFor="nombre">Nombre completo *</label>
+                    <label htmlFor="fullName">Nombre completo *</label>
                     <input
                       type="text"
-                      id="nombre"
-                      name="nombre"
-                      value={formData.nombre}
+                      id="fullName"
+                      name="fullName"
+                      value={formData.fullName}
                       onChange={handleChange}
-                      className={errors.nombre ? 'error' : ''}
+                      className={errors.fullName ? 'error' : ''}
                       placeholder="Tu nombre completo"
+                      required
+                      aria-invalid={errors.fullName ? 'true' : 'false'}
+                      aria-describedby={errors.fullName ? 'fullName-error' : undefined}
                     />
-                    {errors.nombre && <span className="error-message">{errors.nombre}</span>}
+                    {errors.fullName && (
+                      <span 
+                        id="fullName-error" 
+                        className="error-message" 
+                        role="alert"
+                      >
+                        {errors.fullName}
+                      </span>
+                    )}
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="email">Gmail *</label>
+                    <label htmlFor="email">Email *</label>
                     <input
                       type="email"
                       id="email"
@@ -190,58 +217,104 @@ const Contact = () => {
                       value={formData.email}
                       onChange={handleChange}
                       className={errors.email ? 'error' : ''}
-                      placeholder="tu@gmail.com"
+                      placeholder="tu@email.com"
+                      required
+                      aria-invalid={errors.email ? 'true' : 'false'}
+                      aria-describedby={errors.email ? 'email-error' : undefined}
                     />
-                    {errors.email && <span className="error-message">{errors.email}</span>}
+                    {errors.email && (
+                      <span 
+                        id="email-error" 
+                        className="error-message" 
+                        role="alert"
+                      >
+                        {errors.email}
+                      </span>
+                    )}
                   </div>
                 </div>
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label htmlFor="telefono">Teléfono</label>
+                    <label htmlFor="phone">Teléfono</label>
                     <input
                       type="tel"
-                      id="telefono"
-                      name="telefono"
-                      value={formData.telefono}
-                      onChange={handleChange}
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handlePhoneChange}
+                      className={errors.phone ? 'error' : ''}
                       placeholder="+503 1234-5678"
+                      aria-invalid={errors.phone ? 'true' : 'false'}
+                      aria-describedby={errors.phone ? 'phone-error' : undefined}
                     />
+                    {errors.phone && (
+                      <span 
+                        id="phone-error" 
+                        className="error-message" 
+                        role="alert"
+                      >
+                        {errors.phone}
+                      </span>
+                    )}
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="asunto">Asunto *</label>
+                    <label htmlFor="subject">Asunto *</label>
                     <input
                       type="text"
-                      id="asunto"
-                      name="asunto"
-                      value={formData.asunto}
+                      id="subject"
+                      name="subject"
+                      value={formData.subject}
                       onChange={handleChange}
-                      className={errors.asunto ? 'error' : ''}
+                      className={errors.subject ? 'error' : ''}
                       placeholder="¿En qué podemos ayudarte?"
+                      required
+                      aria-invalid={errors.subject ? 'true' : 'false'}
+                      aria-describedby={errors.subject ? 'subject-error' : undefined}
                     />
-                    {errors.asunto && <span className="error-message">{errors.asunto}</span>}
+                    {errors.subject && (
+                      <span 
+                        id="subject-error" 
+                        className="error-message" 
+                        role="alert"
+                      >
+                        {errors.subject}
+                      </span>
+                    )}
                   </div>
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="mensaje">Mensaje *</label>
+                  <label htmlFor="message">Mensaje *</label>
                   <textarea
-                    id="mensaje"
-                    name="mensaje"
-                    value={formData.mensaje}
+                    id="message"
+                    name="message"
+                    value={formData.message}
                     onChange={handleChange}
-                    className={errors.mensaje ? 'error' : ''}
+                    className={errors.message ? 'error' : ''}
                     placeholder="Cuéntanos más sobre tu consulta..."
                     rows="6"
+                    required
+                    aria-invalid={errors.message ? 'true' : 'false'}
+                    aria-describedby={errors.message ? 'message-error' : undefined}
                   ></textarea>
-                  {errors.mensaje && <span className="error-message">{errors.mensaje}</span>}
+                  {errors.message && (
+                    <span 
+                      id="message-error" 
+                      className="error-message" 
+                      role="alert"
+                    >
+                      {errors.message}
+                    </span>
+                  )}
                 </div>
 
                 <button 
                   type="submit" 
-                  className={`submit-button ${isSubmitting ? 'loading' : ''}`}
-                  disabled={isSubmitting}
+                  className={`submit-button ${isSubmitting ? 'loading' : ''} ${!isFormValid ? 'disabled' : ''}`}
+                  disabled={isSubmitting || !isFormValid}
+                  aria-describedby="submit-help"
                 >
                   {isSubmitting ? (
                     <>
@@ -254,6 +327,10 @@ const Contact = () => {
                     'Enviar mensaje'
                   )}
                 </button>
+                
+                <p id="submit-help" className="form-help">
+                  Los campos marcados con * son obligatorios
+                </p>
               </form>
             </div>
           </div>
@@ -267,7 +344,11 @@ const Contact = () => {
               </svg>
               <h3>Ubicación</h3>
               <p>San Salvador, El Salvador</p>
-              <button className="map-button" onClick={() => window.open('https://www.google.com/maps/place/San+Salvador,+El+Salvador', '_blank')}>
+              <button 
+                className="map-button" 
+                onClick={() => window.open('https://www.google.com/maps/place/San+Salvador,+El+Salvador', '_blank')}
+                aria-label="Abrir ubicación en Google Maps"
+              >
                 Ver en Google Maps
               </button>
             </div>
@@ -280,4 +361,4 @@ const Contact = () => {
   );
 };
 
-export default Contact; 
+export default ContactUs;

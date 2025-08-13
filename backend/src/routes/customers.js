@@ -8,7 +8,9 @@ const upload = multer({ dest: "public/" });
 
 router.get("/", customersController.getcustomers);
 
+
 // Ruta protegida
+
 router.get("/me", validateAuthToken(["customer", "admin"]), customersController.getCurrentCustomer);
 
 router

@@ -7,5 +7,7 @@ const upload = multer({ dest: "public/" });
 
 router.post("/", upload.single("profilePicture"), registerCustomersController.registerClient);
 router.post("/verifyCodeEmail", registerCustomersController.verifyCodeEmail);
+//  reenviar codigo
+router.post("/resend-code", registerCustomersController.resendVerificationCode);
 
 export default router;

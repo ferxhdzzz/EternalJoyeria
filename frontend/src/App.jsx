@@ -1,14 +1,18 @@
+// src/App.jsx
 import React, { useEffect } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import Home from './pages/Home';
 import AboutUs from './pages/AboutUs';
 import Products from './pages/Products';
 import Profile from './pages/Profile';
+
 import Recuperacion from './pages/RecuperacionContra';
-import Actualizacion from './pages/CambiarCont';
+import VerificarCodigo from './pages/VerificarCodigo';   // ← nueva import
+import Actualizacion from './pages/CambiarCont';          // CambiarCont.jsx
+
 import Login from './pages/Login';
 import RegistroContainer from './pages/RegistroContainer';
 import CartPage from './components/Cart/CartPage';
@@ -30,19 +34,19 @@ import PreguntasFrecuentes from './pages/PreguntasFrecuentes';
 import ScrollToTop from './components/ScrollToTop';
 import Blog from './pages/Blog';
 
-import PublicRoute from './components/PublicRoute'; // Protector de rutas públicas
+import PublicRoute from './components/PublicRoute';
 
-import './App.css'; // Estilos globales
+import './App.css';
+
+// Guard sencillo para /cambiar (usa sessionStorage set en VerificarCodigo)
+function GuardCambio({ children }) {
+  const ok = typeof window !== 'undefined' && sessionStorage.getItem('rp_verified') === '1';
+  return ok ? children : <Navigate to="/recuperacion" replace />;
+}
 
 function App() {
   useEffect(() => {
-    AOS.init({
-      duration: 1000,
-      once: true,
-      offset: 50,
-      easing: 'ease-out',
-      delay: 0,
-    });
+    AOS.init({ duration: 1000, once: true, offset: 50, easing: 'ease-out', delay: 0 });
   }, []);
 
   return (
@@ -51,11 +55,24 @@ function App() {
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<Home />} />
+          
+          {/* Flujo recuperación */}
           <Route path="/recuperacion" element={<Recuperacion />} />
-          <Route path="/cambiar" element={<Actualizacion />} />
+          <Route path="/verificar-codigo" element={<VerificarCodigo />} />
+          <Route
+            path="/cambiar"
+            element={
+              <GuardCambio>
+                <Actualizacion />
+              </GuardCambio>
+            }
+          />
+
+          {/* Auth / registro */}
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<RegistroContainer />} />
 
+          {/* Catálogo / info públicas */}
           <Route path="/sobre-nosotros" element={<AboutUs />} />
           <Route path="/productos" element={<Products />} />
           <Route path="/categoria" element={<Products />} />
@@ -64,10 +81,9 @@ function App() {
           <Route path="/categoria/conjuntos" element={<CategoriaConjuntos />} />
           <Route path="/categoria/anillos" element={<CategoriaAnillos />} />
           <Route path="/product/:id" element={<ProductDetail />} />
-              <Route path="/perfil" element={<Profile />} />
 
-          {/* Rutas protegidas con PublicRoute */}
-          
+          {/* Protegidas */}
+          <Route path="/perfil" element={<Profile />} />
           <Route
             path="/historial"
             element={
@@ -85,6 +101,7 @@ function App() {
             }
           />
 
+          {/* Carrito / otros */}
           <Route path="/carrito" element={<CartPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/shop" element={<CartPage />} />

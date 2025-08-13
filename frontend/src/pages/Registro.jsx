@@ -10,17 +10,20 @@ import BackArrow from "../components/registro/backarrow/BackArrow";
 import PerfilFoto from "../components/registro/ProfilePic/PerfilFoto";
 import BotonPerfil from "../components/registro/BotonPerfil/BotonPerfil";
 import Stepper from "../components/Register/Stepper";
-import EmailVerification from "../components/Register/EmailVerification";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import "../styles/AuthStyles.css";
 
 const Registro = () => {
   const navigate = useNavigate();
-  const { loading, error, registerClient, clearError } = useRegistro();
+  const { loading, error, registerClient, verifyEmailCode, resendVerificationCode, clearError } = useRegistro();
   
   const [currentStep, setCurrentStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
+  
+  // Estados adicionales para la verificación de email
+  const [verificationCode, setVerificationCode] = useState('');
+  const [resendMessage, setResendMessage] = useState('');
   
   const [formData, setFormData] = useState({
     name: "",
@@ -33,7 +36,7 @@ const Registro = () => {
   });
 
   const nextStep = useCallback(() => {
-    setCurrentStep(prev => Math.min(prev + 1, 4)); // límite a paso 4
+    setCurrentStep(prev => Math.min(prev + 1, 4));
   }, []);
 
   const prevStep = useCallback(() => {
@@ -106,6 +109,7 @@ const Registro = () => {
     return errors;
   }, [formData.email, formData.phone, formData.password, formData.country]);
 
+  // FUNCIÓN CORREGIDA - No salta pasos automáticamente
   const handleNext = useCallback(async (e) => {
     if (e) e.preventDefault();
     
@@ -128,15 +132,18 @@ const Registro = () => {
       return;
     }
 
+    // CORRECCIÓN: Solo registrar en paso 2, NO saltar al paso 4
     if (currentStep === 2) {
       const result = await registerClient(formData);
       
       if (result.success) {
+        // Solo avanzar al paso 3 (foto de perfil)
         nextStep();
       } else {
         console.error("Error en el registro:", result.error);
       }
     } else {
+      // Para los demás pasos, solo avanzar
       nextStep();
     }
   }, [currentStep, formData, registerClient, validateStep1, validateStep2, nextStep]);
@@ -176,6 +183,98 @@ const Registro = () => {
     
     input.click();
   }, [handleFileUpload]);
+
+  // NUEVA FUNCIÓN: Manejar verificación de código
+  const handleVerifyCode = useCallback(async (e) => {
+    e.preventDefault();
+    
+    if (!verificationCode.trim()) {
+      setValidationErrors({ verificationCode: 'Por favor ingresa el código de verificación' });
+      return;
+    }
+
+    clearError();
+    setValidationErrors({});
+    setResendMessage('');
+
+    try {
+      const result = await verifyEmailCode(verificationCode);
+      
+      if (result.success) {
+        // CORRECCIÓN PRINCIPAL: Solo navegar si la verificación es exitosa
+        console.log('Código verificado correctamente');
+        navigate("/productos");
+      } else {
+        console.error('Error en verificación:', result.error);
+      }
+    } catch (err) {
+      setValidationErrors({ verificationCode: 'Error al verificar el código' });
+    }
+  }, [verificationCode, verifyEmailCode, clearError, navigate]);
+
+  // NUEVA FUNCIÓN: Reenviar código
+  const handleResendCode = useCallback(async () => {
+    clearError();
+    setValidationErrors({});
+    setResendMessage('');
+    
+    try {
+      const result = await resendVerificationCode(formData.email);
+      if (result.success) {
+        setResendMessage('Código reenviado exitosamente a tu email');
+      } else {
+        setValidationErrors({ resend: result.error || 'Error al reenviar código' });
+      }
+    } catch (err) {
+      setValidationErrors({ resend: 'Error al reenviar código' });
+    }
+  }, [formData.email, resendVerificationCode, clearError]);
+
+  // NUEVA FUNCIÓN: Manejar cambio en código de verificación
+  const handleCodeChange = useCallback((e) => {
+    const value = e.target.value.replace(/\D/g, ''); // Solo números
+    if (value.length <= 6) {
+      setVerificationCode(value);
+      // Limpiar errores cuando el usuario empieza a escribir
+      if (validationErrors.verificationCode) {
+        setValidationErrors({});
+      }
+      if (error) clearError();
+    }
+  }, [validationErrors.verificationCode, error, clearError]);
+
+  // Función para manejar cambios en campos individuales
+  const handleCodeInputChange = useCallback((e, index) => {
+    const value = e.target.value.replace(/\D/g, ''); // Solo números
+    
+    if (value.length <= 1) {
+      const newCode = verificationCode.split('');
+      newCode[index] = value;
+      const updatedCode = newCode.join('').slice(0, 6);
+      
+      setVerificationCode(updatedCode);
+      
+      // Auto-focus al siguiente campo
+      if (value && index < 5) {
+        const nextInput = e.target.parentNode.children[index + 1];
+        if (nextInput) nextInput.focus();
+      }
+      
+      // Limpiar errores
+      if (validationErrors.verificationCode) {
+        setValidationErrors({});
+      }
+      if (error) clearError();
+    }
+  }, [verificationCode, validationErrors.verificationCode, error, clearError]);
+
+  // Función para manejar teclas especiales
+  const handleCodeKeyDown = useCallback((e, index) => {
+    if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
+      const prevInput = e.target.parentNode.children[index - 1];
+      if (prevInput) prevInput.focus();
+    }
+  }, [verificationCode]);
 
   const renderStep = () => {
     switch (currentStep) {
@@ -322,13 +421,96 @@ const Registro = () => {
 
       case 4:
         return (
-          <EmailVerification 
-            nextStep={() => navigate("/login")} 
-            prevStep={prevStep} 
-            email={formData.email}
-            loading={loading}
-            error={error}
-          />
+          <form onSubmit={handleVerifyCode} noValidate>
+            <h2 className="recover-title">Verificación de Email</h2>
+            <p>Hemos enviado un código de verificación a:</p>
+            <p style={{ fontWeight: 'bold', color: '#CE91A5', marginBottom: '10px' }}>
+              {formData.email}
+            </p>
+            <p>Ingresa el código de 6 dígitos para completar tu registro.</p>
+
+            {/* Campos individuales para el código */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', margin: '20px 0' }}>
+              {[0, 1, 2, 3, 4, 5].map((index) => (
+                <input
+                  key={index}
+                  type="text"
+                  maxLength="1"
+                  value={verificationCode[index] || ''}
+                  onChange={(e) => handleCodeInputChange(e, index)}
+                  onKeyDown={(e) => handleCodeKeyDown(e, index)}
+                  disabled={loading}
+                  style={{
+                    width: '50px',
+                    height: '50px',
+                    textAlign: 'center',
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    border: '2px solid #E8E8E8',
+                    borderRadius: '8px',
+                    outline: 'none',
+                    backgroundColor: verificationCode[index] ? '#F8F8F8' : 'white',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#CE91A5';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#E8E8E8';
+                  }}
+                />
+              ))}
+            </div>
+
+            {validationErrors.verificationCode && (
+              <p className="error error-visible">{validationErrors.verificationCode}</p>
+            )}
+
+            {error && <p className="error error-visible">{error}</p>}
+
+            {resendMessage && (
+              <p className="success success-visible">{resendMessage}</p>
+            )}
+
+            {validationErrors.resend && (
+              <p className="error error-visible">{validationErrors.resend}</p>
+            )}
+
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <button
+                type="button"
+                onClick={handleResendCode}
+                disabled={loading}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#CE91A5',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                {loading ? 'Reenviando...' : '¿No recibiste el código? Reenviar'}
+              </button>
+            </div>
+
+            <div className="navigation-buttons">
+              <Button
+                type="button"
+                text="← Atrás"
+                onClick={handlePrevStep}
+                disabled={loading}
+              />
+              <Button
+                type="submit"
+                text={loading ? "Verificando..." : "Verificar y Completar →"}
+                disabled={loading || !verificationCode.trim()}
+              />
+            </div>
+
+            <div style={{ marginTop: '15px', fontSize: '12px', color: '#666', textAlign: 'center' }}>
+              <p>💡 Consejo: Revisa tu carpeta de spam si no ves el email.</p>
+            </div>
+          </form>
         );
 
       default:
