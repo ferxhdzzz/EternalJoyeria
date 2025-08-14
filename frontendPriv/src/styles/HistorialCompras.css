@@ -1,5 +1,16 @@
-/* Contenedor de la tabla */
-.tabla-historial-compras-container {
+/* Layout principal */
+.page-layout {
+  background-color: #FFF3F2;
+  min-height: 100vh;
+  padding: 20px;
+}
+.topbar-wrapper {
+  margin-top: 20px;
+  
+}
+
+/* Contenedor principal de historial compras */
+.historial-compras-container {
   background-color: #fff;
   padding: 30px;
   border-radius: 20px;
@@ -7,57 +18,476 @@
   width: 90%;
   margin: auto;
   box-sizing: border-box;
-
-  /* Scroll vertical para muchos datos */
-  max-height: 70vh; /* Puedes ajustar */
+  max-height: 70vh;
   overflow-y: auto;
-  overflow-x: hidden; /* Por defecto sin scroll horizontal */
-}
-.page-layout{
-    background-color: #FFF3F2;
-
-}
-.content-area{
-    background-color: #FFF3F2;
-
+  overflow-x: hidden;
 }
 
-/* Scrollbar vertical */
-.tabla-historial-compras-container::-webkit-scrollbar {
+/* Header con título y subtítulo */
+.historial-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.historial-header h1 {
+  color: #333;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.historial-header p {
+  color: #666;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+
+/* Contenedor de ventas */
+.sales-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Mensaje de no hay ventas */
+.no-sales-message {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-size: 1.2rem;
+  background-color: #f8f9fa;
+  border-radius: 15px;
+  border: 2px dashed #ddd;
+}
+
+/* Card individual de venta */
+.sale-card {
+  background-color: #ffffff;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sale-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Header de la card */
+.sale-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f8f9fa;
+}
+
+.sale-customer-info h3 {
+  color: #2c3e50;
+  font-size: 1.3rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.sale-status {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Estados de venta */
+.sale-status.pagado {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.sale-status.no-pagado {
+  background-color: #f8d7da;
+  color: #ad1726;
+}
+
+.sale-status.pendiente {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+/* Detalles de la venta */
+.sale-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.sale-details p {
+  margin: 0;
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.sale-details strong {
+  color: #2c3e50;
+}
+
+/* Sección de productos */
+.products-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.products-section > p {
+  color: #2c3e50;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.product-item {
+  background-color: #f8f9fa;
+  padding: 12px 15px;
+  border-radius: 10px;
+  border-left: 4px solid #e74c3c;
+}
+
+.product-item p {
+  margin: 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+
+.content-area {
+  background-color: #FFF3F2;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Contenedor principal de historial compras */
+.historial-compras-container {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  width: 90%;
+  margin: auto;
+  box-sizing: border-box;
+  max-height: 70vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Header con título y subtítulo */
+.historial-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.historial-header h1 {
+  color: #333;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.historial-header p {
+  color: #666;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Botón volver */
+.btn-volver {
+  display: inline-block;
+  padding: 12px 24px;
+  background-color: #e74c3c;
+  color: white;
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(231, 76, 60, 0.3);
+}
+
+.btn-volver:hover {
+  background-color: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+}
+
+/* Contenedor de ventas */
+.sales-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Mensaje de no hay ventas */
+.no-sales-message {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-size: 1.2rem;
+  background-color: #f8f9fa;
+  border-radius: 15px;
+  border: 2px dashed #ddd;
+}
+
+/* Card individual de venta */
+.sale-card {
+  background-color: #ffffff;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sale-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Header de la card */
+.sale-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f8f9fa;
+}
+
+.sale-customer-info h3 {
+  color: #2c3e50;
+  font-size: 1.3rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.sale-status {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Estados de venta */
+.sale-status.pagado {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.sale-status.no-pagado {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.sale-status.pendiente {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+/* Detalles de la venta */
+.sale-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.sale-details p {
+  margin: 0;
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+
+
+.sale-details strong {
+  color: #2c3e50;
+}
+
+/* Sección de productos */
+.products-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.products-section > p {
+  color: #2c3e50;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.product-item {
+  background-color: #f8f9fa;
+  padding: 12px 15px;
+  border-radius: 10px;
+  border-left: 4px solid #e74c3c;
+}
+
+.product-item p {
+  margin: 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.btn-edit {
+  background-color: #F2C1D1;
+  color: black;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  font-weight: normal;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-edit:hover {
+  transform: scale(1.05);
+}
+
+.btn-delete {
+  background-color: #ECC4C1;
+  color: black;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+font-weight: normal;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-delete:hover {
+  transform: scale(1.05);
+}
+/* Scrollbar personalizada */
+.historial-compras-container::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-.tabla-historial-compras-container::-webkit-scrollbar-thumb {
+.historial-compras-container::-webkit-scrollbar-thumb {
   background: #ccc;
   border-radius: 10px;
 }
 
-.tabla-historial-compras-container::-webkit-scrollbar-track {
+.historial-compras-container::-webkit-scrollbar-track {
   background: transparent;
 }
 
-/* Scroll horizontal en pantallas <= 676px */
+/* Responsive Design */
+@media (max-width: 768px) {
+  .historial-compras-container {
+    width: 95%;
+    padding: 20px;
+  }
+  
+  .sale-details {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .sale-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .sale-actions {
+    justify-content: center;
+  }
+  
+  .historial-header h1 {
+    font-size: 2rem;
+  }
+}
+
 @media (max-width: 676px) {
-  .tabla-historial-compras-container {
+  .historial-compras-container {
     overflow-x: auto;
     overflow-y: auto;
     width: 100%;
-    padding-left: 0;
-    padding-right: 0;
+    padding-left: 15px;
+    padding-right: 15px;
     margin: 0 auto;
     max-width: 100vw;
     max-height: 70vh;
     display: block;
     -webkit-overflow-scrolling: touch;
   }
-
-  .tabla-historial-compras {
-    min-width: 900px; /* Ajusta según el ancho necesario */
+  
+  .sale-card {
+    min-width: 300px;
   }
-
-  /* Scrollbar horizontal */
-  .tabla-historial-compras-container::-webkit-scrollbar {
+  
+  .historial-compras-container::-webkit-scrollbar {
     height: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-layout {
+    padding: 10px;
+  }
+  
+  .historial-compras-container {
+    padding: 15px;
+  }
+  
+  .sale-card {
+    padding: 20px;
+  }
+  
+  .btn-edit, .btn-delete {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+  }
+  
+  .historial-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .historial-header p {
+    font-size: 1rem;
   }
 }

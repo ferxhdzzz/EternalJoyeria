@@ -1,200 +1,475 @@
-// 📁 controllers/registerCustomersController.js 
+// importación de librerías necesarias
+import jsonwebtoken from "jsonwebtoken"; // para generar y verificar tokens jwt
+import bcryptjs from "bcryptjs"; // para encriptar contraseñas
+import crypto from "crypto"; // módulo de node para generar valores aleatorios
+import { v2 as cloudinary } from "cloudinary"; // servicio para subir y gestionar imágenes en la nube
+import clientsModel from "../models/Customers.js"; // modelo mongoose de clientes
+import { config } from "../config.js"; // configuración global del proyecto
+import { sendMail, HTMLEmailVerification } from "../utils/mailVerify.js"; // utilidades para enviar correos de verificación
+import { HTMLWelcomeEmail } from "../utils/HTMLWelcomeEmail.js"; // plantilla de correo de bienvenida
 
-import jsonwebtoken from "jsonwebtoken";
-import bcryptjs from "bcryptjs";
-import crypto from "crypto";
-import { v2 as cloudinary } from "cloudinary";
-import clientsModel from "../models/Customers.js";
-import { config } from "../config.js";
-import { sendMail } from "../utils/mailVerify.js";
-import { HTMLEmailVerification } from "../utils/mailVerify.js";
-import { HTMLWelcomeEmail } from "../utils/HTMLWelcomeEmail.js";
+// configuración de credenciales de cloudinary desde variables de entorno
 
-// 1- Configurar cloudinary con nuestra cuenta
 cloudinary.config({
   cloud_name: config.cloudinary.cloud_name,
   api_key: config.cloudinary.api_key,
   api_secret: config.cloudinary.api_secret,
 });
 
+// objeto controlador para registrar clientes
 const registerCustomersController = {};
 
-// Función para validar formato de email
-const validateEmail = (email) => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
+// ===== UTILIDADES DE VALIDACIÓN =====
 
-// Función para validar longitud mínima de contraseña
-const validatePassword = (password) => {
-  // Validación básica: al menos 6 caracteres
-  return password.length >= 6;
-};
+/**
+ * Valida formato de email usando expresión regular
+ * @param {string} email - Email a validar
+ * @returns {boolean} - True si el email es válido
+ */
+const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-// Registro de cliente
+/**
+ * Valida que la contraseña tenga al menos 6 caracteres
+ * @param {string} password - Contraseña a validar
+ * @returns {boolean} - True si la contraseña es válida
+ */
+const validatePassword = (password) => password.length >= 6;
+
+/**
+ * Valida que el código de verificación sea exactamente 6 dígitos numéricos
+ * @param {string} code - Código a validar
+ * @returns {boolean} - True si el código es válido
+ */
+const validateVerificationCode = (code) => /^\d{6}$/.test(code);
+
+// ===== FUNCIONES PRINCIPALES =====
+
+/**
+ *  REGISTRO DE CLIENTE
+ * Procesa el registro de un nuevo cliente incluyendo:
+ * - Validación de datos
+ * - Subida de imagen de perfil (opcional)
+ * - Hash de contraseña
+ * - Generación de código de verificación
+ * - Envío de email de verificación
+ */
+
 registerCustomersController.registerClient = async (req, res) => {
-  const { firstName, lastName, email, password, phone } = req.body;
-  let profilePictureURL = "";
+  const { firstName, lastName, email, password, phone } = req.body; // desestructuración de datos recibidos
+  let profilePictureURL = ""; // variable para guardar la url de la imagen de perfil
 
   try {
-    // Validar que todos los campos requeridos estén presentes
+
+    // validación de campos obligatorios
+
     if (!firstName || !lastName || !email || !password || !phone) {
-      return res.status(400).json({ 
-        message: "All fields are required: firstName, lastName, email, password, phone" 
-      });
+      return res.status(400).json({ message: "all fields are required." });
     }
 
-    // Validar que los campos no estén vacíos (solo espacios)
-    if (!firstName.trim() || !lastName.trim() || !email.trim() || !password.trim() || !phone.trim()) {
-      return res.status(400).json({ 
-        message: "Fields cannot be empty or contain only spaces" 
-      });
+
+    const emailNormalized = email.trim().toLowerCase(); // normaliza el email para evitar duplicados por mayúsculas o espacios
+
+    // validación del formato de email
+
+    if (!validateEmail(emailNormalized)) {
+      return res.status(400).json({ message: "invalid email format." });
     }
 
-    // Validar formato de email
-    if (!validateEmail(email)) {
-      return res.status(400).json({ 
-        message: "Please enter a valid email address" 
-      });
-    }
 
-    // Validar longitud mínima de contraseña (6 caracteres)
+    // validación de la contraseña
     if (!validatePassword(password)) {
-      return res.status(400).json({ 
-        message: "Password must be at least 6 characters long" 
-      });
+      return res.status(400).json({ message: "password must be at least 6 characters." });
     }
 
-    // Validar longitud de nombres y apellidos (entre 2 y 50 caracteres)
-    if (firstName.trim().length < 2 || firstName.trim().length > 50) {
-      return res.status(400).json({ 
-        message: "First name must be between 2 and 50 characters" 
-      });
+    // Validar que el teléfono no esté vacío después de trim
+    if (!phone.trim()) {
+      return res.status(400).json({ message: "Phone number is required." });
     }
 
-    if (lastName.trim().length < 2 || lastName.trim().length > 50) {
-      return res.status(400).json({ 
-        message: "Last name must be between 2 and 50 characters" 
-      });
-    }
-
-    // Verificar si el cliente ya existe
-    const existClient = await clientsModel.findOne({ email });
+    // ===== VERIFICAR SI EL CLIENTE YA EXISTE =====
+    const existClient = await clientsModel.findOne({ email: emailNormalized });
     if (existClient) {
-      return res.status(409).json({ message: "Client already exists" });
+      // Distinguir entre cliente no verificado y cliente ya registrado
+      if (!existClient.isVerified) {
+        return res.status(409).json({ 
+          message: "Client exists but not verified. Please check your email or request a new code." 
+        });
+      }
+      return res.status(409).json({ message: "Client already exists and is verified." });
     }
 
-    // Subir la imagen a Cloudinary 
+    // ===== PROCESAR IMAGEN DE PERFIL (SI EXISTE) =====
     if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: "profiles", // Carpeta específica para perfiles
-        allowed_formats: ["png", "jpg", "jpeg"],
-        transformation: [
-          { width: 500, height: 500, crop: "fill" }, // Redimensionar para perfiles
-          { quality: "auto" }
-        ]
-      });
-      // Guardo en la variable la URL de donde se subió la imagen
-      profilePictureURL = result.secure_url;
+      try {
+        // Subir imagen a Cloudinary con transformaciones optimizadas
+        const result = await cloudinary.uploader.upload(req.file.path, {
+          folder: "profiles", // Organizar en carpeta específica
+          allowed_formats: ["png", "jpg", "jpeg"], // Solo formatos de imagen válidos
+          transformation: [
+            { width: 500, height: 500, crop: "fill" }, // Imagen cuadrada 500x500
+            { quality: "auto" }, // Optimización automática de calidad
+            { format: "auto" }, // Formato automático (WebP si es compatible)
+          ],
+        });
+        profilePictureURL = result.secure_url;
+      } catch (uploadError) {
+        console.error("Error uploading profile picture:", uploadError);
+        return res.status(500).json({ message: "Error uploading profile picture." });
+      }
     }
 
-    // Encriptar contraseña
-    const passwordHash = await bcryptjs.hash(password, 10);
+    // ===== CREAR HASH DE CONTRASEÑA =====
+    let passwordHash;
+    try {
+      // Usar bcrypt con salt factor 10 (seguro y razonablemente rápido)
+      passwordHash = await bcryptjs.hash(password, 10);
+    } catch (hashError) {
+      console.error("Error hashing password:", hashError);
+      return res.status(500).json({ message: "Error processing password." });
+    }
 
-    // Crear nuevo cliente (usando trim() para limpiar espacios extra)
+    // ===== CREAR NUEVO CLIENTE EN BASE DE DATOS =====
+
     const newClient = new clientsModel({
       firstName: firstName.trim(),
       lastName: lastName.trim(),
-      email: email.trim().toLowerCase(), // Convertir email a minúsculas para consistencia
+      email: emailNormalized,
       password: passwordHash,
       phone: phone.trim(),
-      profilePicture: profilePictureURL, // URL de Cloudinary o string vacío
+      profilePicture: profilePictureURL,
+      isVerified: false, // Cliente inicia como no verificado
+
     });
 
+    // guardar en base de datos
     await newClient.save();
 
-    // Generar código de verificación
-    const verificationCode = crypto.randomBytes(3).toString("hex");
-    const expiresAt = Date.now() + 2 * 60 * 60 * 1000; // 2 horas
+    // ===== GENERAR CÓDIGO DE VERIFICACIÓN =====
+    // Generar código SOLO NÚMEROS de 6 dígitos (100000-999999)
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 2 * 60 * 60 * 1000; // Expira en 2 horas
 
+    // Crear token JWT que contiene el código y datos de verificación
     const tokenCode = jsonwebtoken.sign(
-      { email, verificationCode, expiresAt },
-      config.JWT.JWT_SECRET,
-      { expiresIn: config.JWT.expiresIn }
+      { 
+        email: emailNormalized, 
+        verificationCode, 
+        expiresAt,
+        userId: newClient._id // Incluir ID del usuario para mayor seguridad
+      },
+      config.jwt.jwtSecret,
+      { expiresIn: config.jwt.expiresIn }
     );
 
-    // Enviar correo con código de verificación
-    await sendMail(
-      email,
-      "Your verification code",
-      "Hello! Here's your verification code.",
-      HTMLEmailVerification(verificationCode)
-    );
+    // Log para debugging (solo en desarrollo)
+    if (process.env.NODE_ENV !== "production") {
+      console.log("Verification code generated:", verificationCode);
+    }
 
-    // Guardar token en cookie
+    // ===== ENVIAR EMAIL DE VERIFICACIÓN =====
+    try {
+      await sendMail(
+        newClient.email,
+        "Your verification code",
+        `Your verification code is ${verificationCode}`,
+        HTMLEmailVerification(verificationCode)
+      );
+    } catch (emailError) {
+      console.error("Error sending verification email:", emailError);
+      // No fallar el registro por error de email, pero informar al usuario
+      return res.status(201).json({ 
+        message: "Registration successful but email could not be sent. Please contact support.",
+        client: { email: emailNormalized }
+      });
+    }
+
+    // ===== CONFIGURAR COOKIE CON TOKEN DE VERIFICACIÓN =====
     res.cookie("verificationToken", tokenCode, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 2 * 60 * 60 * 1000,
-      path:'/', //cookie disponibloe en toda la aplicacion 
-      sameSite:'lax',  // proteccion contra CSRF
+      httpOnly: true, // No accesible desde JavaScript (seguridad XSS)
+      secure: process.env.NODE_ENV === "production", // Solo HTTPS en producción
+      maxAge: 2 * 60 * 60 * 1000, // 2 horas en millisegundos
+      sameSite: "lax", // Protección CSRF básica
+      path: "/", // Cookie disponible en toda la aplicación
     });
 
-    res.json({ 
-      message: "Register successfully",
+    // ===== RESPUESTA EXITOSA =====
+    res.status(201).json({ 
+      message: "Registration successful. Verification email sent." 
     });
 
   } catch (error) {
-    console.error("Error en el registro del cliente:", error);
-    res.status(500).json({ message: "Server error during registration" });
+    console.error("Error registering client:", error);
+    
+    // Manejar errores específicos de MongoDB
+    if (error.code === 11000) {
+      return res.status(409).json({ message: "Email already registered." });
+    }
+    
+    res.status(500).json({ message: "Server error during registration." });
   }
 };
 
-// Verificación de código 
-registerCustomersController.verifyCodeEmail = async (req, res) => {
-  const { verificationCode } = req.body;
-  const token = req.cookies.verificationToken;
+/**
+ *  VERIFICAR CÓDIGO DE EMAIL
+ * Valida el código de verificación enviado por email y activa la cuenta del cliente
+ */
 
-  if (!token) {
-    return res.status(400).json({ message: "Please register your account first" });
-  }
+registerCustomersController.verifyCodeEmail = async (req, res) => {
+  const { verificationCode } = req.body; // código recibido desde el cliente
+  const token = req.cookies.verificationToken; // token guardado en la cookie
+
 
   try {
-    const decoded = jsonwebtoken.verify(token, config.JWT.JWT_SECRET);
-    const { email, verificationCode: storedCode, expiresAt } = decoded;
+    // ===== VALIDACIONES INICIALES =====
+    
+    // Verificar que existe token de verificación
+    if (!token) {
+      return res.status(400).json({ 
+        message: "No verification token found. Please register first." 
+      });
+    }
 
+    // Verificar que se proporcionó código
+    if (!verificationCode) {
+      return res.status(400).json({ message: "Verification code is required." });
+    }
+
+    // Validar formato del código (debe ser exactamente 6 dígitos)
+    const codeStr = verificationCode.toString().trim();
+    if (!validateVerificationCode(codeStr)) {
+      return res.status(400).json({ 
+        message: "Verification code must be exactly 6 digits." 
+      });
+    }
+
+    // ===== VERIFICAR Y DECODIFICAR TOKEN JWT =====
+    let decoded;
+    try {
+      decoded = jsonwebtoken.verify(token, config.jwt.jwtSecret);
+    } catch (jwtError) {
+      // Limpiar cookie inválida
+      res.clearCookie("verificationToken");
+      
+      if (jwtError.name === 'TokenExpiredError') {
+        return res.status(401).json({ 
+          message: "Verification token expired. Please register again." 
+        });
+      }
+      
+      if (jwtError.name === 'JsonWebTokenError') {
+        return res.status(401).json({ 
+          message: "Invalid verification token. Please register again." 
+        });
+      }
+      
+      throw jwtError; // Re-lanzar otros errores JWT
+    }
+
+    const { email, verificationCode: storedCode, expiresAt, userId } = decoded;
+
+    // Log para debugging (solo en desarrollo)
+    if (process.env.NODE_ENV !== "production") {
+      console.log("VERIFICATION ATTEMPT:", { 
+        email, 
+        providedCode: codeStr, 
+        storedCode, 
+        expiresAt: new Date(expiresAt),
+        isExpired: Date.now() > expiresAt
+      });
+    }
+
+    // ===== VERIFICAR EXPIRACIÓN DEL CÓDIGO =====
     if (Date.now() > expiresAt) {
-      return res.status(401).json({ message: "Verification code has expired" });
+      res.clearCookie("verificationToken");
+      return res.status(401).json({ 
+        message: "Verification code expired. Please request a new code." 
+      });
     }
 
-    if (verificationCode !== storedCode) {
-      return res.status(401).json({ message: "Invalid verification code" });
+    // ===== VERIFICAR QUE EL CÓDIGO COINCIDA =====
+    if (codeStr !== storedCode) {
+      return res.status(401).json({ message: "Invalid verification code." });
     }
 
-    const client = await clientsModel.findOne({ email });
-    if (!client) {
-      return res.status(404).json({ message: "Client not found" });
-    }
+    // ===== BUSCAR Y ACTUALIZAR EL CLIENTE =====
 
-    // Marcar cliente como verificado
-    client.isVerified = true;
-    await client.save();
-
-    // Enviar correo de bienvenida
-    await sendMail(
-      email,
-      "Welcome to the platform!",
-      `Hi ${client.firstName}, welcome!`,
-      HTMLWelcomeEmail(client.firstName)
+    const client = await clientsModel.findOneAndUpdate(
+      { 
+        _id: userId, // Usar ID del token para mayor seguridad
+        email: email.trim().toLowerCase(),
+        isVerified: false // Solo actualizar si no está verificado
+      },
+      { 
+        $set: { 
+          isVerified: true,
+          verifiedAt: new Date() // Marcar fecha de verificación
+        } 
+      },
+      { new: true } // Retornar documento actualizado
     );
 
+
+    // Log para debugging (solo en desarrollo)
+    if (process.env.nodeEnv !== "production") {
+      console.log("CLIENT UPDATE RESULT:", client ? {
+        id: client._id, 
+        email: client.email, 
+        isVerified: client.isVerified,
+        verifiedAt: client.verifiedAt
+      } : "Client not found or already verified");
+    }
+
+    console.log("updated client:", client);
+
+
+    // Verificar que se encontró y actualizó el cliente
+    if (!client) {
+
+      return res.status(404).json({ 
+        message: "Client not found or already verified." 
+      });
+    }
+
+    // ===== LIMPIAR COOKIE DESPUÉS DE VERIFICACIÓN EXITOSA =====
     res.clearCookie("verificationToken");
-    res.json({ message: "Email verified successfully" });
+
+    // ===== ENVIAR EMAIL DE BIENVENIDA =====
+    try {
+      await sendMail(
+        client.email,
+        "Welcome to our platform!",
+        `Hi ${client.firstName}, welcome to our platform!`,
+        HTMLWelcomeEmail(client.firstName)
+      );
+      
+      if (process.env.nodeEnv !== "production") {
+        console.log("Welcome email sent successfully to:", client.email);
+      }
+    } catch (emailError) {
+      console.error("Error sending welcome email:", emailError);
+      // No fallar la verificación por error en email de bienvenida
+    }
+
+    // ===== PREPARAR RESPUESTA (SIN INFORMACIÓN SENSIBLE) =====
+    const clientResponse = {
+      _id: client._id,
+      firstName: client.firstName,
+      lastName: client.lastName,
+      email: client.email,
+      phone: client.phone,
+      profilePicture: client.profilePicture,
+      isVerified: client.isVerified,
+      verifiedAt: client.verifiedAt,
+      createdAt: client.createdAt
+    };
+
+    // ===== RESPUESTA EXITOSA =====
+    res.status(200).json({ 
+      message: "Email verified successfully. Welcome!", 
+      client: clientResponse 
+    });
+
   } catch (error) {
-    console.error("Error verificando código:", error);
-    res.status(500).json({ message: "Token verification failed" });
+    console.error("Error verifying code:", error);
+    
+    // Limpiar cookie en caso de error general
+    res.clearCookie("verificationToken");
+    
+    res.status(500).json({ message: "Server error during verification." });
+  }
+};
+
+/**
+ *  REENVIAR CÓDIGO DE VERIFICACIÓN
+ * Genera y envía un nuevo código de verificación para usuarios no verificados
+ */
+registerCustomersController.resendVerificationCode = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // ===== VALIDACIONES DE ENTRADA =====
+    
+    // Verificar que se proporcionó email
+    if (!email) {
+      return res.status(400).json({ message: "Email is required." });
+    }
+
+    // Normalizar email
+    const emailNormalized = email.trim().toLowerCase();
+
+    // Validar formato de email
+    if (!validateEmail(emailNormalized)) {
+      return res.status(400).json({ message: "Invalid email format." });
+    }
+
+    // ===== BUSCAR CLIENTE NO VERIFICADO =====
+    const client = await clientsModel.findOne({ 
+      email: emailNormalized,
+      isVerified: false 
+    });
+
+    // Verificar que el cliente existe y no está verificado
+    if (!client) {
+      return res.status(404).json({ 
+        message: "Client not found or already verified." 
+      });
+    }
+
+    // ===== GENERAR NUEVO CÓDIGO DE VERIFICACIÓN =====
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 2 * 60 * 60 * 1000; // Expira en 2 horas
+
+    // Crear nuevo token JWT con el código actualizado
+    const tokenCode = jsonwebtoken.sign(
+      { 
+        email: emailNormalized, 
+        verificationCode, 
+        expiresAt,
+        userId: client._id // Incluir ID para consistencia
+      },
+      config.jwt.jwtSecret,
+      { expiresIn: config.jwt.expiresIn }
+    );
+
+    // Log para debugging (solo en desarrollo)
+    if (process.env.nodeEnv !== "production") {
+      console.log("New verification code generated (resend):", verificationCode);
+    }
+
+    // ===== ENVIAR NUEVO EMAIL DE VERIFICACIÓN =====
+    try {
+      await sendMail(
+        client.email,
+        "Your new verification code",
+        `Your new verification code is ${verificationCode}`,
+        HTMLEmailVerification(verificationCode)
+      );
+    } catch (emailError) {
+      console.error("Error sending resend verification email:", emailError);
+      return res.status(500).json({ 
+        message: "Error sending verification email. Please try again later." 
+      });
+    }
+
+    // ===== ACTUALIZAR COOKIE CON NUEVO TOKEN =====
+    res.cookie("verificationToken", tokenCode, {
+      httpOnly: true,
+      secure: process.env.nodeEnv === "production",
+      maxAge: 2 * 60 * 60 * 1000, // 2 horas
+      sameSite: "lax",
+      path: "/",
+    });
+
+    // ===== RESPUESTA EXITOSA =====
+    res.status(200).json({ 
+      message: "New verification code sent successfully." 
+    });
+
+  } catch (error) {
+    console.error("Error resending verification code:", error);
+    res.status(500).json({ message: "Server error while resending code." });
+
   }
 };
 
 export default registerCustomersController;
-// Exportar el controlador

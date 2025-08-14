@@ -1,20 +1,14 @@
-import React from 'react';
-import './InputField.css';
+import React from "react";
+import "./InputField.css";
 
-const InputField = ({ label, placeholder, value, onChange, error }) => {
+const InputField = React.forwardRef(({ label, error, ...props }, ref) => {
   return (
     <div className="input-container">
       <label className="input-label">{label}</label>
-      <input
-        type="text"
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        className="input-field"
-      />
+      <input ref={ref} className="input-fieldd" {...props} />
       {error && <span className="error-message">{error}</span>}
     </div>
   );
-};
+});
 
 export default InputField;

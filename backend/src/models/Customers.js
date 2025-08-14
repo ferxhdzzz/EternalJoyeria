@@ -5,6 +5,7 @@ const customersSchema = new Schema(
     firstName: {
       type: String,
       required: true,
+      minlength: 3
     },
     lastName: {
       type: String,
@@ -24,9 +25,11 @@ const customersSchema = new Schema(
     phone: {
       type: String,
       required: true, 
+      minlength: 8
     },
     isVerified: { 
       type: Boolean,
+       required: true,
       default: false 
     },
     profilePicture: { 
@@ -39,4 +42,4 @@ const customersSchema = new Schema(
   }
 );
 
-export default model("customers", customersSchema);
+export default model("Customers", customersSchema);

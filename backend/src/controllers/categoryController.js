@@ -1,21 +1,24 @@
-import Category from "../models/Category.js";
-import { v2 as cloudinary } from "cloudinary";
-// Configurar Cloudinary
+import Category from "../models/Category.js"; // Importa el modelo Mongoose para categorías.
+import { v2 as cloudinary } from "cloudinary"; // Importa la API de Cloudinary para manejar imágenes.
+import { config } from "../config.js"; // Importa configuración (API keys y otros datos).
 
+// Configuración de Cloudinary con las credenciales guardadas en config.js
 cloudinary.config({
-  cloud_name: 'dosy4rouu',
-  api_key: '712175425427873',
-  api_secret: 'Yk2vqXqQ6aknOrT7FCoqEiWw31w',
+  cloud_name: config.cloudinary.cloud_name,
+  api_key: config.cloudinary.api_key,
+  api_secret:  config.cloudinary.api_secret,
 });
-const categoryController = {};
+
+const categoryController = {}; // Objeto donde se guardarán todos los métodos del controlador.
 
 /*
-  SELECT: Obtener todas las categorías
-  Ordena por nombre ascendente.
+  GET: Obtener todas las categorías.
+  - Busca todas las categorías en la base de datos.
+  - Las ordena alfabéticamente por nombre (ascendente).
 */
 categoryController.getAllCategories = async (req, res) => {
   try {
-    const categories = await Category.find().sort({ name: 1 });
+    const categories = await Category.find().sort({ name: 1 }); // 1 = orden ascendente
     res.status(200).json({ categories });
   } catch (error) {
     console.error("Error fetching categories:", error);
@@ -24,11 +27,11 @@ categoryController.getAllCategories = async (req, res) => {
 };
 
 /*
-  SELECT: Obtener una categoría por ID único.
+  GET ONE: Obtener una categoría por su ID.
 */
 categoryController.getCategoryById = async (req, res) => {
   try {
-    const category = await Category.findById(req.params.id);
+    const category = await Category.findById(req.params.id); // Busca por el ID recibido en la URL.
     if (!category) {
       return res.status(404).json({ message: "Category not found" });
     }
@@ -40,50 +43,44 @@ categoryController.getCategoryById = async (req, res) => {
 };
 
 /*
-  CREATE: Crear una categoría con nombre, descripción y una imagen obligatoria.
-  La imagen se sube a Cloudinary y se guarda su URL pública.
+  POST: Crear una nueva categoría.
+  - Valida que nombre, descripción e imagen sean obligatorios.
+  - Evita que haya dos categorías con el mismo nombre.
+  - Guarda la categoría en la base de datos.
 */
 categoryController.createCategory = async (req, res) => {
-  const { name, description } = req.body;
+  const { name, description, image } = req.body;
 
   try {
+    // Validaciones de campos obligatorios
     if (!name || !name.trim()) {
       return res.status(400).json({ message: "Category name is required" });
     }
-
     if (!description || !description.trim()) {
       return res.status(400).json({ message: "Category description is required" });
     }
-
-    if (!req.file) {
-      return res.status(400).json({ message: "Category image is required" });
+    if (!image || !image.trim()) {
+      return res.status(400).json({ message: "Category image URL is required" });
     }
 
+    // Evitar duplicados
     const existing = await Category.findOne({ name: name.trim() });
     if (existing) {
       return res.status(400).json({ message: "A category with that name already exists" });
     }
 
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: "categorys",
-      allowed_formats: ["png", "jpg", "jpeg"],
-      transformation: [
-        { width: 600, height: 600, crop: "fill" },
-        { quality: "auto" }
-      ]
-    });
-
+    // Crear y guardar nueva categoría
     const newCategory = new Category({
       name: name.trim(),
       description: description.trim(),
-      image: result.secure_url
+      image: image.trim(),
     });
 
     const savedCategory = await newCategory.save();
 
     res.status(201).json({
       message: "Category created successfully",
-      category: savedCategory
+      category: savedCategory,
     });
   } catch (error) {
     console.error("Error creating category:", error);
@@ -92,9 +89,11 @@ categoryController.createCategory = async (req, res) => {
 };
 
 /*
-  UPDATE: Actualizar nombre, descripción y/o imagen de una categoría existente.
-  Si se envía una nueva imagen, se sube a Cloudinary y se reemplaza.
-  Nota: Aquí NO es obligatoria la imagen.
+  PUT/PATCH: Actualizar una categoría existente.
+  - Valida que nombre y descripción sean obligatorios.
+  - Evita duplicados de nombre.
+  - Si se envía un archivo (req.file), lo sube a Cloudinary.
+  - Si se envía image en el body, la usa directamente.
 */
 categoryController.updateCategory = async (req, res) => {
   const { name, description } = req.body;
@@ -105,32 +104,39 @@ categoryController.updateCategory = async (req, res) => {
       return res.status(404).json({ message: "Category not found" });
     }
 
+    // Validaciones
     if (!name || !name.trim()) {
       return res.status(400).json({ message: "Category name is required" });
     }
-
     if (!description || !description.trim()) {
       return res.status(400).json({ message: "Category description is required" });
     }
 
+    // Comprobar duplicados excluyendo la categoría actual
     const duplicate = await Category.findOne({ name: name.trim(), _id: { $ne: req.params.id } });
     if (duplicate) {
       return res.status(400).json({ message: "Another category already has that name" });
     }
 
+    // Actualizar datos básicos
     category.name = name.trim();
     category.description = description.trim();
 
+    // Si llega un archivo, subirlo a Cloudinary
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: "categorys",
-        allowed_formats: ["png", "jpg", "jpeg"],
+        allowed_formats: ["png", "jpg", "jpeg", "PNG"],
         transformation: [
           { width: 600, height: 600, crop: "fill" },
           { quality: "auto" }
         ]
       });
       category.image = result.secure_url;
+    } 
+    // Si llega una URL de imagen directamente
+    else if (req.body.image) {
+      category.image = req.body.image;
     }
 
     const updatedCategory = await category.save();

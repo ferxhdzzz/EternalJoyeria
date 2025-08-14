@@ -1,70 +1,82 @@
-//=========================================
-///controlador
-//==========================
+// Importamos el modelo de administrador desde Mongoose
 import adminModel from "../models/Administrator.js";
+// Librería para encriptar contraseñas
 import bcryptjs from "bcryptjs";
+// Cliente de Cloudinary para subir imágenes
 import { v2 as cloudinary } from "cloudinary";
-// Configurar Cloudinary
+// Librería para generar/verificar JWT
+import jsonwebtoken from "jsonwebtoken";
+// Archivo de configuración con claves y variables
+import { config } from "../config.js";
 
+
+// Configuración de Cloudinary con credenciales desde config.js
 cloudinary.config({
-  cloud_name: 'dosy4rouu',
-  api_key: '712175425427873',
-  api_secret: 'Yk2vqXqQ6aknOrT7FCoqEiWw31w',
+  cloud_name: config.cloudinary.cloud_name,
+  api_key: config.cloudinary.api_key,
+  api_secret: config.cloudinary.api_secret,
 });
 
+// Objeto controlador que agrupa todas las funciones
 const adminController = {};
 
+// =======================
 // GET: Obtener todos los administradores
+// =======================
 adminController.getadmins = async (req, res) => {
   try {
-    const admins = await adminModel.find();
-    res.json(admins);
+    const admins = await adminModel.find(); // Busca todos en la colección
+    res.json(admins); // Devuelve el array de administradores
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error al obtener administradores" });
   }
 };
 
+// =======================
 // GET ONE: Obtener administrador por ID
+// =======================
 adminController.getadminById = async (req, res) => {
   try {
-    const admin = await adminModel.findById(req.params.id);
+    const admin = await adminModel.findById(req.params.id); // Busca por ID en params
     if (!admin) {
       return res.status(404).json({ message: "Administrador no encontrado" });
     }
-    res.json(admin);
+    res.json(admin); // Devuelve el admin encontrado
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error al obtener administrador" });
   }
 };
 
-// DELETE: Eliminar administrador por ID
-adminController.deleteadmin = async (req, res) => {
-  try {
-    const deletedAdmin = await adminModel.findByIdAndDelete(req.params.id);
-    if (!deletedAdmin) {
-      return res.status(404).json({ message: "Administrador no encontrado" });
-    }
-    res.json({ message: "Administrador eliminado correctamente" });
-  } catch (error) {
-    console.error(error); b   
-    res.status(500).json({ message: "Error al eliminar administrador" });
-  }
-};
-
-// UPDATE: Actualizar un administrador
+// =======================
+// PUT: Actualizar administrador por ID
+// =======================
 adminController.updateadmin = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    let updateData = { name, email };
+    // Validaciones básicas
+    if (!name || name.trim() === "") {
+      return res.status(400).json({ message: "El nombre no puede estar vacío" });
+    }
+    if (!email || email.trim() === "") {
+      return res.status(400).json({ message: "El correo no puede estar vacío" });
+    }
+    if (!validator.isEmail(email)) { // ⚠ Necesita importar validator para que funcione
+      return res.status(400).json({ message: "Formato de correo inválido" });
+    }
 
-    if (password) {
+    // Datos a actualizar
+    let updateData = { name: name.trim(), email: email.trim() };
+
+    // Si se envía contraseña, la encripta antes de guardar
+    if (password && password.trim() !== "") {
       const hashedPassword = await bcryptjs.hash(password, 10);
       updateData.password = hashedPassword;
     }
 
+    // Si se sube una imagen, la envía a Cloudinary
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: "profiles",
@@ -77,10 +89,11 @@ adminController.updateadmin = async (req, res) => {
       updateData.profilePicture = result.secure_url;
     }
 
+    // Actualiza en la base de datos
     const updatedAdmin = await adminModel.findByIdAndUpdate(
       req.params.id,
       updateData,
-      { new: true }
+      { new: true } // Devuelve el documento actualizado
     );
 
     if (!updatedAdmin) {
@@ -94,4 +107,119 @@ adminController.updateadmin = async (req, res) => {
   }
 };
 
+// =======================
+// PUT: Actualizar el administrador autenticado
+// =======================
+adminController.updateCurrentAdmin = async (req, res) => {
+  try {
+    const adminId = req.userId; // Viene del middleware de autenticación
+
+    if (!adminId) {
+      return res.status(401).json({ message: "No autenticado" });
+    }
+
+    const { name, email, password } = req.body;
+    let updateData = {};
+
+    // Validar y asignar nombre si se envía
+    if (name !== undefined) {
+      if (name.trim() === "") {
+        return res.status(400).json({ message: "El nombre no puede estar vacío" });
+      }
+      updateData.name = name.trim();
+    }
+
+    // Validar y asignar email si se envía
+    if (email !== undefined) {
+      if (email.trim() === "") {
+        return res.status(400).json({ message: "El correo no puede estar vacío" });
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ message: "Formato de correo inválido" });
+      }
+      updateData.email = email.trim();
+    }
+
+    // Si se envía nueva contraseña, encripta
+    if (password !== undefined && password.trim() !== "") {
+      const hashedPassword = await bcryptjs.hash(password, 10);
+      updateData.password = hashedPassword;
+    }
+
+    // Manejo de foto de perfil
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "profiles",
+        allowed_formats: ["png", "jpg", "jpeg"],
+        transformation: [
+          { width: 500, height: 500, crop: "fill" },
+          { quality: "auto" },
+        ],
+      });
+      updateData.profilePicture = result.secure_url;
+    } else if (req.body.profilePicture) {
+      updateData.profilePicture = req.body.profilePicture;
+    }
+
+    console.log("Actualizando admin:", adminId);
+    console.log("Con datos:", updateData);
+
+    // Actualiza y devuelve el admin actualizado
+    const updatedAdmin = await adminModel.findByIdAndUpdate(adminId, updateData, { new: true });
+
+    if (!updatedAdmin) {
+      return res.status(404).json({ message: "Administrador no encontrado" });
+    }
+
+    res.status(200).json({ message: "Perfil actualizado", admin: updatedAdmin });
+  } catch (error) {
+    console.error("Error al actualizar perfil admin:", error);
+    res.status(500).json({ message: "Error al actualizar perfil del administrador" });
+  }
+};
+
+// =======================
+// GET: Obtener el administrador autenticado
+// =======================
+adminController.getCurrentAdmin = async (req, res) => {
+  try {
+    console.log("Sesión del usuario:", req.session.userId);
+
+    const userId = req.userId; // Del middleware validateAuthToken
+
+    if (!userId) {
+      return res.status(401).json({ message: "No autenticado" });
+    }
+
+    const admin = await adminModel.findById(userId);
+
+    if (!admin) {
+      return res.status(404).json({ message: "Administrador no encontrado" });
+    }
+
+    res.json(admin);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al obtener datos del administrador" });
+  }
+};
+
+// =======================
+// DELETE: Eliminar administrador por ID
+// =======================
+adminController.deleteadmin = async (req, res) => {
+  try {
+    const deletedAdmin = await adminModel.findByIdAndDelete(req.params.id);
+    if (!deletedAdmin) {
+      return res.status(404).json({ message: "Administrador no encontrado" });
+    }
+    res.json({ message: "Administrador eliminado correctamente" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al eliminar administrador" });
+  }
+};
+
+// Exporta el controlador
 export default adminController;

@@ -5,10 +5,12 @@ const router = Router();
 
 
 router.get("/", salesController.getSales);
+router.route("/category").get(salesController.getSalesByCategory); // <-- aquí cambiaste getSales por getSalesByCategory
 router.get("/:id", salesController.getSale);
 router.post("/", salesController.createSale);
 router.put("/:id", salesController.updateSale);
 router.delete("/:id", salesController.deleteSale);
+
 
 export default router;
 

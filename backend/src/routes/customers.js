@@ -1,26 +1,26 @@
 import express from "express";
 import multer from "multer";
 import customersController from "../controllers/customersController.js";
+import { validateAuthToken } from "../middlewares/validateAuthToken.js";
 
 const router = express.Router();
-
-// Configurar multer para manejar archivos (imagen de perfil)
 const upload = multer({ dest: "public/" });
 
-// Rutas para clientes
-router
-  .route("/")
-  // Obtener lista de clientes
-  .get(customersController.getcustomers);
+router.get("/", customersController.getcustomers);
 
-// Rutas para operaciones por ID
+
+// Ruta protegida
+
+router.get("/me", validateAuthToken(["customer", "admin"]), customersController.getCurrentCustomer);
+
 router
   .route("/:id")
+
   // Obtener cliente por ID
   .get(customersController.getCustomerById)
   // Actualizar cliente (con posible imagen)
+
   .put(upload.single("profilePicture"), customersController.updatecustomers)
-  // Eliminar cliente
   .delete(customersController.deletecustomers);
 
 export default router;

@@ -1,127 +1,123 @@
-// Importaciones necesarias para el componente principal de la aplicación
-import React, { useEffect } from 'react'; // React y hook para efectos
-import AOS from 'aos'; // Biblioteca de animaciones al hacer scroll
-import 'aos/dist/aos.css'; // Estilos CSS de AOS
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; // Componentes de enrutamiento
+// src/App.jsx
+import React, { useEffect } from 'react';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-// Importaciones de páginas principales
-import Home from './pages/Home'; // Página de inicio
-import AboutUs from './pages/AboutUs'; // Página sobre nosotros
-import Products from './pages/Products'; // Página de productos
-import Profile from './pages/Profile'; // Página de perfil
-import './App.css'; // Estilos CSS globales de la aplicación
+import Home from './pages/Home';
+import AboutUs from './pages/AboutUs';
+import Products from './pages/Products';
+import Profile from './pages/Profile';
 
-// Importaciones de páginas de autenticación
-import Recuperacion from './pages/RecuperacionContra'; // Página de recuperación de contraseña
-import Actualizacion from './pages/CambiarCont'; // Página de cambio de contraseña
-import Login from './pages/Login'; // Página de inicio de sesión
-import RegistroContainer from './pages/RegistroContainer'; // Página de registro
+import Recuperacion from './pages/RecuperacionContra';
+import VerificarCodigo from './pages/VerificarCodigo';   // ← nueva import
+import Actualizacion from './pages/CambiarCont';          // CambiarCont.jsx
 
-// Importaciones de páginas de comercio electrónico
-import CartPage from './components/Cart/CartPage'; // Página del carrito
-import HistorialPage from './pages/Historial'; // Página de historial de compras
-import ProductDetail from './pages/ProductDetail'; // Página de detalle de producto
-import CheckoutPage from './pages/CheckoutPage'; // Página de checkout
-import { CartProvider } from './context/CartContext'; // Proveedor del contexto del carrito
+import Login from './pages/Login';
+import RegistroContainer from './pages/RegistroContainer';
+import CartPage from './components/Cart/CartPage';
+import HistorialPage from './pages/Historial';
+import ProductDetail from './pages/ProductDetail';
+import CheckoutPage from './pages/CheckoutPage';
+import { CartProvider } from './context/CartContext';
+import Contact from './pages/ContactUs';
+import DetailProduct from './pages/DetailProduct';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import CookiesPolicy from './pages/CookiesPolicy';
+import TermsPolicy from './pages/TermsPolicy';
+import PrivacyNotice from './pages/PrivacyNotice';
+import CategoriaCollares from './pages/CategoriaCollares';
+import CategoriaAretes from './pages/CategoriaAretes';
+import CategoriaConjuntos from './pages/CategoriaConjuntos';
+import CategoriaAnillos from './pages/CategoriaAnillos';
+import PreguntasFrecuentes from './pages/PreguntasFrecuentes';
+import ScrollToTop from './components/ScrollToTop';
+import Blog from './pages/Blog';
 
-// Importaciones de páginas de contacto y políticas
-import Contact from './pages/ContactUs'; // Página de contacto
-import DetailProduct from './pages/DetailProduct'; // Página alternativa de detalle de producto
-import PrivacyPolicy from './pages/PrivacyPolicy'; // Política de privacidad
-import CookiesPolicy from './pages/CookiesPolicy'; // Política de cookies
-import TermsPolicy from './pages/TermsPolicy'; // Términos y condiciones
-import PrivacyNotice from './pages/PrivacyNotice'; // Aviso de privacidad
+import PublicRoute from './components/PublicRoute';
 
-// Importaciones de páginas de categorías de productos
-import CategoriaCollares from './pages/CategoriaCollares'; // Página de collares
-import CategoriaAretes from './pages/CategoriaAretes'; // Página de aretes
-import CategoriaConjuntos from './pages/CategoriaConjuntos'; // Página de conjuntos
-import CategoriaAnillos from './pages/CategoriaAnillos'; // Página de anillos
+import './App.css';
 
-// Importaciones de páginas adicionales
-import PreguntasFrecuentes from './pages/PreguntasFrecuentes'; // Página de FAQ
-import ScrollToTop from './components/ScrollToTop'; // Componente para scroll al inicio
-import Blog from './pages/Blog'; // Página del blog
-import NotFound from './pages/NotFound'; // Página de error 404
+// Guard sencillo para /cambiar (usa sessionStorage set en VerificarCodigo)
+function GuardCambio({ children }) {
+  const ok = typeof window !== 'undefined' && sessionStorage.getItem('rp_verified') === '1';
+  return ok ? children : <Navigate to="/recuperacion" replace />;
+}
 
-
-// Componente principal de la aplicación - Actúa como contenedor para todos los demás componentes
 function App() {
-  // Efecto para inicializar las animaciones AOS (Animate On Scroll)
   useEffect(() => {
-    AOS.init({
-      duration: 1000, // Duración de la animación reducida
-      once: true, // La animación solo ocurre una vez
-      offset: 50, // Reducir el offset para que la animación comience antes
-      easing: 'ease-out', // Cambiar la curva de animación para que sea más suave
-      delay: 0, // Sin retraso en las animaciones
-    });
-  }, []); // Array vacío significa que solo se ejecuta al montar el componente
+    AOS.init({ duration: 1000, once: true, offset: 50, easing: 'ease-out', delay: 0 });
+  }, []);
 
-  // El return contiene el JSX que se renderizará en el DOM
   return (
-    <CartProvider> {/* Proveedor del contexto del carrito - Envuelve toda la aplicación */}
-      <Router> {/* Router principal de la aplicación */}
-        <ScrollToTop /> {/* Componente para hacer scroll al inicio al cambiar de página */}
-        <Routes> {/* Contenedor de todas las rutas de la aplicación */}
-
-          {/* Ruta principal - Página de inicio */}
+    <CartProvider>
+      <Router>
+        <ScrollToTop />
+        <Routes>
           <Route path="/" element={<Home />} />
           
-          {/* Rutas de autenticación */}
+          {/* Flujo recuperación */}
           <Route path="/recuperacion" element={<Recuperacion />} />
-          <Route path="/cambiar" element={<Actualizacion />} />
+          <Route path="/verificar-codigo" element={<VerificarCodigo />} />
+          <Route
+            path="/cambiar"
+            element={
+              <GuardCambio>
+                <Actualizacion />
+              </GuardCambio>
+            }
+          />
+
+          {/* Auth / registro */}
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<RegistroContainer />} />
 
-          {/* Rutas de información de la empresa */}
+          {/* Catálogo / info públicas */}
           <Route path="/sobre-nosotros" element={<AboutUs />} />
-          
-          {/* Rutas de productos */}
           <Route path="/productos" element={<Products />} />
           <Route path="/categoria" element={<Products />} />
-          
-          {/* Rutas de categorías específicas */}
           <Route path="/categoria/collares" element={<CategoriaCollares />} />
           <Route path="/categoria/aretes" element={<CategoriaAretes />} />
           <Route path="/categoria/conjuntos" element={<CategoriaConjuntos />} />
           <Route path="/categoria/anillos" element={<CategoriaAnillos />} />
-          
-          {/* Rutas de productos individuales */}
           <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/detalle-producto/:id" element={<DetailProduct />} />
-          
-          {/* Rutas de perfil de usuario */}
-          <Route path="/profile" element={<Profile />} />
+
+          {/* Protegidas */}
           <Route path="/perfil" element={<Profile />} />
-          
-          {/* Rutas del carrito de compras */}
+          <Route
+            path="/historial"
+            element={
+              <PublicRoute>
+                <HistorialPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <PublicRoute>
+                <CheckoutPage />
+              </PublicRoute>
+            }
+          />
+
+          {/* Carrito / otros */}
           <Route path="/carrito" element={<CartPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/shop" element={<CartPage />} />
-          
-          {/* Rutas de historial y checkout */}
-          <Route path="/historial" element={<HistorialPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          
-          {/* Rutas de contacto y políticas */}
+
           <Route path="/contactanos" element={<Contact />} />
+          <Route path="/detalle-producto/:id" element={<DetailProduct />} />
           <Route path="/privacidad" element={<PrivacyPolicy />} />
           <Route path="/cookies" element={<CookiesPolicy />} />
           <Route path="/terminos" element={<TermsPolicy />} />
           <Route path="/aviso-privacidad" element={<PrivacyNotice />} />
-          
-          {/* Rutas adicionales */}
           <Route path="/faq" element={<PreguntasFrecuentes />} />
           <Route path="/blog" element={<Blog />} />
-
-          {/* Ruta de error 404 - Debe ir al final para capturar todas las rutas no encontradas */}
-          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </CartProvider>
   );
 }
 
-// Exporta el componente App para ser usado en otras partes de la aplicación, como en index.js
 export default App;

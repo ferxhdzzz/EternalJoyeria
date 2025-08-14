@@ -256,7 +256,7 @@ const Contact = () => {
 
                 <button 
                   type="submit" 
-                  className={`submit-button ${isSubmitting ? 'loading' : ''}`}
+                  className={submit-button ${isSubmitting ? 'loading' : ''}}
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -319,4 +319,4 @@ const Contact = () => {
   );
 };
 
-export default Contact; 
+export default Contact;

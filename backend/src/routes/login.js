@@ -9,4 +9,6 @@ const router = Router();
  */
 router.post("/", loginController.login);
 
+router.get("/checkAdmin", loginController.checkAdmin);
+
 export default router;

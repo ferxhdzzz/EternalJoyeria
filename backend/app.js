@@ -15,12 +15,13 @@ import reviewsRouter from "./src/routes/reviews.js";
 import salesRoutes from "./src/routes/sales.js";
 import ordersRoutes from "./src/routes/orders.js";
 import adminRoutes from "./src/routes/Administrator.js";
+import contactusRoutes from "./src/routes/contactusRoutes.js";
 
 import { validateAuthToken } from "./src/middlewares/validateAuthToken.js";
 
 const app = express();
 
-// CORREGIDO: CORS para ambos puertos (5173 y 5174)
+// CORS para ambos puertos (5173 y 5174)
 app.use(
   cors({
     origin: ["http://localhost:5173", "http://localhost:5174"],
@@ -32,7 +33,7 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-// ✅ Sesiones (cookies)
+//Sesiones (cookies)
 app.use(
   session({
     secret: "eternaljoyeria",
@@ -51,22 +52,8 @@ app.use(
 app.use("/api/login", loginRoutes);
 app.use("/api/logout", logoutRoutes);
 app.use("/api/recoveryPassword", recoveryPasswordRoutes);
-app.use("/api/registerClients", registerCustomersRoutes);
-
-// Ruta de prueba para verificar conexión
-app.get("/api/test", (req, res) => {
-  res.json({ message: "Backend funcionando correctamente! 🚀" });
-});
-
-// Ruta temporal para listar clientes (solo para desarrollo)
-app.get("/api/customers-list", async (req, res) => {
-  try {
-    const customers = await import("./src/models/Customers.js").then(m => m.default.find());
-    res.json(customers);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+app.use("/api/registerCustomers", registerCustomersRoutes);
+app.use("/api/contactus", contactusRoutes);
 
 // Rutas protegidas
 app.use("/api/customers", validateAuthToken(["admin", "customer"]), customersRoutes);

@@ -17,44 +17,58 @@ const productSchema = new Schema(
   {
     name: {
       type: String,
-      require: true,
+      required: true,
+        minlength: 3,
+      
     },
 
     description: {
       type: String,
-      require: true,
+      required: true,
+        minlength: 5,
     },
 
     price: {
       type: Number,
-      require: true,
+      required: true,
+        minlength: 1,
     },
 
     images: {
       type: [String],
       default: [],
+      required: true,
     },
 
     measurements: {
       type: Object,
+      required: true
     },
 
     category_id: {
       type: Schema.Types.ObjectId,
       ref: "categorys",
-      require: true,
+      required: true,
     },
 
     discountPercentage: {
       type: Number,
       default: null,
       min: 0,
-      max: 100,
+      max: 90,
     },
 
     finalPrice: {
       type: Number,
-      require: true,
+      required: true,
+    },
+
+    stock: {
+      type: Number,
+      required: true,
+      default: 1,
+      min: 1,
+      max: 20,
     },
   },
   {
