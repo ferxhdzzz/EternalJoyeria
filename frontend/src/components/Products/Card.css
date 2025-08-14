@@ -16,6 +16,7 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, sans-serif;
   z-index: 99999 !important; /* Asegura que las cards estén por encima de todo */
+  transform-origin: center center;
 }
 
 .card__shine {
@@ -66,6 +67,7 @@
   transform: scale(0.7);
   opacity: 0;
   transition: all 0.5s ease 0.2s;
+  z-index: 100002 !important;
 }
 
 .card:hover .card__badge {
@@ -166,11 +168,12 @@
 }
 
 .card:hover {
-  transform: translateY(-10px);
+  transform: translateY(-15px) scale(1.03);
   box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    0 25px 30px -5px rgba(0, 0, 0, 0.1),
+    0 15px 15px -5px rgba(0, 0, 0, 0.04);
   border-color: rgba(0, 0, 0, 0.1);
+  z-index: 100001 !important;
 }
 
 .card:hover .card__shine {
@@ -260,4 +263,96 @@
   30% { transform: scale(1.13); }
   60% { transform: scale(0.96); }
   100% { transform: scale(1); }
+} 
+
+/* Media queries para pantallas grandes */
+@media (min-width: 1400px) {
+  .card {
+    min-width: 280px;
+    min-height: 380px;
+  }
+  
+  .card__content {
+    padding: 1.8em;
+  }
+  
+  .card__title {
+    font-size: 1.3em;
+  }
+  
+  .card__description {
+    font-size: 0.9em;
+  }
+  
+  .card__price {
+    font-size: 1.1em;
+  }
+  
+  .price-current {
+    font-size: 1.1em;
+  }
+}
+
+@media (min-width: 1600px) {
+  .card {
+    min-width: 300px;
+    min-height: 400px;
+  }
+  
+  .card__content {
+    padding: 2em;
+  }
+  
+  .card__title {
+    font-size: 1.4em;
+  }
+  
+  .card__description {
+    font-size: 0.95em;
+  }
+  
+  .card__price {
+    font-size: 1.2em;
+  }
+  
+  .price-current {
+    font-size: 1.2em;
+  }
+  
+  .card__button {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .card {
+    min-width: 320px;
+    min-height: 420px;
+  }
+  
+  .card__content {
+    padding: 2.2em;
+  }
+  
+  .card__title {
+    font-size: 1.5em;
+  }
+  
+  .card__description {
+    font-size: 1em;
+  }
+  
+  .card__price {
+    font-size: 1.3em;
+  }
+  
+  .price-current {
+    font-size: 1.3em;
+  }
+  
+  .card__button {
+    width: 36px;
+    height: 36px;
+  }
 } 

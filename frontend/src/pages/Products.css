@@ -1,0 +1,214 @@
+/* Estilos específicos para la página de productos en pantallas grandes */
+
+/* Contenedor principal de productos */
+.products-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 8rem;
+  margin-bottom: 3rem;
+  opacity: 1;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  overflow: visible;
+  overflow-x: hidden;
+  padding: 30px 0;
+}
+
+/* Filas de productos */
+.products-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  justify-content: center;
+  align-items: start;
+  width: 100%;
+  overflow: visible;
+  overflow-x: hidden;
+  padding: 40px 0;
+}
+
+/* Contenedor individual de cada card */
+.product-card-container {
+  transform: scale(1);
+  transition: all 0.3s ease;
+  z-index: 99999;
+  display: flex;
+  justify-content: center;
+  overflow: visible;
+  overflow-x: hidden;
+  padding: 40px 20px;
+  margin: -40px -20px;
+}
+
+.product-card-container:hover {
+  transform: scale(1.05) translateY(-15px);
+  z-index: 100000;
+}
+
+/* Media queries para pantallas grandes */
+@media (min-width: 1400px) {
+  .products-container {
+    gap: 2rem;
+    margin-top: 10rem;
+    margin-bottom: 4rem;
+    max-width: 1400px;
+  }
+  
+  .products-row {
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1600px) {
+  .products-container {
+    gap: 2.5rem;
+    margin-top: 12rem;
+    margin-bottom: 5rem;
+    max-width: 1600px;
+  }
+  
+  .products-row {
+    gap: 2rem;
+  }
+}
+
+@media (min-width: 1920px) {
+  .products-container {
+    gap: 3rem;
+    margin-top: 15rem;
+    margin-bottom: 6rem;
+    max-width: 1800px;
+  }
+  
+  .products-row {
+    gap: 2.5rem;
+  }
+}
+
+/* Mantener responsive móvil */
+@media (max-width: 1200px) {
+  .products-row {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .products-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    padding: 35px 0;
+  }
+  
+  .product-card-container {
+    padding: 35px 15px;
+    margin: -35px -15px;
+  }
+  
+  .product-card-container:has(.card__badge) {
+    padding-top: 45px !important;
+    margin-top: -45px !important;
+  }
+  
+  .product-card-container:has(.card__badge):hover {
+    padding-top: 50px !important;
+    margin-top: -50px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .products-container {
+    margin-left: 0;
+    gap: 0.75rem;
+    margin-top: 4rem;
+    max-width: 100%;
+  }
+  
+  .products-row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding: 30px 0;
+  }
+  
+  .product-card-container {
+    width: 100%;
+    max-width: 300px;
+    padding: 30px 10px;
+    margin: -30px -10px;
+  }
+  
+  .product-card-container:has(.card__badge) {
+    padding-top: 40px !important;
+    margin-top: -40px !important;
+  }
+  
+  .product-card-container:has(.card__badge):hover {
+    padding-top: 45px !important;
+    margin-top: -45px !important;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.product-card-container {
+  animation: fadeInUp 0.8s ease-out both;
+}
+
+/* Reglas específicas para páginas de categorías */
+.products-container .products-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 3rem !important;
+  justify-content: center !important;
+  overflow: visible !important;
+  overflow-x: hidden !important;
+  padding: 40px 0 !important;
+}
+
+.products-container .product-card-container {
+  overflow: visible !important;
+  overflow-x: hidden !important;
+  padding: 40px 20px !important;
+  margin: -40px -20px !important;
+  transition: all 0.3s ease !important;
+  z-index: 99999 !important;
+}
+
+.products-container .product-card-container:hover {
+  transform: scale(1.05) translateY(-15px) !important;
+  z-index: 100000 !important;
+}
+
+/* Espacio extra para tarjetas con badges */
+.product-card-container:has(.card__badge) {
+  padding-top: 50px !important;
+  margin-top: -50px !important;
+}
+
+.product-card-container:has(.card__badge):hover {
+  padding-top: 55px !important;
+  margin-top: -55px !important;
+}
+
+.product-card-container:nth-child(1) { animation-delay: 0.1s; }
+.product-card-container:nth-child(2) { animation-delay: 0.2s; }
+.product-card-container:nth-child(3) { animation-delay: 0.3s; }
+.product-card-container:nth-child(4) { animation-delay: 0.4s; }
+.product-card-container:nth-child(5) { animation-delay: 0.5s; }
+.product-card-container:nth-child(6) { animation-delay: 0.6s; }
+.product-card-container:nth-child(7) { animation-delay: 0.7s; }
+.product-card-container:nth-child(8) { animation-delay: 0.8s; } 

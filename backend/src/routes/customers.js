@@ -15,6 +15,11 @@ router.get("/me", validateAuthToken(["customer", "admin"]), customersController.
 
 router
   .route("/:id")
+
+  // Obtener cliente por ID
+  .get(customersController.getCustomerById)
+  // Actualizar cliente (con posible imagen)
+
   .put(upload.single("profilePicture"), customersController.updatecustomers)
   .delete(customersController.deletecustomers);
 

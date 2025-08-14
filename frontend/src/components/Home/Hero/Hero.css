@@ -10,7 +10,9 @@
   background-repeat: no-repeat; /* Prevents the image from repeating. */
   min-height: calc(100vh - 70px); /* Sets a minimum height relative to the viewport height, minus the navbar height. */
   overflow: hidden; /* Hides any content that overflows the element's box. */
-  padding: 1rem 2rem 0 12rem; /* Adds padding: top, right, bottom, left. Moves content up and right. */
+  padding: 1rem 2rem 0 2rem; /* Reduced left padding to prevent overflow */
+  width: 100%;
+  max-width: 100%;
 }
 
 .hero__content {

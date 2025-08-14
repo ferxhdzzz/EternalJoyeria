@@ -33,11 +33,63 @@
   box-sizing: border-box;
 }
 
+/* Eliminar barras de scroll en todos los elementos */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Asegurar que no haya overflow que cause scroll */
+.card,
+.card__content,
+.card__text,
+.card__description,
+.card__footer,
+.card__button,
+.card__button svg,
+.nav-menu,
+.nav-list,
+.dropdown-menu,
+.products-container,
+.products-row,
+.product-card-container {
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+}
+
+/* Eliminar scroll horizontal en contenedores principales */
+html, body, #root, .App, .page-container {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+}
+
+/* Eliminar scroll en elementos específicos */
+.nav-menu,
+.dropdown-menu,
+.products-container {
+  overflow: hidden !important;
+}
+
+/* Asegurar que las tarjetas no tengan scroll */
+.card {
+  overflow: hidden !important;
+}
+
+.card__content {
+  overflow: visible !important;
+}
+
 html, body {
   height: 100%;
   width: 100%;
   overflow-x: hidden;
   position: relative;
+  max-width: 100vw;
 }
 
 body {
@@ -49,6 +101,8 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 #root {
@@ -58,6 +112,8 @@ body {
   min-height: 100vh;
   width: 100%;
   position: relative;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 /* Contenedor principal para todas las páginas */
@@ -69,6 +125,8 @@ body {
   position: relative;
   min-height: calc(100vh - var(--header-height) - var(--footer-height));
   padding: var(--header-height) 0 0;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 /* Ajustes responsive para contenedores */
@@ -113,6 +171,8 @@ button {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .text-center {
@@ -236,6 +296,8 @@ button {
   padding: 20px 0;
   -ms-overflow-style: none;
   scrollbar-width: none;
+  max-width: 100vw;
+  box-sizing: border-box;
 }
 
 .testimonial-container::-webkit-scrollbar {
@@ -499,4 +561,151 @@ button {
 
 .bloom-footer {
   margin-top: auto !important;
+}
+
+/* Reglas adicionales para eliminar scroll horizontal */
+.App {
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+}
+
+/* Asegurar que todos los contenedores principales no tengan overflow horizontal */
+main, section, div {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Reglas específicas para dispositivos móviles */
+@media (max-width: 768px) {
+  html, body, #root, .App {
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
+  }
+  
+  .container {
+    padding: 0 1rem;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 0.75rem;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+}
+
+/* Eliminar flechas globalmente */
+/* Eliminar cualquier flecha que pueda aparecer en elementos de precio */
+.price-container::before,
+.price-container::after,
+.price-amount::before,
+.price-amount::after,
+.price-label::before,
+.price-label::after,
+[class*="price"]::before,
+[class*="price"]::after {
+  content: none !important;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+}
+
+/* Eliminar cualquier elemento que contenga flechas en áreas de precio */
+[class*="price"] [class*="arrow"],
+[class*="price"] [class*="chevron"],
+[class*="price"] [class*="dropdown"],
+[class*="price"] [class*="select"],
+.price-container [class*="arrow"],
+.price-container [class*="chevron"],
+.price-container [class*="dropdown"],
+.price-container [class*="select"],
+.price-amount [class*="arrow"],
+.price-amount [class*="chevron"],
+.price-amount [class*="dropdown"],
+.price-amount [class*="select"],
+.price-label [class*="arrow"],
+.price-label [class*="chevron"],
+.price-label [class*="dropdown"],
+.price-label [class*="select"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+}
+
+/* Eliminar flechas de elementos select que no sean necesarios */
+select:not([class*="country-select"]):not([class*="phone-select"]) {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-image: none !important;
+}
+
+select:not([class*="country-select"]):not([class*="phone-select"])::-ms-expand {
+  display: none !important;
+}
+
+/* Reglas adicionales para eliminar scrolls innecesarios */
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+*::-webkit-scrollbar-track {
+  display: none !important;
+}
+
+*::-webkit-scrollbar-thumb {
+  display: none !important;
+}
+
+*::-webkit-scrollbar-corner {
+  display: none !important;
+}
+
+/* Eliminar scroll horizontal en todos los contenedores */
+.container,
+.section,
+.main,
+.hero,
+.footer,
+.header {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+}
+
+/* Asegurar que no haya scroll en elementos específicos */
+.nav-menu,
+.products-container,
+.products-row,
+.product-card-container {
+  overflow: hidden !important;
+  overflow-x: hidden !important;
+}
+
+/* Eliminar scroll en elementos de texto */
+p, h1, h2, h3, h4, h5, h6, span, div {
+  overflow-wrap: break-word !important;
+  word-wrap: break-word !important;
+  hyphens: auto !important;
 }

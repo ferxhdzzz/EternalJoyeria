@@ -1,2 +1,14 @@
 /* Profile.css is now only a root for the new redesign. All layout and style is in ProfileRedesign.css */
 /* .profile-page { display: none; } */
+
+/* Animación para la notificación de dirección copiada */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
