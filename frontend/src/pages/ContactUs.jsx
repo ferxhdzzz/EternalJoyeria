@@ -255,10 +255,10 @@ const Contact = () => {
                 </div>
 
                 <button 
-                  type="submit" 
-                  className={submit-button ${isSubmitting ? 'loading' : ''}}
-                  disabled={isSubmitting}
-                >
+  type="submit" 
+  className={`submit-button ${isSubmitting ? 'loading' : ''}`}
+  disabled={isSubmitting}
+>
                   {isSubmitting ? (
                     <>
                       <svg className="loading-spinner" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
