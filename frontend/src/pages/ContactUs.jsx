@@ -321,4 +321,3 @@ const Contact = () => {
 //
 export default ContactUs;
 
-export default Contact;
