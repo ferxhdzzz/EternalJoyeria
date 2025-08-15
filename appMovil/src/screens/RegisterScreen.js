@@ -9,6 +9,9 @@ import {
   ScrollView,
   SafeAreaView,
   Animated,
+  Alert,
+  ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,30 +19,33 @@ import { Ionicons } from '@expo/vector-icons';
 const { width, height } = Dimensions.get('window');
 
 const RegisterScreen = ({ navigation }) => {
+  // Estados del formulario
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   
-  // Estados para errores de validación
+  // Estados para errores de validación local
   const [firstNameError, setFirstNameError] = useState('');
   const [lastNameError, setLastNameError] = useState('');
-  const [usernameError, setUsernameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
 
-  // Referencias para las animaciones de entrada
+  // Estados para el registro
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Referencias para las animaciones
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const formSlideAnim = useRef(new Animated.Value(50)).current;
 
   useEffect(() => {
-    // Animación de entrada suave para complementar la transición
+    // Animación de entrada
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -60,7 +66,23 @@ const RegisterScreen = ({ navigation }) => {
     ]).start();
   }, []);
 
-  // Validar nombre
+  // Mostrar alerta cuando hay error del servidor
+  useEffect(() => {
+    if (error) {
+      Alert.alert(
+        'Error de Registro',
+        error,
+        [
+          {
+            text: 'Intentar de nuevo',
+            onPress: () => setError(null),
+          },
+        ]
+      );
+    }
+  }, [error]);
+
+  // Validaciones locales
   const validateFirstName = (firstName) => {
     if (!firstName) {
       setFirstNameError('El nombre es requerido');
@@ -74,7 +96,6 @@ const RegisterScreen = ({ navigation }) => {
     }
   };
 
-  // Validar apellido
   const validateLastName = (lastName) => {
     if (!lastName) {
       setLastNameError('El apellido es requerido');
@@ -88,7 +109,6 @@ const RegisterScreen = ({ navigation }) => {
     }
   };
 
-  // Validar usuario
   const validateUsername = (username) => {
     if (!username) {
       setUsernameError('El usuario es requerido');
@@ -102,7 +122,6 @@ const RegisterScreen = ({ navigation }) => {
     }
   };
 
-  // Validar email
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
@@ -117,12 +136,8 @@ const RegisterScreen = ({ navigation }) => {
     }
   };
 
-  // Validar teléfono
   const validatePhone = (phone) => {
-    // Remover espacios, guiones y paréntesis para validar solo dígitos
     const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
-    
-    // Validar teléfonos salvadoreños (8 dígitos) y estadounidenses (10 dígitos)
     const phoneRegex = /^[0-9]{8,10}$/;
     
     if (!phone) {
@@ -131,19 +146,12 @@ const RegisterScreen = ({ navigation }) => {
     } else if (!phoneRegex.test(cleanPhone)) {
       setPhoneError('Ingresa un teléfono válido (8-10 dígitos)');
       return false;
-    } else if (cleanPhone.length === 8) {
-      setPhoneError('');
-      return true;
-    } else if (cleanPhone.length === 10) {
-      setPhoneError('');
-      return true;
     } else {
-      setPhoneError('El teléfono debe tener 8 dígitos (El Salvador) o 10 dígitos (Estados Unidos)');
-      return false;
+      setPhoneError('');
+      return true;
     }
   };
 
-  // Validar contraseña
   const validatePassword = (password) => {
     if (!password) {
       setPasswordError('La contraseña es requerida');
@@ -164,23 +172,22 @@ const RegisterScreen = ({ navigation }) => {
   const validateForm = () => {
     const isFirstNameValid = validateFirstName(firstName);
     const isLastNameValid = validateLastName(lastName);
-    const isUsernameValid = validateUsername(username);
     const isEmailValid = validateEmail(email);
     const isPhoneValid = validatePhone(phone);
     const isPasswordValid = validatePassword(password);
     
-    setIsFormValid(
-      isFirstNameValid && 
+    const formIsValid = isFirstNameValid && 
       isLastNameValid && 
-      isUsernameValid && 
       isEmailValid && 
       isPhoneValid && 
-      isPasswordValid
-    );
+      isPasswordValid;
+    
+    setIsFormValid(formIsValid);
+    return formIsValid;
   };
 
   // Manejar cambios en los campos
-  const handleFieldChange = (field, value, validator) => {
+  const handleFieldChange = (field, value) => {
     switch (field) {
       case 'firstName':
         setFirstName(value);
@@ -189,10 +196,6 @@ const RegisterScreen = ({ navigation }) => {
       case 'lastName':
         setLastName(value);
         if (lastNameError) validateLastName(value);
-        break;
-      case 'username':
-        setUsername(value);
-        if (usernameError) validateUsername(value);
         break;
       case 'email':
         setEmail(value);
@@ -211,37 +214,122 @@ const RegisterScreen = ({ navigation }) => {
 
   // Validar formulario cada vez que cambien los campos
   useEffect(() => {
-    if (firstName || lastName || username || email || phone || password) {
+    if (firstName || lastName || email || phone || password) {
       validateForm();
     }
-  }, [firstName, lastName, username, email, phone, password]);
+  }, [firstName, lastName, email, phone, password]);
 
-  const handleRegister = () => {
-    validateForm();
-    if (isFormValid) {
-      console.log('Registrando usuario:', JSON.stringify({
-        firstName,
-        lastName,
-        username,
-        email,
-        phone,
-        password
-      }));
-      // Crear datos de usuario para la demo
-      const userData = {
-        firstName,
-        lastName,
-        username,
-        email,
-        phone,
-      };
-      // Navegar a la pantalla de productos
-      navigation.navigate('Products', userData);
+  // Función para registrar usuario
+  const registerClient = async (formData) => {
+    try {
+      // Para Android Studio Emulador: 10.0.2.2 mapea a localhost de tu PC
+      // Para iOS Simulador: localhost funciona normalmente  
+      // Para dispositivo físico: usa la IP de tu red local
+      const baseURL = Platform.OS === 'android' ? 'http://10.0.2.2:4000' : 'http://localhost:4000';
+      
+      console.log('🌐 Intentando conectar a:', baseURL);
+      
+      // Crear FormData para enviar datos multipart
+      const form = new FormData();
+      
+      form.append('firstName', formData.firstName);
+      form.append('lastName', formData.lastName);
+      form.append('email', formData.email);
+      form.append('password', formData.password);
+      form.append('phone', formData.phone);
+
+      // TEST: Primero probar conectividad básica
+      const testResponse = await fetch(`${baseURL}/`, {
+        method: 'GET',
+      });
+      console.log('🧪 Test de conectividad:', testResponse.status);
+      
+      const response = await fetch(`${baseURL}/api/registerCustomers`, {
+        method: 'POST',
+        headers: {
+          // Para FormData, no especifiques Content-Type manualmente
+          // React Native lo configurará automáticamente con boundary
+        },
+        body: form,
+        timeout: 10000, // 10 segundos de timeout
+      });
+
+      console.log('📡 Respuesta del servidor:', response.status);
+
+      const data = await response.json();
+      console.log('📄 Datos recibidos:', data);
+
+      if (!response.ok) {
+        throw new Error(data.message || `Error ${response.status}: ${response.statusText}`);
+      }
+
+      return { success: true, data };
+
+    } catch (err) {
+      console.error('❌ Error en registerClient:', err);
+      
+      // Verificar tipo de error para dar mejor feedback
+      if (err.message.includes('Network request failed')) {
+        throw new Error(`No se pudo conectar al servidor. Verifica que:
+1. Tu servidor esté ejecutándose en puerto 4000
+2. Estés usando la IP correcta (10.0.2.2 para Android Studio)
+3. No tengas firewall bloqueando la conexión`);
+      }
+      
+      throw new Error(err.message || 'Error desconocido en el registro');
+    }
+  };
+
+  // Manejar registro
+  const handleRegister = async () => {
+    // Validar formulario localmente primero
+    if (!validateForm()) {
+      Alert.alert('Formulario Incompleto', 'Por favor corrige los errores antes de continuar.');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    // Preparar datos del formulario
+    const formData = {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: email.trim().toLowerCase(),
+      password,
+      phone: phone.replace(/[\s\-\(\)]/g, ''),
+    };
+
+    try {
+      const result = await registerClient(formData);
+      
+      if (result.success) {
+        Alert.alert(
+          '¡Registro Exitoso!',
+          'Te hemos enviado un código de verificación a tu correo electrónico.',
+          [
+            {
+              text: 'Continuar',
+              onPress: () => {
+                // Por ahora navegamos a Products, después puedes crear EmailVerification
+                navigation.navigate('Products', {
+                  email: formData.email,
+                  userData: formData
+                });
+              },
+            },
+          ]
+        );
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleBack = () => {
-    // Animación de salida antes de regresar
+    // Animación de salida
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 0,
@@ -282,12 +370,10 @@ const RegisterScreen = ({ navigation }) => {
             colors={['#FFFFFF', '#FFE7E7']}
             style={styles.pinkGradient}
           >
-            {/* Curva cóncava */}
             <View style={styles.curveContainer}>
               <View style={styles.curve} />
             </View>
             
-            {/* Texto de bienvenida */}
             <View style={styles.welcomeTextContainer}>
               <Text style={styles.welcomeTitle}>Bienvenido</Text>
               <Text style={styles.welcomeDescription}>
@@ -300,9 +386,8 @@ const RegisterScreen = ({ navigation }) => {
           </LinearGradient>
         </Animated.View>
 
-        {/* Sección inferior blanca con animación del formulario */}
+        {/* Sección inferior blanca con formulario */}
         <Animated.View style={[styles.bottomSection, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
-          {/* Formulario */}
           <View style={styles.formContainer}>
             {/* Campo Nombre */}
             <View style={styles.inputContainer}>
@@ -312,9 +397,10 @@ const RegisterScreen = ({ navigation }) => {
                 placeholder="Tu nombre"
                 placeholderTextColor="#666"
                 value={firstName}
-                onChangeText={(text) => handleFieldChange('firstName', text, validateFirstName)}
+                onChangeText={(text) => handleFieldChange('firstName', text)}
                 onBlur={() => validateFirstName(firstName)}
                 autoCapitalize="words"
+                editable={!loading}
               />
               {firstNameError ? <Text style={styles.errorText}>{firstNameError}</Text> : null}
             </View>
@@ -327,26 +413,12 @@ const RegisterScreen = ({ navigation }) => {
                 placeholder="Tu apellido"
                 placeholderTextColor="#666"
                 value={lastName}
-                onChangeText={(text) => handleFieldChange('lastName', text, validateLastName)}
+                onChangeText={(text) => handleFieldChange('lastName', text)}
                 onBlur={() => validateLastName(lastName)}
                 autoCapitalize="words"
+                editable={!loading}
               />
               {lastNameError ? <Text style={styles.errorText}>{lastNameError}</Text> : null}
-            </View>
-
-            {/* Campo Usuario */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Usuario</Text>
-              <TextInput
-                style={[styles.textInput, usernameError ? styles.inputError : null]}
-                placeholder="Tu nombre de usuario"
-                placeholderTextColor="#666"
-                value={username}
-                onChangeText={(text) => handleFieldChange('username', text, validateUsername)}
-                onBlur={() => validateUsername(username)}
-                autoCapitalize="none"
-              />
-              {usernameError ? <Text style={styles.errorText}>{usernameError}</Text> : null}
             </View>
 
             {/* Campo Correo */}
@@ -357,10 +429,11 @@ const RegisterScreen = ({ navigation }) => {
                 placeholder="correo@ejemplo.com"
                 placeholderTextColor="#666"
                 value={email}
-                onChangeText={(text) => handleFieldChange('email', text, validateEmail)}
+                onChangeText={(text) => handleFieldChange('email', text)}
                 onBlur={() => validateEmail(email)}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                editable={!loading}
               />
               {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
             </View>
@@ -373,10 +446,11 @@ const RegisterScreen = ({ navigation }) => {
                 placeholder="8 dígitos (SV) o 10 dígitos (US)"
                 placeholderTextColor="#666"
                 value={phone}
-                onChangeText={(text) => handleFieldChange('phone', text, validatePhone)}
+                onChangeText={(text) => handleFieldChange('phone', text)}
                 onBlur={() => validatePhone(phone)}
                 keyboardType="phone-pad"
                 maxLength={15}
+                editable={!loading}
               />
               {phoneError ? <Text style={styles.errorText}>{phoneError}</Text> : null}
               <Text style={styles.helperText}>
@@ -393,13 +467,15 @@ const RegisterScreen = ({ navigation }) => {
                   placeholder="***********"
                   placeholderTextColor="#666"
                   value={password}
-                  onChangeText={(text) => handleFieldChange('password', text, validatePassword)}
+                  onChangeText={(text) => handleFieldChange('password', text)}
                   onBlur={() => validatePassword(password)}
                   secureTextEntry={!showPassword}
+                  editable={!loading}
                 />
                 <TouchableOpacity 
                   style={styles.eyeIconButton} 
                   onPress={togglePasswordVisibility}
+                  disabled={loading}
                 >
                   <Ionicons 
                     name={showPassword ? "eye-off" : "eye"} 
@@ -412,7 +488,11 @@ const RegisterScreen = ({ navigation }) => {
             </View>
 
             {/* Enlace de inicio de sesión */}
-            <TouchableOpacity style={styles.loginLink} onPress={() => navigation.goBack()}>
+            <TouchableOpacity 
+              style={styles.loginLink} 
+              onPress={() => navigation.goBack()}
+              disabled={loading}
+            >
               <Text style={styles.loginText}>
                 ¿Ya tienes cuenta? <Text style={styles.loginHighlight}>Inicia sesión</Text>
               </Text>
@@ -421,11 +501,23 @@ const RegisterScreen = ({ navigation }) => {
 
           {/* Botón de registro */}
           <TouchableOpacity 
-            style={[styles.registerButton, !isFormValid ? styles.registerButtonDisabled : null]} 
+            style={[
+              styles.registerButton, 
+              (!isFormValid || loading) ? styles.registerButtonDisabled : null
+            ]} 
             onPress={handleRegister}
-            disabled={!isFormValid}
+            disabled={!isFormValid || loading}
           >
-            <Text style={styles.registerButtonText}>Registrarse</Text>
+            {loading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator color="#FFFFFF" size="small" />
+                <Text style={[styles.registerButtonText, { marginLeft: 10 }]}>
+                  Registrando...
+                </Text>
+              </View>
+            ) : (
+              <Text style={styles.registerButtonText}>Registrarse</Text>
+            )}
           </TouchableOpacity>
         </Animated.View>
       </ScrollView>
@@ -606,6 +698,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
 
-export default RegisterScreen; 
+export default RegisterScreen;
