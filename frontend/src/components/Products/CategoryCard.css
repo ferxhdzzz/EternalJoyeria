@@ -1,0 +1,304 @@
+/* CategoryCard.css */
+
+.category-card {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  background: #f8f9fa;
+}
+
+.category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.category-card:focus {
+  outline: 3px solid #D1A6B4;
+  outline-offset: 2px;
+}
+
+/* Contenedor de imagen */
+.category-image-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.category-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.category-card:hover .category-image {
+  transform: scale(1.1);
+}
+
+/* Loading state para imagen */
+.image-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+}
+
+.loading-shimmer {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+/* Overlay con gradiente */
+.category-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.1) 50%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+  transition: opacity 0.3s ease;
+}
+
+.category-card:hover .category-overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(209, 166, 180, 0.8) 0%,
+    rgba(185, 74, 108, 0.6) 50%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+}
+
+/* Título de la categoría */
+.category-title {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  color: white;
+  z-index: 5;
+  transition: transform 0.3s ease;
+}
+
+.category-title h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  line-height: 1.2;
+}
+
+.product-count {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  font-weight: 400;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Descripción que aparece al hover */
+.category-description {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  color: white;
+  z-index: 5;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.4s ease;
+}
+
+.category-description.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.category-description p {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0 0 1rem 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+.view-more {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.view-more svg {
+  transition: transform 0.3s ease;
+}
+
+.category-card:hover .view-more svg {
+  transform: translateX(4px);
+}
+
+/* Badge de estado */
+.category-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 20px;
+  z-index: 6;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.category-badge.new {
+  background: linear-gradient(45deg, #4CAF50, #45a049);
+  color: white;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
+}
+
+.category-badge.popular {
+  background: linear-gradient(45deg, #FF6B35, #F7931E);
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.4);
+}
+
+.category-badge.sale {
+  background: linear-gradient(45deg, #E74C3C, #C0392B);
+  color: white;
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
+}
+
+/* Indicador de hover */
+.hover-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+  pointer-events: none;
+}
+
+.pulse-ring {
+  width: 60px;
+  height: 60px;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* Animaciones al hacer hover */
+.category-card.hovered .category-title {
+  transform: translateY(10px);
+}
+
+/* Responsive Design */
+@media (max-width: 700px) {
+  .category-card {
+    height: 250px;
+  }
+  
+  .category-title h3 {
+    font-size: 1.3rem;
+  }
+  
+  .category-description {
+    top: 15px;
+    left: 15px;
+    right: 15px;
+  }
+  
+  .category-description p {
+    font-size: 0.9rem;
+  }
+  
+  .category-title {
+    bottom: 15px;
+    left: 15px;
+    right: 15px;
+  }
+  
+  .category-badge {
+    top: 10px;
+    right: 10px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .category-card {
+    height: 220px;
+  }
+  
+  .category-title h3 {
+    font-size: 1.2rem;
+  }
+  
+  .category-description p {
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+  
+  .view-more {
+    font-size: 0.8rem;
+  }
+  
+  .pulse-ring {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+/* Estados de error de imagen */
+.category-card[data-image-error="true"] {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-card[data-image-error="true"]::before {
+  content: "📂";
+  font-size: 3rem;
+  opacity: 0.5;
+}

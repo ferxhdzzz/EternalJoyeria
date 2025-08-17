@@ -33,6 +33,7 @@ import CategoriaAnillos from './pages/CategoriaAnillos';
 import PreguntasFrecuentes from './pages/PreguntasFrecuentes';
 import ScrollToTop from './components/ScrollToTop';
 import Blog from './pages/Blog';
+import CategoryProducts from './pages/CategoryProducts';
 
 import PublicRoute from './components/PublicRoute';
 
@@ -80,6 +81,7 @@ function App() {
           <Route path="/categoria/aretes" element={<CategoriaAretes />} />
           <Route path="/categoria/conjuntos" element={<CategoriaConjuntos />} />
           <Route path="/categoria/anillos" element={<CategoriaAnillos />} />
+          <Route path="/category/:id" element={<CategoryProducts />} />
           <Route path="/product/:id" element={<ProductDetail />} />
 
           {/* Protegidas */}
@@ -107,7 +109,7 @@ function App() {
           <Route path="/shop" element={<CartPage />} />
 
           <Route path="/contactanos" element={<Contact />} />
-          <Route path="/detalle-producto/:id" element={<DetailProduct />} />
+          <Route path="/detalle-producto/:id" element={<ProductDetail />} />
           <Route path="/privacidad" element={<PrivacyPolicy />} />
           <Route path="/cookies" element={<CookiesPolicy />} />
           <Route path="/terminos" element={<TermsPolicy />} />

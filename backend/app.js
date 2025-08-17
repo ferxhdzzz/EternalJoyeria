@@ -61,11 +61,12 @@ app.use("/api/logout", logoutRoutes);
 app.use("/api/recoveryPassword", recoveryPasswordRoutes);
 app.use("/api/registerCustomers", registerCustomersRoutes);
 app.use("/api/contactus", contactusRoutes);
+app.use("/api/products", productsRoutes);
 
 // Rutas protegidas
 app.use("/api/customers", validateAuthToken(["admin", "customer"]), customersRoutes);
 app.use("/api/categories", validateAuthToken(["admin", "customer"]), categoriesRouters);
-app.use("/api/products", validateAuthToken(["admin", "customer"]), productsRoutes);
+
 app.use("/api/admins", validateAuthToken(["admin"]), adminRoutes);
 app.use("/api/reviews", validateAuthToken(["admin", "customer"]), reviewsRouter);
 app.use("/api/sales", validateAuthToken(["admin"]), salesRoutes);
