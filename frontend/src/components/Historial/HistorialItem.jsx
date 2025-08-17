@@ -4,12 +4,34 @@ import './HistorialItem.css';
 const HistorialItem = ({ product }) => {
   return (
     <div className="historial-item">
-      <img src={product.image} alt={product.name} className="historial-item-image" />
-      <div className="historial-item-details">
-        <p className="historial-item-name">{product.name}</p>
-        <p className="historial-item-quantity">Cantidad: {product.quantity}</p>
+      <div className="historial-item-content">
+        {/* Product Image */}
+        <div className="historial-item-image-container">
+          <img src={product.image} alt={product.name} className="historial-item-image" />
+          <div className="image-overlay">
+            <div className="quantity-badge">{product.quantity}</div>
+          </div>
+        </div>
+
+        {/* Product Details */}
+        <div className="historial-item-details">
+          <div className="product-info">
+            <h3 className="product-name">{product.name}</h3>
+            <p className="product-description">Joyas únicas que cuentan historias</p>
+          </div>
+<div className="order-number">Cantidad</div>
+            <div className="order-date">{product.quantity}</div>
+
+        </div>
+
+        {/* Price */}
+        <div className="historial-item-right">
+          <div className="price-container">
+            <div className="price-amount">${product.price?.toFixed(2) || '0.00'}</div>
+            <div className="price-label">Precio</div>
+          </div>
+        </div>
       </div>
-      <p className="historial-item-price">${(product.price * product.quantity).toFixed(2)}</p>
     </div>
   );
 };

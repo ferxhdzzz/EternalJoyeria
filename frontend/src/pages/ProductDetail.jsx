@@ -8,6 +8,7 @@ import SidebarCart from '../components/Cart/SidebarCart';
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import Footer from '../components/Footer';
+import ReviewsSection from '../components/Reviews/ReviewsSection';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -95,6 +96,12 @@ const ProductDetail = () => {
             </div>
           </div>
         </div>
+        
+        {/* Sección de reseñas */}
+        <ReviewsSection 
+          productId={product.id}
+          productName={product.name}
+        />
       </div>
       <Footer />
     </>

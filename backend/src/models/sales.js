@@ -14,11 +14,20 @@ const salesSchema = new Schema(
       required: true, // Debe existir una orden relacionada
     },
 
+ idCustomers: {
+      type: Schema.Types.ObjectId,
+      ref: "Customers",
+      required: true, // Cliente obligatorio
+    },
+
+
     address: {
       type: String,
       required: true, // Dirección obligatoria
       trim: true,     // Limpia espacios innecesarios
     },
+
+
   },
   {
     strict: false, // Permitir flexibilidad en caso de campos extra

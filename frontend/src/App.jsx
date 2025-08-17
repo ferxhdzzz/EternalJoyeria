@@ -33,6 +33,7 @@ import CategoriaAnillos from './pages/CategoriaAnillos';
 import PreguntasFrecuentes from './pages/PreguntasFrecuentes';
 import ScrollToTop from './components/ScrollToTop';
 import Blog from './pages/Blog';
+import HistorialReviews from './pages/HistReviews';
 
 import PublicRoute from './components/PublicRoute';
 
@@ -100,6 +101,16 @@ function App() {
               </PublicRoute>
             }
           />
+
+   <Route
+            path="/histReview"
+            element={
+              <PublicRoute>
+                <HistorialReviews />
+              </PublicRoute>
+            }
+          />
+
 
           {/* Carrito / otros */}
           <Route path="/carrito" element={<CartPage />} />

@@ -53,6 +53,20 @@ customersController.getcustomers = async (req, res) => {
   }
 };
 
+// SELECT (Obtener un cliente por ID)
+customersController.getCustomerById = async (req, res) => {
+  try {
+    const customer = await customersModel.findById(req.params.id);
+    if (!customer) {
+      return res.status(404).json({ message: "Cliente no encontrado" });
+    }
+    res.json(customer);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al obtener cliente" });
+  }
+};
+
 // DELETE (Eliminar cliente por ID)
 customersController.deletecustomers = async (req, res) => {
   try {
@@ -150,11 +164,8 @@ customersController.updatecustomers = async (req, res) => {
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: "profiles",
-        allowed_formats: ["png", "jpg", "jpeg"],
-        transformation: [
-          { width: 500, height: 500, crop: "fill" },
-          { quality: "auto" }
-        ]
+   
+ 
       });
       updateData.profilePicture = result.secure_url;
     }

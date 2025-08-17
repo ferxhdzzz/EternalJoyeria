@@ -1,3 +1,4 @@
+// app.js
 import express from "express";
 import cors from "cors";
 import session from "express-session";
@@ -14,7 +15,7 @@ import registerCustomersRoutes from "./src/routes/registerCustomers.js";
 import reviewsRouter from "./src/routes/reviews.js";
 import salesRoutes from "./src/routes/sales.js";
 import ordersRoutes from "./src/routes/orders.js";
-import adminRoutes from "./src/routes/Administrator.js";
+import adminRoutes from "./src/routes/administrator.js";
 import contactusRoutes from "./src/routes/contactusRoutes.js";
 
 import { validateAuthToken } from "./src/middlewares/validateAuthToken.js";
@@ -48,20 +49,20 @@ app.use(
   })
 );
 
-// Rutas públicas
+// ✅ Rutas públicas
 app.use("/api/login", loginRoutes);
 app.use("/api/logout", logoutRoutes);
 app.use("/api/recoveryPassword", recoveryPasswordRoutes);
 app.use("/api/registerCustomers", registerCustomersRoutes);
 app.use("/api/contactus", contactusRoutes);
+app.use("/api/reviews", reviewsRouter); // ✅ La ruta de reseñas debe ser pública si no requiere autenticación.
 
-// Rutas protegidas
+// ✅ Rutas protegidas
 app.use("/api/customers", validateAuthToken(["admin", "customer"]), customersRoutes);
 app.use("/api/categories", validateAuthToken(["admin", "customer"]), categoriesRouters);
 app.use("/api/products", validateAuthToken(["admin", "customer"]), productsRoutes);
 app.use("/api/admins", validateAuthToken(["admin"]), adminRoutes);
-app.use("/api/reviews", validateAuthToken(["admin", "customer"]), reviewsRouter);
-app.use("/api/sales", validateAuthToken(["admin"]), salesRoutes);
+app.use("/api/sales", validateAuthToken(["admin", "customer"]), salesRoutes);
 app.use("/api/orders", validateAuthToken(["admin", "customer"]), ordersRoutes);
 
 export default app;
