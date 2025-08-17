@@ -90,6 +90,12 @@ EternalJoyeria/
 ```
 
 
+## Comandos para ejecutar la app movil
+-cd nombre del proyecto
+-npx expo start
+-presionamos a para iniciar y r para recargar
+
+
 ## Comandos para ejecutar el backend
 **inicializar el proyecto** : npm init-y
 
@@ -157,6 +163,9 @@ EternalJoyeria/
 - recharts
 
 - react-hook-form
+
+## Librerias instaladas en la app Movil
+npm install -g expo-cli 
 
   ## Nomenclatura utlizada para backend y frontend
 
