@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import session from "express-session";
 import cookieParser from "cookie-parser";
-
+import swaggerUi from "swagger-ui-express";
 // Rutas
 import customersRoutes from "./src/routes/customers.js";
 import categoriesRouters from "./src/routes/categories.js";
@@ -16,7 +16,8 @@ import salesRoutes from "./src/routes/sales.js";
 import ordersRoutes from "./src/routes/orders.js";
 import adminRoutes from "./src/routes/Administrator.js";
 import contactusRoutes from "./src/routes/contactusRoutes.js";
-
+import fs from "fs";
+import path from "path";
 import { validateAuthToken } from "./src/middlewares/validateAuthToken.js";
 
 const app = express();
@@ -28,6 +29,12 @@ app.use(
     credentials: true,
   })
 );
+//swagger
+const swaggerDocument = JSON.parse(
+    fs.readFileSync(path.resolve("./Docs.json"), "utf-8")
+);
+ 
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Middleware para JSON y cookies
 app.use(express.json());
