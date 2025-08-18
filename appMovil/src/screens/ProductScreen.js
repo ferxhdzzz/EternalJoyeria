@@ -10,11 +10,13 @@ import {
   Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../context/AuthContext';
 
 const { width } = Dimensions.get('window');
 
-const ProductScreen = ({ route, userData }) => {
+const ProductScreen = ({ route }) => {
   const navigation = route.params?.navigation;
+  const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
@@ -197,12 +199,12 @@ const ProductScreen = ({ route, userData }) => {
       >
         <View style={styles.profileSection}>
           <Image
-            source={userData?.profileImage ? { uri: userData.profileImage } : require('../../assets/Usuarionuevo.jpg')}
+            source={user?.profileImage ? { uri: user.profileImage } : require('../../assets/Usuarionuevo.jpg')}
             style={styles.profileImage}
           />
           <View style={styles.welcomeText}>
             <Text style={styles.welcomeLabel}>Bienvenida</Text>
-            <Text style={styles.userName}>{userData?.firstName || 'Jennifer'}</Text>
+            <Text style={styles.userName}>{user?.firstName || 'Jennifer'}</Text>
           </View>
         </View>
       </Animated.View>

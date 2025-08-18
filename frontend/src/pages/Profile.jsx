@@ -7,14 +7,14 @@ import '../styles/Profile.css';
 import Footer from '../components/Footer';
 import '../styles/ProfileRedesign.css';
 import { useProfile } from '../hooks/useProfile';
+import { useAuth } from '../context/AuthContext';
 
 // Página de perfil de usuario
 const Profile = () => {
-  // ID del usuario (por ahora hardcodeado, después lo puedes obtener del contexto de autenticación)
-  const userId = '6866c36801e8f8bca8a64557'; // ID real de William Hernandez
+  const { logout } = useAuth();
   
-  // Usar nuestro hook personalizado
-  const { user, loading, error, updateProfile, updateProfilePicture } = useProfile(userId);
+  // Usar nuestro hook personalizado (sin parámetros - obtiene usuario autenticado)
+  const { user, loading, error, updateProfile, updateProfilePicture } = useProfile();
   
   // Estado para notificaciones
   const [notifications, setNotifications] = useState(true);
@@ -31,9 +31,9 @@ const Profile = () => {
 
   // Datos de usuario por defecto (se sobrescribirán con los datos del backend)
   const [localUser, setLocalUser] = useState({
-    firstName: 'william',
-    lastName: 'hernandez',
-    email: 'fjsdeveloper1@gmail.com',
+    firstName: 'Usuario',
+    lastName: 'Demo',
+    email: 'usuario@ejemplo.com',
     phone: '+34123456789',
     password: '**********',
     language: 'Español',
@@ -49,6 +49,7 @@ const Profile = () => {
   // Actualizar el usuario local cuando lleguen los datos del backend
   useEffect(() => {
     if (user) {
+      console.log('🔄 Usuario recibido del backend:', user);
       setLocalUser(prev => ({
         ...prev,
         firstName: user.firstName || prev.firstName,
@@ -58,8 +59,13 @@ const Profile = () => {
         profilePicture: user.profilePicture || prev.profilePicture,
       }));
       
+      // Actualizar la imagen de perfil
       if (user.profilePicture) {
+        console.log('📸 Foto de perfil encontrada en backend:', user.profilePicture);
         setProfileImage(user.profilePicture);
+      } else {
+        console.log('📸 No hay foto de perfil en backend, usando imagen por defecto');
+        setProfileImage('/Perfil/foto-perfil.png');
       }
     }
   }, [user]);
@@ -74,20 +80,38 @@ const Profile = () => {
   const handlePhotoChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      console.log('📸 Archivo seleccionado:', file.name, file.size);
       
       // Mostrar la imagen inmediatamente para mejor UX
       const reader = new FileReader();
       reader.onload = (event) => {
+        console.log('🖼️ Imagen cargada localmente para preview');
         setProfileImage(event.target.result);
       };
       reader.readAsDataURL(file);
 
       // Subir al backend
+      console.log('📤 Subiendo foto al backend...');
       const result = await updateProfilePicture(file);
       if (result.success) {
+        console.log('✅ Foto subida exitosamente al backend');
         showMessage('Foto de perfil actualizada correctamente! 🎉');
+        
+        // Actualizar la imagen con la URL del backend
+        if (result.data && result.data.profilePicture) {
+          console.log('🔄 Actualizando imagen con URL del backend:', result.data.profilePicture);
+          setProfileImage(result.data.profilePicture);
+        }
       } else {
+        console.error('❌ Error al subir foto:', result.error);
         showMessage('Error al actualizar la foto: ' + result.error, true);
+        
+        // Revertir a la imagen anterior
+        if (user && user.profilePicture) {
+          setProfileImage(user.profilePicture);
+        } else {
+          setProfileImage('/Perfil/foto-perfil.png');
+        }
       }
     }
   };
@@ -117,6 +141,7 @@ const Profile = () => {
 
       // Solo actualizar si hay datos para enviar
       if (Object.keys(updateData).length > 0) {
+        console.log('📝 Enviando actualización al backend:', updateData);
         const result = await updateProfile(updateData);
         if (result.success) {
           setLocalUser(prev => ({
@@ -133,6 +158,7 @@ const Profile = () => {
       setEditingField(null);
       setTempValue('');
     } catch (error) {
+      console.error('❌ Error al actualizar el perfil:', error);
       showMessage('Error al actualizar el perfil', true);
     }
   };
@@ -153,9 +179,17 @@ const Profile = () => {
   };
 
   // Cierra sesión con confirmación
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (window.confirm('¿Estás seguro de que quieres desconectarte?')) {
-      window.location.href = '/login';
+      try {
+        await logout();
+        // Redirigir a la página de login
+        window.location.href = '/login';
+      } catch (error) {
+        console.error('Error al cerrar sesión:', error);
+        // Si falla el logout del backend, redirigir de todas formas
+        window.location.href = '/login';
+      }
     }
   };
 

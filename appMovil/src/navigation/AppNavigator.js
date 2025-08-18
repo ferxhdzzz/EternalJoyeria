@@ -10,15 +10,11 @@ import PaymentScreen from '../screens/PaymentScreen';
 const Stack = createStackNavigator();
 
 // Componente separado para evitar la función inline
-const MainTabsComponent = ({ navigation, userData, updateUserProfileImage }) => (
-  <BottomTabNavigator 
-    navigation={navigation}
-    userData={userData}
-    updateUserProfileImage={updateUserProfileImage}
-  />
+const MainTabsComponent = ({ navigation }) => (
+  <BottomTabNavigator navigation={navigation} />
 );
 
-const AppNavigator = ({ userData, updateUserProfileImage }) => {
+const AppNavigator = () => {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -28,7 +24,6 @@ const AppNavigator = ({ userData, updateUserProfileImage }) => {
       <Stack.Screen 
         name="MainTabs" 
         component={MainTabsComponent}
-        initialParams={{ userData, updateUserProfileImage }}
       />
       <Stack.Screen 
         name="PrivacyPolicy" 
