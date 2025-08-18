@@ -12,19 +12,18 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { useAuth } from '../context/AuthContext';
 
 const ProfileScreen = ({ navigation, route }) => {
-  const userData = route.params?.userData;
-  const stackNavigation = route.params?.navigation;
-  const updateUserProfileImage = route.params?.updateUserProfileImage;
+  const { user, updateUser, updateProfileImage, logout } = useAuth();
   const [profileData, setProfileData] = useState({
-    name: 'Jennifer Teos',
-    email: 't22jenn@gmail.com',
-    phone: '71042228',
+    name: user?.firstName ? `${user.firstName} ${user.lastName}` : 'Jennifer Teos',
+    email: user?.email || 't22jenn@gmail.com',
+    phone: user?.phone || '71042228',
     password: '**********',
-    language: 'Español',
-    currency: 'USD',
-    notifications: true,
+    language: user?.language || 'Español',
+    currency: user?.currency || 'USD',
+    notifications: user?.notifications !== undefined ? user.notifications : true,
   });
 
   const [editingField, setEditingField] = useState(null);
@@ -34,8 +33,33 @@ const ProfileScreen = ({ navigation, route }) => {
     setEditingField(field);
   };
 
-  const handleSaveField = (field, value) => {
-    setProfileData(prev => ({ ...prev, [field]: value }));
+  const handleSaveField = async (field, value) => {
+    try {
+      let updateData = {};
+      
+      if (field === 'name') {
+        const nameParts = value.split(' ');
+        updateData.firstName = nameParts[0] || '';
+        updateData.lastName = nameParts.slice(1).join(' ') || '';
+      } else if (field === 'phone') {
+        updateData.phone = value;
+      } else if (field === 'email') {
+        updateData.email = value;
+      }
+
+      if (Object.keys(updateData).length > 0) {
+        const result = await updateUser(updateData);
+        if (result.success) {
+          setProfileData(prev => ({ ...prev, [field]: value }));
+          Alert.alert('Éxito', 'Campo actualizado correctamente');
+        } else {
+          Alert.alert('Error', 'No se pudo actualizar el campo');
+        }
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Error al actualizar el campo');
+    }
+    
     setEditingField(null);
   };
 
@@ -79,22 +103,22 @@ const ProfileScreen = ({ navigation, route }) => {
         quality: 0.8,
       });
 
-             if (!result.canceled && result.assets[0]) {
-         const imageUri = result.assets[0].uri;
-         setSelectedImage(imageUri);
-         
-         // Actualizar la imagen en el estado global para que se refleje en ProductScreen
-         if (updateUserProfileImage) {
-           updateUserProfileImage(imageUri);
-         }
-         
-         // Aquí podrías guardar la imagen en el backend
-         Alert.alert(
-           'Éxito',
-           'Foto de perfil actualizada correctamente',
-           [{ text: 'OK' }]
-         );
-       }
+      if (!result.canceled && result.assets[0]) {
+        const imageUri = result.assets[0].uri;
+        setSelectedImage(imageUri);
+        
+        // Actualizar la imagen en el contexto
+        const result = await updateProfileImage(imageUri);
+        if (result.success) {
+          Alert.alert(
+            'Éxito',
+            'Foto de perfil actualizada correctamente',
+            [{ text: 'OK' }]
+          );
+        } else {
+          Alert.alert('Error', 'No se pudo actualizar la foto');
+        }
+      }
     } catch (error) {
       Alert.alert(
         'Error',
@@ -102,6 +126,36 @@ const ProfileScreen = ({ navigation, route }) => {
         [{ text: 'OK' }]
       );
     }
+  };
+
+  const handleLogout = async () => {
+    Alert.alert(
+      'Cerrar sesión',
+      '¿Estás seguro de que quieres desconectarte?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Desconectarse', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const result = await logout();
+              if (result.success) {
+                // Navegar a la pantalla de login
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: 'Login' }],
+                });
+              } else {
+                Alert.alert('Error', 'No se pudo cerrar sesión');
+              }
+            } catch (error) {
+              Alert.alert('Error', 'Error al cerrar sesión');
+            }
+          }
+        }
+      ]
+    );
   };
 
   const renderEditableField = (label, field, value, isPassword = false) => (
@@ -141,7 +195,7 @@ const ProfileScreen = ({ navigation, route }) => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Datos del perfil</Text>
@@ -153,7 +207,7 @@ const ProfileScreen = ({ navigation, route }) => {
         <View style={styles.profilePictureContainer}>
           <TouchableOpacity onPress={pickImage} style={styles.profilePictureTouchable}>
             <Image
-              source={selectedImage ? { uri: selectedImage } : (userData?.profileImage ? { uri: userData.profileImage } : require('../../assets/Usuarionuevo.jpg'))}
+              source={selectedImage ? { uri: selectedImage } : (user?.profileImage ? { uri: user.profileImage } : require('../../assets/Usuarionuevo.jpg'))}
               style={styles.profilePicture}
             />
             <View style={styles.cameraIconOverlay}>
@@ -184,7 +238,10 @@ const ProfileScreen = ({ navigation, route }) => {
             <Text style={styles.fieldLabel}>Notificaciones</Text>
             <Switch
               value={profileData.notifications}
-              onValueChange={(value) => setProfileData(prev => ({ ...prev, notifications: value }))}
+              onValueChange={(value) => {
+                setProfileData(prev => ({ ...prev, notifications: value }));
+                updateUser({ notifications: value });
+              }}
               trackColor={{ false: '#E5E5EA', true: '#FFB6C1' }}
               thumbColor="#FFFFFF"
             />
@@ -195,17 +252,17 @@ const ProfileScreen = ({ navigation, route }) => {
         <View style={styles.section}>
           <TouchableOpacity 
             style={styles.actionButton}
-            onPress={() => stackNavigation?.navigate('PrivacyPolicy')}
+            onPress={() => navigation.navigate('PrivacyPolicy')}
           >
             <Text style={styles.actionText}>Política de privacidad</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.actionButton}
-            onPress={() => stackNavigation?.navigate('TermsConditions')}
+            onPress={() => navigation.navigate('TermsConditions')}
           >
             <Text style={styles.actionText}>Términos y condiciones</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity style={styles.actionButton} onPress={handleLogout}>
             <Text style={[styles.actionText, styles.logoutText]}>Desconectarse</Text>
           </TouchableOpacity>
         </View>

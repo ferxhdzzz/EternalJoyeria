@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Swal from "sweetalert2"; // ✅ Import agregado
+import Swal from "sweetalert2"; // Import agregado
 import Nav from '../components/Nav/Nav';
 import ProfileDetails from '../components/Profile/ProfileDetails';
 import ProfilePhotoSection from '../components/Profile/ProfilePhotoSection';
@@ -8,6 +8,9 @@ import '../styles/Profile.css';
 import Footer from '../components/Footer';
 import '../styles/ProfileRedesign.css';
 import { useProfile } from '../hooks/useProfile';
+<
+import { useAuth } from '../context/AuthContext';
+
 import { 
   LockIcon, 
   InfoIcon, 
@@ -18,9 +21,15 @@ import {
   XIcon 
 } from '../components/Icons';
 
+
 const Profile = () => {
-  const userId = '689d1c2f2275a3a55cbe4f1c';
-  const { user, loading, error, updateProfile, updateProfilePicture } = useProfile(userId);
+
+  const { logout } = useAuth();
+  
+  // Usar nuestro hook personalizado (sin parámetros - obtiene usuario autenticado)
+  const { user, loading, error, updateProfile, updateProfilePicture } = useProfile();
+  
+  // Estado para notificaciones
 
   const [notifications, setNotifications] = useState(true);
   const [profileImage, setProfileImage] = useState('/Perfil/foto-perfil.png');
@@ -30,9 +39,11 @@ const Profile = () => {
   const [message, setMessage] = useState('');
 
   const [localUser, setLocalUser] = useState({
-    firstName: 'fer',
-    lastName: 'fer',
-    email: 'fjsdeveloper1@gmail.com',
+
+    firstName: 'Usuario',
+    lastName: 'Demo',
+    email: 'usuario@ejemplo.com',
+
     phone: '+34123456789',
     password: '****',
     language: 'Español',
@@ -46,6 +57,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (user) {
+      console.log('🔄 Usuario recibido del backend:', user);
       setLocalUser(prev => ({
         ...prev,
         firstName: user.firstName || prev.firstName,
@@ -55,8 +67,16 @@ const Profile = () => {
         profilePicture: user.profilePicture || prev.profilePicture,
       }));
 
+      // Actualizar la imagen de perfil
+
+
+
       if (user.profilePicture) {
+        console.log('📸 Foto de perfil encontrada en backend:', user.profilePicture);
         setProfileImage(user.profilePicture);
+      } else {
+        console.log('📸 No hay foto de perfil en backend, usando imagen por defecto');
+        setProfileImage('/Perfil/foto-perfil.png');
       }
     }
   }, [user]);
@@ -70,17 +90,41 @@ const Profile = () => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
 
+      console.log('📸 Archivo seleccionado:', file.name, file.size);
+      
+      // Mostrar la imagen inmediatamente para mejor UX
+
       const reader = new FileReader();
       reader.onload = (event) => {
+        console.log('🖼️ Imagen cargada localmente para preview');
         setProfileImage(event.target.result);
       };
       reader.readAsDataURL(file);
 
+
+      // Subir al backend
+      console.log('📤 Subiendo foto al backend...');
       const result = await updateProfilePicture(file);
       if (result.success) {
-        showMessage('Foto de perfil actualizada correctamente!');
+        console.log('✅ Foto subida exitosamente al backend');
+        showMessage('Foto de perfil actualizada correctamente! 🎉');
+        
+        // Actualizar la imagen con la URL del backend
+        if (result.data && result.data.profilePicture) {
+          console.log('🔄 Actualizando imagen con URL del backend:', result.data.profilePicture);
+          setProfileImage(result.data.profilePicture);
+        }
+
       } else {
+        console.error('❌ Error al subir foto:', result.error);
         showMessage('Error al actualizar la foto: ' + result.error, true);
+        
+        // Revertir a la imagen anterior
+        if (user && user.profilePicture) {
+          setProfileImage(user.profilePicture);
+        } else {
+          setProfileImage('/Perfil/foto-perfil.png');
+        }
       }
     }
   };
@@ -105,6 +149,7 @@ const Profile = () => {
       }
 
       if (Object.keys(updateData).length > 0) {
+        console.log('📝 Enviando actualización al backend:', updateData);
         const result = await updateProfile(updateData);
         if (result.success) {
           setLocalUser(prev => ({
@@ -121,6 +166,7 @@ const Profile = () => {
       setEditingField(null);
       setTempValue('');
     } catch (error) {
+      console.error('❌ Error al actualizar el perfil:', error);
       showMessage('Error al actualizar el perfil', true);
     }
   };
@@ -137,6 +183,7 @@ const Profile = () => {
       handleCancelEdit();
     }
   };
+
 
   const handleLogout = async () => {
     const confirmResult = await Swal.fire({
@@ -191,6 +238,7 @@ const Profile = () => {
         text: "No se pudo cerrar sesión. Intenta de nuevo.",
         icon: "error"
       });
+
     }
   };
 
