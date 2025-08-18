@@ -1,33 +1,71 @@
 import React, { useState } from 'react';
+import Swal from 'sweetalert2';
+import { useAuth } from '../../context/AuthContext';
+import '../../styles/AddReviewModal.css';
 
-// Modal para agregar nuevas reseñas
-const AddReviewModal = ({ isOpen, onClose, onSubmit, productName }) => {
+const AddReviewModal = ({ isOpen, onClose, onSubmit, productName, productId }) => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [images, setImages] = useState([]);
+  const { user } = useAuth();
 
-  // Validar formulario
+  const handleClose = () => {
+    setRating(0);
+    setComment('');
+    setErrors({});
+    setImages([]);
+    onClose();
+  };
+
+  const handleOverlayClick = (e) => {
+    if (e.target.classList.contains('modal-overlay')) {
+      handleClose();
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
-    
-    if (rating === 0) {
-      newErrors.rating = 'Por favor selecciona una calificación';
-    }
-    
-    if (!comment.trim()) {
-      newErrors.comment = 'Por favor escribe un comentario';
-    } else if (comment.trim().length < 10) {
-      newErrors.comment = 'El comentario debe tener al menos 10 caracteres';
-    }
-    
+    if (rating === 0) newErrors.rating = 'Por favor selecciona una calificación.';
+    if (!comment.trim()) newErrors.comment = 'Por favor escribe un comentario.';
+    else if (comment.trim().length < 10) newErrors.comment = 'El comentario debe tener al menos 10 caracteres.';
     return newErrors;
   };
 
-  // Manejar envío del formulario
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length + images.length > 5) {
+      Swal.fire({
+        title: 'Límite de imágenes',
+        text: 'Solo puedes subir un máximo de 5 imágenes por reseña.',
+        icon: 'warning',
+        confirmButtonColor: '#eab5c5'
+      });
+      return;
+    }
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => setImages(prev => [...prev, file]); // guardamos el File, no el base64
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (index) => setImages(prev => prev.filter((_, i) => i !== index));
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
+    if (!user) {
+      Swal.fire({
+        title: 'No estás autenticado',
+        text: 'Debes iniciar sesión para publicar una reseña.',
+        icon: 'warning',
+        confirmButtonColor: '#eab5c5'
+      });
+      return;
+    }
+
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -35,54 +73,69 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName }) => {
     }
 
     setIsSubmitting(true);
-    
+
     try {
-      await onSubmit({
-        rating,
-        comment: comment.trim()
+      const formData = new FormData();
+      formData.append("id_customer", user.id);
+      formData.append("id_product", productId);
+      formData.append("rank", rating);
+      formData.append("comment", comment);
+
+      // Agregar archivos (File objects) al formData
+      images.forEach((img) => formData.append("images", img));
+
+      const res = await fetch("http://localhost:4000/api/reviews", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
       });
-      
-      // Limpiar formulario
-      setRating(0);
-      setComment('');
-      setErrors({});
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Error al enviar la reseña.");
+      }
+
+      const reviewData = await res.json(); // ✅ obtenemos la reseña creada del backend
+
+      Swal.fire({
+        title: '¡Reseña publicada!',
+        text: 'Gracias por compartir tu opinión.',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 2000
+      });
+
+      onSubmit(reviewData); // ✅ enviamos la reseña creada al padre
+      handleClose();
+
     } catch (error) {
       console.error('Error enviando reseña:', error);
+      setErrors({ general: 'Hubo un error al publicar tu reseña. Inténtalo de nuevo.' });
+      Swal.fire({
+        title: 'Error',
+        text: error.message,
+        icon: 'error',
+        confirmButtonColor: '#eab5c5'
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Manejar cierre del modal
-  const handleClose = () => {
-    if (!isSubmitting) {
-      setRating(0);
-      setComment('');
-      setErrors({});
-      onClose();
-    }
-  };
-
-  // Manejar cambio de calificación
   const handleRatingChange = (newRating) => {
     setRating(newRating);
-    if (errors.rating) {
-      setErrors(prev => ({ ...prev, rating: '' }));
-    }
+    if (errors.rating) setErrors(prev => ({ ...prev, rating: '' }));
   };
 
-  // Manejar cambio de comentario
   const handleCommentChange = (e) => {
     setComment(e.target.value);
-    if (errors.comment) {
-      setErrors(prev => ({ ...prev, comment: '' }));
-    }
+    if (errors.comment) setErrors(prev => ({ ...prev, comment: '' }));
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={handleClose}>
+    <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-container" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h3>Escribir reseña</h3>
@@ -94,11 +147,11 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName }) => {
         </div>
 
         <div className="modal-body">
-          <div className="product-info">
-            <h4>Reseña para: {productName}</h4>
-          </div>
+          <h4>Reseña para: {productName}</h4>
 
           <form onSubmit={handleSubmit} className="review-form">
+            {errors.general && <span className="error-message">{errors.general}</span>}
+
             {/* Calificación */}
             <div className="form-group">
               <label className="form-label">Tu calificación *</label>
@@ -118,15 +171,6 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName }) => {
                 ))}
               </div>
               {errors.rating && <span className="error-message">{errors.rating}</span>}
-              {rating > 0 && (
-                <div className="rating-text">
-                  {rating === 1 && 'Muy malo'}
-                  {rating === 2 && 'Malo'}
-                  {rating === 3 && 'Regular'}
-                  {rating === 4 && 'Bueno'}
-                  {rating === 5 && 'Excelente'}
-                </div>
-              )}
             </div>
 
             {/* Comentario */}
@@ -141,43 +185,46 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName }) => {
                 disabled={isSubmitting}
               />
               {errors.comment && <span className="error-message">{errors.comment}</span>}
-              <div className="char-count">
-                {comment.length}/500 caracteres
+              <div className="char-count">{comment.length}/500 caracteres</div>
+            </div>
+
+            {/* Subida de imágenes */}
+            <div className="form-group">
+              <label className="form-label">Subir imágenes (opcional, máximo 5)</label>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="form-control-file"
+                onChange={handleImageUpload}
+                disabled={isSubmitting || images.length >= 5}
+              />
+              <div className="image-preview-container">
+                {images.map((img, index) => (
+                  <div key={index} className="image-preview">
+                    <img
+                      src={URL.createObjectURL(img)}
+                      alt={`Preview ${index + 1}`}
+                      className="preview-image"
+                    />
+                    <button
+                      type="button"
+                      className="remove-image-btn"
+                      onClick={() => removeImage(index)}
+                      disabled={isSubmitting}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Términos y condiciones */}
-            <div className="form-group">
-              <label className="checkbox-label">
-                <input type="checkbox" required disabled={isSubmitting} />
-                <span className="checkmark"></span>
-                Acepto que mi reseña sea visible públicamente y cumpla con las políticas de la tienda
-              </label>
-            </div>
-
-            {/* Botones de acción */}
+            {/* Botones */}
             <div className="modal-actions">
-              <button
-                type="button"
-                className="btn-cancel"
-                onClick={handleClose}
-                disabled={isSubmitting}
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                className="btn-submit"
-                disabled={isSubmitting || rating === 0 || !comment.trim()}
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="loading-spinner"></div>
-                    Enviando...
-                  </>
-                ) : (
-                  'Publicar reseña'
-                )}
+              <button type="button" className="btn-cancel" onClick={handleClose} disabled={isSubmitting}>Cancelar</button>
+              <button type="submit" className="btn-submit" disabled={isSubmitting || rating === 0 || !comment.trim()}>
+                {isSubmitting ? 'Enviando...' : 'Publicar reseña'}
               </button>
             </div>
           </form>
@@ -187,4 +234,4 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName }) => {
   );
 };
 
-export default AddReviewModal; 
+export default AddReviewModal;

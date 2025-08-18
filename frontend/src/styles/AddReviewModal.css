@@ -1,0 +1,87 @@
+/* src/styles/AddReviewModal.css */
+
+/* Estilos de tu modal de reseñas */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050; /* Valor por debajo de SweetAlert */
+}
+
+
+.modal-container {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 600px;
+    z-index: 1001; /* Ligeramente más alto que el overlay */
+}
+
+/* * Estilo para SweetAlert:
+ * Aumenta el z-index del contenedor de SweetAlert2
+ * para que siempre esté por encima de todo.
+ */
+.my-swal {
+    z-index: 10000 !important; /* Valor muy alto para sobresalir */
+}
+
+/* Opcional: Si necesitas que el overlay de SweetAlert también esté encima */
+.swal2-container {
+    z-index: 99999 !important; /* Valor exageradamente alto */
+}
+
+/* --- Nuevos Estilos para la previsualización de imágenes --- */
+
+.image-preview-container {
+    display: flex; /* Habilita Flexbox para disposición horizontal */
+    flex-wrap: nowrap; /* Evita que las imágenes se salten a la siguiente línea */
+    gap: 10px; /* Espacio entre las imágenes */
+    overflow-x: auto; /* Permite desplazamiento horizontal si hay muchas imágenes */
+    padding: 10px 0; /* Espacio superior e inferior para evitar que el scrollbar se pegue */
+}
+
+.image-preview {
+    position: relative;
+    width: 75px; /* Tamaño fijo para la miniatura */
+    height: 75px;
+    flex-shrink: 0; /* Evita que las imágenes se encojan */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Recorta la imagen para que cubra el espacio sin distorsionarse */
+    border-radius: 8px;
+}
+
+.remove-image-btn {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #e57373; /* Rojo para el botón de eliminar */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0;
+}
+
+.remove-image-btn:hover {
+    background-color: #ef5350;
+}

@@ -2,8 +2,7 @@ import Review from "../models/Reviews.js";
 import Customer from "../models/Customers.js";
 import Product from "../models/Products.js";
 import { v2 as cloudinary } from "cloudinary";
-
-
+import fs from 'fs/promises';
 
 cloudinary.config({
   cloud_name: 'dosy4rouu',
@@ -13,12 +12,14 @@ cloudinary.config({
 
 const reviewsController = {};
 
-// Obtener todas las reseñas
+// Obtener todas las reseñas para la página principal (con límite y orden)
 reviewsController.getReviews = async (req, res) => {
   try {
     const reviews = await Review.find()
       .populate({ path: "id_customer", select: "-password" })
-      .populate("id_product");
+      .populate("id_product")
+      .sort({ createdAt: -1 }) // ✅ Ordena por fecha de creación, las más nuevas primero
+      .limit(10); // ✅ Limita a 10 reseñas para la página principal
 
     res.json(reviews);
   } catch (error) {
@@ -42,7 +43,8 @@ reviewsController.getReview = async (req, res) => {
 
     res.json(review);
   } catch (error) {
-    res.status(5400).json({
+    // Estado HTTP corregido a 500
+    res.status(500).json({
       message: "Error fetching review",
       error: error.message,
     });
@@ -74,18 +76,18 @@ reviewsController.getReviewsByProduct = async (req, res) => {
 // Crear una nueva reseña
 reviewsController.createReview = async (req, res) => {
   const { id_customer, id_product, rank, comment } = req.body;
+  
+  console.log("Received body:", req.body);
 
   try {
-    // Validar campos obligatorios
     if (!id_customer || !id_product || rank == null || !comment?.trim()) {
-      return res.status(400).json({ message: "All fields are required: customer, product, rank, comment" });
+      return res.status(400).json({ message: "All fields are required: id_customer, id_product, rank, and comment." });
     }
 
     if (rank < 1 || rank > 5) {
       return res.status(400).json({ message: "Rank must be between 1 and 5" });
     }
 
-    // Validar existencia de cliente y producto
     const customer = await Customer.findById(id_customer);
     if (!customer) {
       return res.status(404).json({ message: "Customer not found" });
@@ -95,7 +97,8 @@ reviewsController.createReview = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
- let uploadedImages = [];
+    
+    let uploadedImages = [];
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const result = await cloudinary.uploader.upload(file.path, {
@@ -111,7 +114,6 @@ reviewsController.createReview = async (req, res) => {
       }
     }
 
-    // Crear reseña
     const newReview = new Review({
       id_customer,
       id_product,
@@ -128,12 +130,45 @@ reviewsController.createReview = async (req, res) => {
 
     res.status(201).json(populatedReview);
   } catch (error) {
+    console.error('Error in createReview:', error);
     res.status(500).json({
       message: "Error creating review",
       error: error.message,
     });
   }
 };
+
+
+
+
+
+// Obtener todas las reseñas de un usuario específico
+reviewsController.getReviewsByUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const reviews = await Review.find({ id_customer: id })
+      .populate({ path: "id_customer", select: "-password" })
+      .populate("id_product");
+
+    if (!reviews || reviews.length === 0) {
+      return res.status(404).json({ message: "No reviews found for this user" });
+    }
+
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching reviews for user",
+      error: error.message,
+    });
+  }
+};
+
+
+
+
+
+
 
 // Actualizar reseña
 reviewsController.updateReview = async (req, res) => {
@@ -145,7 +180,6 @@ reviewsController.updateReview = async (req, res) => {
       return res.status(404).json({ message: "Review not found" });
     }
 
-    // Validar rank si se envía
     if (rank !== undefined) {
       if (rank < 1 || rank > 5) {
         return res.status(400).json({ message: "Rank must be between 1 and 5" });
@@ -153,7 +187,6 @@ reviewsController.updateReview = async (req, res) => {
       review.rank = rank;
     }
 
-    // Validar comment si se envía
     if (comment !== undefined) {
       if (!comment.trim()) {
         return res.status(400).json({ message: "Comment cannot be empty" });

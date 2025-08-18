@@ -1,0 +1,33 @@
+/* ReviewList.css */
+
+.review-list {
+  max-height: 400px; /* Ajusta según el espacio que quieras dar */
+  overflow-y: auto; /* Scroll vertical */
+  overflow-x: hidden; /* Evita scroll horizontal innecesario */
+  padding: 10px;
+  margin-top: 15px;
+
+  /* Opcional: para que se vea más bonito */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+/* Estilo del scrollbar */
+.review-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.review-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+
+.review-list::-webkit-scrollbar-thumb {
+  background: #ff7eb9; /* Color rosadito */
+  border-radius: 8px;
+}
+
+.review-list::-webkit-scrollbar-thumb:hover {
+  background: #ff4f91;
+}

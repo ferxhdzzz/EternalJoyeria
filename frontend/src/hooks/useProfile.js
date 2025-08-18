@@ -130,7 +130,7 @@ export const useProfile = (userId) => {
       console.log('🚀 Iniciando carga del perfil...');
       fetchProfile();
     }
-  }, [userId]);
+  }, []);
 
   return {
     user,

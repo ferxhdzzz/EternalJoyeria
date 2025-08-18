@@ -1,11 +1,12 @@
 // Importaciones necesarias para el componente de navegación
-import React, { useState, useEffect, useRef } from 'react'; // React y hooks para estado, efectos y referencias
-import { Link, useLocation } from 'react-router-dom'; // Componentes para navegación y obtener ubicación actual
-import './Nav.css'; // Estilos CSS específicos de la navegación
-import { Menu, X, User } from 'lucide-react'; // Iconos de la librería Lucide React
-import { useCart } from '../../context/CartContext'; // Hook personalizado para el carrito de compras
-import CleanLogo from './CleanLogo'; // Componente del logo limpio
-import ProductsMenu from './ProductsMenu'; // Componente del menú de productos
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import './Nav.css';
+import { Menu, X, User } from 'lucide-react';
+import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext'; // Importar el hook de tu contexto
+import CleanLogo from './CleanLogo';
+import ProductsMenu from './ProductsMenu';
 
 // Componente del icono de carrito personalizado más compacto
 const CartIcon = ({ size = 24 }) => (
@@ -20,11 +21,8 @@ const CartIcon = ({ size = 24 }) => (
         strokeLinejoin="round"
         style={{ minWidth: size, minHeight: size }}
     >
-        {/* Path principal del carrito */}
         <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-        {/* Línea superior del carrito */}
         <line x1="3" y1="6" x2="21" y2="6"/>
-        {/* Asa del carrito */}
         <path d="M16 10a4 4 0 0 1-8 0"/>
     </svg>
 );
@@ -32,63 +30,57 @@ const CartIcon = ({ size = 24 }) => (
 // Componente principal de navegación
 const Nav = ({ cartOpen = false }) => {
     // Estados para controlar el comportamiento de la navegación
-    const [isOpen, setIsOpen] = useState(false); // Estado del menú móvil (abierto/cerrado)
-    const { cartItems } = useCart(); // Obtener items del carrito desde el contexto
-    const [bump, setBump] = useState(false); // Estado para animación de rebote del badge del carrito
-    const prevCount = useRef(0); // Referencia para el conteo anterior de items
+    const [isOpen, setIsOpen] = useState(false);
+    const { cartItems } = useCart();
+    const { user } = useAuth(); // Usar la variable 'user' de tu contexto
+    const [bump, setBump] = useState(false);
+    const prevCount = useRef(0);
     
     // Calcular el total de items en el carrito
     const totalCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
     
     // Estados para detectar diferentes tamaños de pantalla
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 1000); // Pantallas móviles (≤1000px)
-    const [isSmallMobile, setIsSmallMobile] = useState(window.innerWidth <= 480); // Pantallas pequeñas (≤480px)
-    const [isTinyMobile, setIsTinyMobile] = useState(window.innerWidth <= 320); // Pantallas muy pequeñas (≤320px)
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 1000);
+    const [isSmallMobile, setIsSmallMobile] = useState(window.innerWidth <= 480);
+    const [isTinyMobile, setIsTinyMobile] = useState(window.innerWidth <= 320);
     
     // Referencias para elementos del DOM
-    const menuRef = useRef(null); // Referencia al menú móvil
-    const toggleRef = useRef(null); // Referencia al botón de toggle
-    const location = useLocation(); // Hook para obtener la ubicación actual
+    const menuRef = useRef(null);
+    const toggleRef = useRef(null);
+    const location = useLocation();
 
     // Efecto: Cerrar menús al cambiar de página
     useEffect(() => {
-        setIsOpen(false); // Cerrar el menú móvil cuando cambia la página
+        setIsOpen(false);
     }, [location.pathname]);
 
     // Efecto: Detectar si es un dispositivo móvil y manejar cambios de tamaño
     useEffect(() => {
         const handleResize = () => {
-            // Detectar diferentes tamaños de pantalla
             const newIsMobile = window.innerWidth <= 1000;
             const newIsSmallMobile = window.innerWidth <= 480;
             const newIsTinyMobile = window.innerWidth <= 320;
             
-            // Actualizar estados de tamaño de pantalla
             setIsMobile(newIsMobile);
             setIsSmallMobile(newIsSmallMobile);
             setIsTinyMobile(newIsTinyMobile);
             
-            // Si no es móvil, cerrar el menú
             if (!newIsMobile) {
                 setIsOpen(false);
             }
         };
         
-        // Agregar listener para cambios de tamaño de ventana
         window.addEventListener('resize', handleResize);
-        handleResize(); // Llamada inicial para establecer el estado correcto
+        handleResize();
         
-        // Limpiar listener al desmontar
         return () => window.removeEventListener('resize', handleResize);
     }, []);
     
     // Efecto: Manejo de clics fuera del menú para cerrarlo
     useEffect(() => {
         const handleClickOutside = (e) => {
-            // Verificar que las referencias existan
             if (!menuRef.current || !toggleRef.current) return;
             
-            // Si el menú está abierto y se hace clic fuera, cerrarlo
             if (isOpen && 
                 !menuRef.current.contains(e.target) && 
                 !toggleRef.current.contains(e.target)) {
@@ -96,27 +88,25 @@ const Nav = ({ cartOpen = false }) => {
             }
         };
         
-        // Agregar listener para clics en el documento
         document.addEventListener('mousedown', handleClickOutside);
         
-        // Limpiar listener al desmontar
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [isOpen]);
 
     // Efecto: Animación de rebote cuando cambia el número de items en el carrito
     useEffect(() => {
         if (totalCount !== prevCount.current) {
-            setBump(true); // Activar animación de rebote
-            prevCount.current = totalCount; // Actualizar conteo anterior
-            const timer = setTimeout(() => setBump(false), 400); // Desactivar después de 400ms
-            return () => clearTimeout(timer); // Limpiar timer si el componente se desmonta
+            setBump(true);
+            prevCount.current = totalCount;
+            const timer = setTimeout(() => setBump(false), 400);
+            return () => clearTimeout(timer);
         }
     }, [totalCount]);
 
     // Función para alternar el estado del menú móvil
     const toggleMenu = (e) => {
-        if (e) e.stopPropagation(); // Prevenir propagación del evento
-        setIsOpen(!isOpen); // Alternar estado abierto/cerrado
+        if (e) e.stopPropagation();
+        setIsOpen(!isOpen);
     };
 
     return (
@@ -182,10 +172,14 @@ const Nav = ({ cartOpen = false }) => {
                         {isOpen ? <X size={28} /> : <Menu size={28} />}
                     </div>
                     
-                    <Link to="/login" className="nav-login-btn">
-                        Iniciar Sesión
-                    </Link>
+                    {/* Renderizado condicional: El botón de Iniciar Sesión solo aparece si 'user' es null o undefined */}
+                    {!user && (
+                        <Link to="/login" className="nav-login-btn">
+                            Iniciar Sesión
+                        </Link>
+                    )}
                     
+                    {/* El icono del perfil se muestra siempre */}
                     <Link to="/perfil" className="nav-icon nav-icon-user" aria-label="Perfil">
                         <User size={22} />
                     </Link>
@@ -200,7 +194,6 @@ const Nav = ({ cartOpen = false }) => {
                 </div>
             </header>
             
-            {/* Overlay para cerrar el menú en móvil */}
             {/* {isOpen && isMobile && <div className="nav-overlay" onClick={() => setIsOpen(false)}></div>} */}
         </>
     );

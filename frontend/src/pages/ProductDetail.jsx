@@ -422,6 +422,30 @@ const ProductDetail = () => {
   }
 
   const handleAddToCart = () => {
+    // Si la cantidad es 0 o el stock es 0, no hacer nada
+    if (quantity === 0 || product.stock === 0) {
+      Swal.fire({
+        title: 'Sin stock disponible',
+        text: 'Este producto no tiene stock o la cantidad seleccionada es 0.',
+        icon: 'error',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#D1A6B4',
+      });
+      return;
+    }
+
+    // Verificar si la cantidad a agregar es mayor que el stock disponible
+    if (quantity > product.stock) {
+      Swal.fire({
+        title: 'Stock insuficiente',
+        text: `Solo quedan ${product.stock} unidad(es) de este producto.`,
+        icon: 'warning',
+        confirmButtonText: 'Ok',
+        confirmButtonColor: '#D1A6B4',
+      });
+      return;
+    }
+
     const productToAdd = {
       id: product._id,
       name: product.name,
@@ -430,6 +454,7 @@ const ProductDetail = () => {
       size: selectedSize,
       quantity: quantity
     };
+    
     addToCart(productToAdd);
     Swal.fire({
       title: '¡Añadido al carrito!',
@@ -440,6 +465,21 @@ const ProductDetail = () => {
       timer: 2500,
       timerProgressBar: true,
     });
+  };
+
+  const handleIncreaseQuantity = () => {
+    // Evitar que la cantidad supere el stock
+    if (quantity < product.stock) {
+      setQuantity(q => q + 1);
+    } else {
+      Swal.fire({
+        title: 'Límite de stock',
+        text: `No puedes añadir más de ${product.stock} unidad(es) de este producto.`,
+        icon: 'warning',
+        confirmButtonText: 'Ok',
+        confirmButtonColor: '#D1A6B4',
+      });
+    }
   };
 
   const availableSizes = product.sizes && product.sizes.length > 0 ? product.sizes : ['Pequeño', 'Mediano', 'Grande'];
@@ -581,7 +621,7 @@ const ProductDetail = () => {
                 {quantity}
               </span>
               <button 
-                onClick={() => setQuantity(q => q + 1)} 
+                onClick={handleIncreaseQuantity} 
                 style={{ 
                   width: 32, 
                   height: 32, 
@@ -690,8 +730,7 @@ const ProductDetail = () => {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
-      `}</style>
-    </>
+      `}</style>    </>
   );
 };
 

@@ -164,11 +164,8 @@ customersController.updatecustomers = async (req, res) => {
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: "profiles",
-        allowed_formats: ["png", "jpg", "jpeg"],
-        transformation: [
-          { width: 500, height: 500, crop: "fill" },
-          { quality: "auto" }
-        ]
+   
+ 
       });
       updateData.profilePicture = result.secure_url;
     }
