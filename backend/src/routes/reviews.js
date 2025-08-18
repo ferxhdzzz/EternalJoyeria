@@ -12,7 +12,7 @@ const upload = multer({ dest: "public/" });
 router.get("/user/:id", reviewsController.getReviewsByUser);
 
 // Luego las otras rutas (no te preocupes por el orden entre ellas)
-router.post("/",upload.array("images"), reviewsController.createReview);
+router.post("/",upload.array("images", 5), reviewsController.createReview);
 router.get("/", reviewsController.getReviews);
 router.get("/product/:id", reviewsController.getReviewsByProduct);
 

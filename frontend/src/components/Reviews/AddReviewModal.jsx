@@ -1,235 +1,237 @@
 import React, { useState } from 'react';
-import Swal from 'sweetalert2'; 
+import Swal from 'sweetalert2';
 import { useAuth } from '../../context/AuthContext';
 import '../../styles/AddReviewModal.css';
 
 const AddReviewModal = ({ isOpen, onClose, onSubmit, productName, productId }) => {
-    const [rating, setRating] = useState(0);
-    const [comment, setComment] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [errors, setErrors] = useState({});
-    const { user } = useAuth();
-    
-    const handleClose = () => {
-        setRating(0);
-        setComment('');
-        setErrors({});
-        onClose();
-    };
-    
-    const handleOverlayClick = (e) => {
-        if (e.target.classList.contains('modal-overlay')) {
-            handleClose();
-        }
-    };
-    
-    const validateForm = () => {
-        const newErrors = {};
-        if (rating === 0) newErrors.rating = 'Por favor selecciona una calificación.';
-        if (!comment.trim()) {
-            newErrors.comment = 'Por favor escribe un comentario.';
-        } else if (comment.trim().length < 10) {
-            newErrors.comment = 'El comentario debe tener al menos 10 caracteres.';
-        }
-        return newErrors;
-    };
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [images, setImages] = useState([]);
+  const { user } = useAuth();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        
-        if (!user) {
-            Swal.fire({
-                title: 'No estás autenticado',
-                text: 'Debes iniciar sesión para publicar una reseña.',
-                icon: 'warning',
-                confirmButtonColor: '#eab5c5'
-            });
-            return;
-        }
+  const handleClose = () => {
+    setRating(0);
+    setComment('');
+    setErrors({});
+    setImages([]);
+    onClose();
+  };
 
-        const newErrors = validateForm();
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-            return;
-        }
+  const handleOverlayClick = (e) => {
+    if (e.target.classList.contains('modal-overlay')) {
+      handleClose();
+    }
+  };
 
-        setIsSubmitting(true);
-        
-        try {
-            const reviewData = {
-                id_customer: user.id,
-                id_product: productId,
-                rank: rating,
-                comment: comment.trim(),
-                images: [],
-            };
+  const validateForm = () => {
+    const newErrors = {};
+    if (rating === 0) newErrors.rating = 'Por favor selecciona una calificación.';
+    if (!comment.trim()) newErrors.comment = 'Por favor escribe un comentario.';
+    else if (comment.trim().length < 10) newErrors.comment = 'El comentario debe tener al menos 10 caracteres.';
+    return newErrors;
+  };
 
-            // ✅ Log para verificar los datos antes de enviar
-            console.log('Datos a enviar:', reviewData);
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length + images.length > 5) {
+      Swal.fire({
+        title: 'Límite de imágenes',
+        text: 'Solo puedes subir un máximo de 5 imágenes por reseña.',
+        icon: 'warning',
+        confirmButtonColor: '#eab5c5'
+      });
+      return;
+    }
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => setImages(prev => [...prev, file]); // guardamos el File, no el base64
+      reader.readAsDataURL(file);
+    });
+  };
 
-            const res = await fetch("http://localhost:4000/api/reviews", { 
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(reviewData)
-            });
+  const removeImage = (index) => setImages(prev => prev.filter((_, i) => i !== index));
 
-            if (!res.ok) {
-                const errorData = await res.json();
-                console.error('Error de respuesta del servidor:', errorData);
-                throw new Error(errorData.message || "Error al enviar la reseña.");
-            }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-            Swal.fire({
-                title: '¡Reseña publicada!',
-                text: 'Gracias por compartir tu opinión.',
-                icon: 'success',
-                showConfirmButton: false,
-                timer: 2000
-            });
-            
-            onSubmit(reviewData); 
-            handleClose();
+    if (!user) {
+      Swal.fire({
+        title: 'No estás autenticado',
+        text: 'Debes iniciar sesión para publicar una reseña.',
+        icon: 'warning',
+        confirmButtonColor: '#eab5c5'
+      });
+      return;
+    }
 
-        } catch (error) {
-            console.error('Error enviando reseña:', error);
-            setErrors({ general: 'Hubo un error al publicar tu reseña. Inténtalo de nuevo.' });
-            
-            Swal.fire({
-                title: 'Error',
-                text: 'Hubo un problema al publicar tu reseña. Por favor, inténtalo de nuevo.',
-                icon: 'error',
-                confirmButtonColor: '#eab5c5'
-            });
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-    
-    const handleRatingChange = (newRating) => {
-        setRating(newRating);
-        if (errors.rating) {
-            setErrors(prev => ({ ...prev, rating: '' }));
-        }
-    };
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
-    const handleCommentChange = (e) => {
-        setComment(e.target.value);
-        if (errors.comment) {
-            setErrors(prev => ({ ...prev, comment: '' }));
-        }
-    };
+    setIsSubmitting(true);
 
-    if (!isOpen) return null;
+    try {
+      const formData = new FormData();
+      formData.append("id_customer", user.id);
+      formData.append("id_product", productId);
+      formData.append("rank", rating);
+      formData.append("comment", comment);
 
-    return (
-        <div className="modal-overlay" onClick={handleOverlayClick}>
-            <div className="modal-container" onClick={(e) => e.stopPropagation()}>
-                <div className="modal-header">
-                    <h3>Escribir reseña</h3>
-                    <button className="modal-close" onClick={handleClose} disabled={isSubmitting}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/>
-                        </svg>
-                    </button>
-                </div>
+      // Agregar archivos (File objects) al formData
+      images.forEach((img) => formData.append("images", img));
 
-                <div className="modal-body">
-                    <div className="product-info">
-                        <h4>Reseña para: {productName}</h4>
-                    </div>
+      const res = await fetch("http://localhost:4000/api/reviews", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
 
-                    <form onSubmit={handleSubmit} className="review-form">
-                        {errors.general && <span className="error-message" style={{marginBottom: '1rem'}}>{errors.general}</span>}
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Error al enviar la reseña.");
+      }
 
-                        {/* Calificación */}
-                        <div className="form-group">
-                            <label className="form-label">Tu calificación *</label>
-                            <div className="rating-input">
-                                {[1, 2, 3, 4, 5].map(star => (
-                                    <button
-                                        key={star}
-                                        type="button"
-                                        className={`star-btn ${star <= rating ? 'active' : ''}`}
-                                        onClick={() => handleRatingChange(star)}
-                                        disabled={isSubmitting}
-                                    >
-                                        <svg width="32" height="32" viewBox="0 0 24 24" fill={star <= rating ? "#FFD700" : "#E0E0E0"}>
-                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                        </svg>
-                                    </button>
-                                ))}
-                            </div>
-                            {errors.rating && <span className="error-message">{errors.rating}</span>}
-                            {rating > 0 && (
-                                <div className="rating-text">
-                                    {rating === 1 && 'Muy malo'}
-                                    {rating === 2 && 'Malo'}
-                                    {rating === 3 && 'Regular'}
-                                    {rating === 4 && 'Bueno'}
-                                    {rating === 5 && 'Excelente'}
-                                </div>
-                            )}
-                        </div>
+      const reviewData = await res.json(); // ✅ obtenemos la reseña creada del backend
 
-                        {/* Comentario */}
-                        <div className="form-group">
-                            <label className="form-label">Tu comentario *</label>
-                            <textarea
-                                value={comment}
-                                onChange={handleCommentChange}
-                                className={`form-textarea ${errors.comment ? 'error' : ''}`}
-                                placeholder="Comparte tu experiencia con este producto..."
-                                rows="5"
-                                disabled={isSubmitting}
-                            />
-                            {errors.comment && <span className="error-message">{errors.comment}</span>}
-                            <div className="char-count">
-                                {comment.length}/500 caracteres
-                            </div>
-                        </div>
+      Swal.fire({
+        title: '¡Reseña publicada!',
+        text: 'Gracias por compartir tu opinión.',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 2000
+      });
 
-                        {/* Términos y condiciones */}
-                        <div className="form-group">
-                            <label className="checkbox-label">
-                                <input type="checkbox" required disabled={isSubmitting} />
-                                <span className="checkmark"></span>
-                                Acepto que mi reseña sea visible públicamente y cumpla con las políticas de la tienda
-                            </label>
-                        </div>
+      onSubmit(reviewData); // ✅ enviamos la reseña creada al padre
+      handleClose();
 
-                        {/* Botones de acción */}
-                        <div className="modal-actions">
-                            <button
-                                type="button"
-                                className="btn-cancel"
-                                onClick={handleClose}
-                                disabled={isSubmitting}
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                type="submit"
-                                className="btn-submit"
-                                disabled={isSubmitting || rating === 0 || !comment.trim()}
-                            >
-                                {isSubmitting ? (
-                                    <>
-                                        <div className="loading-spinner"></div>
-                                        Enviando...
-                                    </>
-                                ) : (
-                                    'Publicar reseña'
-                                )}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    } catch (error) {
+      console.error('Error enviando reseña:', error);
+      setErrors({ general: 'Hubo un error al publicar tu reseña. Inténtalo de nuevo.' });
+      Swal.fire({
+        title: 'Error',
+        text: error.message,
+        icon: 'error',
+        confirmButtonColor: '#eab5c5'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleRatingChange = (newRating) => {
+    setRating(newRating);
+    if (errors.rating) setErrors(prev => ({ ...prev, rating: '' }));
+  };
+
+  const handleCommentChange = (e) => {
+    setComment(e.target.value);
+    if (errors.comment) setErrors(prev => ({ ...prev, comment: '' }));
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay" onClick={handleOverlayClick}>
+      <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h3>Escribir reseña</h3>
+          <button className="modal-close" onClick={handleClose} disabled={isSubmitting}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/>
+            </svg>
+          </button>
         </div>
-    );
+
+        <div className="modal-body">
+          <h4>Reseña para: {productName}</h4>
+
+          <form onSubmit={handleSubmit} className="review-form">
+            {errors.general && <span className="error-message">{errors.general}</span>}
+
+            {/* Calificación */}
+            <div className="form-group">
+              <label className="form-label">Tu calificación *</label>
+              <div className="rating-input">
+                {[1, 2, 3, 4, 5].map(star => (
+                  <button
+                    key={star}
+                    type="button"
+                    className={`star-btn ${star <= rating ? 'active' : ''}`}
+                    onClick={() => handleRatingChange(star)}
+                    disabled={isSubmitting}
+                  >
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill={star <= rating ? "#FFD700" : "#E0E0E0"}>
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                  </button>
+                ))}
+              </div>
+              {errors.rating && <span className="error-message">{errors.rating}</span>}
+            </div>
+
+            {/* Comentario */}
+            <div className="form-group">
+              <label className="form-label">Tu comentario *</label>
+              <textarea
+                value={comment}
+                onChange={handleCommentChange}
+                className={`form-textarea ${errors.comment ? 'error' : ''}`}
+                placeholder="Comparte tu experiencia con este producto..."
+                rows="5"
+                disabled={isSubmitting}
+              />
+              {errors.comment && <span className="error-message">{errors.comment}</span>}
+              <div className="char-count">{comment.length}/500 caracteres</div>
+            </div>
+
+            {/* Subida de imágenes */}
+            <div className="form-group">
+              <label className="form-label">Subir imágenes (opcional, máximo 5)</label>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="form-control-file"
+                onChange={handleImageUpload}
+                disabled={isSubmitting || images.length >= 5}
+              />
+              <div className="image-preview-container">
+                {images.map((img, index) => (
+                  <div key={index} className="image-preview">
+                    <img
+                      src={URL.createObjectURL(img)}
+                      alt={`Preview ${index + 1}`}
+                      className="preview-image"
+                    />
+                    <button
+                      type="button"
+                      className="remove-image-btn"
+                      onClick={() => removeImage(index)}
+                      disabled={isSubmitting}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Botones */}
+            <div className="modal-actions">
+              <button type="button" className="btn-cancel" onClick={handleClose} disabled={isSubmitting}>Cancelar</button>
+              <button type="submit" className="btn-submit" disabled={isSubmitting || rating === 0 || !comment.trim()}>
+                {isSubmitting ? 'Enviando...' : 'Publicar reseña'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default AddReviewModal;

@@ -1,33 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { FaTrash } from 'react-icons/fa';
+import Swal from 'sweetalert2';
 import './Review.css';
 
-const ReviewItem = ({ review }) => {
-  const [selectedImageIndex, setSelectedImageIndex] = useState(null);
-
-  const openGallery = (index) => {
-    setSelectedImageIndex(index);
-  };
-
-  const closeGallery = () => {
-    setSelectedImageIndex(null);
-  };
-
-  const handleNext = () => {
-    if (review.images && selectedImageIndex !== null) {
-      setSelectedImageIndex((prevIndex) =>
-        prevIndex === review.images.length - 1 ? 0 : prevIndex + 1
-      );
-    }
-  };
-
-  const handlePrev = () => {
-    if (review.images && selectedImageIndex !== null) {
-      setSelectedImageIndex((prevIndex) =>
-        prevIndex === 0 ? review.images.length - 1 : prevIndex - 1
-      );
-    }
-  };
-
+const ReviewItem = ({ review, onDelete }) => {
   const formatDate = (dateString) => {
     if (!dateString) return 'Sin fecha';
     const date = new Date(dateString);
@@ -50,6 +26,29 @@ const ReviewItem = ({ review }) => {
     return stars;
   };
 
+  const handleDelete = () => {
+    Swal.fire({
+      title: '¿Deseas eliminar esta reseña?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ff5c8d', // rosita
+      cancelButtonColor: '#aaa',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        onDelete(review._id);
+        Swal.fire({
+          title: 'Eliminada',
+          text: 'La reseña ha sido eliminada',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
+    });
+  };
+
   return (
     <div className="historial-item-content">
       <div className="historial-item-image-container">
@@ -60,17 +59,21 @@ const ReviewItem = ({ review }) => {
         />
       </div>
       <div className="historial-item-details">
-        <div className="product-info">
+        <div className="product-info" style={{ position: 'relative' }}>
           <h3 className="product-name">{review.id_product.name}</h3>
+          {/* Botón de eliminar en esquina superior derecha */}
+          <FaTrash
+            onClick={handleDelete}
+            className="delete-review-icon"
+            title="Eliminar reseña"
+          />
         </div>
         <div className="review-body-content">
           <div className="review-text-and-rating">
             <div className="review-comment-section">
               <p className="review-comment-text">{review.comment}</p>
             </div>
-            <div className="review-rating">
-              {renderStars(review.rank)}
-            </div>
+            <div className="review-rating">{renderStars(review.rank)}</div>
             <p className="order-date">{formatDate(review.createdAt)}</p>
           </div>
           {review.images && review.images.length > 0 && (
@@ -83,7 +86,6 @@ const ReviewItem = ({ review }) => {
                     src={img}
                     alt={`Reseña ${index + 1}`}
                     className="review-image"
-                    onClick={() => openGallery(index)} // ✅ Manejador de click
                   />
                 ))}
               </div>
@@ -91,22 +93,6 @@ const ReviewItem = ({ review }) => {
           )}
         </div>
       </div>
-
-      {/* ✅ Modal de la galería */}
-      {selectedImageIndex !== null && review.images && (
-        <div className="gallery-modal-overlay" onClick={closeGallery}>
-          <div className="gallery-modal-content" onClick={(e) => e.stopPropagation()}>
-            <span className="close-btn" onClick={closeGallery}>&times;</span>
-            <img src={review.images[selectedImageIndex]} alt="Expanded Review" className="expanded-image" />
-            {review.images.length > 1 && (
-              <>
-                <button className="prev-btn" onClick={handlePrev}>❮</button>
-                <button className="next-btn" onClick={handleNext}>❯</button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

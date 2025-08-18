@@ -1,10 +1,9 @@
-// backend/src/controllers/productController.js
+// backend/src/controllers/productsController.js
 
 import Product from "../models/Products.js";
 import Category from "../models/Category.js";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs/promises";
-import { config } from "../config.js";
 
 // configuración de cloudinary
 cloudinary.config({
@@ -36,6 +35,17 @@ productController.getProductById = async (req, res) => {
   }
 };
 
+// obtener productos por categoría
+productController.getProductsByCategory = async (req, res) => {
+  try {
+    const categoryId = req.params.id;
+    const products = await Product.find({ category_id: categoryId }).populate("category_id", "name");
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: "error fetching products by category", error: error.message });
+  }
+};
+
 // crear un producto
 productController.createProduct = async (req, res) => {
   const {
@@ -54,7 +64,7 @@ productController.createProduct = async (req, res) => {
       return res.status(400).json({ message: "missing required product fields" });
     }
 
-    // validación de precio: debe ser número y mayor que cero
+    // validación de precio
     if (isNaN(price) || Number(price) <= 0) {
       return res.status(400).json({ message: "price must be a valid number greater than 0" });
     }
@@ -72,7 +82,7 @@ productController.createProduct = async (req, res) => {
           ]
         });
         uploadedImages.push(result.secure_url);
-        await fs.unlink(file.path); // eliminar archivo temporal
+        await fs.unlink(file.path);
       }
     }
 
@@ -86,7 +96,7 @@ productController.createProduct = async (req, res) => {
       category_id,
       discountPercentage: discountPercentage != null ? discountPercentage : null,
       finalPrice: calculateFinalPrice(Number(price), discountPercentage),
-      stock: stock ?? 1 // si no se envía, usar 1 por defecto
+      stock: stock ?? 1
     });
 
     // guardar en la base de datos

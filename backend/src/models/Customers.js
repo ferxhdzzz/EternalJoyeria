@@ -36,6 +36,14 @@ const customersSchema = new Schema(
       type: String,
       default: "" // Cambiado a string vacío para consistencia con el controlador
     },
+    loginAttempts:{
+      type:Number,
+      default: null,
+    },
+    timeOut:{
+      type: Date,
+      default: null,
+    }
   },
   {
     strict: false,
