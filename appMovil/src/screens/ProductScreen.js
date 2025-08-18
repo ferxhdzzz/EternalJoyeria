@@ -8,100 +8,56 @@ import {
   Image,
   Dimensions,
   Animated,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../context/AuthContext';
+import useFetchProducts from '../hooks/useFetchProducts';
+import useFetchCategories from '../hooks/useFetchCategories';
 
 const { width } = Dimensions.get('window');
 
-const ProductScreen = ({ route }) => {
+const ProductScreen = ({ route, userData }) => {
   const navigation = route.params?.navigation;
-  const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState('Todos');
+  const [refreshing, setRefreshing] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
 
-  // Categorías disponibles
-  const categories = ['Todos', 'Collares', 'Aretes', 'Pulseras', 'Conjuntos', 'Peinetas'];
+  // Usa los hooks para obtener productos y categorías
+  const { productos, loading: productsLoading, error: productsError, refreshProductos } = useFetchProducts(); 
+  const { categories, loading: categoriesLoading, error: categoriesError, refreshCategories } = useFetchCategories();
 
-  // Datos de ejemplo para productos por categoría
-  const [products] = useState([
-    // Collares
-    {
-      id: 1,
-      name: 'Collar de Perlas',
-      price: 89.99,
-      image: require('../../assets/Productos/collarorchidmorado.png'),
-      category: 'Collares'
-    },
-    {
-      id: 2,
-      name: 'Collar Dorado',
-      price: 129.99,
-      image: require('../../assets/Productos/collarorchidrosado.png'),
-      category: 'Collares'
-    },
-    // Aretes
-    {
-      id: 3,
-      name: 'Aretes de Diamante',
-      price: 199.99,
-      image: require('../../assets/Productos/aretedoradomargarita.png'),
-      category: 'Aretes'
-    },
-    {
-      id: 4,
-      name: 'Aretes de Plata',
-      price: 79.99,
-      image: require('../../assets/Productos/aretedoradorosa.png'),
-      category: 'Aretes'
-    },
-    // Pulseras
-    {
-      id: 5,
-      name: 'Pulsera Elegante',
-      price: 149.99,
-      image: require('../../assets/Productos/pulserauna.png'),
-      category: 'Pulseras'
-    },
-    {
-      id: 6,
-      name: 'Pulsera de Oro',
-      price: 299.99,
-      image: require('../../assets/Productos/pulserados.png'),
-      category: 'Pulseras'
-    },
-    // Conjuntos
-    {
-      id: 7,
-      name: 'Set Completo',
-      price: 399.99,
-      image: require('../../assets/Productos/conjuntoorchidblanco.png'),
-      category: 'Conjuntos'
-    },
-    {
-      id: 8,
-      name: 'Colección Premium',
-      price: 599.99,
-      image: require('../../assets/Productos/conjuntoorchidamarillo.png'),
-      category: 'Conjuntos'
-    },
-    // Peinetas
-    {
-      id: 9,
-      name: 'Peineta Decorativa',
-      price: 45.99,
-      image: require('../../assets/Productos/peinetarosa.png'),
-      category: 'Peinetas'
-    },
-    {
-      id: 10,
-      name: 'Peineta Elegante',
-      price: 65.99,
-      image: require('../../assets/Productos/peinetablanca.png'),
-      category: 'Peinetas'
+  // Debug: mostrar datos en consola
+  useEffect(() => {
+    if (productos.length > 0) {
+      console.log('=== PRODUCTOS CARGADOS ===');
+      console.log('Total productos:', productos.length);
+      productos.forEach((product, index) => {
+        console.log(`Producto ${index + 1}:`, {
+          name: product.name,
+          category_id: product.category_id,
+          category_id_type: typeof product.category_id,
+          category_name: product.category_id?.name,
+          category_id_id: product.category_id?._id
+        });
+      });
     }
-  ]);
+  }, [productos]);
+
+  useEffect(() => {
+    if (categories.length > 0) {
+      console.log('=== CATEGORÍAS CARGADAS ===');
+      console.log('Total categorías:', categories.length);
+      categories.forEach((category, index) => {
+        console.log(`Categoría ${index + 1}:`, {
+          name: category.name,
+          _id: category._id,
+          _id_type: typeof category._id
+        });
+      });
+    }
+  }, [categories]);
 
   useEffect(() => {
     // Animación de entrada
@@ -117,73 +73,144 @@ const ProductScreen = ({ route }) => {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [fadeAnim, slideAnim]);
+
+  // Función para refrescar todo
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await Promise.all([refreshProductos(), refreshCategories()]);
+    setRefreshing(false);
+  };
 
   const renderCategoryButton = (category) => (
     <TouchableOpacity
-      key={category}
+      key={category._id}
       style={[
         styles.categoryButton,
-        selectedCategory === category && styles.categoryButtonSelected
+        selectedCategory === category.name && styles.categoryButtonSelected
       ]}
-      onPress={() => setSelectedCategory(category)}
+      onPress={() => setSelectedCategory(category.name)}
     >
       <Text style={[
         styles.categoryButtonText,
-        selectedCategory === category && styles.categoryButtonTextSelected
+        selectedCategory === category.name && styles.categoryButtonTextSelected
       ]}>
-        {category}
+        {category.name}
       </Text>
     </TouchableOpacity>
   );
 
   const renderProduct = (product) => (
-    <View key={product.id} style={styles.productCard}>
+    <View key={product._id} style={styles.productCard}> 
       <View style={styles.productImageContainer}>
         <Image 
-          source={typeof product.image === 'string' ? { uri: product.image } : product.image} 
-          style={styles.productImage} 
+          source={{ uri: product.images?.[0] || 'https://via.placeholder.com/150' }}
+          style={styles.productImage}
+          resizeMode="cover"
         />
       </View>
       <View style={styles.productInfo}>
-        <Text style={styles.productName}>{product.name}</Text>
-        <Text style={styles.productPrice}>${product.price}</Text>
+        <Text style={styles.productName} numberOfLines={2}>
+          {product.name || 'Producto sin nombre'}
+        </Text>
+        <Text style={styles.productPrice}>
+          ${(product.finalPrice || product.price || 0).toFixed(2)}
+        </Text> 
       </View>
       <TouchableOpacity 
         style={styles.addToCartButton}
-        onPress={() => navigation.navigate('ProductDetail', { product })}
+        onPress={() => {
+          if (navigation?.navigate) {
+            navigation.navigate('ProductDetail', { product });
+          }
+        }}
       >
         <Ionicons name="add" size={20} color="#fff" />
       </TouchableOpacity>
     </View>
   );
 
-  const renderCategorySection = (category) => {
-    // Si la categoría es "Todos", mostrar todos los productos juntos
-    if (category === 'Todos') {
+  const renderCategorySection = (categoryName) => {
+    // Si la categoría es "Todos", mostrar todos los productos
+    let categoryProducts;
+    
+    if (categoryName === 'Todos') {
+      categoryProducts = productos;
+    } else {
+      // Buscar la categoría seleccionada en la lista de categorías
+      const selectedCategoryObj = categories.find(cat => cat.name === categoryName);
+      
+      if (selectedCategoryObj && selectedCategoryObj._id !== 'todos') {
+        // Filtrar productos por category_id (el backend devuelve el objeto completo)
+        categoryProducts = productos.filter(product => {
+          // El backend hace populate, así que category_id es un objeto con _id y name
+          const productCategoryName = product.category_id?.name;
+          const categoryName = selectedCategoryObj.name;
+          
+          console.log(`Comparando: producto.category_id.name = "${productCategoryName}" con categoría.name = "${categoryName}"`);
+          return productCategoryName === categoryName;
+        });
+      } else {
+        categoryProducts = [];
+      }
+    }
+    
+    console.log(`Categoría "${categoryName}": ${categoryProducts.length} productos encontrados`);
+    
+    if (categoryProducts.length === 0) {
       return (
-        <View key={category} style={styles.categorySection}>
-          <View style={styles.productsGrid}>
-            {products.map(renderProduct)}
+        <View key={categoryName} style={styles.categorySection}>
+          <Text style={styles.categoryTitle}>{categoryName}</Text>
+          <View style={styles.noProductsContainer}>
+            <Ionicons name="bag-outline" size={48} color="#ccc" />
+            <Text style={styles.noProductsText}>
+              No hay productos en esta categoría
+            </Text>
+            <Text style={styles.debugText}>
+              Debug: {productos.length} productos total, {categories.length} categorías
+            </Text>
           </View>
         </View>
       );
     }
-    
-    // Para otras categorías, filtrar por categoría
-    const categoryProducts = products.filter(product => product.category === category);
-    
-    if (categoryProducts.length === 0) return null;
 
     return (
-      <View key={category} style={styles.categorySection}>
-        <Text style={styles.categoryTitle}>{category}</Text>
+      <View key={categoryName} style={styles.categorySection}>
+        <Text style={styles.categoryTitle}>{categoryName}</Text>
         <View style={styles.productsGrid}>
           {categoryProducts.map(renderProduct)}
         </View>
       </View>
     );
   };
+
+  // Renderizar mensaje de error para productos
+  if (productsError && !productsLoading) {
+    return (
+      <View style={styles.errorContainer}>
+        <Ionicons name="alert-circle" size={64} color="#FF6B6B" />
+        <Text style={styles.errorTitle}>Error al cargar productos</Text>
+        <Text style={styles.errorMessage}>{productsError}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={refreshProductos}>
+          <Text style={styles.retryButtonText}>Reintentar</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  // Renderizar mensaje de error para categorías
+  if (categoriesError && !categoriesLoading) {
+    return (
+      <View style={styles.errorContainer}>
+        <Ionicons name="alert-circle" size={64} color="#FF6B6B" />
+        <Text style={styles.errorTitle}>Error al cargar categorías</Text>
+        <Text style={styles.errorMessage}>{categoriesError}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={refreshCategories}>
+          <Text style={styles.retryButtonText}>Reintentar</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -199,12 +226,12 @@ const ProductScreen = ({ route }) => {
       >
         <View style={styles.profileSection}>
           <Image
-            source={user?.profileImage ? { uri: user.profileImage } : require('../../assets/Usuarionuevo.jpg')}
+            source={userData?.profileImage ? { uri: userData.profileImage } : require('../../assets/Usuarionuevo.jpg')}
             style={styles.profileImage}
           />
           <View style={styles.welcomeText}>
             <Text style={styles.welcomeLabel}>Bienvenida</Text>
-            <Text style={styles.userName}>{user?.firstName || 'Jennifer'}</Text>
+            <Text style={styles.userName}>{userData?.firstName || 'Jennifer'}</Text>
           </View>
         </View>
       </Animated.View>
@@ -220,13 +247,17 @@ const ProductScreen = ({ route }) => {
         ]}
       >
         <Text style={styles.categoriesTitle}>Categorias</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoriesContainer}
-        >
-          {categories.map(renderCategoryButton)}
-        </ScrollView>
+        {categoriesLoading ? (
+          <ActivityIndicator size="small" color="#B5C9AD" style={styles.categoryLoading} />
+        ) : (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoriesContainer}
+          >
+            {categories.map(renderCategoryButton)}
+          </ScrollView>
+        )}
       </Animated.View>
 
       {/* Productos por Categoría */}
@@ -242,11 +273,22 @@ const ProductScreen = ({ route }) => {
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.productsContainer}
-        >
-          {selectedCategory === 'Todos' 
-            ? renderCategorySection('Todos')
-            : renderCategorySection(selectedCategory)
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#B5C9AD']}
+              tintColor="#B5C9AD"
+            />
           }
+        >
+          {productsLoading ? (
+            <ActivityIndicator size="large" color="#B5C9AD" style={styles.loadingIndicator} />
+          ) : (
+            selectedCategory === 'Todos' 
+              ? renderCategorySection('Todos')
+              : renderCategorySection(selectedCategory)
+          )}
         </ScrollView>
       </Animated.View>
     </View>
@@ -405,6 +447,61 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  loadingIndicator: {
+    marginTop: 50,
+  },
+  categoryLoading: {
+    marginTop: 20,
+  },
+  // Estilos para manejo de errores
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    backgroundColor: '#fff',
+  },
+  errorTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  errorMessage: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  retryButton: {
+    backgroundColor: '#B5C9AD',
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+    borderRadius: 25,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  noProductsContainer: {
+    alignItems: 'center',
+    marginTop: 50,
+    paddingVertical: 40,
+  },
+  noProductsText: {
+    fontSize: 18,
+    color: '#666',
+    marginTop: 15,
+    textAlign: 'center',
+  },
+  debugText: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 20,
+    textAlign: 'center',
   },
 });
 
