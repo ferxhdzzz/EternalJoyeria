@@ -2,23 +2,23 @@
 
 Este proyecto incluye tanto la aplicación móvil como la interfaz web para Eternal Joyería.
 
-## 🚀 Funcionalidades Implementadas
+##  Funcionalidades Implementadas
 
-### 📱 Aplicación Móvil
-- ✅ **Login funcional** - Inicio de sesión con validación
-- ✅ **Perfil funcional** - Gestión completa del perfil de usuario
-- ✅ **Logout funcional** - Cierre de sesión con confirmación
-- ✅ **Navegación entre pantallas** - Sistema de navegación completo
-- ✅ **Gestión de estado** - Contexto de autenticación funcional
-- ✅ **Persistencia de datos** - Almacenamiento local con AsyncStorage
+###  Aplicación Móvil
+-  **Login funcional** - Inicio de sesión con validación
+-  **Perfil funcional** - Gestión completa del perfil de usuario
+-  **Logout funcional** - Cierre de sesión con confirmación
+-  **Navegación entre pantallas** - Sistema de navegación completo
+-  **Gestión de estado** - Contexto de autenticación funcional
+-  **Persistencia de datos** - Almacenamiento local con AsyncStorage
 
-### 🌐 Interfaz Web
-- ✅ **Perfil funcional** - Gestión completa del perfil web
-- ✅ **Logout funcional** - Cierre de sesión integrado
-- ✅ **Contexto de autenticación** - Manejo de estado de usuario
-- ✅ **Hooks personalizados** - Login y logout funcionales
+###  Interfaz Web
+- **Perfil funcional** - Gestión completa del perfil web
+- **Logout funcional** - Cierre de sesión integrado
+-  **Contexto de autenticación** - Manejo de estado de usuario
+-  **Hooks personalizados** - Login y logout funcionales
 
-## 📱 Instalación de la Aplicación Móvil
+##  Instalación de la Aplicación Móvil
 
 ### Prerrequisitos
 - Node.js (versión 16 o superior)
@@ -52,7 +52,7 @@ Este proyecto incluye tanto la aplicación móvil como la interfaz web para Eter
 - Expo Image Picker para selección de fotos
 - Linear Gradient para efectos visuales
 
-## 🌐 Instalación de la Interfaz Web
+##  Instalación de la Interfaz Web
 
 ### Prerrequisitos
 - Node.js (versión 16 o superior)
@@ -91,21 +91,21 @@ Asegúrate de que el backend esté ejecutándose y configurado correctamente. La
 5. **Logout** - Cierre de sesión con confirmación
 
 ### Características del perfil:
-- ✅ Edición de datos personales (nombre, email, teléfono)
-- ✅ Cambio de foto de perfil
-- ✅ Configuración de notificaciones
-- ✅ Gestión de idioma y moneda
-- ✅ Acceso a políticas y términos
+-  Edición de datos personales (nombre, email, teléfono)
+-  Cambio de foto de perfil
+-  Configuración de notificaciones
+-  Gestión de idioma y moneda
+-  Acceso a políticas y términos
 
-## 🌐 Uso de la Interfaz Web
+##  Uso de la Interfaz Web
 
 ### Funcionalidades del perfil:
-- ✅ Edición de información personal
-- ✅ Cambio de foto de perfil
-- ✅ Gestión de dirección completa
-- ✅ Configuración de notificaciones
-- ✅ Acceso a historial de pedidos
-- ✅ Logout funcional
+-  Edición de información personal
+-  Cambio de foto de perfil
+-  Gestión de dirección completa
+-  Configuración de notificaciones
+-  Acceso a historial de pedidos
+- Logout funcional
 
 ## 🛠️ Estructura del Proyecto
 
@@ -129,7 +129,7 @@ EternalJoyeria/
 └── backend/                  # API del backend
 ```
 
-## 🔐 Autenticación
+##  Autenticación
 
 
 ### App Móvil
@@ -199,7 +199,7 @@ EternalJoyeria/
 - **Manejo de estado** centralizado
 - **Redirección automática** después del logout
 
-## 📱 Pruebas de la Aplicación Móvil
+##  Pruebas de la Aplicación Móvil
 
 1. **Instalar dependencias** en `appMovil/`
 2. **Ejecutar** `npm start`
@@ -210,7 +210,7 @@ EternalJoyeria/
    - Cambio de foto
    - Logout y confirmación
 
-## 🌐 Pruebas de la Interfaz Web
+##  Pruebas de la Interfaz Web
 
 1. **Instalar dependencias** en `frontend/`
 2. **Ejecutar** `npm run dev`
@@ -220,7 +220,7 @@ EternalJoyeria/
    - Cambio de foto
    - Logout funcional
 
-## 🚨 Solución de Problemas
+##  Solución de Problemas
 
 ### App Móvil
 - **Error de dependencias:** Ejecutar `npm install` en `appMovil/`
@@ -232,7 +232,7 @@ EternalJoyeria/
 - **Error de conexión:** Verificar configuración del backend
 - **Error de autenticación:** Verificar cookies y sesión
 
-## 📞 Soporte
+##  Soporte
 
 Para problemas técnicos o preguntas sobre la implementación, revisa:
 1. Los logs de la consola
@@ -245,9 +245,9 @@ Para problemas técnicos o preguntas sobre la implementación, revisa:
 npm install -g expo-cli 
 
   ## Nomenclatura utlizada para backend y frontend
+camelCase
 
 
-**¡La aplicación está lista para usar con todas las funcionalidades implementadas!** 🎉
 
 
 
