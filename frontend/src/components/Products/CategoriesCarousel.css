@@ -1,0 +1,76 @@
+.categories-carousel-container {
+  width: 100%;
+  padding: 30px 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: #FFFFFF;
+  color: white;
+}
+
+.categories-carousel-container h2 {
+  font-size: 28px;
+  margin-bottom: 30px;
+  color: rgb(0, 0, 0);
+}
+
+.categories-carousel {
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.categories-scroll {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  white-space: nowrap;
+  transform: translateX(0);
+  transition: transform 0.1s linear;
+}
+
+.category-card {
+  min-width: 320px; 
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.category-card-image {
+  width: 100%;
+  height: 220px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+.category-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.category-card-info {
+  text-align: center;
+}
+
+.category-card-info h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  color: rgb(0, 0, 0);
+}
+
+.category-card-info p {
+  margin: 0;
+  font-size: 15px;
+  color: #000000;
+}

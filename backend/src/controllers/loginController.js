@@ -49,7 +49,7 @@ loginController.login = async (req, res) => {
     const minutesLeft = Math.ceil((userAttempts.blockedUntil - now) / 60000);
     return res.status(429).json({
       success: false,
-      message: `Account blocked. Try again in ${minutesLeft} minutes.`,
+      message: `Cuenta bloqueada faltan ${minutesLeft} minutos.`,
     });
   }
 
@@ -78,7 +78,7 @@ loginController.login = async (req, res) => {
           attempts.set(emailKey, currentAttempts);
           return res.status(429).json({
             success: false,
-            message: "Too many failed attempts. Account blocked for 15 minutes.",
+            message: "Muchos intentos falidos. Tu cuenta fue bloqueada por 15 minutos.",
           });
         }
         
@@ -86,7 +86,7 @@ loginController.login = async (req, res) => {
         attempts.set(emailKey, currentAttempts);
         return res.status(401).json({
           success: false,
-          message: `Invalid credentials. ${MAX_ATTEMPTS - currentAttempts.count} attempts remaining.`,
+          message: `Credenciales invalidas ${MAX_ATTEMPTS - currentAttempts.count} intentos restantes`,
         });
       }
     } else {
@@ -110,7 +110,7 @@ loginController.login = async (req, res) => {
             attempts.set(emailKey, currentAttempts);
             return res.status(429).json({
               success: false,
-              message: "Too many failed attempts. Account blocked for 15 minutes.",
+              message: "Muchos intentos falidos. Tu cuenta fue bloqueada por 15 minutos",
             });
           }
           
@@ -118,7 +118,7 @@ loginController.login = async (req, res) => {
           attempts.set(emailKey, currentAttempts);
           return res.status(401).json({
             success: false,
-            message: `Invalid credentials. ${MAX_ATTEMPTS - currentAttempts.count} attempts remaining.`,
+            message: `Credenciales invalidas. ${MAX_ATTEMPTS - currentAttempts.count} intentos restantes.`,
           });
         }
       }
@@ -136,7 +136,7 @@ loginController.login = async (req, res) => {
         attempts.set(emailKey, currentAttempts);
         return res.status(429).json({
           success: false,
-          message: "Too many failed attempts. Account blocked for 15 minutes.",
+          message: "Muchos intentos falidos. Tu cuenta fue bloqueada por 15 minutos",
         });
       }
       
@@ -144,7 +144,7 @@ loginController.login = async (req, res) => {
       attempts.set(emailKey, currentAttempts);
       return res.status(401).json({
         success: false,
-        message: `Invalid credentials. ${MAX_ATTEMPTS - currentAttempts.count} attempts remaining.`,
+        message: `Credenciales invalidas ${MAX_ATTEMPTS - currentAttempts.count} intentos restantes.`,
       });
     }
 

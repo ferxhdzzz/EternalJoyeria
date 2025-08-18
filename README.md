@@ -131,11 +131,67 @@ EternalJoyeria/
 
 ## 🔐 Autenticación
 
+
 ### App Móvil
 - **Contexto de autenticación** con AsyncStorage
 - **Persistencia de sesión** entre reinicios de la app
 - **Validación de formularios** en tiempo real
 - **Manejo de errores** con alertas nativas
+
+## Comandos para ejecutar la app movil
+-cd nombre del proyecto
+-npx expo start
+-presionamos a para iniciar y r para recargar
+
+
+## Comandos para ejecutar el backend
+**inicializar el proyecto** : npm init-y
+
+**ejecutar** : node index.js
+
+
+## Comandos para ejecutar el frontend
+**inicializar el proyecto** : npm create vite@latest
+
+**ejecutar** : npm run dev
+
+
+
+## Librerias instaladas en el backend
+
+
+- express
+
+- mongoose
+
+- dotenv
+
+- nodemailer
+
+- crypto
+
+- jsonwebtoken
+
+- bcryptjs
+
+- cookie-parser
+
+- multer-storage-cloudinary
+
+- multer
+
+- cloudinary
+
+- cors
+
+ 
+ ## Librerias instaladas en el frontend
+
+
+- framer-motion
+
+- gsap
+
 
 ### Web
 - **Contexto de autenticación** con cookies del backend
@@ -184,7 +240,12 @@ Para problemas técnicos o preguntas sobre la implementación, revisa:
 3. Las dependencias instaladas
 4. La versión de Node.js
 
----
+
+## Librerias instaladas en la app Movil
+npm install -g expo-cli 
+
+  ## Nomenclatura utlizada para backend y frontend
+
 
 **¡La aplicación está lista para usar con todas las funcionalidades implementadas!** 🎉
 
