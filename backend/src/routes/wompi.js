@@ -4,13 +4,8 @@ import { getWompiToken, testPayment, payment3ds } from '../controllers/wompiCont
 
 const router = express.Router();
 
-// Ruta para obtener el token de Wompi
-router.post('/token', getWompiToken);
-
-// Ruta para realizar un pago de prueba
-router.post('/testPayment', testPayment);
-
-// Ruta para procesar el pago con tarjeta (3DS)
-router.post('/payment3ds', payment3ds);
+router.post('/token', getWompiToken);     // token OAuth (mock o real)
+router.post('/testPayment', testPayment); // opcional (tokenizada sin 3DS)
+router.post('/payment3ds', payment3ds);   // principal (3DS) - usa mock si WOMPI_MODE=mock
 
 export default router;

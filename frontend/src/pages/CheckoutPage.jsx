@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// src/pages/CheckoutPage.jsx
+import React, { useEffect, useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 import Nav from '../components/Nav/Nav';
@@ -6,7 +7,7 @@ import SidebarCart from '../components/Cart/SidebarCart';
 import Swal from 'sweetalert2';
 import '../styles/CheckoutPage.css';
 import Footer from '../components/Footer';
-import usePayment from '../hooks/Payment/usePayment.js'; // Importar el hook personalizado
+import usePayment from '../hooks/Payment/usePayment.js';
 
 const TicketEdge = () => (
   <svg width="100%" height="6" viewBox="0 0 400 6" fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:'block'}}>
@@ -18,7 +19,7 @@ const TicketEdge = () => (
   </svg>
 );
 
-// Componente de barra de progreso
+// Barra de progreso
 const ProgressBar = ({ step }) => {
   return (
     <div className="progress-bar-container">
@@ -46,8 +47,8 @@ const CheckoutPage = () => {
   const { cartItems, clearCart } = useCart();
   const navigate = useNavigate();
   const [cartOpen, setCartOpen] = useState(false);
-  
-  // Usar el hook personalizado
+
+  // Hook de pago (con carrito servidor)
   const {
     formData,
     formDataTarjeta,
@@ -57,14 +58,30 @@ const CheckoutPage = () => {
     handleFinishPayment,
     step,
     setStep,
-    limpiarFormulario
+    limpiarFormulario,
+    loadOrCreateCart,
+    syncCartItems,
+    orderId,
   } = usePayment();
 
   const [errors, setErrors] = useState({});
 
+  // Totales frontend (para mostrar). Para pruebas, envío = 0
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const shipping = cartItems.length > 0 ? 80 : 0;
+  const shipping = 0; // 👈 sin costo de envío para testear
   const total = subtotal + shipping;
+
+  // Cargar/crear carrito servidor al entrar a checkout
+  useEffect(() => {
+    loadOrCreateCart().catch(console.error);
+  }, [loadOrCreateCart]);
+
+  // Sincronizar ítems del carrito local al backend cuando YA tenemos orderId
+  useEffect(() => {
+    if (!orderId) return;
+    const shippingCents = Math.round(shipping * 100);
+    syncCartItems(cartItems, { shippingCents, taxCents: 0, discountCents: 0 }).catch(console.error);
+  }, [cartItems, shipping, orderId, syncCartItems]);
 
   if (cartItems.length === 0) {
     return (
@@ -79,47 +96,65 @@ const CheckoutPage = () => {
     );
   }
 
-  // Validar paso 1 (datos de envío)
+  // Validación paso 1 (datos de envío)
   const validateStep1 = () => {
     const newErrors = {};
-    if (!formData.nombre.trim()) newErrors.nombre = 'Nombre requerido';
-    if (!formData.email.trim() || !/^\S+@\S+\.\S+$/.test(formData.email)) newErrors.email = 'Correo inválido';
-    if (!formData.direccion.trim()) newErrors.direccion = 'Dirección requerida';
-    if (!formData.ciudad.trim()) newErrors.ciudad = 'Ciudad requerida';
-    if (!formData.codigoPostal.trim() || !/^\d{4,8}$/.test(formData.codigoPostal)) newErrors.codigoPostal = 'Código postal inválido (4-8 dígitos)';
-    if (!formData.telefono.trim()) newErrors.telefono = 'Teléfono requerido';
-    
+    if (!formData.nombre?.trim()) newErrors.nombre = 'Nombre requerido';
+    if (!formData.email?.trim() || !/^\S+@\S+\.\S+$/.test(formData.email)) newErrors.email = 'Correo inválido';
+    if (!formData.direccion?.trim()) newErrors.direccion = 'Dirección requerida';
+    if (!formData.ciudad?.trim()) newErrors.ciudad = 'Ciudad requerida';
+    if (!formData.codigoPostal?.trim() || !/^\d{3,10}$/.test(formData.codigoPostal)) newErrors.codigoPostal = 'Código postal inválido';
+    if (!formData.telefono?.trim()) newErrors.telefono = 'Teléfono requerido';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Validar paso 2 (datos de tarjeta)
+  // Validación paso 2 (datos de tarjeta)
   const validateStep2 = () => {
     const newErrors = {};
-    if (!formDataTarjeta.numeroTarjeta.trim() || !/^\d{13,16}$/.test(formDataTarjeta.numeroTarjeta.replace(/\s/g, ''))) {
+    if (!formDataTarjeta.nombreTarjetaHabiente?.trim()) {
+      newErrors.nombreTarjetaHabiente = 'Nombre en la tarjeta requerido';
+    }
+    if (
+      !formDataTarjeta.numeroTarjeta?.trim() ||
+      !/^\d{13,16}$/.test(formDataTarjeta.numeroTarjeta.replace(/\s/g, ''))
+    ) {
       newErrors.numeroTarjeta = 'Tarjeta inválida (13-16 dígitos numéricos)';
     }
     if (!formDataTarjeta.mesVencimiento || !formDataTarjeta.anioVencimiento) {
       newErrors.fechaVencimiento = 'Fecha de vencimiento requerida';
     }
-    if (!formDataTarjeta.cvv.trim() || !/^\d{3,4}$/.test(formDataTarjeta.cvv)) {
+    if (!formDataTarjeta.cvv?.trim() || !/^\d{3,4}$/.test(formDataTarjeta.cvv)) {
       newErrors.cvv = 'CVV inválido (3-4 dígitos)';
     }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   // Ir al siguiente paso
   const handleNextStep = async () => {
-    if (step === 1) {
-      if (validateStep1()) {
-        // Actualizar monto basado en el carrito
-        handleChangeData({
-          target: { name: 'monto', value: (total * 100) / 100 } // Convertir a formato correcto
+    if (step !== 1) return;
+
+    if (validateStep1()) {
+      try {
+        // Asegurar orden + sync inmediata antes de pending_payment
+        if (!orderId) await loadOrCreateCart();
+        const shippingCents = Math.round(shipping * 100);
+        await syncCartItems(
+          cartItems,
+          { shippingCents, taxCents: 0, discountCents: 0 },
+          { immediate: true }
+        );
+
+        // Guardar dirección → pending → token → step 2
+        await handleFirstStep();
+      } catch (err) {
+        console.error('Error en primer paso:', err);
+        Swal.fire({
+          title: 'Error',
+          text: err?.message || 'No se pudo preparar el pago. Intenta nuevamente.',
+          icon: 'error',
         });
-        
-        await handleFirstStep(); // Esto maneja el token y cambia el step
       }
     }
   };
@@ -135,88 +170,66 @@ const CheckoutPage = () => {
   // Procesar pago final
   const handlePay = async (e) => {
     e.preventDefault();
-
     if (!validateStep2()) return;
-
     try {
-      await handleFinishPayment(); // Esto procesa el pago y maneja el resultado
-      
-      // Si llegamos aquí, el pago fue exitoso
+      await handleFinishPayment(); // Procesa 3DS; si aprueba, step=3
       Swal.fire({
-        title: "Pago exitoso",
-        text: "Gracias por tu compra.",
-        icon: "success",
-        confirmButtonText: "Ver mis pedidos",
-        confirmButtonColor: "#D1A6B4",
+        title: 'Pago exitoso',
+        text: 'Gracias por tu compra.',
+        icon: 'success',
+        confirmButtonText: 'Ver mis pedidos',
+        confirmButtonColor: '#D1A6B4',
       }).then(() => {
         clearCart();
-        navigate("/historial");
+        navigate('/historial');
       });
     } catch (error) {
-      console.error("Error al pagar:", error);
+      console.error('Error al pagar:', error);
       Swal.fire({
-        title: "Error inesperado",
-        text: "No se pudo procesar el pago. Intenta de nuevo.",
-        icon: "error",
+        title: 'Pago rechazado',
+        text: error?.message || 'No se pudo procesar el pago. Intenta de nuevo.',
+        icon: 'error',
       });
     }
   };
 
-  // Formatear número de tarjeta
+  // Formatear número de tarjeta (solo visual)
   const formatCardNumber = (value) => {
     const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
     const matches = v.match(/\d{4,16}/g);
-    const match = matches && matches[0] || '';
+    const match = (matches && matches[0]) || '';
     const parts = [];
     for (let i = 0, len = match.length; i < len; i += 4) {
       parts.push(match.substring(i, i + 4));
     }
-    if (parts.length) {
-      return parts.join(' ');
-    } else {
-      return v;
-    }
+    return parts.length ? parts.join(' ') : v;
   };
 
-  // Manejar cambio en número de tarjeta con formato
+  // Número de tarjeta visual, guardando sin espacios
   const handleCardNumberChange = (e) => {
-    const rawValue = e.target.value.replace(/\s/g, ''); // Remover espacios para almacenamiento
+    const rawValue = e.target.value.replace(/\s/g, '');
     const formattedValue = formatCardNumber(e.target.value);
-    
-    // Actualizar con valor sin formato para el backend
-    handleChangeTarjeta({
-      target: { name: 'numeroTarjeta', value: rawValue }
-    });
-    
-    // Mostrar valor formateado en el input
+    handleChangeTarjeta({ target: { name: 'numeroTarjeta', value: rawValue } });
     e.target.value = formattedValue;
   };
 
-  // Manejar cambio en fecha de vencimiento
+  // Fecha (MM/AA) → guarda MM + YYYY
   const handleExpiryChange = (e) => {
-    let value = e.target.value.replace(/\D/g, ''); // Solo números
-    
+    let value = e.target.value.replace(/\D/g, '');
     if (value.length >= 2) {
       value = value.substring(0, 2) + '/' + value.substring(2, 4);
     }
-    
     e.target.value = value;
-    
-    // Extraer mes y año
     const [mes, anio] = value.split('/');
-    if (mes) {
-      handleChangeTarjeta({ target: { name: 'mesVencimiento', value: mes } });
-    }
-    if (anio) {
-      handleChangeTarjeta({ target: { name: 'anioVencimiento', value: `20${anio}` } });
-    }
+    if (mes) handleChangeTarjeta({ target: { name: 'mesVencimiento', value: mes } });
+    if (anio) handleChangeTarjeta({ target: { name: 'anioVencimiento', value: `20${anio}` } });
   };
 
   // Limpiar formulario y reiniciar
   const handleNewTransaction = () => {
     clearCart();
     limpiarFormulario();
-    navigate("/historial");
+    navigate('/historial');
   };
 
   return (
@@ -228,7 +241,7 @@ const CheckoutPage = () => {
           {/* Formulario de pasos */}
           <section className="checkout-payment-box ticket-form-box">
             <ProgressBar step={step} />
-            
+
             {/* Paso 1: Datos de envío */}
             {step === 1 && (
               <>
@@ -236,68 +249,68 @@ const CheckoutPage = () => {
                 <form className="ticket-form">
                   <div className="ticket-field">
                     <label>Nombre completo</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       name="nombre"
-                      value={formData.nombre} 
-                      onChange={handleChangeData} 
+                      value={formData.nombre}
+                      onChange={handleChangeData}
                     />
                     {errors.nombre && <span className="ticket-error">{errors.nombre}</span>}
                   </div>
                   <div className="ticket-field">
                     <label>Correo electrónico</label>
-                    <input 
-                      type="email" 
+                    <input
+                      type="email"
                       name="email"
-                      value={formData.email} 
-                      onChange={handleChangeData} 
+                      value={formData.email}
+                      onChange={handleChangeData}
                     />
                     {errors.email && <span className="ticket-error">{errors.email}</span>}
                   </div>
                   <div className="ticket-field">
                     <label>Dirección</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       name="direccion"
-                      value={formData.direccion} 
-                      onChange={handleChangeData} 
+                      value={formData.direccion}
+                      onChange={handleChangeData}
                     />
                     {errors.direccion && <span className="ticket-error">{errors.direccion}</span>}
                   </div>
                   <div className="ticket-field">
                     <label>Teléfono</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       name="telefono"
-                      value={formData.telefono} 
-                      onChange={handleChangeData} 
+                      value={formData.telefono}
+                      onChange={handleChangeData}
                     />
                     {errors.telefono && <span className="ticket-error">{errors.telefono}</span>}
                   </div>
                   <div className="ticket-field-row">
                     <div className="ticket-field">
                       <label>Ciudad</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="ciudad"
-                        value={formData.ciudad} 
-                        onChange={handleChangeData} 
+                        value={formData.ciudad}
+                        onChange={handleChangeData}
                       />
                       {errors.ciudad && <span className="ticket-error">{errors.ciudad}</span>}
                     </div>
                     <div className="ticket-field">
                       <label>Código postal</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="codigoPostal"
-                        value={formData.codigoPostal} 
-                        onChange={handleChangeData} 
+                        value={formData.codigoPostal}
+                        onChange={handleChangeData}
                       />
                       {errors.codigoPostal && <span className="ticket-error">{errors.codigoPostal}</span>}
                     </div>
                   </div>
-                  <button 
-                    className="ticket-pay-btn" 
+                  <button
+                    className="ticket-pay-btn"
                     type="button"
                     onClick={handleNextStep}
                   >
@@ -312,42 +325,64 @@ const CheckoutPage = () => {
               <>
                 <h2 className="ticket-title">Información de pago</h2>
                 <form className="ticket-form" onSubmit={handlePay}>
+                  {/* Nombre en la tarjeta */}
+                  <div className="ticket-field">
+                    <label>Nombre en la tarjeta</label>
+                    <input
+                      type="text"
+                      name="nombreTarjetaHabiente"
+                      value={formDataTarjeta.nombreTarjetaHabiente || ""}
+                      onChange={handleChangeTarjeta}
+                      placeholder="Como aparece en la tarjeta"
+                    />
+                    {errors.nombreTarjetaHabiente && (
+                      <span className="ticket-error">{errors.nombreTarjetaHabiente}</span>
+                    )}
+                  </div>
+
+                  {/* Número de tarjeta */}
                   <div className="ticket-field">
                     <label>Número de tarjeta</label>
-                    <input 
-                      type="text" 
-                      onChange={handleCardNumberChange} 
+                    <input
+                      type="text"
+                      onChange={handleCardNumberChange}
                       maxLength={19}
                       placeholder="1234 5678 9012 3456"
                     />
-                    {errors.numeroTarjeta && <span className="ticket-error">{errors.numeroTarjeta}</span>}
+                    {errors.numeroTarjeta && (
+                      <span className="ticket-error">{errors.numeroTarjeta}</span>
+                    )}
                   </div>
+
                   <div className="ticket-field-row">
                     <div className="ticket-field">
                       <label>Fecha de vencimiento (MM/AA)</label>
-                      <input 
-                        type="text" 
-                        onChange={handleExpiryChange} 
-                        maxLength={5} 
-                        placeholder="MM/AA" 
+                      <input
+                        type="text"
+                        onChange={handleExpiryChange}
+                        maxLength={5}
+                        placeholder="MM/AA"
                       />
-                      {errors.fechaVencimiento && <span className="ticket-error">{errors.fechaVencimiento}</span>}
+                      {errors.fechaVencimiento && (
+                        <span className="ticket-error">{errors.fechaVencimiento}</span>
+                      )}
                     </div>
                     <div className="ticket-field">
                       <label>Código de seguridad (CVV)</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         name="cvv"
-                        value={formDataTarjeta.cvv} 
-                        onChange={handleChangeTarjeta} 
-                        maxLength={4} 
+                        value={formDataTarjeta.cvv}
+                        onChange={handleChangeTarjeta}
+                        maxLength={4}
                       />
                       {errors.cvv && <span className="ticket-error">{errors.cvv}</span>}
                     </div>
                   </div>
+
                   <div className="ticket-button-row">
-                    <button 
-                      className="ticket-back-btn" 
+                    <button
+                      className="ticket-back-btn"
                       type="button"
                       onClick={handlePreviousStep}
                     >
@@ -372,8 +407,8 @@ const CheckoutPage = () => {
                 <div className="success-amount">
                   Monto procesado: ${total.toFixed(2)}
                 </div>
-                <button 
-                  className="ticket-pay-btn" 
+                <button
+                  className="ticket-pay-btn"
                   onClick={handleNewTransaction}
                 >
                   Ver mis pedidos

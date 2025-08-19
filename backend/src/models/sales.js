@@ -1,9 +1,10 @@
 import { Schema, model } from "mongoose";
 
 /*
-  Esquema de Ventas (Sales)
-  - idOrder: Referencia a la orden (obligatorio)
-  - address: Dirección de envío (obligatoria, trim limpia espacios)
+  Sales
+  - idOrder: referencia a la orden
+  - idCustomers: referencia al cliente
+  - address: snapshot de envío
 */
 
 const salesSchema = new Schema(
@@ -11,18 +12,20 @@ const salesSchema = new Schema(
     idOrder: {
       type: Schema.Types.ObjectId,
       ref: "Orders",
-      required: true, // Debe existir una orden relacionada
+      required: true,
     },
-
+    idCustomers: {
+      type: Schema.Types.ObjectId,
+      ref: "Customers",
+      required: true,
+    },
     address: {
       type: String,
-      required: true, // Dirección obligatoria
-      trim: true,     // Limpia espacios innecesarios
+      required: true,
+      trim: true,
     },
   },
-  {
-    strict: false, // Permitir flexibilidad en caso de campos extra
-  }
+  { strict: false }
 );
 
 export default model("sales", salesSchema);

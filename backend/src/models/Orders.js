@@ -1,19 +1,25 @@
 import { Schema, model } from "mongoose";
 
-/*
-  Esquema de Órdenes
-  - idCustomer: Referencia al cliente (obligatorio)
-  - products: Array de productos con cantidad y subtotal validados
-  - total: Monto total de la orden (requerido, no puede ser negativo)
-  - status: Estado de pago ("pagado" o "no pagado"), default: no pagado
-*/
+const addressSchema = new Schema(
+  {
+    name: String,
+    phone: String,
+    email: String,
+    line1: String,
+    city: String,
+    region: String,
+    country: String,
+    zip: String,
+  },
+  { _id: false }
+);
 
 const ordersSchema = new Schema(
   {
     idCustomer: {
       type: Schema.Types.ObjectId,
       ref: "Customers",
-      required: true, // Cliente obligatorio
+      required: true,
     },
 
     products: [
@@ -21,40 +27,53 @@ const ordersSchema = new Schema(
         productId: {
           type: Schema.Types.ObjectId,
           ref: "Products",
-          required: true, // Producto obligatorio
+          required: true,
         },
         quantity: {
           type: Number,
-          required: true, // Cantidad obligatoria
-          min: 1, // No permitir cantidad <= 0
+          required: true,
+          min: 1,
           validate: {
             validator: Number.isInteger,
             message: "La cantidad debe ser un número entero",
           },
         },
-        subtotal: {
-          type: Number,
-          required: true, // Subtotal obligatorio
-          min: 0, // Subtotal no puede ser negativo
-        },
+        // soporta ambos mundos (tu código viejo y el nuevo en centavos)
+        subtotal: { type: Number, min: 0 },        // USD (legacy)
+        unitPriceCents: { type: Number, min: 0 },  // opcional
+        subtotalCents: { type: Number, min: 0 },   // opcional
+        variant: { type: Object },                 // talla, etc (opcional)
       },
     ],
 
-    total: {
-      type: Number,
-      required: true, // Total obligatorio
-      min: 0, // Total no puede ser negativo
-    },
+    // totales
+    total: { type: Number, required: true, min: 0 }, // USD (legacy)
+    totalCents: { type: Number, default: 0, min: 0 },
+    shippingCents: { type: Number, default: 0, min: 0 },
+    taxCents: { type: Number, default: 0, min: 0 },
+    discountCents: { type: Number, default: 0, min: 0 },
+    currency: { type: String, default: "USD" },
 
+    // dirección de envío (snapshot para la venta)
+    shippingAddress: { type: addressSchema, default: undefined },
+
+    // estados 
     status: {
       type: String,
-      enum: ["pagado", "no pagado"],
-      default: "no pagado",
+      enum: ["cart", "pending_payment", "pagado", "no pagado"],
+      default: "cart",
     },
   },
   {
-    timestamps: true, // Guarda fecha de creación/actualización
+    timestamps: true,
   }
 );
+
+// Un (1) carrito por usuario: único sólo cuando status === "cart"
+ordersSchema.index(
+  { idCustomer: 1, status: 1 },
+  { unique: true, partialFilterExpression: { status: "cart" } }
+);
+
 
 export default model("Orders", ordersSchema);

@@ -1,7 +1,6 @@
 // src/lib/api.js
-const BASE_URL = import.meta.env.VITE_API_URL; // Asegúrate de que esta variable esté configurada correctamente
+const BASE_URL = import.meta.env.VITE_API_URL; // Debe ser: http://localhost:4000/api
 
-// Función general para hacer peticiones API con manejo de cookies (incluyendo authToken)
 export async function apiFetch(path, { method = "GET", body, headers = {} } = {}) {
   const res = await fetch(`${BASE_URL}${path}`, {
     method,
@@ -9,41 +8,44 @@ export async function apiFetch(path, { method = "GET", body, headers = {} } = {}
       "Content-Type": "application/json",
       ...headers,
     },
-    credentials: "include", // Enviar las cookies con la solicitud (importante para mantener la sesión)
-    body: body ? JSON.stringify(body) : undefined, // Si hay cuerpo, convertirlo a JSON
+    credentials: "include",
+    body: body ? JSON.stringify(body) : undefined,
   });
 
-  // Si la respuesta no es exitosa (status 2xx)
+  const isJSON = res.headers.get("content-type")?.includes("application/json");
+
   if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || "Error desconocido");
+    let message = `HTTP ${res.status}`;
+    try {
+      const data = isJSON ? await res.json() : { message: await res.text() };
+      message = data?.message || data?.error || message;
+    } catch {}
+    const err = new Error(message);
+    err.status = res.status;
+    throw err;
   }
 
-  // Parsear la respuesta si es exitosa
-  return res.json();
+  return isJSON ? res.json() : res.text();
 }
 
-// Obtener los datos del usuario autenticado
+// Helpers de auth (usa rutas SIN /api al inicio)
 export async function getUserData() {
   try {
-    const userData = await apiFetch("/api/login/me", { method: "GET" });
-    return userData;
-  } catch (error) {
-    console.error("Error al obtener los datos del usuario:", error);
-    return null; // Si no se puede obtener los datos, puedes retornar null o un objeto de error.
+    return await apiFetch("/login/me");
+  } catch (e) {
+    console.error("Error al obtener /login/me:", e);
+    return null;
   }
 }
 
-// Función para iniciar sesión (esto ya lo tenías en el backend)
 export async function loginUser(email, password) {
   try {
-    const response = await apiFetch("/api/login", {
+    return await apiFetch("/login", {
       method: "POST",
       body: { email, password },
     });
-    return response;
-  } catch (error) {
-    console.error("Error al iniciar sesión:", error);
+  } catch (e) {
+    console.error("Error al iniciar sesión:", e);
     return null;
   }
 }

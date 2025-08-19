@@ -1,171 +1,262 @@
-import { useState } from "react";
+// src/hooks/Payment/usePayment.js
+import { useRef, useState } from "react";
+import { apiFetch } from "../../lib/api";
 
-const usePayment = () => {
-  const [datosEnviados, setDatosEnviados] = useState(null);
+const OBJID = /^[a-f\d]{24}$/i;
+
+export default function usePayment() {
   const [step, setStep] = useState(1);
+
+  // Estado de Order en servidor
+  const [order, setOrder] = useState(null);
+  const [orderId, setOrderId] = useState(null);             // carrito actual (status: cart)
+  const [lockedOrderId, setLockedOrderId] = useState(null); // orden “congelada” en pending_payment
+  const [wompiReference, setWompiReference] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
 
+  // Datos del formulario (envío)
+  const [formData, setFormData] = useState({
+    nombre: "",
+    apellido: "",
+    email: "",
+    direccion: "",
+    ciudad: "",
+    codigoPostal: "",
+    telefono: "",
+    idPais: "SV",
+    idRegion: "SV-SS",
+  });
+
+  // Datos de tarjeta
   const [formDataTarjeta, setFormDataTarjeta] = useState({
+    nombreTarjetaHabiente: "",
     numeroTarjeta: "",
     cvv: "",
     mesVencimiento: "",
     anioVencimiento: "",
   });
 
-  const [formData, setFormData] = useState({
-    monto: 0.01,
-    urlRedirect: "https://www.ricaldone.edu.sv",
-    nombre: "",
-    apellido: "",
-    email: "",
-    ciudad: "",
-    direccion: "",
-    idPais: "SV",
-    idRegion: "SV-SS",
-    codigoPostal: "1101",
-    telefono: "",
-  });
+  // debounce para syncCartItems
+  const syncTimer = useRef(null);
 
   const handleChangeData = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    const { name, value } = e.target || e;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleChangeTarjeta = (e) => {
-    const { name, value } = e.target;
-    setFormDataTarjeta((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    const { name, value } = e.target || e;
+    setFormDataTarjeta((prev) => ({ ...prev, [name]: value }));
   };
 
   const limpiarFormulario = () => {
     setFormData({
-      monto: 0.01,
-      urlRedirect: "https://www.ricaldone.edu.sv",
       nombre: "",
       apellido: "",
       email: "",
-      ciudad: "",
       direccion: "",
+      ciudad: "",
+      codigoPostal: "",
+      telefono: "",
       idPais: "SV",
       idRegion: "SV-SS",
-      codigoPostal: "1101",
-      telefono: "",
     });
-    setDatosEnviados(null);
-    setStep(1);
-    setAccessToken(null);
     setFormDataTarjeta({
+      nombreTarjetaHabiente: "",
       numeroTarjeta: "",
       cvv: "",
       mesVencimiento: "",
       anioVencimiento: "",
     });
+    setStep(1);
+    setOrder(null);
+    setOrderId(null);
+    setLockedOrderId(null);
+    setWompiReference(null);
+    setAccessToken(null);
+    if (syncTimer.current) clearTimeout(syncTimer.current);
   };
 
-  const handleFirstStep = async () => {
-    console.log("Generando token de acceso...");
+  /* === API === */
 
-    try {
-      // CORRECCIÓN: Usar la ruta correcta con /wompi/
-      const tokenResponse = await fetch("http://localhost:3001/api/wompi/token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: 'include', // Importante para enviar cookies de autenticación
+  // Obtiene o crea el carrito (status: cart) del usuario
+  async function loadOrCreateCart() {
+    const o = await apiFetch("/orders/cart");
+    setOrder(o);
+    setOrderId(o?._id || null);
+    return o;
+  }
+
+  /**
+   * Sincroniza items del carrito local al backend.
+   * options.immediate = true → ejecuta sin debounce (útil justo antes de pending_payment).
+   */
+  async function syncCartItems(
+    cartItems,
+    { shippingCents = 0, taxCents = 0, discountCents = 0 } = {},
+    options = {}
+  ) {
+    if (lockedOrderId) return; // ya bloqueamos una orden para pago
+    if (!orderId) return;
+
+    const itemsPayload = (cartItems || [])
+      .filter((it) => OBJID.test(String(it.id)) && Number(it.quantity) > 0)
+      .map((it) => ({
+        productId: it.id,
+        quantity: Number(it.quantity || 0),
+        variant: it.size ? { size: it.size } : undefined,
+      }));
+
+    const exec = async () => {
+      const updated = await apiFetch("/orders/cart/items", {
+        method: "PUT",
+        body: { items: itemsPayload, shippingCents, taxCents, discountCents },
       });
+      setOrder(updated);
+      setOrderId(updated?._id || orderId);
+      return updated;
+    };
 
-      if (!tokenResponse.ok) {
-        const errorText = await tokenResponse.text();
-        throw new Error(`Error al obtener token: ${errorText}`);
-      }
+    if (options.immediate) return exec();
 
-      const tokenData = await tokenResponse.json();
-      setAccessToken(tokenData.access_token);
+    if (syncTimer.current) clearTimeout(syncTimer.current);
+    syncTimer.current = setTimeout(exec, 500);
+  }
 
-      console.log("Token generado exitosamente");
-      setStep(2);
-    } catch (error) {
-      console.error(`Error al obtener token: ${error.message}`);
-      throw error; // Re-lanzar el error para que lo maneje el componente
+  // Guarda snapshot de dirección en la Order (shippingAddress)
+  async function saveAddresses() {
+    const payload = {
+      shippingAddress: {
+        name: `${formData.nombre} ${formData.apellido}`.trim(),
+        phone: formData.telefono,
+        email: formData.email,
+        line1: formData.direccion,
+        city: formData.ciudad,
+        region: formData.idRegion,
+        country: formData.idPais,
+        zip: formData.codigoPostal,
+      },
+    };
+    const updated = await apiFetch("/orders/cart/addresses", {
+      method: "PUT",
+      body: payload,
+    });
+    setOrder(updated);
+    setOrderId(updated?._id || orderId);
+    return updated;
+  }
+
+  // Mueve la Order a pending_payment y devuelve referencia + orden
+  async function goPending() {
+    if (!orderId) throw new Error("No hay orderId");
+    const resp = await apiFetch(`/orders/${orderId}/pending`, { method: "POST" });
+    const pendingId = resp?.order?._id || orderId;
+    setWompiReference(resp?.wompiReference || null);
+    setLockedOrderId(pendingId);
+    setOrder(resp?.order || order);
+    return resp;
+  }
+
+  // Obtiene token de Wompi (mock o real)
+  async function getWompiToken() {
+    const tk = await apiFetch("/wompi/token", { method: "POST" });
+    const token = tk?.access_token || null;
+    setAccessToken(token);
+    return token;
+  }
+
+  // Paso 1 → Paso 2
+  async function handleFirstStep() {
+    await saveAddresses();
+    await goPending();
+    await getWompiToken();
+    setStep(2);
+  }
+
+  // Pagar 3DS
+  async function handleFinishPayment() {
+    const idToPay = lockedOrderId || orderId;
+    if (!idToPay) throw new Error("No hay orderId para pagar");
+    if (!accessToken) throw new Error("No hay token de Wompi");
+
+    // Construir MMYY
+    const mm = String(formDataTarjeta.mesVencimiento || "").padStart(2, "0");
+    const yy4 = String(formDataTarjeta.anioVencimiento || "");
+    const yy = yy4.length === 4 ? yy4.slice(-2) : yy4;
+
+    // Si no dieron apellido, intenta derivarlo desde nombre completo
+    let nombre = (formData.nombre || "").trim();
+    let apellido = (formData.apellido || "").trim();
+    if (!apellido && nombre.includes(" ")) {
+      const parts = nombre.split(" ");
+      apellido = parts.pop();
+      nombre = parts.join(" ");
     }
-  };
+    if (!apellido) apellido = "N/A";
 
-  const handleFinishPayment = async () => {
-    try {
-      // Preparar datos para Wompi según su formato esperado
-      const wompiPaymentData = {
-        numeroTarjeta: formDataTarjeta.numeroTarjeta,
-        cvc: formDataTarjeta.cvv,
-        nombreTarjetaHabiente: formData.nombre + (formData.apellido ? ` ${formData.apellido}` : ''),
-        emailComprador: formData.email,
-        direccionComprador: formData.direccion,
-        ciudadComprador: formData.ciudad,
-        zipComprador: formData.codigoPostal,
-        monto: Math.round(formData.monto * 100), // Wompi espera centavos
-        moneda: "USD",
-        fechaExpiracion: `${formDataTarjeta.mesVencimiento}${formDataTarjeta.anioVencimiento.slice(-2)}`,
-        tipoPago: "03", // tarjeta de crédito
-        telefonoComprador: formData.telefono,
-        idPais: formData.idPais,
-        idRegion: formData.idRegion,
-      };
+    const form = {
+      tarjetaCreditoDebido: {
+        numeroTarjeta: (formDataTarjeta.numeroTarjeta || "").replace(/\s+/g, ""),
+        cvv: formDataTarjeta.cvv,
+        fechaExpiracion: `${mm}${yy}`, // MMYY
+        nombreTarjetaHabiente:
+          formDataTarjeta.nombreTarjetaHabiente?.trim() ||
+          `${nombre} ${apellido}`.trim(),
+      },
 
-      // CORRECCIÓN: Usar la ruta correcta con /wompi/
-      const paymentResponse = await fetch(
-        "http://localhost:3001/api/wompi/payment3ds",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: 'include', // Importante para enviar cookies de autenticación
-          body: JSON.stringify({
-            token: accessToken,
-            formData: wompiPaymentData,
-          }),
-        }
-      );
+      // comprador (desde paso 1)
+      nombre,
+      apellido,
+      email: formData.email,
+      telefono: formData.telefono,
+      direccion: formData.direccion,
+      ciudad: formData.ciudad,
+      codigoPostal: formData.codigoPostal,
+      idPais: formData.idPais,
+      idRegion: formData.idRegion,
 
-      if (!paymentResponse.ok) {
-        const errorText = await paymentResponse.text();
-        throw new Error(`Error al procesar pago: ${errorText}`);
-      }
+      // 3DS redirección
+      urlRedirect: window.location.origin + "/checkout",
+      referencia: idToPay,
+    };
 
-      const paymentData = await paymentResponse.json();
-      console.log("Respuesta del pago:", paymentData);
+    const out = await apiFetch("/wompi/payment3ds", {
+      method: "POST",
+      body: { token: accessToken, formData: form, orderId: idToPay },
+    });
 
-      // Verificar si el pago fue aprobado
-      if (paymentData.estadoTransaccion === "APROBADA") {
-        setStep(3);
-        return paymentData; // Retornar datos para uso en el componente
-      } else {
-        throw new Error(paymentData.mensaje || "Pago rechazado");
-      }
-
-    } catch (error) {
-      console.error(`Error en el proceso de pago: ${error.message}`);
-      throw error; // Re-lanzar el error para que lo maneje el componente
+    // Si el emisor exige autenticación 3DS, Wompi devuelve una URL
+    if (out?.redirectUrl) {
+      window.location.assign(out.redirectUrl);
+      return { redirected: true };
     }
-  };
+
+    if (String(out?.estadoTransaccion).toUpperCase().includes("APROBA")) {
+      setStep(3);
+      setOrder(out.order || order);
+      return out;
+    }
+
+    throw new Error(out?.message || "Pago rechazado");
+  }
 
   return {
-    formData,
-    datosEnviados,
-    handleChangeData,
-    handleChangeTarjeta,
-    formDataTarjeta,
+    // estado
+    step, setStep,
+    order, orderId, lockedOrderId, wompiReference, accessToken,
+
+    // datos
+    formData, handleChangeData,
+    formDataTarjeta, handleChangeTarjeta,
     limpiarFormulario,
+
+    // api
+    loadOrCreateCart,
+    syncCartItems,
+    saveAddresses,
+    goPending,
+    getWompiToken,
     handleFirstStep,
     handleFinishPayment,
-    step,
-    setStep,
   };
-};
-
-export default usePayment;
+}

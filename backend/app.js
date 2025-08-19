@@ -77,8 +77,6 @@ app.use('/api/admins', validateAuthToken(['admin']), adminRoutes);
 app.use('/api/reviews', validateAuthToken(['admin', 'customer']), reviewsRouter);
 app.use('/api/sales', validateAuthToken(['admin']), salesRoutes);
 app.use('/api/orders', validateAuthToken(['admin', 'customer']), ordersRoutes);
-
-// Rutas de Wompi
-app.use('/api/wompi', wompiRoutes);  // Integramos las rutas de Wompi
+app.use('/api/wompi', validateAuthToken(['admin','customer']), wompiRoutes);
 
 export default app;
