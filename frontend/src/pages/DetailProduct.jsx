@@ -10,7 +10,7 @@ const ProductDetail = ({ product }) => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/api/reviews/product/${product._id}`);
+        const res = await fetch(`https://eternaljoyeria-cg5d.onrender.com/api/reviews/product/${product._id}`);
         const data = await res.json();
         setReviews(data);
       } catch (error) {

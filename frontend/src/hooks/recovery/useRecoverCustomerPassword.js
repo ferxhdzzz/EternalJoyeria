@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const API_URL = "http://localhost:4000/api/recoveryPassword";
+const API_URL = "https://eternaljoyeria-cg5d.onrender.com/api/recoveryPassword";
 
 export default function useRecoverCustomerPassword() {
   const [loading, setLoading] = useState(false);

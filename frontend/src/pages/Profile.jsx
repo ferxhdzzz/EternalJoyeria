@@ -187,7 +187,7 @@ const Profile = () => {
     });
 
     try {
-      const res = await fetch("http://localhost:4000/api/logout", {
+      const res = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/logout", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" }
