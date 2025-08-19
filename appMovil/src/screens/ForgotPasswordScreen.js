@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -13,17 +13,12 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../context/AuthContext';
 
 const { width, height } = Dimensions.get('window');
 
-const LoginScreen = ({ navigation }) => {
-  const { login } = useAuth();
+const ForgotPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -32,8 +27,8 @@ const LoginScreen = ({ navigation }) => {
   const slideAnim = useRef(new Animated.Value(30)).current;
   const formSlideAnim = useRef(new Animated.Value(50)).current;
 
-  useEffect(() => {
-    // Animación de entrada suave para complementar la transición
+  React.useEffect(() => {
+    // Animación de entrada suave
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -69,25 +64,10 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
-  // Validar contraseña
-  const validatePassword = (password) => {
-    if (!password) {
-      setPasswordError('La contraseña es requerida');
-      return false;
-    } else if (password.length < 6) {
-      setPasswordError('La contraseña debe tener al menos 6 caracteres');
-      return false;
-    } else {
-      setPasswordError('');
-      return true;
-    }
-  };
-
   // Validar formulario completo
   const validateForm = () => {
     const isEmailValid = validateEmail(email);
-    const isPasswordValid = validatePassword(password);
-    setIsFormValid(isEmailValid && isPasswordValid);
+    setIsFormValid(isEmailValid);
   };
 
   // Manejar cambios en el email
@@ -98,38 +78,34 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
-  // Manejar cambios en la contraseña
-  const handlePasswordChange = (text) => {
-    setPassword(text);
-    if (passwordError) {
-      validatePassword(text);
-    }
-  };
-
-  // Validar formulario cada vez que cambien los campos
-  useEffect(() => {
-    if (email || password) {
+  // Validar formulario cada vez que cambie el email
+  React.useEffect(() => {
+    if (email) {
       validateForm();
     }
-  }, [email, password]);
+  }, [email]);
 
-  const handleLogin = async () => {
+  const handleSendCode = async () => {
     validateForm();
     if (isFormValid) {
       setIsLoading(true);
       try {
-        const result = await login(email, password);
-        if (result.success) {
-          // Navegar a la pantalla principal usando el callback
-          const onNavigateToProducts = route.params?.onNavigateToProducts;
-          if (onNavigateToProducts) {
-            onNavigateToProducts('Products', result.user);
-          }
-        } else {
-          Alert.alert('Error', result.error || 'Error al iniciar sesión');
-        }
+        // Aquí iría la llamada al backend para enviar el código
+        // Por ahora simulamos el envío
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        Alert.alert(
+          'Código enviado',
+          'Se ha enviado un código de verificación a tu correo electrónico',
+          [
+            {
+              text: 'Continuar',
+              onPress: () => navigation.navigate('VerifyCode', { email })
+            }
+          ]
+        );
       } catch (error) {
-        Alert.alert('Error', 'Error inesperado al iniciar sesión');
+        Alert.alert('Error', 'No se pudo enviar el código. Intenta de nuevo.');
       } finally {
         setIsLoading(false);
       }
@@ -150,20 +126,8 @@ const LoginScreen = ({ navigation }) => {
         useNativeDriver: true,
       }),
     ]).start(() => {
-      // Si estamos en el stack de autenticación, ir a la pantalla de bienvenida
-      const onNavigateToProducts = route.params?.onNavigateToProducts;
-      if (onNavigateToProducts) {
-        // Aquí podríamos implementar una lógica para volver a la pantalla de bienvenida
-        // Por ahora, simplemente usamos goBack del stack
-        navigation.goBack();
-      } else {
-        navigation.goBack();
-      }
+      navigation.goBack();
     });
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
   };
 
   return (
@@ -193,12 +157,13 @@ const LoginScreen = ({ navigation }) => {
             
             {/* Texto de bienvenida */}
             <View style={styles.welcomeTextContainer}>
-              <Text style={styles.welcomeTitle}>Bienvenido</Text>
+              <Text style={styles.welcomeTitle}>Recuperar contraseña</Text>
               <Text style={styles.welcomeDescription}>
-                ¡Encuentra tus accesorios perfectos!{'\n'}
-                Nos encanta tenerte aquí de nuevo.{'\n'}
-                Inicia sesión para continuar{'\n'}
-                comprando nuestras joyas.
+                No te preocupes, te ayudaremos a{'\n'}
+                recuperar tu contraseña.{'\n'}
+                Ingresa tu correo electrónico{'\n'}
+                y te enviaremos un código de{'\n'}
+                verificación.
               </Text>
             </View>
           </LinearGradient>
@@ -210,7 +175,7 @@ const LoginScreen = ({ navigation }) => {
           <View style={styles.formContainer}>
             {/* Campo Email */}
             <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Correo</Text>
+              <Text style={styles.inputLabel}>Correo electrónico</Text>
               <TextInput
                 style={[styles.textInput, emailError ? styles.inputError : null]}
                 placeholder="correo@ejemplo.com"
@@ -225,58 +190,22 @@ const LoginScreen = ({ navigation }) => {
               {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
             </View>
 
-            {/* Campo Contraseña */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Contraseña</Text>
-              <View style={styles.passwordInputContainer}>
-                <TextInput
-                  style={[styles.passwordTextInput, passwordError ? styles.inputError : null]}
-                  placeholder="***********"
-                  placeholderTextColor="#666"
-                  value={password}
-                  onChangeText={handlePasswordChange}
-                  onBlur={() => validatePassword(password)}
-                  secureTextEntry={!showPassword}
-                  editable={!isLoading}
-                />
-                <TouchableOpacity 
-                  style={styles.eyeIconButton} 
-                  onPress={togglePasswordVisibility}
-                  disabled={isLoading}
-                >
-                  <Ionicons 
-                    name={showPassword ? "eye-off" : "eye"} 
-                    size={24} 
-                    color="#666" 
-                  />
-                </TouchableOpacity>
-              </View>
-              {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+            {/* Información adicional */}
+            <View style={styles.infoContainer}>
+              <Text style={styles.infoText}>
+                Te enviaremos un código de verificación a tu correo electrónico para que puedas cambiar tu contraseña.
+              </Text>
             </View>
-
-            {/* Enlace de registro */}
-            <TouchableOpacity style={styles.registerLink} onPress={() => navigation.navigate('Register')}>
-              <Text style={styles.registerText}>
-                ¿Aún no tienes cuenta? <Text style={styles.registerHighlight}>Regístrate</Text>
-              </Text>
-            </TouchableOpacity>
-
-            {/* Enlace de olvidé contraseña */}
-            <TouchableOpacity style={styles.forgotPasswordLink} onPress={() => navigation.navigate('ForgotPassword')}>
-              <Text style={styles.forgotPasswordText}>
-                ¿Olvidaste tu contraseña?
-              </Text>
-            </TouchableOpacity>
           </View>
 
-          {/* Botón de inicio de sesión */}
+          {/* Botón de enviar código */}
           <TouchableOpacity 
-            style={[styles.loginButton, !isFormValid || isLoading ? styles.loginButtonDisabled : null]} 
-            onPress={handleLogin}
+            style={[styles.sendCodeButton, !isFormValid || isLoading ? styles.sendCodeButtonDisabled : null]} 
+            onPress={handleSendCode}
             disabled={!isFormValid || isLoading}
           >
-            <Text style={styles.loginButtonText}>
-              {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+            <Text style={styles.sendCodeButtonText}>
+              {isLoading ? 'Enviando código...' : 'Enviar código'}
             </Text>
           </TouchableOpacity>
         </Animated.View>
@@ -338,7 +267,7 @@ const styles = StyleSheet.create({
     paddingBottom: 60,
   },
   welcomeTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#2c3e50',
     marginBottom: 20,
@@ -389,51 +318,21 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginLeft: 4,
   },
-  passwordInputContainer: {
-    position: 'relative',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  passwordTextInput: {
-    backgroundColor: '#fff',
+  infoContainer: {
+    backgroundColor: '#f8f9fa',
+    padding: 16,
     borderRadius: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    paddingRight: 50,
-    fontSize: 16,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    color: '#2c3e50',
-    flex: 1,
+    borderColor: '#e9ecef',
   },
-  eyeIconButton: {
-    position: 'absolute',
-    right: 15,
-    padding: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  registerLink: {
-    marginTop: 20,
-  },
-  registerText: {
-    fontSize: 16,
-    color: '#7f8c8d',
-  },
-  registerHighlight: {
-    color: '#E8B4B4',
-    fontWeight: '600',
-  },
-  forgotPasswordLink: {
-    marginTop: 15,
-    alignItems: 'center',
-  },
-  forgotPasswordText: {
+  infoText: {
     fontSize: 14,
-    color: '#666',
-    textDecorationLine: 'underline',
+    color: '#6c757d',
+    lineHeight: 20,
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
-  loginButton: {
+  sendCodeButton: {
     backgroundColor: '#000000',
     paddingVertical: 15,
     paddingHorizontal: 45,
@@ -441,7 +340,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderRadius: 50,
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
@@ -450,11 +352,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  loginButtonDisabled: {
+  sendCodeButtonDisabled: {
     backgroundColor: '#bdc3c7',
     shadowOpacity: 0.1,
   },
-  loginButtonText: {
+  sendCodeButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
@@ -462,4 +364,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen; 
+export default ForgotPasswordScreen;

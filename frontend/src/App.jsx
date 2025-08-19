@@ -37,6 +37,7 @@ import Blog from './pages/Blog';
 import HistorialReviews from './pages/HistReviews';
 
 import CategoryProducts from './pages/CategoryProducts';
+import Error404 from './pages/Error404';
 
 
 import PublicRoute from './components/PublicRoute';
@@ -130,6 +131,9 @@ function App() {
           <Route path="/aviso-privacidad" element={<PrivacyNotice />} />
           <Route path="/faq" element={<PreguntasFrecuentes />} />
           <Route path="/blog" element={<Blog />} />
+          
+          {/* Ruta para manejar páginas no encontradas */}
+          <Route path="*" element={<Error404 />} />
         </Routes>
       </Router>
     </CartProvider>

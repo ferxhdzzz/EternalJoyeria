@@ -238,7 +238,7 @@ const Profile = () => {
               alignItems: 'center',
               gap: '6px'
             }}
-            onClick={() => window.location.href = '/recoveryPassword'}
+            onClick={() => window.location.href = '/recuperacion'}
           >
             <LockIcon size={14} color="white" />
             Cambiar contraseña

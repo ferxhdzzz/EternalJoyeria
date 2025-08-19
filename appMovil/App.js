@@ -2,11 +2,11 @@ import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { AuthProvider } from './src/context/AuthContext';
+import { CartProvider } from './src/context/CartContext';
 import WelcomeScreen1 from './src/screens/WelcomeScreen1';
 import WelcomeScreen2 from './src/screens/WelcomeScreen2';
 import WelcomeScreen3 from './src/screens/WelcomeScreen3';
-import LoginScreen from './src/screens/LoginScreen';
-import RegisterScreen from './src/screens/RegisterScreen';
+import AuthNavigator from './src/navigation/AuthNavigator';
 import AppNavigator from './src/navigation/AppNavigator';
 
 export default function App() {
@@ -66,11 +66,23 @@ export default function App() {
       case 2:
         return <WelcomeScreen3 onNext={handleWelcomeToLogin} />;
       case 3:
-        return <LoginScreen navigation={{ goBack: () => goBack(2), navigate: navigateToScreen }} />;
+        return (
+          <NavigationContainer>
+            <AuthNavigator onNavigateToProducts={navigateToScreen} />
+          </NavigationContainer>
+        );
       case 4:
-        return <LoginScreen navigation={{ goBack: () => goBack(2), navigate: navigateToScreen }} />;
+        return (
+          <NavigationContainer>
+            <AuthNavigator onNavigateToProducts={navigateToScreen} />
+          </NavigationContainer>
+        );
       case 5:
-        return <RegisterScreen navigation={{ goBack: () => goBack(4), navigate: navigateToScreen }} />;
+        return (
+          <NavigationContainer>
+            <AuthNavigator onNavigateToProducts={navigateToScreen} />
+          </NavigationContainer>
+        );
       case 6:
         return (
           <NavigationContainer>
@@ -84,7 +96,9 @@ export default function App() {
 
   return (
     <AuthProvider>
-      {renderScreen()}
+      <CartProvider>
+        {renderScreen()}
+      </CartProvider>
     </AuthProvider>
   );
 }

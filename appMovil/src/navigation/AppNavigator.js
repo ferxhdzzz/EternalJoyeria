@@ -6,6 +6,9 @@ import TermsConditionsScreen from '../screens/TermsConditionsScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
 import ReviewsScreen from '../screens/ReviewsScreen';
 import PaymentScreen from '../screens/PaymentScreen';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
+import VerifyCodeScreen from '../screens/VerifyCodeScreen';
+import ChangePasswordScreen from '../screens/ChangePasswordScreen';
 
 const Stack = createStackNavigator();
 
@@ -44,6 +47,18 @@ const AppNavigator = () => {
       <Stack.Screen 
         name="Payment" 
         component={PaymentScreen}
+      />
+      <Stack.Screen 
+        name="ForgotPassword" 
+        component={ForgotPasswordScreen}
+      />
+      <Stack.Screen 
+        name="VerifyCode" 
+        component={VerifyCodeScreen}
+      />
+      <Stack.Screen 
+        name="ChangePassword" 
+        component={ChangePasswordScreen}
       />
     </Stack.Navigator>
   );

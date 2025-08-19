@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -13,17 +13,17 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../context/AuthContext';
 
 const { width, height } = Dimensions.get('window');
 
-const LoginScreen = ({ navigation }) => {
-  const { login } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+const ChangePasswordScreen = ({ navigation, route }) => {
+  const { email, code } = route.params;
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [newPasswordError, setNewPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -32,8 +32,8 @@ const LoginScreen = ({ navigation }) => {
   const slideAnim = useRef(new Animated.Value(30)).current;
   const formSlideAnim = useRef(new Animated.Value(50)).current;
 
-  useEffect(() => {
-    // Animación de entrada suave para complementar la transición
+  React.useEffect(() => {
+    // Animación de entrada suave
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -54,82 +54,95 @@ const LoginScreen = ({ navigation }) => {
     ]).start();
   }, []);
 
-  // Validar email
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) {
-      setEmailError('El correo es requerido');
+  // Validar nueva contraseña
+  const validateNewPassword = (password) => {
+    if (!password) {
+      setNewPasswordError('La nueva contraseña es requerida');
       return false;
-    } else if (!emailRegex.test(email)) {
-      setEmailError('Ingresa un correo válido');
+    } else if (password.length < 6) {
+      setNewPasswordError('La contraseña debe tener al menos 6 caracteres');
       return false;
     } else {
-      setEmailError('');
+      setNewPasswordError('');
       return true;
     }
   };
 
-  // Validar contraseña
-  const validatePassword = (password) => {
-    if (!password) {
-      setPasswordError('La contraseña es requerida');
+  // Validar confirmación de contraseña
+  const validateConfirmPassword = (confirmPass) => {
+    if (!confirmPass) {
+      setConfirmPasswordError('Confirma tu nueva contraseña');
       return false;
-    } else if (password.length < 6) {
-      setPasswordError('La contraseña debe tener al menos 6 caracteres');
+    } else if (confirmPass !== newPassword) {
+      setConfirmPasswordError('Las contraseñas no coinciden');
       return false;
     } else {
-      setPasswordError('');
+      setConfirmPasswordError('');
       return true;
     }
   };
 
   // Validar formulario completo
   const validateForm = () => {
-    const isEmailValid = validateEmail(email);
-    const isPasswordValid = validatePassword(password);
-    setIsFormValid(isEmailValid && isPasswordValid);
+    const isNewPasswordValid = validateNewPassword(newPassword);
+    const isConfirmPasswordValid = validateConfirmPassword(confirmPassword);
+    setIsFormValid(isNewPasswordValid && isConfirmPasswordValid);
   };
 
-  // Manejar cambios en el email
-  const handleEmailChange = (text) => {
-    setEmail(text);
-    if (emailError) {
-      validateEmail(text);
+  // Manejar cambios en las contraseñas
+  const handleNewPasswordChange = (text) => {
+    setNewPassword(text);
+    if (newPasswordError) {
+      validateNewPassword(text);
+    }
+    if (confirmPassword) {
+      validateConfirmPassword(confirmPassword);
     }
   };
 
-  // Manejar cambios en la contraseña
-  const handlePasswordChange = (text) => {
-    setPassword(text);
-    if (passwordError) {
-      validatePassword(text);
+  const handleConfirmPasswordChange = (text) => {
+    setConfirmPassword(text);
+    if (confirmPasswordError) {
+      validateConfirmPassword(text);
     }
   };
 
-  // Validar formulario cada vez que cambien los campos
-  useEffect(() => {
-    if (email || password) {
+  // Validar formulario cada vez que cambien las contraseñas
+  React.useEffect(() => {
+    if (newPassword || confirmPassword) {
       validateForm();
     }
-  }, [email, password]);
+  }, [newPassword, confirmPassword]);
 
-  const handleLogin = async () => {
+  const toggleNewPasswordVisibility = () => {
+    setShowNewPassword(!showNewPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
+  const handleChangePassword = async () => {
     validateForm();
     if (isFormValid) {
       setIsLoading(true);
       try {
-        const result = await login(email, password);
-        if (result.success) {
-          // Navegar a la pantalla principal usando el callback
-          const onNavigateToProducts = route.params?.onNavigateToProducts;
-          if (onNavigateToProducts) {
-            onNavigateToProducts('Products', result.user);
-          }
-        } else {
-          Alert.alert('Error', result.error || 'Error al iniciar sesión');
-        }
+        // Aquí iría la llamada al backend para cambiar la contraseña
+        // Por ahora simulamos el cambio
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        Alert.alert(
+          '¡Contraseña cambiada!',
+          'Tu contraseña ha sido cambiada exitosamente. Ahora puedes iniciar sesión con tu nueva contraseña.',
+          [
+            {
+              text: 'Ir al login',
+              onPress: () => navigation.navigate('Login')
+            }
+          ]
+        );
       } catch (error) {
-        Alert.alert('Error', 'Error inesperado al iniciar sesión');
+        Alert.alert('Error', 'No se pudo cambiar la contraseña. Intenta de nuevo.');
       } finally {
         setIsLoading(false);
       }
@@ -150,20 +163,8 @@ const LoginScreen = ({ navigation }) => {
         useNativeDriver: true,
       }),
     ]).start(() => {
-      // Si estamos en el stack de autenticación, ir a la pantalla de bienvenida
-      const onNavigateToProducts = route.params?.onNavigateToProducts;
-      if (onNavigateToProducts) {
-        // Aquí podríamos implementar una lógica para volver a la pantalla de bienvenida
-        // Por ahora, simplemente usamos goBack del stack
-        navigation.goBack();
-      } else {
-        navigation.goBack();
-      }
+      navigation.goBack();
     });
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
   };
 
   return (
@@ -193,12 +194,12 @@ const LoginScreen = ({ navigation }) => {
             
             {/* Texto de bienvenida */}
             <View style={styles.welcomeTextContainer}>
-              <Text style={styles.welcomeTitle}>Bienvenido</Text>
+              <Text style={styles.welcomeTitle}>Nueva contraseña</Text>
               <Text style={styles.welcomeDescription}>
-                ¡Encuentra tus accesorios perfectos!{'\n'}
-                Nos encanta tenerte aquí de nuevo.{'\n'}
-                Inicia sesión para continuar{'\n'}
-                comprando nuestras joyas.
+                Estás a un paso de{'\n'}
+                recuperar tu cuenta.{'\n'}
+                Crea una nueva contraseña{'\n'}
+                segura y fácil de recordar.
               </Text>
             </View>
           </LinearGradient>
@@ -208,75 +209,80 @@ const LoginScreen = ({ navigation }) => {
         <Animated.View style={[styles.bottomSection, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
           {/* Formulario */}
           <View style={styles.formContainer}>
-            {/* Campo Email */}
+            {/* Campo Nueva Contraseña */}
             <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Correo</Text>
-              <TextInput
-                style={[styles.textInput, emailError ? styles.inputError : null]}
-                placeholder="correo@ejemplo.com"
-                placeholderTextColor="#666"
-                value={email}
-                onChangeText={handleEmailChange}
-                onBlur={() => validateEmail(email)}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                editable={!isLoading}
-              />
-              {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
-            </View>
-
-            {/* Campo Contraseña */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Contraseña</Text>
+              <Text style={styles.inputLabel}>Nueva contraseña</Text>
               <View style={styles.passwordInputContainer}>
                 <TextInput
-                  style={[styles.passwordTextInput, passwordError ? styles.inputError : null]}
+                  style={[styles.passwordTextInput, newPasswordError ? styles.inputError : null]}
                   placeholder="***********"
                   placeholderTextColor="#666"
-                  value={password}
-                  onChangeText={handlePasswordChange}
-                  onBlur={() => validatePassword(password)}
-                  secureTextEntry={!showPassword}
+                  value={newPassword}
+                  onChangeText={handleNewPasswordChange}
+                  onBlur={() => validateNewPassword(newPassword)}
+                  secureTextEntry={!showNewPassword}
                   editable={!isLoading}
                 />
                 <TouchableOpacity 
                   style={styles.eyeIconButton} 
-                  onPress={togglePasswordVisibility}
+                  onPress={toggleNewPasswordVisibility}
                   disabled={isLoading}
                 >
                   <Ionicons 
-                    name={showPassword ? "eye-off" : "eye"} 
+                    name={showNewPassword ? "eye-off" : "eye"} 
                     size={24} 
                     color="#666" 
                   />
                 </TouchableOpacity>
               </View>
-              {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+              {newPasswordError ? <Text style={styles.errorText}>{newPasswordError}</Text> : null}
             </View>
 
-            {/* Enlace de registro */}
-            <TouchableOpacity style={styles.registerLink} onPress={() => navigation.navigate('Register')}>
-              <Text style={styles.registerText}>
-                ¿Aún no tienes cuenta? <Text style={styles.registerHighlight}>Regístrate</Text>
-              </Text>
-            </TouchableOpacity>
+            {/* Campo Confirmar Contraseña */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Confirmar contraseña</Text>
+              <View style={styles.passwordInputContainer}>
+                <TextInput
+                  style={[styles.passwordTextInput, confirmPasswordError ? styles.inputError : null]}
+                  placeholder="***********"
+                  placeholderTextColor="#666"
+                  value={confirmPassword}
+                  onChangeText={handleConfirmPasswordChange}
+                  onBlur={() => validateConfirmPassword(confirmPassword)}
+                  secureTextEntry={!showConfirmPassword}
+                  editable={!isLoading}
+                />
+                <TouchableOpacity 
+                  style={styles.eyeIconButton} 
+                  onPress={toggleConfirmPasswordVisibility}
+                  disabled={isLoading}
+                >
+                  <Ionicons 
+                    name={showConfirmPassword ? "eye-off" : "eye"} 
+                    size={24} 
+                    color="#666" 
+                  />
+                </TouchableOpacity>
+              </View>
+              {confirmPasswordError ? <Text style={styles.errorText}>{confirmPasswordError}</Text> : null}
+            </View>
 
-            {/* Enlace de olvidé contraseña */}
-            <TouchableOpacity style={styles.forgotPasswordLink} onPress={() => navigation.navigate('ForgotPassword')}>
-              <Text style={styles.forgotPasswordText}>
-                ¿Olvidaste tu contraseña?
+            {/* Información adicional */}
+            <View style={styles.infoContainer}>
+              <Text style={styles.infoText}>
+                Asegúrate de que tu nueva contraseña sea segura y fácil de recordar. Debe tener al menos 6 caracteres.
               </Text>
-            </TouchableOpacity>
+            </View>
           </View>
 
-          {/* Botón de inicio de sesión */}
+          {/* Botón de cambiar contraseña */}
           <TouchableOpacity 
-            style={[styles.loginButton, !isFormValid || isLoading ? styles.loginButtonDisabled : null]} 
-            onPress={handleLogin}
+            style={[styles.changePasswordButton, !isFormValid || isLoading ? styles.changePasswordButtonDisabled : null]} 
+            onPress={handleChangePassword}
             disabled={!isFormValid || isLoading}
           >
-            <Text style={styles.loginButtonText}>
-              {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+            <Text style={styles.changePasswordButtonText}>
+              {isLoading ? 'Cambiando contraseña...' : 'Cambiar contraseña'}
             </Text>
           </TouchableOpacity>
         </Animated.View>
@@ -338,7 +344,7 @@ const styles = StyleSheet.create({
     paddingBottom: 60,
   },
   welcomeTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#2c3e50',
     marginBottom: 20,
@@ -369,26 +375,6 @@ const styles = StyleSheet.create({
     color: '#2c3e50',
     marginBottom: 12,
   },
-  textInput: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    color: '#2c3e50',
-  },
-  inputError: {
-    borderColor: '#e74c3c',
-    borderWidth: 2,
-  },
-  errorText: {
-    color: '#e74c3c',
-    fontSize: 14,
-    marginTop: 8,
-    marginLeft: 4,
-  },
   passwordInputContainer: {
     position: 'relative',
     flexDirection: 'row',
@@ -406,6 +392,16 @@ const styles = StyleSheet.create({
     color: '#2c3e50',
     flex: 1,
   },
+  inputError: {
+    borderColor: '#e74c3c',
+    borderWidth: 2,
+  },
+  errorText: {
+    color: '#e74c3c',
+    fontSize: 14,
+    marginTop: 8,
+    marginLeft: 4,
+  },
   eyeIconButton: {
     position: 'absolute',
     right: 15,
@@ -413,27 +409,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  registerLink: {
-    marginTop: 20,
+  infoContainer: {
+    backgroundColor: '#f8f9fa',
+    padding: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e9ecef',
   },
-  registerText: {
-    fontSize: 16,
-    color: '#7f8c8d',
-  },
-  registerHighlight: {
-    color: '#E8B4B4',
-    fontWeight: '600',
-  },
-  forgotPasswordLink: {
-    marginTop: 15,
-    alignItems: 'center',
-  },
-  forgotPasswordText: {
+  infoText: {
     fontSize: 14,
-    color: '#666',
-    textDecorationLine: 'underline',
+    color: '#6c757d',
+    lineHeight: 20,
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
-  loginButton: {
+  changePasswordButton: {
     backgroundColor: '#000000',
     paddingVertical: 15,
     paddingHorizontal: 45,
@@ -441,7 +431,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderRadius: 50,
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
@@ -450,11 +443,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  loginButtonDisabled: {
+  changePasswordButtonDisabled: {
     backgroundColor: '#bdc3c7',
     shadowOpacity: 0.1,
   },
-  loginButtonText: {
+  changePasswordButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
@@ -462,4 +455,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen; 
+export default ChangePasswordScreen;
