@@ -16,7 +16,7 @@ import registerCustomersRoutes from "./src/routes/registerCustomers.js";
 import reviewsRouter from "./src/routes/reviews.js";
 import salesRoutes from "./src/routes/sales.js";
 import ordersRoutes from "./src/routes/orders.js";
-import adminRoutes from "./src/routes/administrator.js";
+import adminRoutes from "./src/routes/Administrator.js";
 import contactusRoutes from "./src/routes/contactusRoutes.js";
 import wompiRoutes from "./src/routes/wompi.js"; 
 
