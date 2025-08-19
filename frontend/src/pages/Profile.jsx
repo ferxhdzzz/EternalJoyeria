@@ -1,5 +1,6 @@
+// src/pages/Profile.jsx
 import React, { useState, useEffect } from 'react';
-import Swal from "sweetalert2"; // Import agregado
+import Swal from "sweetalert2";
 import Nav from '../components/Nav/Nav';
 import ProfileDetails from '../components/Profile/ProfileDetails';
 import ProfilePhotoSection from '../components/Profile/ProfilePhotoSection';
@@ -8,7 +9,6 @@ import '../styles/Profile.css';
 import Footer from '../components/Footer';
 import '../styles/ProfileRedesign.css';
 import { useProfile } from '../hooks/useProfile';
-<
 import { useAuth } from '../context/AuthContext';
 
 import { 
@@ -21,16 +21,13 @@ import {
   XIcon 
 } from '../components/Icons';
 
-
 const Profile = () => {
-
   const { logout } = useAuth();
-  
-  // Usar nuestro hook personalizado (sin parámetros - obtiene usuario autenticado)
-  const { user, loading, error, updateProfile, updateProfilePicture } = useProfile();
-  
-  // Estado para notificaciones
 
+  // Hook de perfil (usuario autenticado)
+  const { user, loading, error, updateProfile, updateProfilePicture } = useProfile();
+
+  // Estado UI
   const [notifications, setNotifications] = useState(true);
   const [profileImage, setProfileImage] = useState('/Perfil/foto-perfil.png');
   const [cartOpen, setCartOpen] = useState(false);
@@ -39,11 +36,9 @@ const Profile = () => {
   const [message, setMessage] = useState('');
 
   const [localUser, setLocalUser] = useState({
-
     firstName: 'Usuario',
     lastName: 'Demo',
     email: 'usuario@ejemplo.com',
-
     phone: '+34123456789',
     password: '****',
     language: 'Español',
@@ -67,10 +62,7 @@ const Profile = () => {
         profilePicture: user.profilePicture || prev.profilePicture,
       }));
 
-      // Actualizar la imagen de perfil
-
-
-
+      // Fallback de imagen
       if (user.profilePicture) {
         console.log('📸 Foto de perfil encontrada en backend:', user.profilePicture);
         setProfileImage(user.profilePicture);
@@ -81,7 +73,7 @@ const Profile = () => {
     }
   }, [user]);
 
-  const showMessage = (text, isError = false) => {
+  const showMessage = (text) => {
     setMessage(text);
     setTimeout(() => setMessage(''), 3000);
   };
@@ -89,11 +81,9 @@ const Profile = () => {
   const handlePhotoChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-
       console.log('📸 Archivo seleccionado:', file.name, file.size);
-      
-      // Mostrar la imagen inmediatamente para mejor UX
 
+      // Preview inmediata
       const reader = new FileReader();
       reader.onload = (event) => {
         console.log('🖼️ Imagen cargada localmente para preview');
@@ -101,25 +91,22 @@ const Profile = () => {
       };
       reader.readAsDataURL(file);
 
-
       // Subir al backend
       console.log('📤 Subiendo foto al backend...');
       const result = await updateProfilePicture(file);
       if (result.success) {
         console.log('✅ Foto subida exitosamente al backend');
         showMessage('Foto de perfil actualizada correctamente! 🎉');
-        
-        // Actualizar la imagen con la URL del backend
+
         if (result.data && result.data.profilePicture) {
           console.log('🔄 Actualizando imagen con URL del backend:', result.data.profilePicture);
           setProfileImage(result.data.profilePicture);
         }
-
       } else {
         console.error('❌ Error al subir foto:', result.error);
-        showMessage('Error al actualizar la foto: ' + result.error, true);
-        
-        // Revertir a la imagen anterior
+        showMessage('Error al actualizar la foto: ' + result.error);
+
+        // Revertir
         if (user && user.profilePicture) {
           setProfileImage(user.profilePicture);
         } else {
@@ -152,22 +139,19 @@ const Profile = () => {
         console.log('📝 Enviando actualización al backend:', updateData);
         const result = await updateProfile(updateData);
         if (result.success) {
-          setLocalUser(prev => ({
-            ...prev,
-            [field]: tempValue
-          }));
+          setLocalUser(prev => ({ ...prev, [field]: tempValue }));
           showMessage('Perfil actualizado correctamente!');
         } else {
-          showMessage('Error al actualizar: ' + result.error, true);
+          showMessage('Error al actualizar: ' + result.error);
           return;
         }
       }
 
       setEditingField(null);
       setTempValue('');
-    } catch (error) {
-      console.error('❌ Error al actualizar el perfil:', error);
-      showMessage('Error al actualizar el perfil', true);
+    } catch (err) {
+      console.error('❌ Error al actualizar el perfil:', err);
+      showMessage('Error al actualizar el perfil');
     }
   };
 
@@ -177,13 +161,9 @@ const Profile = () => {
   };
 
   const handleKeyPress = (e, field) => {
-    if (e.key === 'Enter') {
-      handleSaveEdit(field);
-    } else if (e.key === 'Escape') {
-      handleCancelEdit();
-    }
+    if (e.key === 'Enter') handleSaveEdit(field);
+    else if (e.key === 'Escape') handleCancelEdit();
   };
-
 
   const handleLogout = async () => {
     const confirmResult = await Swal.fire({
@@ -203,20 +183,15 @@ const Profile = () => {
       title: "Cerrando sesión...",
       text: "Por favor espera",
       allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
+      didOpen: () => { Swal.showLoading(); }
     });
 
     try {
       const res = await fetch("http://localhost:4000/api/logout", {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json"
-        }
+        headers: { "Content-Type": "application/json" }
       });
-
       if (!res.ok) throw new Error("Error al cerrar sesión");
 
       Swal.fire({
@@ -227,18 +202,10 @@ const Profile = () => {
         showConfirmButton: false
       });
 
-      setTimeout(() => {
-        window.location.href = "/productos";
-      }, 1500);
-
+      setTimeout(() => { window.location.href = "/productos"; }, 1500);
     } catch (error) {
       console.error("Error cerrando sesión:", error);
-      Swal.fire({
-        title: "Error",
-        text: "No se pudo cerrar sesión. Intenta de nuevo.",
-        icon: "error"
-      });
-
+      Swal.fire({ title: "Error", text: "No se pudo cerrar sesión. Intenta de nuevo.", icon: "error" });
     }
   };
 
@@ -337,14 +304,7 @@ const Profile = () => {
     );
   };
 
-  if (loading) {
-    return <div>Cargando...</div>;
-  }
-
-  if (!error) {
-    return <div>Error al cargar perfil</div>;
-  }
-  // Mostrar pantalla de carga mientras se cargan los datos
+  /** --------- RENDER: Loading / Error / OK --------- */
   if (loading) {
     return (
       <div style={{
@@ -361,13 +321,12 @@ const Profile = () => {
           background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
           backgroundSize: '200px 100%',
           animation: 'shimmer 1.5s infinite'
-        }}></div>
+        }} />
       </div>
     );
   }
 
-  // Mostrar error si algo salió mal
-  if (!error) {
+  if (error) {
     return (
       <div style={{
         minHeight: '100vh',
@@ -378,10 +337,10 @@ const Profile = () => {
         flexDirection: 'column',
         gap: '20px'
       }}>
-        <h2>Error al cargar el perfil </h2>
+        <h2>Error al cargar el perfil</h2>
         <p>{error}</p>
-        <button 
-          onClick={() => window.location.reload()} 
+        <button
+          onClick={() => window.location.reload()}
           style={{
             background: '#eab5c5',
             color: 'white',
@@ -397,12 +356,12 @@ const Profile = () => {
     );
   }
 
-  // Render principal de la página de perfil
+  // Principal
   return (
     <div>
       <Nav cartOpen={cartOpen} />
-      
-      {/* Mensaje de éxito/error */}
+
+      {/* Toast */}
       {message && (
         <div style={{
           position: 'fixed',
@@ -420,27 +379,27 @@ const Profile = () => {
           {message}
         </div>
       )}
-      
-      <div className="profile-page" style={{minHeight: '100vh', background: '#fff', marginTop: '180px'}}>
-        <div className="profile-redesign-container" style={{display: 'flex', gap: '2.5rem', justifyContent: 'center', alignItems: 'flex-start', marginTop: '-40px'}}>
-          {/* Card izquierda: datos personales */}
-          <div className="profile-card left" style={{background: '#fff', borderRadius: '12px', boxShadow: '0 2px 12px #eab5c555', padding: '2.5rem 2rem', minWidth: 420, maxWidth: 520, minHeight: 420}}>
-            <div className="profile-photo-section" style={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, gap: 18}}>
-              <img 
-                src={profileImage} 
-                alt="Foto de perfil" 
-                className="profile-avatar" 
-                style={{width: 110, height: 110, borderRadius: '50%', objectFit: 'cover'}}
+
+      <div className="profile-page" style={{ minHeight: '100vh', background: '#fff', marginTop: '180px' }}>
+        <div className="profile-redesign-container" style={{ display: 'flex', gap: '2.5rem', justifyContent: 'center', alignItems: 'flex-start', marginTop: '-40px' }}>
+          {/* Card izquierda */}
+          <div className="profile-card left" style={{ background: '#fff', borderRadius: '12px', boxShadow: '0 2px 12px #eab5c555', padding: '2.5rem 2rem', minWidth: 420, maxWidth: 520, minHeight: 420 }}>
+            <div className="profile-photo-section" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, gap: 18 }}>
+              <img
+                src={profileImage}
+                alt="Foto de perfil"
+                className="profile-avatar"
+                style={{ width: 110, height: 110, borderRadius: '50%', objectFit: 'cover' }}
                 onClick={() => document.getElementById('photo-input').click()}
               />
-              <label className="update-photo-btn" style={{background: '#F0EFFA', color: '#222', borderRadius: 8, padding: '4px 16px', fontWeight: 600, fontSize: 13, cursor: 'pointer', border: 'none'}}>
+              <label className="update-photo-btn" style={{ background: '#F0EFFA', color: '#222', borderRadius: 8, padding: '4px 16px', fontWeight: 600, fontSize: 13, cursor: 'pointer', border: 'none' }}>
                 Actualizar foto
-                <input 
+                <input
                   id="photo-input"
-                  type="file" 
-                  accept="image/*" 
-                  style={{ display: 'none' }} 
-                  onChange={handlePhotoChange} 
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={handlePhotoChange}
                 />
               </label>
             </div>
@@ -449,8 +408,7 @@ const Profile = () => {
               {renderField('email', 'Tu correo', localUser.email)}
               {renderField('phone', 'Tu telefono', localUser.phone)}
               {renderField('password', 'Tu contraseña', '••••••••', true)}
-              
-              {/* Mensaje informativo sobre la contraseña */}
+
               <div style={{
                 marginTop: 8,
                 padding: '8px 12px',
@@ -467,14 +425,12 @@ const Profile = () => {
                 <InfoIcon size={14} color="#6c757d" />
                 Para cambiar tu contraseña, haz clic en "Cambiar contraseña" y serás dirigido a la pantalla de recuperación
               </div>
-              
-              {/* Sección de configuraciones adicionales */}
-              <div style={{marginTop: 20, paddingTop: 15, borderTop: '1px solid #f0f0f0'}}>
-                <h4 style={{fontSize: 16, fontWeight: 600, color: '#333', marginBottom: 15}}>Configuraciones</h4>
-               
-                {/* Switch de notificaciones */}
-                <div className="profile-settings-row" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12}}>
-                  <div className="profile-info-label" style={{fontWeight: 500, fontSize: 14}}>Notificaciones</div>
+
+              <div style={{ marginTop: 20, paddingTop: 15, borderTop: '1px solid #f0f0f0' }}>
+                <h4 style={{ fontSize: 16, fontWeight: 600, color: '#333', marginBottom: 15 }}>Configuraciones</h4>
+
+                <div className="profile-settings-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <div className="profile-info-label" style={{ fontWeight: 500, fontSize: 14 }}>Notificaciones</div>
                   <div className="checkbox-wrapper-5">
                     <div className="check">
                       <input
@@ -487,41 +443,38 @@ const Profile = () => {
                     </div>
                   </div>
                 </div>
-                
-                {/* Enlaces a políticas */}
-                <div className="profile-settings-row" style={{marginBottom: 12}}>
-                  <div className="profile-info-label" style={{fontWeight: 500, fontSize: 14, cursor: 'pointer', color: '#666'}} 
-                       onClick={() => window.open('/privacy', '_blank')}>
+
+                <div className="profile-settings-row" style={{ marginBottom: 12 }}>
+                  <div className="profile-info-label" style={{ fontWeight: 500, fontSize: 14, cursor: 'pointer', color: '#666' }}
+                    onClick={() => window.open('/privacy', '_blank')}>
                     Política de privacidad
                   </div>
                 </div>
-                <div className="profile-settings-row" style={{marginBottom: 12}}>
-                  <div className="profile-info-label" style={{fontWeight: 500, fontSize: 14, cursor: 'pointer', color: '#666'}}
-                       onClick={() => window.open('/terms', '_blank')}>
+                <div className="profile-settings-row" style={{ marginBottom: 12 }}>
+                  <div className="profile-info-label" style={{ fontWeight: 500, fontSize: 14, cursor: 'pointer', color: '#666' }}
+                    onClick={() => window.open('/terms', '_blank')}>
                     Términos y condiciones
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          
-          {/* Card derecha: configuraciones y acciones */}
-          <div className="profile-card right" style={{background: '#fff', borderRadius: '12px', boxShadow: '0 2px 12px #eab5c555', padding: '2.5rem 2rem', minWidth: 420, maxWidth: 520, minHeight: 420}}>
+
+          {/* Card derecha */}
+          <div className="profile-card right" style={{ background: '#fff', borderRadius: '12px', boxShadow: '0 2px 12px #eab5c555', padding: '2.5rem 2rem', minWidth: 420, maxWidth: 520, minHeight: 420 }}>
             <div className="profile-settings-box">
               {renderField('language', 'Idioma', localUser.language)}
               {renderField('currency', 'Moneda', localUser.currency)}
-              
-              {/* Sección de dirección */}
-              <div style={{marginBottom: 20, paddingTop: 10, borderTop: '1px solid #f0f0f0'}}>
-                <h4 style={{fontSize: 16, fontWeight: 600, color: '#333', marginBottom: 15}}>Información de Dirección</h4>
+
+              <div style={{ marginBottom: 20, paddingTop: 10, borderTop: '1px solid #f0f0f0' }}>
+                <h4 style={{ fontSize: 16, fontWeight: 600, color: '#333', marginBottom: 15 }}>Información de Dirección</h4>
                 {renderField('street', 'Calle y número', localUser.street)}
                 {renderField('city', 'Ciudad', localUser.city)}
                 {renderField('department', 'Departamento', localUser.department)}
                 {renderField('zipCode', 'Código postal', localUser.zipCode)}
                 {renderField('country', 'País', localUser.country)}
-                
-                {/* Botón para copiar dirección */}
-                <button 
+
+                <button
                   onClick={copyAddressToClipboard}
                   style={{
                     background: '#F0EFFA',
@@ -544,19 +497,18 @@ const Profile = () => {
                   Copiar dirección completa
                 </button>
               </div>
-              
-              {/* Botón de historial de pedidos */}
-              <div className="profile-settings-row" style={{marginBottom: 12}}>
-                <button 
-                  className="order-history-btn" 
+
+              <div className="profile-settings-row" style={{ marginBottom: 12 }}>
+                <button
+                  className="order-history-btn"
                   style={{
-                    background: '#F0EFFA', 
-                    color: '#222', 
-                    border: 'none', 
-                    borderRadius: 8, 
-                    padding: '8px 16px', 
-                    fontWeight: 600, 
-                    fontSize: 14, 
+                    background: '#F0EFFA',
+                    color: '#222',
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '8px 16px',
+                    fontWeight: 600,
+                    fontSize: 14,
                     cursor: 'pointer',
                     width: '100%',
                     transition: 'all 0.3s ease',
@@ -565,14 +517,8 @@ const Profile = () => {
                     justifyContent: 'center',
                     gap: '8px'
                   }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = '#eab5c5';
-                    e.target.style.color = '#fff';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = '#F0EFFA';
-                    e.target.style.color = '#222';
-                  }}
+                  onMouseEnter={(e) => { e.target.style.background = '#eab5c5'; e.target.style.color = '#fff'; }}
+                  onMouseLeave={(e) => { e.target.style.background = '#F0EFFA'; e.target.style.color = '#222'; }}
                   onClick={() => window.location.href = '/historial'}
                 >
                   <HistoryIcon size={16} color="currentColor" />
@@ -580,19 +526,17 @@ const Profile = () => {
                 </button>
               </div>
 
-    
-              {/* Botón de historial de reseñas */}
-              <div className="profile-settings-row" style={{marginBottom: 12}}>
-                <button 
-                  className="order-history-btn" 
+              <div className="profile-settings-row" style={{ marginBottom: 12 }}>
+                <button
+                  className="order-history-btn"
                   style={{
-                    background: '#F0EFFA', 
-                    color: '#222', 
-                    border: 'none', 
-                    borderRadius: 8, 
-                    padding: '8px 16px', 
-                    fontWeight: 600, 
-                    fontSize: 14, 
+                    background: '#F0EFFA',
+                    color: '#222',
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '8px 16px',
+                    fontWeight: 600,
+                    fontSize: 14,
                     cursor: 'pointer',
                     width: '100%',
                     transition: 'all 0.3s ease',
@@ -601,14 +545,8 @@ const Profile = () => {
                     justifyContent: 'center',
                     gap: '8px'
                   }}
-                  onMouseEnter={(e) => {
-                    e.target.style.background = '#eab5c5';
-                    e.target.style.color = '#fff';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.background = '#F0EFFA';
-                    e.target.style.color = '#222';
-                  }}
+                  onMouseEnter={(e) => { e.target.style.background = '#eab5c5'; e.target.style.color = '#fff'; }}
+                  onMouseLeave={(e) => { e.target.style.background = '#F0EFFA'; e.target.style.color = '#222'; }}
                   onClick={() => window.location.href = '/histReview'}
                 >
                   <HistoryIcon size={16} color="currentColor" />
@@ -616,14 +554,10 @@ const Profile = () => {
                 </button>
               </div>
 
-
-              
-              
-              {/* Botón para cerrar sesión */}
-              <div className="profile-settings-row" style={{marginBottom: 12}}>
-                <button 
-                  className="logout-btn" 
-                  style={{background: 'none', color: '#e75480', border: 'none', fontWeight: 700, fontSize: 15, cursor: 'pointer'}} 
+              <div className="profile-settings-row" style={{ marginBottom: 12 }}>
+                <button
+                  className="logout-btn"
+                  style={{ background: 'none', color: '#e75480', border: 'none', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}
                   onClick={handleLogout}
                 >
                   Desconectarse

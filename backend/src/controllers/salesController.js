@@ -228,4 +228,30 @@ salesController.deleteSale = async (req, res) => {
   }
 };
 
+// Lee SOLO las ventas del usuario autenticado (cliente)
+salesController.getMySales = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    const mySales = await Sale.find({ idCustomers: userId })
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "idOrder",
+        select: "status total totalCents currency createdAt products idCustomer",
+        populate: [
+          { path: "products.productId", select: "name images price finalPrice" },
+          { path: "idCustomer", select: "firstName lastName email" },
+        ],
+      });
+
+    return res.json(mySales);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error al obtener tu historial de ventas",
+      error: error.message,
+    });
+  }
+};
+
+
 export default salesController;

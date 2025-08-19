@@ -4,6 +4,7 @@ import cors from "cors";
 import session from "express-session";
 import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
+
 // Rutas
 import customersRoutes from "./src/routes/customers.js";
 import categoriesRouters from "./src/routes/categories.js";
@@ -17,6 +18,8 @@ import salesRoutes from "./src/routes/sales.js";
 import ordersRoutes from "./src/routes/orders.js";
 import adminRoutes from "./src/routes/administrator.js";
 import contactusRoutes from "./src/routes/contactusRoutes.js";
+import wompiRoutes from "./src/routes/wompi.js"; 
+
 import fs from "fs";
 import path from "path";
 import { validateAuthToken } from "./src/middlewares/validateAuthToken.js";
@@ -26,17 +29,16 @@ const app = express();
 // CORS para ambos puertos (5173 y 5174)
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'http://localhost:5174'],
+    origin: ["http://localhost:5173", "http://localhost:5174"],
     credentials: true,
   })
 );
 
 // Swagger
 const swaggerDocument = JSON.parse(
-  fs.readFileSync(path.resolve('./Docs.json'), 'utf-8')
+  fs.readFileSync(path.resolve("./Docs.json"), "utf-8")
 );
-
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Middleware para JSON y cookies
 app.use(express.json());
@@ -45,33 +47,33 @@ app.use(cookieParser());
 // Sesiones (cookies)
 app.use(
   session({
-    secret: 'eternaljoyeria',
+    secret: "eternaljoyeria",
     resave: false,
     saveUninitialized: false,
     cookie: {
       secure: false, // true solo si usas HTTPS
       httpOnly: true,
-      sameSite: 'lax',
+      sameSite: "lax",
       maxAge: 24 * 60 * 60 * 1000,
     },
   })
 );
 
-// Rutas públicas
+/* ===== Rutas públicas ===== */
 app.use("/api/login", loginRoutes);
 app.use("/api/logout", logoutRoutes);
 app.use("/api/recoveryPassword", recoveryPasswordRoutes);
 app.use("/api/registerCustomers", registerCustomersRoutes);
 app.use("/api/contactus", contactusRoutes);
-app.use("/api/products", productsRoutes);
+app.use("/api/products", productsRoutes); // pública según tu merge
 
-// Rutas protegidas
+/* ===== Rutas protegidas ===== */
 app.use("/api/customers", validateAuthToken(["admin", "customer"]), customersRoutes);
 app.use("/api/categories", validateAuthToken(["admin", "customer"]), categoriesRouters);
-
 app.use("/api/admins", validateAuthToken(["admin"]), adminRoutes);
 app.use("/api/reviews", validateAuthToken(["admin", "customer"]), reviewsRouter);
-app.use("/api/sales", validateAuthToken(["admin"]), salesRoutes);
+app.use("/api/sales", validateAuthToken(["admin", "customer"]), salesRoutes);
 app.use("/api/orders", validateAuthToken(["admin", "customer"]), ordersRoutes);
+app.use("/api/wompi", validateAuthToken(["admin", "customer"]), wompiRoutes);
 
 export default app;
