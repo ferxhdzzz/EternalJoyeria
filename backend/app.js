@@ -65,7 +65,7 @@ app.use("/api/logout", logoutRoutes);
 app.use("/api/recoveryPassword", recoveryPasswordRoutes);
 app.use("/api/registerCustomers", registerCustomersRoutes);
 app.use("/api/contactus", contactusRoutes);
-app.use("/api/products", productsRoutes); // pública según tu merge
+app.use("/api/products", productsRoutes); // pública según la rama
 
 /* ===== Rutas protegidas ===== */
 app.use("/api/customers", validateAuthToken(["admin", "customer"]), customersRoutes);

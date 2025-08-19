@@ -1,3 +1,4 @@
+// src/pages/HistReviews.jsx
 import React, { useState, useEffect } from 'react';
 import Nav from '../components/Nav/Nav';
 import ReviewItem from '../components/Historial/Reviews';
@@ -15,38 +16,84 @@ const HistReviews = () => {
 
   useEffect(() => {
     const fetchReviews = async () => {
-      if (authLoading || !user?.id) {
+      // Esperar a que termine el estado de autenticación
+      if (authLoading) return;
+
+      const userId = user?._id || user?.id;
+
+      if (!userId) {
         setIsLoading(false);
         setReviews([]);
+        setError('Debes iniciar sesión para ver tus reseñas.');
         return;
       }
 
       try {
-        const response = await fetch(`http://localhost:4000/api/reviews/user/${user.id}`);
+        setIsLoading(true);
+        setError(null);
+
+        const response = await fetch(
+          `http://localhost:4000/api/reviews/user/${userId}`,
+          {
+            method: 'GET',
+            credentials: 'include', // 👈 MUY IMPORTANTE para enviar la cookie al backend
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+
+        if (response.status === 401) {
+          setReviews([]);
+          throw new Error('No autorizado. Inicia sesión nuevamente.');
+        }
+
         if (!response.ok) {
-          if (response.status === 404) setReviews([]);
-          else throw new Error('Error al cargar las reseñas');
+          if (response.status === 404) {
+            setReviews([]);
+          } else {
+            throw new Error('Error al cargar las reseñas');
+          }
         } else {
           const data = await response.json();
-          setReviews(data);
+          // Acepta tanto array directo como { reviews: [...] }
+          const list = Array.isArray(data) ? data : (data?.reviews || []);
+          setReviews(list);
         }
-        setIsLoading(false);
       } catch (err) {
-        setError(err.message);
+        setError(err.message || 'Error al cargar las reseñas');
+        console.error('Error al obtener las reseñas:', err);
+      } finally {
         setIsLoading(false);
-        console.error("Error al obtener las reseñas:", err);
       }
     };
 
     fetchReviews();
-  }, [user, authLoading]);
+  }, [authLoading, user?._id, user?.id]);
 
   const handleDeleteReview = (id) => {
     setReviews(prev => prev.filter(r => r._id !== id));
   };
 
-  if (isLoading || authLoading) return <div className="historial-page"><h2>Cargando tus reseñas...</h2></div>;
-  if (error) return <div className="historial-page"><h2>Error: {error}</h2><p>No se pudo cargar tus reseñas.</p></div>;
+  if (isLoading || authLoading) {
+    return (
+      <div className="historial-page">
+        <h2>Cargando tus reseñas...</h2>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+        <Nav cartOpen={cartOpen} />
+        <div className="historial-page">
+          <h2>Error: {error}</h2>
+          <p>No se pudo cargar tus reseñas.</p>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
