@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Swal from "sweetalert2"; // Import agregado
 import Nav from '../components/Nav/Nav';
 import ProfileDetails from '../components/Profile/ProfileDetails';
 import ProfilePhotoSection from '../components/Profile/ProfilePhotoSection';
@@ -7,38 +8,46 @@ import '../styles/Profile.css';
 import Footer from '../components/Footer';
 import '../styles/ProfileRedesign.css';
 import { useProfile } from '../hooks/useProfile';
+<
+import { useAuth } from '../context/AuthContext';
 
-// Página de perfil de usuario
+import { 
+  LockIcon, 
+  InfoIcon, 
+  CopyIcon, 
+  HistoryIcon, 
+  LogoutIcon, 
+  CheckIcon, 
+  XIcon 
+} from '../components/Icons';
+
+
 const Profile = () => {
-  // ID del usuario (por ahora hardcodeado, después lo puedes obtener del contexto de autenticación)
-  const userId = '6866c36801e8f8bca8a64557'; // ID real de William Hernandez
+
+  const { logout } = useAuth();
   
-  // Usar nuestro hook personalizado
-  const { user, loading, error, updateProfile, updateProfilePicture } = useProfile(userId);
+  // Usar nuestro hook personalizado (sin parámetros - obtiene usuario autenticado)
+  const { user, loading, error, updateProfile, updateProfilePicture } = useProfile();
   
   // Estado para notificaciones
+
   const [notifications, setNotifications] = useState(true);
-  // Estado para la imagen de perfil
   const [profileImage, setProfileImage] = useState('/Perfil/foto-perfil.png');
-  // Estado para mostrar/ocultar el carrito
   const [cartOpen, setCartOpen] = useState(false);
-  // Estado para saber qué campo se está editando
   const [editingField, setEditingField] = useState(null);
-  // Estado temporal para el valor editado
   const [tempValue, setTempValue] = useState('');
-  // Estado para mensajes de éxito/error
   const [message, setMessage] = useState('');
 
-  // Datos de usuario por defecto (se sobrescribirán con los datos del backend)
   const [localUser, setLocalUser] = useState({
-    firstName: 'william',
-    lastName: 'hernandez',
-    email: 'fjsdeveloper1@gmail.com',
+
+    firstName: 'Usuario',
+    lastName: 'Demo',
+    email: 'usuario@ejemplo.com',
+
     phone: '+34123456789',
-    password: '**********',
+    password: '****',
     language: 'Español',
     currency: 'USD',
-    // Campos de dirección expandidos
     street: 'Calle Principal #123',
     city: 'San Salvador',
     department: 'San Salvador',
@@ -46,9 +55,9 @@ const Profile = () => {
     country: 'El Salvador',
   });
 
-  // Actualizar el usuario local cuando lleguen los datos del backend
   useEffect(() => {
     if (user) {
+      console.log('🔄 Usuario recibido del backend:', user);
       setLocalUser(prev => ({
         ...prev,
         firstName: user.firstName || prev.firstName,
@@ -57,55 +66,79 @@ const Profile = () => {
         phone: user.phone || prev.phone,
         profilePicture: user.profilePicture || prev.profilePicture,
       }));
-      
+
+      // Actualizar la imagen de perfil
+
+
+
       if (user.profilePicture) {
+        console.log('📸 Foto de perfil encontrada en backend:', user.profilePicture);
         setProfileImage(user.profilePicture);
+      } else {
+        console.log('📸 No hay foto de perfil en backend, usando imagen por defecto');
+        setProfileImage('/Perfil/foto-perfil.png');
       }
     }
   }, [user]);
 
-  // Mostrar mensajes temporales
   const showMessage = (text, isError = false) => {
     setMessage(text);
     setTimeout(() => setMessage(''), 3000);
   };
 
-  // Cambia la foto de perfil y la sube al backend
   const handlePhotoChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+
+      console.log('📸 Archivo seleccionado:', file.name, file.size);
       
       // Mostrar la imagen inmediatamente para mejor UX
+
       const reader = new FileReader();
       reader.onload = (event) => {
+        console.log('🖼️ Imagen cargada localmente para preview');
         setProfileImage(event.target.result);
       };
       reader.readAsDataURL(file);
 
+
       // Subir al backend
+      console.log('📤 Subiendo foto al backend...');
       const result = await updateProfilePicture(file);
       if (result.success) {
+        console.log('✅ Foto subida exitosamente al backend');
         showMessage('Foto de perfil actualizada correctamente! 🎉');
+        
+        // Actualizar la imagen con la URL del backend
+        if (result.data && result.data.profilePicture) {
+          console.log('🔄 Actualizando imagen con URL del backend:', result.data.profilePicture);
+          setProfileImage(result.data.profilePicture);
+        }
+
       } else {
+        console.error('❌ Error al subir foto:', result.error);
         showMessage('Error al actualizar la foto: ' + result.error, true);
+        
+        // Revertir a la imagen anterior
+        if (user && user.profilePicture) {
+          setProfileImage(user.profilePicture);
+        } else {
+          setProfileImage('/Perfil/foto-perfil.png');
+        }
       }
     }
   };
 
-  // Inicia la edición de un campo
   const handleEditClick = (field) => {
     setEditingField(field);
     setTempValue(localUser[field]);
   };
 
-  // Guarda el valor editado
   const handleSaveEdit = async (field) => {
     try {
-      // Preparar los datos para enviar al backend
       let updateData = {};
-      
+
       if (field === 'name') {
-        // Si es el nombre, dividirlo en firstName y lastName
         const nameParts = tempValue.split(' ');
         updateData.firstName = nameParts[0] || '';
         updateData.lastName = nameParts.slice(1).join(' ') || '';
@@ -115,35 +148,34 @@ const Profile = () => {
         updateData.email = tempValue;
       }
 
-      // Solo actualizar si hay datos para enviar
       if (Object.keys(updateData).length > 0) {
+        console.log('📝 Enviando actualización al backend:', updateData);
         const result = await updateProfile(updateData);
         if (result.success) {
           setLocalUser(prev => ({
             ...prev,
             [field]: tempValue
           }));
-          showMessage('Perfil actualizado correctamente! ✨');
+          showMessage('Perfil actualizado correctamente!');
         } else {
           showMessage('Error al actualizar: ' + result.error, true);
-          return; // No cerrar la edición si hay error
+          return;
         }
       }
 
       setEditingField(null);
       setTempValue('');
     } catch (error) {
+      console.error('❌ Error al actualizar el perfil:', error);
       showMessage('Error al actualizar el perfil', true);
     }
   };
 
-  // Cancela la edición
   const handleCancelEdit = () => {
     setEditingField(null);
     setTempValue('');
   };
 
-  // Permite guardar/cancelar con Enter/Escape
   const handleKeyPress = (e, field) => {
     if (e.key === 'Enter') {
       handleSaveEdit(field);
@@ -152,32 +184,111 @@ const Profile = () => {
     }
   };
 
-  // Cierra sesión con confirmación
-  const handleLogout = () => {
-    if (window.confirm('¿Estás seguro de que quieres desconectarte?')) {
-      window.location.href = '/login';
+
+  const handleLogout = async () => {
+    const confirmResult = await Swal.fire({
+      title: "¿Cerrar sesión?",
+      text: "Se cerrará tu sesión actual",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#e75480",
+      cancelButtonColor: "#aaa",
+      confirmButtonText: "Sí, cerrar sesión",
+      cancelButtonText: "Cancelar"
+    });
+
+    if (!confirmResult.isConfirmed) return;
+
+    Swal.fire({
+      title: "Cerrando sesión...",
+      text: "Por favor espera",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    try {
+      const res = await fetch("http://localhost:4000/api/logout", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (!res.ok) throw new Error("Error al cerrar sesión");
+
+      Swal.fire({
+        title: "Sesión cerrada",
+        text: "Serás redirigido al inicio de sesión",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false
+      });
+
+      setTimeout(() => {
+        window.location.href = "/productos";
+      }, 1500);
+
+    } catch (error) {
+      console.error("Error cerrando sesión:", error);
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo cerrar sesión. Intenta de nuevo.",
+        icon: "error"
+      });
+
     }
   };
 
-  // Función para copiar la dirección completa al portapapeles
   const copyAddressToClipboard = () => {
     const fullAddress = `${localUser.street}, ${localUser.city}, ${localUser.department}, ${localUser.zipCode}, ${localUser.country}`;
     navigator.clipboard.writeText(fullAddress).then(() => {
-      showMessage('Dirección copiada al portapapeles 📋');
+      showMessage('Dirección copiada al portapapeles');
     });
   };
 
-  // Renderiza un campo editable del perfil
   const renderField = (field, label, value, isPassword = false) => {
+    if (isPassword) {
+      return (
+        <div className="profile-info-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <div>
+            <div className="profile-info-label" style={{ fontWeight: 500, fontSize: 14 }}>{label}</div>
+          </div>
+          <button
+            className="edit-btn"
+            style={{
+              background: '#eab5c5',
+              color: 'white',
+              border: 'none',
+              borderRadius: 8,
+              padding: '8px 16px',
+              fontWeight: 600,
+              fontSize: 13,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+            onClick={() => window.location.href = '/recoveryPassword'}
+          >
+            <LockIcon size={14} color="white" />
+            Cambiar contraseña
+          </button>
+        </div>
+      );
+    }
+
     const isEditing = editingField === field;
-    
+
     return (
-      <div className="profile-info-row" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12}}>
+      <div className="profile-info-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <div>
-          <div className="profile-info-label" style={{fontWeight: 500, fontSize: 14}}>{label}</div>
+          <div className="profile-info-label" style={{ fontWeight: 500, fontSize: 14 }}>{label}</div>
           {isEditing ? (
             <input
-              type={isPassword ? "password" : "text"}
+              type="text"
               value={tempValue}
               onChange={(e) => setTempValue(e.target.value)}
               onKeyDown={(e) => handleKeyPress(e, field)}
@@ -186,39 +297,37 @@ const Profile = () => {
                 borderRadius: '6px',
                 padding: '4px 8px',
                 fontSize: '15px',
-                fontWeight: '600',
-                outline: 'none',
-                transition: 'all 0.3s ease'
+                fontWeight: '600'
               }}
               autoFocus
             />
           ) : (
-            <div className="profile-info-value" style={{fontWeight: 700, fontSize: 15}}>
-              {isPassword ? '•'.repeat(8) : value}
+            <div className="profile-info-value" style={{ fontWeight: 700, fontSize: 15 }}>
+              {value}
             </div>
           )}
         </div>
         {isEditing ? (
-          <div style={{display: 'flex', gap: '8px'}}>
-            <button 
-              className="edit-btn" 
-              style={{background: '#4CAF50', color: 'white', border: 'none', borderRadius: 8, padding: '4px 12px', fontWeight: 600, fontSize: 13, cursor: 'pointer'}}
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              className="edit-btn"
+              style={{ background: '#4CAF50', color: 'white', border: 'none', borderRadius: 8, padding: '4px 12px', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}
               onClick={() => handleSaveEdit(field)}
             >
-              ✓
+              <CheckIcon size={12} color="white" />
             </button>
-            <button 
-              className="edit-btn" 
-              style={{background: '#f44336', color: 'white', border: 'none', borderRadius: 8, padding: '4px 12px', fontWeight: 600, fontSize: 13, cursor: 'pointer'}}
+            <button
+              className="edit-btn"
+              style={{ background: '#f44336', color: 'white', border: 'none', borderRadius: 8, padding: '4px 12px', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}
               onClick={handleCancelEdit}
             >
-              ✕
+              <XIcon size={12} color="white" />
             </button>
           </div>
         ) : (
-          <button 
-            className="edit-btn" 
-            style={{background: '#F0EFFA', color: '#222', border: 'none', borderRadius: 8, padding: '4px 12px', fontWeight: 600, fontSize: 13, cursor: 'pointer'}}
+          <button
+            className="edit-btn"
+            style={{ background: '#F0EFFA', color: '#222', border: 'none', borderRadius: 8, padding: '4px 12px', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}
             onClick={() => handleEditClick(field)}
           >
             Editar
@@ -228,6 +337,13 @@ const Profile = () => {
     );
   };
 
+  if (loading) {
+    return <div>Cargando...</div>;
+  }
+
+  if (!error) {
+    return <div>Error al cargar perfil</div>;
+  }
   // Mostrar pantalla de carga mientras se cargan los datos
   if (loading) {
     return (
@@ -251,7 +367,7 @@ const Profile = () => {
   }
 
   // Mostrar error si algo salió mal
-  if (error) {
+  if (!error) {
     return (
       <div style={{
         minHeight: '100vh',
@@ -262,7 +378,7 @@ const Profile = () => {
         flexDirection: 'column',
         gap: '20px'
       }}>
-        <h2>Error al cargar el perfil 😔</h2>
+        <h2>Error al cargar el perfil </h2>
         <p>{error}</p>
         <button 
           onClick={() => window.location.reload()} 
@@ -332,7 +448,25 @@ const Profile = () => {
               {renderField('name', 'Tu nombre', `${localUser.firstName} ${localUser.lastName}`)}
               {renderField('email', 'Tu correo', localUser.email)}
               {renderField('phone', 'Tu telefono', localUser.phone)}
-              {renderField('password', 'Tu contraseña', localUser.password, true)}
+              {renderField('password', 'Tu contraseña', '••••••••', true)}
+              
+              {/* Mensaje informativo sobre la contraseña */}
+              <div style={{
+                marginTop: 8,
+                padding: '8px 12px',
+                background: '#f8f9fa',
+                borderRadius: 6,
+                border: '1px solid #e9ecef',
+                fontSize: 12,
+                color: '#6c757d',
+                fontStyle: 'italic',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <InfoIcon size={14} color="#6c757d" />
+                Para cambiar tu contraseña, haz clic en "Cambiar contraseña" y serás dirigido a la pantalla de recuperación
+              </div>
               
               {/* Sección de configuraciones adicionales */}
               <div style={{marginTop: 20, paddingTop: 15, borderTop: '1px solid #f0f0f0'}}>
@@ -399,10 +533,15 @@ const Profile = () => {
                     fontSize: 13,
                     cursor: 'pointer',
                     marginTop: 10,
-                    width: '100%'
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
                   }}
                 >
-                  📋 Copiar dirección completa
+                  <CopyIcon size={14} color="#222" />
+                  Copiar dirección completa
                 </button>
               </div>
               
@@ -420,7 +559,11 @@ const Profile = () => {
                     fontSize: 14, 
                     cursor: 'pointer',
                     width: '100%',
-                    transition: 'all 0.3s ease'
+                    transition: 'all 0.3s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.background = '#eab5c5';
@@ -432,9 +575,49 @@ const Profile = () => {
                   }}
                   onClick={() => window.location.href = '/historial'}
                 >
+                  <HistoryIcon size={16} color="currentColor" />
                   Historial de pedidos
                 </button>
               </div>
+
+    
+              {/* Botón de historial de reseñas */}
+              <div className="profile-settings-row" style={{marginBottom: 12}}>
+                <button 
+                  className="order-history-btn" 
+                  style={{
+                    background: '#F0EFFA', 
+                    color: '#222', 
+                    border: 'none', 
+                    borderRadius: 8, 
+                    padding: '8px 16px', 
+                    fontWeight: 600, 
+                    fontSize: 14, 
+                    cursor: 'pointer',
+                    width: '100%',
+                    transition: 'all 0.3s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = '#eab5c5';
+                    e.target.style.color = '#fff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = '#F0EFFA';
+                    e.target.style.color = '#222';
+                  }}
+                  onClick={() => window.location.href = '/histReview'}
+                >
+                  <HistoryIcon size={16} color="currentColor" />
+                  Historial de reseñas
+                </button>
+              </div>
+
+
+              
               
               {/* Botón para cerrar sesión */}
               <div className="profile-settings-row" style={{marginBottom: 12}}>

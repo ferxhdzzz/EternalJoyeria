@@ -12,18 +12,23 @@ const salesSchema = new Schema(
     idOrder: {
       type: Schema.Types.ObjectId,
       ref: "Orders",
-      required: true,
+      required: true, // Debe existir una orden relacionada
     },
-    idCustomers: {
+
+ idCustomers: {
       type: Schema.Types.ObjectId,
       ref: "Customers",
-      required: true,
+      required: true, // Cliente obligatorio
     },
+
+
     address: {
       type: String,
       required: true,
       trim: true,
     },
+
+
   },
   { strict: false }
 );

@@ -10,8 +10,20 @@ export default function useLogout() {
   const logout = async () => {
     setLoading(true);
     try {
-      await apiFetch("/logout", { method: "POST" }); // limpia cookie en backend
-      ctxLogout(); // limpia user en el contexto
+      // Intentar limpiar cookie en backend
+      try {
+        await apiFetch("/logout", { method: "POST" });
+      } catch (error) {
+        // Si falla el logout del backend, continuar con el logout local
+        console.warn('Error al hacer logout en backend:', error);
+      }
+      
+      // Limpiar user en el contexto
+      ctxLogout();
+      return { success: true };
+    } catch (error) {
+      console.error('Error en logout:', error);
+      return { success: false, error: error.message };
     } finally {
       setLoading(false);
     }

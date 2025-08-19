@@ -9,19 +9,23 @@ import {
   ScrollView,
   SafeAreaView,
   Animated,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../context/AuthContext';
 
 const { width, height } = Dimensions.get('window');
 
 const LoginScreen = ({ navigation }) => {
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Referencias para las animaciones de entrada
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -70,11 +74,8 @@ const LoginScreen = ({ navigation }) => {
     if (!password) {
       setPasswordError('La contraseña es requerida');
       return false;
-    } else if (password.length < 8) {
-      setPasswordError('La contraseña debe tener al menos 8 caracteres');
-      return false;
-    } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      setPasswordError('La contraseña debe contener al menos un carácter especial');
+    } else if (password.length < 6) {
+      setPasswordError('La contraseña debe tener al menos 6 caracteres');
       return false;
     } else {
       setPasswordError('');
@@ -112,18 +113,23 @@ const LoginScreen = ({ navigation }) => {
     }
   }, [email, password]);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     validateForm();
     if (isFormValid) {
-      console.log('Iniciando sesión con:', JSON.stringify({ email, password }));
-      // Simular datos de usuario para la demo
-      const mockUserData = {
-        firstName: 'Usuario',
-        lastName: 'Demo',
-        email: email,
-      };
-      // Navegar a la pantalla de productos
-      navigation.navigate('Products', mockUserData);
+      setIsLoading(true);
+      try {
+        const result = await login(email, password);
+        if (result.success) {
+          // Navegar a la pantalla principal
+          navigation.navigate('Products', result.user);
+        } else {
+          Alert.alert('Error', result.error || 'Error al iniciar sesión');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Error inesperado al iniciar sesión');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -203,6 +209,7 @@ const LoginScreen = ({ navigation }) => {
                 onBlur={() => validateEmail(email)}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                editable={!isLoading}
               />
               {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
             </View>
@@ -219,10 +226,12 @@ const LoginScreen = ({ navigation }) => {
                   onChangeText={handlePasswordChange}
                   onBlur={() => validatePassword(password)}
                   secureTextEntry={!showPassword}
+                  editable={!isLoading}
                 />
                 <TouchableOpacity 
                   style={styles.eyeIconButton} 
                   onPress={togglePasswordVisibility}
+                  disabled={isLoading}
                 >
                   <Ionicons 
                     name={showPassword ? "eye-off" : "eye"} 
@@ -244,11 +253,13 @@ const LoginScreen = ({ navigation }) => {
 
           {/* Botón de inicio de sesión */}
           <TouchableOpacity 
-            style={[styles.loginButton, !isFormValid ? styles.loginButtonDisabled : null]} 
+            style={[styles.loginButton, !isFormValid || isLoading ? styles.loginButtonDisabled : null]} 
             onPress={handleLogin}
-            disabled={!isFormValid}
+            disabled={!isFormValid || isLoading}
           >
-            <Text style={styles.loginButtonText}>Iniciar sesión</Text>
+            <Text style={styles.loginButtonText}>
+              {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+            </Text>
           </TouchableOpacity>
         </Animated.View>
       </ScrollView>

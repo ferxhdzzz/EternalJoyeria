@@ -151,6 +151,7 @@ loginController.login = async (req, res) => {
       success: true,
       message: "Login successful",
       userType: userType,
+      token: token, // Agregar token para React Native
       user: {
         id: userFound._id,
         email: userFound.email,

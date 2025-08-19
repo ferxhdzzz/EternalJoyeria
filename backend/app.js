@@ -1,30 +1,25 @@
-// backend/src/app.js
-import express from 'express';
-import cors from 'cors';
-import session from 'express-session';
-import cookieParser from 'cookie-parser';
-import swaggerUi from 'swagger-ui-express';
-
+// app.js
+import express from "express";
+import cors from "cors";
+import session from "express-session";
+import cookieParser from "cookie-parser";
+import swaggerUi from "swagger-ui-express";
 // Rutas
-import customersRoutes from './src/routes/customers.js';
-import categoriesRouters from './src/routes/categories.js';
-import loginRoutes from './src/routes/login.js';
-import logoutRoutes from './src/routes/logout.js';
-import recoveryPasswordRoutes from './src/routes/recoveryPassword.js';
-import productsRoutes from './src/routes/products.js';
-import registerCustomersRoutes from './src/routes/registerCustomers.js';
-import reviewsRouter from './src/routes/reviews.js';
-import salesRoutes from './src/routes/sales.js';
-import ordersRoutes from './src/routes/orders.js';
-import adminRoutes from './src/routes/Administrator.js';
-import contactusRoutes from './src/routes/contactusRoutes.js';
-
-// Rutas de Wompi
-import wompiRoutes from './src/routes/wompi.js';  // Aquí importamos las rutas de Wompi
-
-import fs from 'fs';
-import path from 'path';
-import { validateAuthToken } from './src/middlewares/validateAuthToken.js';
+import customersRoutes from "./src/routes/customers.js";
+import categoriesRouters from "./src/routes/categories.js";
+import loginRoutes from "./src/routes/login.js";
+import logoutRoutes from "./src/routes/logout.js";
+import recoveryPasswordRoutes from "./src/routes/recoveryPassword.js";
+import productsRoutes from "./src/routes/products.js";
+import registerCustomersRoutes from "./src/routes/registerCustomers.js";
+import reviewsRouter from "./src/routes/reviews.js";
+import salesRoutes from "./src/routes/sales.js";
+import ordersRoutes from "./src/routes/orders.js";
+import adminRoutes from "./src/routes/administrator.js";
+import contactusRoutes from "./src/routes/contactusRoutes.js";
+import fs from "fs";
+import path from "path";
+import { validateAuthToken } from "./src/middlewares/validateAuthToken.js";
 
 const app = express();
 
@@ -63,20 +58,20 @@ app.use(
 );
 
 // Rutas públicas
-app.use('/api/login', loginRoutes);
-app.use('/api/logout', logoutRoutes);
-app.use('/api/recoveryPassword', recoveryPasswordRoutes);
-app.use('/api/registerCustomers', registerCustomersRoutes);
-app.use('/api/contactus', contactusRoutes);
+app.use("/api/login", loginRoutes);
+app.use("/api/logout", logoutRoutes);
+app.use("/api/recoveryPassword", recoveryPasswordRoutes);
+app.use("/api/registerCustomers", registerCustomersRoutes);
+app.use("/api/contactus", contactusRoutes);
+app.use("/api/products", productsRoutes);
 
 // Rutas protegidas
-app.use('/api/customers', validateAuthToken(['admin', 'customer']), customersRoutes);
-app.use('/api/categories', validateAuthToken(['admin', 'customer']), categoriesRouters);
-app.use('/api/products', validateAuthToken(['admin', 'customer']), productsRoutes);
-app.use('/api/admins', validateAuthToken(['admin']), adminRoutes);
-app.use('/api/reviews', validateAuthToken(['admin', 'customer']), reviewsRouter);
-app.use('/api/sales', validateAuthToken(['admin']), salesRoutes);
-app.use('/api/orders', validateAuthToken(['admin', 'customer']), ordersRoutes);
-app.use('/api/wompi', validateAuthToken(['admin','customer']), wompiRoutes);
+app.use("/api/customers", validateAuthToken(["admin", "customer"]), customersRoutes);
+app.use("/api/categories", validateAuthToken(["admin", "customer"]), categoriesRouters);
+
+app.use("/api/admins", validateAuthToken(["admin"]), adminRoutes);
+app.use("/api/reviews", validateAuthToken(["admin", "customer"]), reviewsRouter);
+app.use("/api/sales", validateAuthToken(["admin"]), salesRoutes);
+app.use("/api/orders", validateAuthToken(["admin", "customer"]), ordersRoutes);
 
 export default app;
