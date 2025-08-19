@@ -1,7 +1,7 @@
 // backend/src/controllers/wompiController.js
 import fetch from "node-fetch";
 import Order from "../models/Orders.js";
-import Sale from "../models/sales.js";
+import Sale from "../models/Sales.js";
 
 const isMock = () =>
   String(process.env.wompiMode || "").toLowerCase() === "mock";
