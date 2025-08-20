@@ -8,7 +8,7 @@ const router = express.Router();
 const upload = multer({ dest: "public/" });
 
 
-// ✅ CORRECCIÓN: Agregar la barra inicial (/)
+// CORRECCIÓN: Agregar la barra inicial (/)
 router.get("/user/:id", reviewsController.getReviewsByUser);
 
 // Luego las otras rutas (no te preocupes por el orden entre ellas)

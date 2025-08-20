@@ -65,13 +65,15 @@ app.use("/api/logout", logoutRoutes);
 app.use("/api/recoveryPassword", recoveryPasswordRoutes);
 app.use("/api/registerCustomers", registerCustomersRoutes);
 app.use("/api/contactus", contactusRoutes);
-app.use("/api/products", productsRoutes); // pública según la rama
+app.use("/api/products", productsRoutes); 
+app.use("/api/reviews", reviewsRouter);
+// pública según la rama
 
 /* ===== Rutas protegidas ===== */
 app.use("/api/customers", validateAuthToken(["admin", "customer"]), customersRoutes);
 app.use("/api/categories", validateAuthToken(["admin", "customer"]), categoriesRouters);
 app.use("/api/admins", validateAuthToken(["admin"]), adminRoutes);
-app.use("/api/reviews", validateAuthToken(["admin", "customer"]), reviewsRouter);
+//app.use("/api/reviews", validateAuthToken(["admin", "customer"]), reviewsRouter);
 app.use("/api/sales", validateAuthToken(["admin", "customer"]), salesRoutes);
 app.use("/api/orders", validateAuthToken(["admin", "customer"]), ordersRoutes);
 app.use("/api/wompi", validateAuthToken(["admin", "customer"]), wompiRoutes);
