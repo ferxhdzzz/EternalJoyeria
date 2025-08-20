@@ -90,7 +90,7 @@ function App() {
           <Route path="/product/:id" element={<ProductDetail />} />
 
           {/* Protegidas */}
-          <Route path="/perfil" element={<Profile />} />
+          <Route path="/perfil" element={<Home />} />
           <Route
             path="/historial"
             element={
