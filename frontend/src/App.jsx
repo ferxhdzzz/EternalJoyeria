@@ -31,6 +31,8 @@ import CategoriaAretes from './pages/CategoriaAretes';
 import CategoriaConjuntos from './pages/CategoriaConjuntos';
 import CategoriaAnillos from './pages/CategoriaAnillos';
 import PreguntasFrecuentes from './pages/PreguntasFrecuentes';
+import Profiles from './pages/Profiles';
+
 import ScrollToTop from './components/ScrollToTop';
 import Blog from './pages/Blog';
 
@@ -79,7 +81,7 @@ function App() {
           <Route path="/registro" element={<RegistroContainer />} />
 
           {/* Catálogo / info públicas */}
-          <Route path="/sobre-nosotros" element={<Profile />} />
+          <Route path="/sobre-nosotros" element={<AboutUs />} />
           <Route path="/productos" element={<Products />} />
           <Route path="/categoria" element={<Products />} />
           <Route path="/categoria/collares" element={<CategoriaCollares />} />
@@ -90,7 +92,7 @@ function App() {
           <Route path="/product/:id" element={<ProductDetail />} />
 
           {/* Protegidas */}
-          <Route path="/perfil" element={<Profile />} />
+          <Route path="/perfil" element={<Profiles />} />
           <Route
             path="/historial"
             element={
