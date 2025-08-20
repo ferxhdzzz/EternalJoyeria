@@ -1,5 +1,5 @@
 // src/lib/api.js
-const BASE_URL = import.meta.env.VITE_API_URL; // Debe ser: http://localhost:4000/api
+const BASE_URL = import.meta.env.VITE_API_URL; // Debe ser: https://eternal-joyeria.vercel.app
 
 export async function apiFetch(path, { method = "GET", body, headers = {} } = {}) {
   const res = await fetch(`${BASE_URL}${path}`, {
