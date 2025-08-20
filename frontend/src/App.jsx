@@ -79,7 +79,7 @@ function App() {
           <Route path="/registro" element={<RegistroContainer />} />
 
           {/* Catálogo / info públicas */}
-          <Route path="/sobre-nosotros" element={<AboutUs />} />
+          <Route path="/sobre-nosotros" element={<Profile />} />
           <Route path="/productos" element={<Products />} />
           <Route path="/categoria" element={<Products />} />
           <Route path="/categoria/collares" element={<CategoriaCollares />} />
@@ -90,7 +90,7 @@ function App() {
           <Route path="/product/:id" element={<ProductDetail />} />
 
           {/* Protegidas */}
-          <Route path="/perfil" element={<Home />} />
+          <Route path="/perfil" element={<Profile />} />
           <Route
             path="/historial"
             element={
