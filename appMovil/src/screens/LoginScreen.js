@@ -9,6 +9,7 @@ import {
   ScrollView,
   SafeAreaView,
   Animated,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,6 +23,7 @@ const LoginScreen = ({ navigation }) => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Referencias para las animaciones de entrada
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -70,11 +72,8 @@ const LoginScreen = ({ navigation }) => {
     if (!password) {
       setPasswordError('La contraseña es requerida');
       return false;
-    } else if (password.length < 8) {
-      setPasswordError('La contraseña debe tener al menos 8 caracteres');
-      return false;
-    } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      setPasswordError('La contraseña debe contener al menos un carácter especial');
+    } else if (password.length < 6) {
+      setPasswordError('La contraseña debe tener al menos 6 caracteres');
       return false;
     } else {
       setPasswordError('');
@@ -112,18 +111,52 @@ const LoginScreen = ({ navigation }) => {
     }
   }, [email, password]);
 
-  const handleLogin = () => {
+  // Función de login que llama a tu API backend
+  const handleLogin = async () => {
     validateForm();
     if (isFormValid) {
-      console.log('Iniciando sesión con:', JSON.stringify({ email, password }));
-      // Simular datos de usuario para la demo
-      const mockUserData = {
-        firstName: 'Usuario',
-        lastName: 'Demo',
-        email: email,
-      };
-      // Navegar a la pantalla de productos
-      navigation.navigate('Products', mockUserData);
+      setIsLoading(true);
+      try {
+        // Llamada a tu API backend (ajusta la URL según tu configuración)
+        const response = await fetch('http:192.168.56.1:4000/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          // Login exitoso
+          Alert.alert(
+            'Login Exitoso', 
+            `¡Bienvenido ${result.user.name}!\nTipo de usuario: ${result.userType}`,
+            [
+              {
+                text: 'Continuar',
+                onPress: () => {
+                  // Navegar según el tipo de usuario
+                  if (result.userType === 'admin') {
+                    navigation.navigate('AdminDashboard', result.user);
+                  } else {
+                    navigation.navigate('Products', result.user);
+                  }
+                }
+              }
+            ]
+          );
+        } else {
+          // Mostrar error específico del servidor
+          Alert.alert('Error de Login', result.message);
+        }
+      } catch (error) {
+        console.error('Error de login:', error);
+        Alert.alert('Error', 'Error de conexión. Verifica que el servidor esté funcionando.');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -151,7 +184,7 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContainer}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -173,7 +206,7 @@ const LoginScreen = ({ navigation }) => {
             <View style={styles.curveContainer}>
               <View style={styles.curve} />
             </View>
-            
+
             {/* Texto de bienvenida */}
             <View style={styles.welcomeTextContainer}>
               <Text style={styles.welcomeTitle}>Bienvenido</Text>
@@ -203,6 +236,7 @@ const LoginScreen = ({ navigation }) => {
                 onBlur={() => validateEmail(email)}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                editable={!isLoading}
               />
               {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
             </View>
@@ -219,15 +253,17 @@ const LoginScreen = ({ navigation }) => {
                   onChangeText={handlePasswordChange}
                   onBlur={() => validatePassword(password)}
                   secureTextEntry={!showPassword}
+                  editable={!isLoading}
                 />
-                <TouchableOpacity 
-                  style={styles.eyeIconButton} 
+                <TouchableOpacity
+                  style={styles.eyeIconButton}
                   onPress={togglePasswordVisibility}
+                  disabled={isLoading}
                 >
-                  <Ionicons 
-                    name={showPassword ? "eye-off" : "eye"} 
-                    size={24} 
-                    color="#666" 
+                  <Ionicons
+                    name={showPassword ? "eye-off" : "eye"}
+                    size={24}
+                    color="#666"
                   />
                 </TouchableOpacity>
               </View>
@@ -243,12 +279,14 @@ const LoginScreen = ({ navigation }) => {
           </View>
 
           {/* Botón de inicio de sesión */}
-          <TouchableOpacity 
-            style={[styles.loginButton, !isFormValid ? styles.loginButtonDisabled : null]} 
+          <TouchableOpacity
+            style={[styles.loginButton, !isFormValid || isLoading ? styles.loginButtonDisabled : null]}
             onPress={handleLogin}
-            disabled={!isFormValid}
+            disabled={!isFormValid || isLoading}
           >
-            <Text style={styles.loginButtonText}>Iniciar sesión</Text>
+            <Text style={styles.loginButtonText}>
+              {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+            </Text>
           </TouchableOpacity>
         </Animated.View>
       </ScrollView>
@@ -424,4 +462,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen; 
+export default LoginScreen;
