@@ -17,7 +17,7 @@ import { useAuth } from '../context/AuthContext';
 
 const { width, height } = Dimensions.get('window');
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = ({ navigation, route }) => {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -113,6 +113,7 @@ const LoginScreen = ({ navigation }) => {
     }
   }, [email, password]);
 
+  // Función de login que utiliza el contexto de autenticación
   const handleLogin = async () => {
     validateForm();
     if (isFormValid) {
@@ -120,15 +121,35 @@ const LoginScreen = ({ navigation }) => {
       try {
         const result = await login(email, password);
         if (result.success) {
-          // Navegar a la pantalla principal usando el callback
-          const onNavigateToProducts = route.params?.onNavigateToProducts;
-          if (onNavigateToProducts) {
-            onNavigateToProducts('Products', result.user);
-          }
+          // Mostrar mensaje de éxito
+          Alert.alert(
+            'Login Exitoso', 
+            `¡Bienvenido ${result.user.name}!${result.userType ? `\nTipo de usuario: ${result.userType}` : ''}`,
+            [
+              {
+                text: 'Continuar',
+                onPress: () => {
+                  // Navegar según el tipo de usuario o callback
+                  const onNavigateToProducts = route?.params?.onNavigateToProducts;
+                  if (onNavigateToProducts) {
+                    onNavigateToProducts('Products', result.user);
+                  } else {
+                    // Navegación directa
+                    if (result.userType === 'admin') {
+                      navigation.navigate('AdminDashboard', result.user);
+                    } else {
+                      navigation.navigate('Products', result.user);
+                    }
+                  }
+                }
+              }
+            ]
+          );
         } else {
-          Alert.alert('Error', result.error || 'Error al iniciar sesión');
+          Alert.alert('Error de Login', result.error || 'Error al iniciar sesión');
         }
       } catch (error) {
+        console.error('Error de login:', error);
         Alert.alert('Error', 'Error inesperado al iniciar sesión');
       } finally {
         setIsLoading(false);
@@ -151,7 +172,7 @@ const LoginScreen = ({ navigation }) => {
       }),
     ]).start(() => {
       // Si estamos en el stack de autenticación, ir a la pantalla de bienvenida
-      const onNavigateToProducts = route.params?.onNavigateToProducts;
+      const onNavigateToProducts = route?.params?.onNavigateToProducts;
       if (onNavigateToProducts) {
         // Aquí podríamos implementar una lógica para volver a la pantalla de bienvenida
         // Por ahora, simplemente usamos goBack del stack
@@ -168,7 +189,7 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContainer}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -190,7 +211,7 @@ const LoginScreen = ({ navigation }) => {
             <View style={styles.curveContainer}>
               <View style={styles.curve} />
             </View>
-            
+
             {/* Texto de bienvenida */}
             <View style={styles.welcomeTextContainer}>
               <Text style={styles.welcomeTitle}>Bienvenido</Text>
@@ -239,15 +260,15 @@ const LoginScreen = ({ navigation }) => {
                   secureTextEntry={!showPassword}
                   editable={!isLoading}
                 />
-                <TouchableOpacity 
-                  style={styles.eyeIconButton} 
+                <TouchableOpacity
+                  style={styles.eyeIconButton}
                   onPress={togglePasswordVisibility}
                   disabled={isLoading}
                 >
-                  <Ionicons 
-                    name={showPassword ? "eye-off" : "eye"} 
-                    size={24} 
-                    color="#666" 
+                  <Ionicons
+                    name={showPassword ? "eye-off" : "eye"}
+                    size={24}
+                    color="#666"
                   />
                 </TouchableOpacity>
               </View>
@@ -270,8 +291,8 @@ const LoginScreen = ({ navigation }) => {
           </View>
 
           {/* Botón de inicio de sesión */}
-          <TouchableOpacity 
-            style={[styles.loginButton, !isFormValid || isLoading ? styles.loginButtonDisabled : null]} 
+          <TouchableOpacity
+            style={[styles.loginButton, !isFormValid || isLoading ? styles.loginButtonDisabled : null]}
             onPress={handleLogin}
             disabled={!isFormValid || isLoading}
           >
@@ -462,4 +483,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen; 
+export default LoginScreen;

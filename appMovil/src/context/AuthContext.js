@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }) => {
         setUser(data.user);
         setIsAuthenticated(true);
         
-        return { success: true, user: data.user };
+        return { success: true, user: data.user, userType: data.userType };
       } else {
         return { success: false, error: data.message || 'Credenciales inválidas' };
       }
