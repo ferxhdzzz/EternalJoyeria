@@ -1,0 +1,138 @@
+.error404-container {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ffeef8 0%, #fce4ec 100%);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.error404-content {
+  text-align: center;
+  max-width: 500px;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.error404-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 2rem;
+  color: #ec4899;
+  opacity: 0.8;
+}
+
+.error404-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.error404-title {
+  font-size: 6rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+  background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+.error404-subtitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 1rem;
+}
+
+.error404-description {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0 0 2.5rem;
+  line-height: 1.6;
+}
+
+.error404-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.error404-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.error404-btn-primary {
+  background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+}
+
+.error404-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(236, 72, 153, 0.6);
+}
+
+.error404-btn-secondary {
+  background: transparent;
+  color: #be185d;
+  border: 2px solid #fbcfe8;
+}
+
+.error404-btn-secondary:hover {
+  background: #fdf2f8;
+  border-color: #f9a8d4;
+  transform: translateY(-2px);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .error404-content {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .error404-title {
+    font-size: 4rem;
+  }
+  
+  .error404-subtitle {
+    font-size: 1.25rem;
+  }
+  
+  .error404-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .error404-btn {
+    width: 100%;
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .error404-title {
+    font-size: 3rem;
+  }
+  
+  .error404-content {
+    padding: 1rem;
+  }
+}

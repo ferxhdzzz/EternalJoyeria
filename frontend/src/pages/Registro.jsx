@@ -203,7 +203,7 @@ const Registro = () => {
       if (result.success) {
         // CORRECCIÓN PRINCIPAL: Solo navegar si la verificación es exitosa
         console.log('Código verificado correctamente');
-        navigate("/productos");
+        navigate("/login");
       } else {
         console.error('Error en verificación:', result.error);
       }

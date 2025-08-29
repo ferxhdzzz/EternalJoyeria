@@ -7,36 +7,50 @@ import {
   Image,
   ScrollView,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useCart } from '../context/CartContext';
 
 const { width, height } = Dimensions.get('window');
 
 const ProductDetailScreen = ({ navigation, route }) => {
   const { product } = route.params;
-  const [selectedSize, setSelectedSize] = useState('20 mm');
-
-  const sizes = ['15 mm', '20 mm', '10 mm'];
+  const { addProductToCart } = useCart();
+  
+  // Usa los datos reales del producto
+  const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || '20 mm');
+  const sizes = product.sizes || ['15 mm', '20 mm', '10 mm'];
+  
+  const finalPrice = product.finalPrice || product.price || 0;
+  const originalPrice = product.originalPrice || product.price || finalPrice;
+  const discount = originalPrice > finalPrice ? ((originalPrice - finalPrice) / originalPrice * 100).toFixed(0) : null;
 
   const handleAddToCart = () => {
-    // Crear el producto con la talla seleccionada
     const productToAdd = {
       ...product,
       size: selectedSize,
-      price: 55.00, // Precio con descuento
-      originalPrice: 58.00,
+      finalPrice: finalPrice, // Usa el precio final
     };
     
-    console.log('Producto a añadir:', JSON.stringify(productToAdd));
-    
-    // Navegar a MainTabs y cambiar a la pestaña Carrito
-    navigation.navigate('MainTabs', { 
-      screen: 'Carrito',
-      params: { newProduct: productToAdd }
-    });
+    // Añadir al carrito usando el contexto
+    addProductToCart(productToAdd);
     
     // Mostrar confirmación
-    alert('Producto añadido al carrito');
+    Alert.alert(
+      '¡Producto añadido!',
+      'El producto se ha añadido correctamente al carrito',
+      [
+        {
+          text: 'Seguir comprando',
+          style: 'cancel'
+        },
+        {
+          text: 'Ver carrito',
+          onPress: () => navigation.navigate('MainTabs', { screen: 'Carrito' })
+        }
+      ]
+    );
   };
 
   return (
@@ -63,7 +77,8 @@ const ProductDetailScreen = ({ navigation, route }) => {
       {/* Área de imagen del producto */}
       <View style={styles.imageContainer}>
         <Image
-          source={product.image}
+          // ✅ Usar la imagen del producto real
+          source={{ uri: product.images?.[0] || 'https://via.placeholder.com/150' }}
           style={styles.productImage}
           resizeMode="cover"
         />
@@ -73,45 +88,55 @@ const ProductDetailScreen = ({ navigation, route }) => {
       <View style={styles.productCard}>
         <ScrollView showsVerticalScrollIndicator={false}>
           {/* Nombre del producto */}
-          <Text style={styles.productName}>{product.name}</Text>
+          <Text style={styles.productName}>{product.name || 'Producto sin nombre'}</Text>
 
           {/* Selección de talla */}
-          <View style={styles.sizeSection}>
-            <Text style={styles.sizeLabel}>Talla</Text>
-            <View style={styles.sizeOptions}>
-              {sizes.map((size) => (
-                <TouchableOpacity
-                  key={size}
-                  style={[
-                    styles.sizeOption,
-                    selectedSize === size && styles.sizeOptionSelected
-                  ]}
-                  onPress={() => setSelectedSize(size)}
-                >
-                  <Text style={[
-                    styles.sizeText,
-                    selectedSize === size && styles.sizeTextSelected
-                  ]}>
-                    {size}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+          {sizes.length > 0 && (
+            <View style={styles.sizeSection}>
+              <Text style={styles.sizeLabel}>Talla</Text>
+              <View style={styles.sizeOptions}>
+                {sizes.map((size) => (
+                  <TouchableOpacity
+                    key={size}
+                    style={[
+                      styles.sizeOption,
+                      selectedSize === size && styles.sizeOptionSelected
+                    ]}
+                    onPress={() => setSelectedSize(size)}
+                  >
+                    <Text style={[
+                      styles.sizeText,
+                      selectedSize === size && styles.sizeTextSelected
+                    ]}>
+                      {size}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
-          </View>
+          )}
 
           {/* Precios y descuento */}
           <View style={styles.pricingSection}>
             <View style={styles.discountRow}>
-              <Text style={styles.discountText}>30% descuento</Text>
+              {discount && <Text style={styles.discountText}>{discount}% descuento</Text>}
               <View style={styles.priceRow}>
-                <Text style={styles.originalPrice}>$58</Text>
-                <Text style={styles.discountedPrice}>$55</Text>
+                {originalPrice > finalPrice && <Text style={styles.originalPrice}>${originalPrice.toFixed(2)}</Text>}
+                <Text style={styles.discountedPrice}>${finalPrice.toFixed(2)}</Text>
               </View>
             </View>
           </View>
+          
+          {/* Descripción */}
+          {product.description && (
+            <View style={styles.descriptionSection}>
+              <Text style={styles.descriptionTitle}>Descripción</Text>
+              <Text style={styles.descriptionText}>{product.description}</Text>
+            </View>
+          )}
         </ScrollView>
         
-        {/* Botón de añadir al carrito - Posicionado absolutamente */}
+        {/* Botón de añadir al carrito */}
         <TouchableOpacity 
           style={styles.addToCartButton}
           onPress={handleAddToCart}
@@ -126,7 +151,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFE7E7', // Color de fondo suave como en la imagen
+    backgroundColor: '#FFE7E7',
   },
   header: {
     flexDirection: 'row',
@@ -237,7 +262,7 @@ const styles = StyleSheet.create({
   discountText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#8B5CF6', // Color morado para el descuento
+    color: '#8B5CF6',
   },
   priceRow: {
     flexDirection: 'row',
@@ -252,7 +277,21 @@ const styles = StyleSheet.create({
   discountedPrice: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#B5C9AD', // Color verde/amarillento como en la imagen
+    color: '#B5C9AD',
+  },
+  descriptionSection: {
+    marginTop: 20,
+  },
+  descriptionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000',
+    marginBottom: 10,
+  },
+  descriptionText: {
+    fontSize: 16,
+    color: '#666',
+    lineHeight: 24,
   },
   addToCartButton: {
     position: 'absolute',

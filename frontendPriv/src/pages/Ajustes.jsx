@@ -1,5 +1,5 @@
 import React from "react";
-import TopBar from "../components/Topbar/Topbar";
+import TopBar from "../components/TopBar/TopBar";
 import Sidebar from "../components/Sidebar/Sidebar";
 import ProfileCard from "../components/Ajustes/ProfileCard";
 import BackgroundRectangle from "../components/Ajustes/BackgroundRectangle";

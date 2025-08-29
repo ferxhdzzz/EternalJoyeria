@@ -18,7 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 const { width, height } = Dimensions.get('window');
 
-const RegisterScreen = ({ navigation }) => {
+const RegisterScreen = ({ navigation, route }) => {
   // Estados del formulario
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -311,11 +311,14 @@ const RegisterScreen = ({ navigation }) => {
             {
               text: 'Continuar',
               onPress: () => {
-                // Por ahora navegamos a Products, después puedes crear EmailVerification
-                navigation.navigate('Products', {
-                  email: formData.email,
-                  userData: formData
-                });
+                // Navegar a Products usando el callback
+                const onNavigateToProducts = route.params?.onNavigateToProducts;
+                if (onNavigateToProducts) {
+                  onNavigateToProducts('Products', {
+                    email: formData.email,
+                    userData: formData
+                  });
+                }
               },
             },
           ]

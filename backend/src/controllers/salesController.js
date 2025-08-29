@@ -1,19 +1,25 @@
 import Sale from "../models/sales.js";
 import Order from "../models/Orders.js";
+import Product from "../models/Products.js";
+import mongoose from 'mongoose';
 
 const salesController = {};
 
-// CREATE: Crear una nueva venta
+/**
+ *Crea una nueva venta.
+ * 
+ */
 salesController.createSale = async (req, res) => {
   try {
-    const { idOrder, address } = req.body;
+    const { idOrder, idCustomers, address } = req.body;
 
-    if (!idOrder || !address) {
-      return res.status(400).json({ message: "idOrder y address son requeridos" });
+    if (!idOrder || !idCustomers || !address) {
+      return res.status(400).json({ message: "idOrder, idCustomers y address son requeridos" });
     }
 
     const newSale = new Sale({
       idOrder,
+      idCustomers,
       address
     });
 
@@ -33,17 +39,23 @@ salesController.createSale = async (req, res) => {
   }
 };
 
+/**
+ * @description Obtiene todas las ventas con información de la orden, cliente y productos.
+ * @param {object} req - Objeto de solicitud de Express.
+ * @param {object} res - Objeto de respuesta de Express.
+ */
 // READ: Obtener todas las ventas con populate en idOrder
 salesController.getSales = async (req, res) => {
   try {
     const allSales = await Sale.find()
       .populate({
         path: "idOrder",
+        // Aquí poblamos la orden para obtener su 'idCustomer' y los 'products'
         populate: [
           { path: "idCustomer", select: "firstName lastName email" },
-          { path: "products.productId", select: "name categoryId" }
+          { path: "products.productId", select: "name" } // Seleccionamos solo el nombre del producto
         ],
-        select: "status total products idCustomer createdAt"
+        select: "status total products createdAt" // NOTA: No es necesario seleccionar el 'idCustomer' aquí si ya se ha poblado
       });
     res.json(allSales);
   } catch (error) {
@@ -51,21 +63,62 @@ salesController.getSales = async (req, res) => {
   }
 };
 
-// READ: Obtener ventas agrupadas por categoría y mes
+/**
+ * @description Obtiene todas las ventas para un cliente específico.
+ * @param {object} req - Objeto de solicitud de Express.
+ * @param {object} res - Objeto de respuesta de Express.
+ */
+salesController.getSalesByCustomer = async (req, res) => {
+  try {
+    const customerId = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(customerId)) {
+      return res.status(400).json({ message: "ID de cliente no válido." });
+    }
+
+    const sales = await Sale.find({ idCustomers: customerId })
+  .populate({
+    path: "idOrder",
+    populate: {
+      path: "products.productId",  //este es el correcto
+      model: "Products",
+    },
+  })
+  .populate("idCustomers");  // para traer los datos del cliente
+    if (sales.length > 0 && sales[0].idOrder) {
+      console.log("Datos de ventas a enviar al frontend:", sales[0].idOrder.products);
+    }
+
+    res.json(sales);
+  } catch (error) {
+    console.error("Error en getSalesByCustomer:", error);
+    res.status(500).json({ message: "Error al obtener las ventas del cliente", error: "Ocurrió un error inesperado en el servidor." });
+  }
+};
+
+
+/**
+ *Obtiene las ventas agrupadas por categoría y mes.
+ *
+ */
 salesController.getSalesByCategory = async (req, res) => {
   try {
-    const sales = await Sale.find()
-      .populate({
-        path: "idOrder",
-        populate: {
-          path: "products.productId",
-          populate: {
-            path: "categoryId",
-            select: "name"
-          }
-        },
-        select: "products createdAt"
-      });
+    const sales = await Sale.find({ idCustomers: customerId })
+  .populate({
+    path: 'idOrder',
+    populate: [
+      {
+        path: 'products.id_Product', // debe coincidir con tu schema
+        model: 'Products',
+        select: 'name images price' // traemos lo necesario
+      },
+      {
+        path: 'idCustomer',
+        model: 'Customer',
+        select: 'firstName lastName email'
+      }
+    ]
+  });
 
     const ventasPorCategoria = {};
 
@@ -73,9 +126,7 @@ salesController.getSalesByCategory = async (req, res) => {
       const order = sale.idOrder;
       if (!order) return;
 
-      // Fecha para mes, si no existe usar fecha actual (por seguridad)
       const fecha = order.createdAt || new Date();
-      // Sacar mes abreviado en español en minúsculas
       const mes = fecha.toLocaleString("es-ES", { month: "short" }).toLowerCase();
 
       order.products.forEach(p => {
@@ -89,7 +140,6 @@ salesController.getSalesByCategory = async (req, res) => {
       });
     });
 
-    // Transformar el objeto a array para frontend
     const resultado = Object.entries(ventasPorCategoria).map(([categoria, meses]) => ({
       categoria,
       datos: Object.entries(meses).map(([mes, ventas]) => ({ mes, ventas }))
@@ -102,7 +152,10 @@ salesController.getSalesByCategory = async (req, res) => {
   }
 };
 
-// READ: Obtener una venta específica con status de la orden
+/**
+ * Obtiene una venta específica con el estado de la orden.
+
+ */
 salesController.getSale = async (req, res) => {
   try {
     const sale = await Sale.findById(req.params.id).populate("idOrder", "status total");
@@ -117,7 +170,10 @@ salesController.getSale = async (req, res) => {
   }
 };
 
-// UPDATE: Actualizar una venta
+/**
+ * Actualiza una venta existente.
+
+ */
 salesController.updateSale = async (req, res) => {
   try {
     const { status, address } = req.body;
@@ -150,7 +206,10 @@ salesController.updateSale = async (req, res) => {
   }
 };
 
-// DELETE: Eliminar una venta
+/**
+ *  Elimina una venta.
+
+ */
 salesController.deleteSale = async (req, res) => {
   try {
     const deletedSale = await Sale.findByIdAndDelete(req.params.id);
@@ -168,5 +227,31 @@ salesController.deleteSale = async (req, res) => {
     });
   }
 };
+
+// Lee SOLO las ventas del usuario autenticado (cliente)
+salesController.getMySales = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    const mySales = await Sale.find({ idCustomers: userId })
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "idOrder",
+        select: "status total totalCents currency createdAt products idCustomer",
+        populate: [
+          { path: "products.productId", select: "name images price finalPrice" },
+          { path: "idCustomer", select: "firstName lastName email" },
+        ],
+      });
+
+    return res.json(mySales);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error al obtener tu historial de ventas",
+      error: error.message,
+    });
+  }
+};
+
 
 export default salesController;

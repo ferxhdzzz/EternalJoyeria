@@ -1,93 +1,147 @@
-# Sistema administrativo para venta de joyeria - Eternal Joyeria
+# Eternal Joyería - Aplicación Móvil y Web
 
- Eternal joyeria es una tienda en linea que esta pensada para vender joyas, especificamnete joyas hechas a mano con relacion a las flores, es una plataforma e-commerce, y esta construida con el stack mern 
- 
-## Sobre el equipo
+Este proyecto incluye tanto la aplicación móvil como la interfaz web para Eternal Joyería.
 
-Este proyecto forma parte del desarrollo del PTC y ha sido asignado al equipo conformado por los siguientes estudiantes:
+##  Funcionalidades Implementadas
 
+###  Aplicación Móvil
+-  **Login funcional** - Inicio de sesión con validación
+-  **Perfil funcional** - Gestión completa del perfil de usuario
+-  **Logout funcional** - Cierre de sesión con confirmación
+-  **Navegación entre pantallas** - Sistema de navegación completo
+-  **Gestión de estado** - Contexto de autenticación funcional
+-  **Persistencia de datos** - Almacenamiento local con AsyncStorage
 
-Hernández Cruz, Fernanda Mizel – 20220031
+###  Interfaz Web
+- **Perfil funcional** - Gestión completa del perfil web
+- **Logout funcional** - Cierre de sesión integrado
+-  **Contexto de autenticación** - Manejo de estado de usuario
+-  **Hooks personalizados** - Login y logout funcionales
 
+##  Instalación de la Aplicación Móvil
 
-Tejada Teos, Jennifer Alexandra – 20210177
+### Prerrequisitos
+- Node.js (versión 16 o superior)
+- npm o yarn
+- Expo CLI (`npm install -g @expo/cli`)
+- Expo Go app en tu dispositivo móvil
 
+### Pasos de instalación
 
-Hernández Morales, Fernando De Jesús – 20200335
+1. **Navegar al directorio de la app móvil:**
+   ```bash
+   cd appMovil
+   ```
 
+2. **Instalar dependencias:**
+   ```bash
+   npm install
+   ```
 
-Galdámez Palomares, Thomas Alexander – 20230441
+3. **Iniciar la aplicación:**
+   ```bash
+   npm start
+   ```
 
+4. **Escanear el código QR** con la app Expo Go en tu dispositivo móvil
 
-Campos Reyes, William Alexander – 20230079
+### Dependencias principales
+- React Native con Expo
+- React Navigation para navegación
+- AsyncStorage para persistencia de datos
+- Expo Image Picker para selección de fotos
+- Linear Gradient para efectos visuales
 
+##  Instalación de la Interfaz Web
 
-## Sobre el proyecto
+### Prerrequisitos
+- Node.js (versión 16 o superior)
+- npm o yarn
 
-El objetivo principal es desarrollar una plataforma web y una aplicación móvil para el emprendimiento Eternal Joyería, el cual se dedica a la creación de joyas con flores naturales preservadas y piedras exóticas.
+### Pasos de instalación
 
+1. **Navegar al directorio del frontend:**
+   ```bash
+   cd frontend
+   ```
 
-El sistema permitirá a los usuarios visualizar productos, realizar compras, rastrear pedidos y elegir métodos de pago. Para su desarrollo se utilizarán MongoDB como base de datos, JavaScript como lenguaje de programación principal y Visual Studio Code como entorno de desarrollo. El proyecto busca digitalizar y optimizar los procesos del negocio para expandir su alcance en el país y fuera de este.
+2. **Instalar dependencias:**
+   ```bash
+   npm install
+   ```
 
+3. **Iniciar en modo desarrollo:**
+   ```bash
+   npm run dev
+   ```
 
-## Tecnologias
+4. **Abrir en el navegador:** `http://localhost:5173`
 
+## 🔧 Configuración del Backend
 
-### Para el proyecto se utilizara el stack MERN 
+Asegúrate de que el backend esté ejecutándose y configurado correctamente. La aplicación web se conecta al backend a través de la configuración en `frontend/src/config/backend.js`.
 
-**M**: MongoDB es un sistema de base de datos NoSQL, mongoDB es orientado a documentos y de codigo abierto, MongoDB posee un esquema dinamico haciendo que integrar datos sea mas facil y rapido
+## 📱 Uso de la Aplicación Móvil
 
-**E**: Express es un entorno de trabajo para aplicaciones web en Node.js, de código abierto y con licencia MIT. Se utiliza para desarrollar aplicaciones web y APIs
+### Flujo de autenticación:
+1. **Pantallas de bienvenida** - Introducción a la app
+2. **Login** - Inicio de sesión con email y contraseña
+3. **Pantalla principal** - Productos organizados por categorías
+4. **Perfil** - Gestión de datos personales y foto de perfil
+5. **Logout** - Cierre de sesión con confirmación
 
-**R**: React es una biblioteca Javascript de código abierto diseñada para crear interfaces de usuario con el objetivo de facilitar el desarrollo de aplicaciones en una sola página. 
+### Características del perfil:
+-  Edición de datos personales (nombre, email, teléfono)
+-  Cambio de foto de perfil
+-  Configuración de notificaciones
+-  Gestión de idioma y moneda
+-  Acceso a políticas y términos
 
-**N**: Node es un entorno en tiempo de ejecución multiplataforma, de código abierto, para la capa del servidor basado en el lenguaje de programación JavaScript, asíncrono, con E/S de datos en una arquitectura orientada a eventos 
+##  Uso de la Interfaz Web
 
+### Funcionalidades del perfil:
+-  Edición de información personal
+-  Cambio de foto de perfil
+-  Gestión de dirección completa
+-  Configuración de notificaciones
+-  Acceso a historial de pedidos
+- Logout funcional
 
-### Frontend
-- **React.js**: Biblioteca JavaScript para construir interfaces de usuario
-- **Tailwind CSS**: Framework CSS para diseño responsivo
-
-  ### Backend
-- **Node.js**: Entorno de ejecución JavaScript del lado del servidor
-- **Express**: Framework web para Node.js
-- **MongoDB**: Base de datos NoSQL
-- **Mongoose**: Modelado de objetos para MongoDB
-- **JWT**: Autenticación y seguridad
-- **Google OAuth**: Autenticación de terceros
-
-### Herramientas para la ejecucion del proyecto
-
-**Visual Studio Code**: Es un editor de código fuente desarrollado por Microsoft para Windows, Linux, macOS y Web. Incluye soporte para la depuración, control integrado de Git, resaltado de sintaxis, finalización inteligente de código, fragmentos y refactorización de código.
-
-**JavaScript**: Lenguaje de programación que se utiliza para crear páginas web interactivas. Se ejecuta en el navegador web y se considera el lenguaje oficial de la web. 
-
-**HTM**L: Es un lenguaje de programación que se utiliza para crear y estructurar páginas web. Es el estándar de facto para la codificación web y es usado por la mayoría de los navegadores
-## Estructura del Proyecto
+## 🛠️ Estructura del Proyecto
 
 ```
 EternalJoyeria/
-├── backend/
-├── frontend/
-    ├── node_modules/
-    ├── public/
-    ├── src/
-        ├── assets/
-        ├── hooks/
-        ├── components/
-        ├── pages/
-        ├── App.css
-        ├── App.jsx
-        ├── index.css
-        ├── main.jsx
-    ├── .gitignore
-    ├── eslint.config.js
-    ├── index.html
-    ├── package-lock.json
-    ├── package.json
-    ├── README.md
-    └── vite.config.js
+├── appMovil/                 # Aplicación móvil React Native
+│   ├── src/
+│   │   ├── components/       # Componentes reutilizables
+│   │   ├── context/          # Contexto de autenticación
+│   │   ├── hooks/            # Hooks personalizados
+│   │   ├── navigation/       # Sistema de navegación
+│   │   └── screens/          # Pantallas de la aplicación
+│   └── App.js               # Punto de entrada principal
+├── frontend/                 # Interfaz web React
+│   ├── src/
+│   │   ├── components/       # Componentes web
+│   │   ├── context/          # Contexto de autenticación
+│   │   ├── hooks/            # Hooks personalizados
+│   │   └── pages/            # Páginas de la aplicación
+│   └── package.json
+└── backend/                  # API del backend
 ```
+
+##  Autenticación
+
+
+### App Móvil
+- **Contexto de autenticación** con AsyncStorage
+- **Persistencia de sesión** entre reinicios de la app
+- **Validación de formularios** en tiempo real
+- **Manejo de errores** con alertas nativas
+
+## Comandos para ejecutar la app movil
+-cd nombre del proyecto
+-npx expo start
+-presionamos a para iniciar y r para recargar
 
 
 ## Comandos para ejecutar el backend
@@ -138,29 +192,62 @@ EternalJoyeria/
 
 - gsap
 
-- lucide-react
 
-- react
+### Web
+- **Contexto de autenticación** con cookies del backend
+- **Hooks personalizados** para login/logout
+- **Manejo de estado** centralizado
+- **Redirección automática** después del logout
 
-- react-dom
+##  Pruebas de la Aplicación Móvil
 
-- react-icons
+1. **Instalar dependencias** en `appMovil/`
+2. **Ejecutar** `npm start`
+3. **Probar funcionalidades:**
+   - Login con credenciales válidas
+   - Navegación entre pantallas
+   - Edición de perfil
+   - Cambio de foto
+   - Logout y confirmación
 
-- react-router-dom
+##  Pruebas de la Interfaz Web
 
-- sweetalert2
+1. **Instalar dependencias** en `frontend/`
+2. **Ejecutar** `npm run dev`
+3. **Probar funcionalidades:**
+   - Navegación al perfil
+   - Edición de campos
+   - Cambio de foto
+   - Logout funcional
 
-- multer-storage-cloudinary
+##  Solución de Problemas
 
-- swiper
+### App Móvil
+- **Error de dependencias:** Ejecutar `npm install` en `appMovil/`
+- **Error de Expo:** Verificar versión de Node.js (16+)
+- **Error de AsyncStorage:** Verificar instalación de `@react-native-async-storage/async-storage`
 
-- recharts
+### Web
+- **Error de dependencias:** Ejecutar `npm install` en `frontend/`
+- **Error de conexión:** Verificar configuración del backend
+- **Error de autenticación:** Verificar cookies y sesión
 
-- react-hook-form
+##  Soporte
+
+Para problemas técnicos o preguntas sobre la implementación, revisa:
+1. Los logs de la consola
+2. La configuración del backend
+3. Las dependencias instaladas
+4. La versión de Node.js
+
+
+## Librerias instaladas en la app Movil
+npm install -g expo-cli 
 
   ## Nomenclatura utlizada para backend y frontend
+camelCase
 
-  - camelCase
+
 
 
 

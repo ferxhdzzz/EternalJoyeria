@@ -10,7 +10,7 @@ import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import Swal from "sweetalert2";
 import "../styles/AuthStyles.css";
 
-import useLogin from "../hooks/auth/useLogin";
+import useLogin from "../hooks/Auth/useLogin";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });

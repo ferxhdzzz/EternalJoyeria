@@ -15,16 +15,27 @@ export default function useLogin() {
         method: "POST",
         body: { email, password },
       });
+      
       // backend responde: { success, userType, user: { id, email, name? } }
       if (res?.success) {
         setUser({
-          id: res.user?.id,
+          id: res.user?.id || res.user?._id,
           email: res.user?.email,
           userType: res.userType,
-          name: res.user?.name ?? "",
+          name: res.user?.name || res.user?.firstName || "",
+          firstName: res.user?.firstName,
+          lastName: res.user?.lastName,
         });
+        return { success: true, user: res.user };
+      } else {
+        return { success: false, error: res.message || 'Error al iniciar sesión' };
       }
-      return res;
+    } catch (error) {
+      console.error('Error en login:', error);
+      return { 
+        success: false, 
+        error: error.message || 'Error de conexión al iniciar sesión' 
+      };
     } finally {
       setLoading(false);
     }

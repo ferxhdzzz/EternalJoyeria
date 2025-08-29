@@ -31,8 +31,16 @@ import CategoriaAretes from './pages/CategoriaAretes';
 import CategoriaConjuntos from './pages/CategoriaConjuntos';
 import CategoriaAnillos from './pages/CategoriaAnillos';
 import PreguntasFrecuentes from './pages/PreguntasFrecuentes';
+import Profiles from './pages/Profiles';
+
 import ScrollToTop from './components/ScrollToTop';
 import Blog from './pages/Blog';
+
+import HistorialReviews from './pages/HistReviews';
+
+import CategoryProducts from './pages/CategoryProducts';
+import Error404 from './pages/Error404';
+
 
 import PublicRoute from './components/PublicRoute';
 
@@ -80,10 +88,11 @@ function App() {
           <Route path="/categoria/aretes" element={<CategoriaAretes />} />
           <Route path="/categoria/conjuntos" element={<CategoriaConjuntos />} />
           <Route path="/categoria/anillos" element={<CategoriaAnillos />} />
+          <Route path="/category/:id" element={<CategoryProducts />} />
           <Route path="/product/:id" element={<ProductDetail />} />
 
           {/* Protegidas */}
-          <Route path="/perfil" element={<Profile />} />
+          <Route path="/perfil" element={<Profiles />} />
           <Route
             path="/historial"
             element={
@@ -101,19 +110,32 @@ function App() {
             }
           />
 
+   <Route
+            path="/histReview"
+            element={
+              <PublicRoute>
+                <HistorialReviews />
+              </PublicRoute>
+            }
+          />
+
+
           {/* Carrito / otros */}
           <Route path="/carrito" element={<CartPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/shop" element={<CartPage />} />
 
           <Route path="/contactanos" element={<Contact />} />
-          <Route path="/detalle-producto/:id" element={<DetailProduct />} />
+          <Route path="/detalle-producto/:id" element={<ProductDetail />} />
           <Route path="/privacidad" element={<PrivacyPolicy />} />
           <Route path="/cookies" element={<CookiesPolicy />} />
           <Route path="/terminos" element={<TermsPolicy />} />
           <Route path="/aviso-privacidad" element={<PrivacyNotice />} />
           <Route path="/faq" element={<PreguntasFrecuentes />} />
           <Route path="/blog" element={<Blog />} />
+          
+          {/* Ruta para manejar páginas no encontradas */}
+          <Route path="*" element={<Error404 />} />
         </Routes>
       </Router>
     </CartProvider>

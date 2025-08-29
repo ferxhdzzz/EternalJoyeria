@@ -13,10 +13,12 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../context/AuthContext';
 
 const { width, height } = Dimensions.get('window');
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = ({ navigation, route }) => {
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -111,49 +113,44 @@ const LoginScreen = ({ navigation }) => {
     }
   }, [email, password]);
 
-  // Función de login que llama a tu API backend
+  // Función de login que utiliza el contexto de autenticación
   const handleLogin = async () => {
     validateForm();
     if (isFormValid) {
       setIsLoading(true);
       try {
-        // Llamada a tu API backend (ajusta la URL según tu configuración)
-        const response = await fetch('http:192.168.56.1:4000/api/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, password }),
-        });
-
-        const result = await response.json();
-        
+        const result = await login(email, password);
         if (result.success) {
-          // Login exitoso
+          // Mostrar mensaje de éxito
           Alert.alert(
             'Login Exitoso', 
-            `¡Bienvenido ${result.user.name}!\nTipo de usuario: ${result.userType}`,
+            `¡Bienvenido ${result.user.name}!${result.userType ? `\nTipo de usuario: ${result.userType}` : ''}`,
             [
               {
                 text: 'Continuar',
                 onPress: () => {
-                  // Navegar según el tipo de usuario
-                  if (result.userType === 'admin') {
-                    navigation.navigate('AdminDashboard', result.user);
+                  // Navegar según el tipo de usuario o callback
+                  const onNavigateToProducts = route?.params?.onNavigateToProducts;
+                  if (onNavigateToProducts) {
+                    onNavigateToProducts('Products', result.user);
                   } else {
-                    navigation.navigate('Products', result.user);
+                    // Navegación directa
+                    if (result.userType === 'admin') {
+                      navigation.navigate('AdminDashboard', result.user);
+                    } else {
+                      navigation.navigate('Products', result.user);
+                    }
                   }
                 }
               }
             ]
           );
         } else {
-          // Mostrar error específico del servidor
-          Alert.alert('Error de Login', result.message);
+          Alert.alert('Error de Login', result.error || 'Error al iniciar sesión');
         }
       } catch (error) {
         console.error('Error de login:', error);
-        Alert.alert('Error', 'Error de conexión. Verifica que el servidor esté funcionando.');
+        Alert.alert('Error', 'Error inesperado al iniciar sesión');
       } finally {
         setIsLoading(false);
       }
@@ -174,7 +171,15 @@ const LoginScreen = ({ navigation }) => {
         useNativeDriver: true,
       }),
     ]).start(() => {
-      navigation.goBack();
+      // Si estamos en el stack de autenticación, ir a la pantalla de bienvenida
+      const onNavigateToProducts = route?.params?.onNavigateToProducts;
+      if (onNavigateToProducts) {
+        // Aquí podríamos implementar una lógica para volver a la pantalla de bienvenida
+        // Por ahora, simplemente usamos goBack del stack
+        navigation.goBack();
+      } else {
+        navigation.goBack();
+      }
     });
   };
 
@@ -274,6 +279,13 @@ const LoginScreen = ({ navigation }) => {
             <TouchableOpacity style={styles.registerLink} onPress={() => navigation.navigate('Register')}>
               <Text style={styles.registerText}>
                 ¿Aún no tienes cuenta? <Text style={styles.registerHighlight}>Regístrate</Text>
+              </Text>
+            </TouchableOpacity>
+
+            {/* Enlace de olvidé contraseña */}
+            <TouchableOpacity style={styles.forgotPasswordLink} onPress={() => navigation.navigate('ForgotPassword')}>
+              <Text style={styles.forgotPasswordText}>
+                ¿Olvidaste tu contraseña?
               </Text>
             </TouchableOpacity>
           </View>
@@ -432,6 +444,15 @@ const styles = StyleSheet.create({
   registerHighlight: {
     color: '#E8B4B4',
     fontWeight: '600',
+  },
+  forgotPasswordLink: {
+    marginTop: 15,
+    alignItems: 'center',
+  },
+  forgotPasswordText: {
+    fontSize: 14,
+    color: '#666',
+    textDecorationLine: 'underline',
   },
   loginButton: {
     backgroundColor: '#000000',

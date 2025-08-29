@@ -7,7 +7,7 @@ import CartScreen from '../screens/CartScreen';
 
 const Tab = createBottomTabNavigator();
 
-const BottomTabNavigator = ({ navigation, userData, updateUserProfileImage }) => {
+const BottomTabNavigator = ({ navigation }) => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -55,7 +55,7 @@ const BottomTabNavigator = ({ navigation, userData, updateUserProfileImage }) =>
       <Tab.Screen 
         name="Perfil" 
         component={ProfileScreen}
-        initialParams={{ navigation, userData, updateUserProfileImage }}
+        initialParams={{ navigation }}
       />
     </Tab.Navigator>
   );

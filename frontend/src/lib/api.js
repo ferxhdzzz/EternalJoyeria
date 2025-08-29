@@ -1,5 +1,5 @@
 // src/lib/api.js
-const BASE_URL = import.meta.env.VITE_API_URL; // ej: http://localhost:4000/api
+const BASE_URL = import.meta.env.VITE_API_URL; // Debe ser: https://eternal-joyeria.vercel.app
 
 export async function apiFetch(path, { method = "GET", body, headers = {} } = {}) {
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -8,19 +8,44 @@ export async function apiFetch(path, { method = "GET", body, headers = {} } = {}
       "Content-Type": "application/json",
       ...headers,
     },
-    credentials: "include", // NECESARIO para enviar/recibir cookies
+    credentials: "include",
     body: body ? JSON.stringify(body) : undefined,
   });
 
-  let data = null;
-  try { data = await res.json(); } catch (_) {}
+  const isJSON = res.headers.get("content-type")?.includes("application/json");
 
   if (!res.ok) {
-    const msg = data?.message || data?.error || "Error en la solicitud";
-    const err = new Error(msg);
+    let message = `HTTP ${res.status}`;
+    try {
+      const data = isJSON ? await res.json() : { message: await res.text() };
+      message = data?.message || data?.error || message;
+    } catch {}
+    const err = new Error(message);
     err.status = res.status;
-    err.data = data;
     throw err;
   }
-  return data;
+
+  return isJSON ? res.json() : res.text();
+}
+
+// Helpers de auth (usa rutas SIN /api al inicio)
+export async function getUserData() {
+  try {
+    return await apiFetch("/login/me");
+  } catch (e) {
+    console.error("Error al obtener /login/me:", e);
+    return null;
+  }
+}
+
+export async function loginUser(email, password) {
+  try {
+    return await apiFetch("/login", {
+      method: "POST",
+      body: { email, password },
+    });
+  } catch (e) {
+    console.error("Error al iniciar sesión:", e);
+    return null;
+  }
 }

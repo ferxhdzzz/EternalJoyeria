@@ -6,19 +6,18 @@ import TermsConditionsScreen from '../screens/TermsConditionsScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
 import ReviewsScreen from '../screens/ReviewsScreen';
 import PaymentScreen from '../screens/PaymentScreen';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
+import VerifyCodeScreen from '../screens/VerifyCodeScreen';
+import ChangePasswordScreen from '../screens/ChangePasswordScreen';
 
 const Stack = createStackNavigator();
 
 // Componente separado para evitar la función inline
-const MainTabsComponent = ({ navigation, userData, updateUserProfileImage }) => (
-  <BottomTabNavigator 
-    navigation={navigation}
-    userData={userData}
-    updateUserProfileImage={updateUserProfileImage}
-  />
+const MainTabsComponent = ({ navigation }) => (
+  <BottomTabNavigator navigation={navigation} />
 );
 
-const AppNavigator = ({ userData, updateUserProfileImage }) => {
+const AppNavigator = () => {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -28,7 +27,6 @@ const AppNavigator = ({ userData, updateUserProfileImage }) => {
       <Stack.Screen 
         name="MainTabs" 
         component={MainTabsComponent}
-        initialParams={{ userData, updateUserProfileImage }}
       />
       <Stack.Screen 
         name="PrivacyPolicy" 
@@ -49,6 +47,18 @@ const AppNavigator = ({ userData, updateUserProfileImage }) => {
       <Stack.Screen 
         name="Payment" 
         component={PaymentScreen}
+      />
+      <Stack.Screen 
+        name="ForgotPassword" 
+        component={ForgotPasswordScreen}
+      />
+      <Stack.Screen 
+        name="VerifyCode" 
+        component={VerifyCodeScreen}
+      />
+      <Stack.Screen 
+        name="ChangePassword" 
+        component={ChangePasswordScreen}
       />
     </Stack.Navigator>
   );
