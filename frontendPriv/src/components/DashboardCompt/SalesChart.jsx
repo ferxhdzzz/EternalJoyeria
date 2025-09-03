@@ -17,7 +17,7 @@ const SalesChart = () => {
   const [error, setError] = useState(null);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [totalSalesValue, setTotalSalesValue] = useState(0);
-  const [totalSalesCount, setTotalSalesCount] = useState(0); // Número total de ventas
+  const [totalSalesCount, setTotalSalesCount] = useState(0);
 
   // Función para calcular ventas acumuladas
   const calculateCumulativeData = (monthlyData) => {
@@ -31,8 +31,8 @@ const SalesChart = () => {
     });
   };
 
-  // Función para obtener el total de ventas (número de transacciones)
-  const fetchTotalSalesCount = async () => {
+  // Función para obtener el total de ventas del dashboard
+  const fetchDashboardSalesCount = async () => {
     try {
       const response = await fetch("http://localhost:4000/api/sales", {
         method: 'GET',
@@ -44,11 +44,12 @@ const SalesChart = () => {
 
       if (response.ok) {
         const salesData = await response.json();
-        setTotalSalesCount(salesData.length);
+        return salesData.length;
       }
+      return 0;
     } catch (error) {
-      console.error('Error fetching total sales count:', error);
-      setTotalSalesCount(0);
+      console.error('Error fetching dashboard sales count:', error);
+      return 0;
     }
   };
 
@@ -56,6 +57,7 @@ const SalesChart = () => {
   const fetchSalesData = async (year) => {
     try {
       setLoading(true);
+      
       // Obtener datos mensuales de ventas (valor monetario)
       const monthlyResponse = await fetch(`http://localhost:4000/api/sales/monthly?year=${year}`, {
         method: 'GET',
@@ -65,7 +67,7 @@ const SalesChart = () => {
         credentials: 'include'
       });
 
-      // Obtener todas las ventas para calcular cantidad por mes
+      // Obtener todas las ventas
       const allSalesResponse = await fetch(`http://localhost:4000/api/sales`, {
         method: 'GET',
         headers: {
@@ -82,60 +84,67 @@ const SalesChart = () => {
       const allSalesResult = await allSalesResponse.json();
       
       console.log("Datos mensuales del backend:", monthlyResult);
-      console.log("Todas las ventas:", allSalesResult);
-      console.log("Estructura de una venta:", allSalesResult?.[0]);
+      console.log("Total de ventas del backend:", allSalesResult?.length);
       
       if (monthlyResult.success && monthlyResult.data) {
-        // Calcular cantidad de ventas por mes
+        // Calcular cantidad de ventas por mes del año seleccionado
         const salesCountByMonth = {
           1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0,
           7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0
         };
         
-        let totalSalesYear = 0;
+        let totalSalesYearCount = 0;
         
         if (allSalesResult && Array.isArray(allSalesResult)) {
           allSalesResult.forEach((sale, index) => {
-            // Intentar diferentes campos de fecha
-            const dateFields = ['fecha', 'createdAt', 'date', 'created_at', 'fechaVenta', 'fecha_venta'];
+            // Intentar diferentes campos de fecha posibles
+            const possibleDateFields = ['fecha', 'createdAt', 'date', 'created_at', 'fechaVenta', 'fecha_venta', 'updatedAt'];
             let saleDate = null;
             
-            for (let field of dateFields) {
+            for (let field of possibleDateFields) {
               if (sale[field]) {
-                saleDate = new Date(sale[field]);
-                console.log(`Venta ${index + 1} - Campo '${field}':`, sale[field], "-> Parseada:", saleDate);
-                break;
+                try {
+                  saleDate = new Date(sale[field]);
+                  if (!isNaN(saleDate.getTime())) {
+                    console.log(`Venta ${index + 1} - Campo '${field}':`, sale[field], "-> Fecha:", saleDate.toISOString().split('T')[0]);
+                    break;
+                  }
+                } catch (e) {
+                  continue;
+                }
               }
             }
             
             if (saleDate && !isNaN(saleDate.getTime())) {
               const saleYear = saleDate.getFullYear();
-              console.log(`Año de venta: ${saleYear}, Año seleccionado: ${year}`);
               
               if (saleYear === year) {
                 const month = saleDate.getMonth() + 1;
                 salesCountByMonth[month]++;
-                totalSalesYear++;
-                console.log(`✓ Venta contada - Mes: ${month}, Total hasta ahora: ${totalSalesYear}`);
+                totalSalesYearCount++;
+                console.log(`✓ Venta del año ${year} - Mes: ${month}, Total: ${totalSalesYearCount}`);
               }
             } else {
-              console.log(`⚠️ No se pudo parsear fecha para la venta ${index + 1}:`, sale);
+              console.warn(`⚠️ No se pudo determinar fecha para la venta ${index + 1}:`, Object.keys(sale));
             }
           });
-        } else {
-          console.log("⚠️ No se encontraron ventas o el formato no es correcto");
-          // Si no hay endpoint específico, usar el total del dashboard
-          setTotalSalesCount(allSalesResult?.length || 0);
         }
 
-        console.log("📊 Ventas por mes final:", salesCountByMonth);
-        console.log("📊 Total ventas del año:", totalSalesYear);
+        console.log(`📊 Resumen detallado del año ${year}:`);
+        console.log("- Distribución por meses:");
+        Object.entries(salesCountByMonth).forEach(([month, count]) => {
+          if (count > 0) {
+            const monthNames = ['', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            console.log(`  ${monthNames[month]}: ${count} ventas`);
+          }
+        });
+        console.log(`- Total ventas del año ${year}: ${totalSalesYearCount}`);
+        console.log(`- Total ventas general: ${allSalesResult?.length || 0}`);
 
         // Combinar datos de valor monetario con cantidad de ventas
         const enrichedData = monthlyResult.data.map((monthData, index) => {
           const monthNumber = index + 1;
           const count = salesCountByMonth[monthNumber] || 0;
-          console.log(`Mes ${monthNumber} (${monthData.mes}): ${count} ventas`);
           
           return {
             ...monthData,
@@ -146,12 +155,22 @@ const SalesChart = () => {
         const dataWithCumulative = calculateCumulativeData(enrichedData);
         
         // Calcular totales
-        const totalYear = monthlyResult.data.reduce((sum, month) => sum + (month.ventas || 0), 0);
+        const totalYearValue = monthlyResult.data.reduce((sum, month) => sum + (month.ventas || 0), 0);
         
-        console.log("📈 Datos del gráfico completos:", dataWithCumulative);
+        console.log("📈 Datos finales para el gráfico:", dataWithCumulative);
+        
         setSalesData(dataWithCumulative);
-        setTotalSalesValue(totalYear);
-        setTotalSalesCount(totalSalesYear > 0 ? totalSalesYear : allSalesResult?.length || 0);
+        setTotalSalesValue(totalYearValue);
+        
+        // Si estamos en el año actual, mostrar el total general
+        // Si es un año específico, mostrar solo las ventas de ese año
+        const currentYear = new Date().getFullYear();
+        if (year === currentYear) {
+          setTotalSalesCount(allSalesResult?.length || 0);
+        } else {
+          setTotalSalesCount(totalSalesYearCount);
+        }
+        
         setError(null);
       } else {
         throw new Error(monthlyResult.message || 'Error al obtener datos');
@@ -159,7 +178,11 @@ const SalesChart = () => {
     } catch (err) {
       console.error('Error fetching sales data:', err);
       setError('Error al cargar los datos de ventas');
-      // Datos de fallback en caso de error
+      
+      // En caso de error, obtener al menos el total del dashboard
+      const dashboardTotal = await fetchDashboardSalesCount();
+      
+      // Datos de fallback
       const fallbackData = [
         { mes: "Ene", ventas: 0, ventasAcumuladas: 0, cantidadVentas: 0 },
         { mes: "Feb", ventas: 0, ventasAcumuladas: 0, cantidadVentas: 0 },
@@ -176,7 +199,7 @@ const SalesChart = () => {
       ];
       setSalesData(fallbackData);
       setTotalSalesValue(0);
-      setTotalSalesCount(0);
+      setTotalSalesCount(dashboardTotal);
     } finally {
       setLoading(false);
     }
@@ -210,10 +233,10 @@ const SalesChart = () => {
         }}>
           <p style={{ margin: 0, fontWeight: 'bold' }}>{`Mes: ${label}`}</p>
           <p style={{ margin: 0, color: '#d14da0' }}>
-            {`Valor del mes: ${payload[0]?.value?.toLocaleString() || 0}`}
+            {`Valor del mes: $${payload[0]?.value?.toLocaleString() || 0}`}
           </p>
           <p style={{ margin: 0, color: '#2563eb' }}>
-            {`Total acumulado: ${payload[1]?.value?.toLocaleString() || 0}`}
+            {`Total acumulado: $${payload[1]?.value?.toLocaleString() || 0}`}
           </p>
           <p style={{ margin: 0, color: '#10b981' }}>
             {`Cantidad de ventas: ${payload[2]?.value || 0}`}
@@ -235,6 +258,9 @@ const SalesChart = () => {
     );
   }
 
+  const currentYear = new Date().getFullYear();
+  const isCurrentYear = selectedYear === currentYear;
+
   return (
     <div className="sales-chart-container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
@@ -242,7 +268,8 @@ const SalesChart = () => {
           <h2>Ventas de joyas - {selectedYear}</h2>
           <div style={{ fontSize: '14px', color: '#666', display: 'flex', gap: '20px' }}>
             <p style={{ margin: 0 }}>
-              Total de ventas: <strong style={{ color: '#9333ea' }}>{totalSalesCount}</strong>
+              {isCurrentYear ? 'Total de ventas' : `Ventas en ${selectedYear}`}: 
+              <strong style={{ color: '#9333ea' }}> {totalSalesCount}</strong>
             </p>
             <p style={{ margin: 0 }}>
               Valor total: <strong style={{ color: '#a855f7' }}>${totalSalesValue.toLocaleString()}</strong>
@@ -267,7 +294,7 @@ const SalesChart = () => {
       
       {error && (
         <div style={{ color: 'red', marginBottom: '10px', fontSize: '14px' }}>
-          {error}
+          {error} {isCurrentYear && '(Mostrando total del dashboard)'}
         </div>
       )}
 
@@ -332,7 +359,7 @@ const SalesChart = () => {
           fontWeight: 'bold'
         }}>
           <div style={{ color: '#9333ea', marginBottom: '6px', fontSize: '15px' }}>
-            Total de ventas: {totalSalesCount}
+            {isCurrentYear ? 'Total ventas' : `Ventas ${selectedYear}`}: {totalSalesCount}
           </div>
           <div style={{ color: '#a855f7', fontSize: '13px', fontWeight: 'normal' }}>
             ${totalSalesValue.toLocaleString()}
