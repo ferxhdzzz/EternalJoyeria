@@ -142,16 +142,14 @@ loginController.login = async (req, res) => {
 
 const cookieOptions = {
   httpOnly: true,
-  secure: true,     // Solo se envía por HTTPS
-  sameSite: "strict",
-  path: "/",
-  maxAge: 24 * 60 * 60 * 1000, // 1 día
+ 
 };
 
 
 // Usar la constante al crear la cookie
 console.log("SE ESTÁ GUARDANDO LA COOKIE")
 res.cookie("authToken", token, cookieOptions);
+console.log("ASDFASDGASDFASDF "+ token)
 
     res.status(200).json({
       success: true,

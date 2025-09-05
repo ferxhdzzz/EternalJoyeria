@@ -29,7 +29,7 @@ const app = express();
 // CORS para ambos puertos (5173 y 5174)
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174", "https://eternal-joyeria.vercel.app", ],
+    origin: ["http://localhost:5173", "http://localhost:5174", "https://eternal-joyeria.vercel.app", "https://eternal-joyeria.vercel.app"],
     credentials: true,
   })
 );
