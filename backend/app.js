@@ -34,15 +34,17 @@ app.use(
   })
 );
 
+// Middleware para JSON y cookies
+app.use(express.json());
+app.use(cookieParser());
+
+
 // Swagger
 const swaggerDocument = JSON.parse(
   fs.readFileSync(path.resolve("./Docs.json"), "utf-8")
 );
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Middleware para JSON y cookies
-app.use(express.json());
-app.use(cookieParser());
 
 // Sesiones (cookies)
 app.use(

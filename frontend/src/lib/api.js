@@ -43,6 +43,7 @@ export async function loginUser(email, password) {
     return await apiFetch("/login", {
       method: "POST",
       body: { email, password },
+        credentials: "include",
     });
   } catch (e) {
     console.error("Error al iniciar sesión:", e);
