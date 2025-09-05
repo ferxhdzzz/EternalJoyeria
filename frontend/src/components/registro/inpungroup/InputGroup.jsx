@@ -26,7 +26,13 @@ const Input = forwardRef(function Input(
           className="input"
           {...rest}
         />
-        {icon}
+        {icon && React.cloneElement(icon, {
+          style: {
+            ...icon.props.style,
+            right: '-12px !important',
+            position: 'absolute !important'
+          }
+        })}
       </div>
     </div>
   );

@@ -8,7 +8,6 @@ import '../styles/Profile.css';
 import Footer from '../components/Footer';
 import '../styles/ProfileRedesign.css';
 import { useProfile } from '../hooks/useProfile';
-<
 import { useAuth } from '../context/AuthContext';
 
 import { 

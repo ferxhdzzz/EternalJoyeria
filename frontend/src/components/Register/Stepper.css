@@ -4,6 +4,9 @@
   justify-content: center;
   margin-bottom: 2rem;
   width: 100%;
+  padding: 10px 0; /* Espacio vertical para evitar que se corten */
+  min-height: 60px; /* Altura mínima para asegurar que los círculos no se corten */
+  overflow: visible; /* Asegurar que no se corten los elementos */
 }
 
 .step {
@@ -19,6 +22,8 @@
   font-weight: bold;
   transition: all 0.4s ease;
   position: relative;
+  flex-shrink: 0; /* Evitar que se compriman */
+  z-index: 1; /* Asegurar que estén por encima de otros elementos */
 }
 
 .step.active {
@@ -44,6 +49,7 @@
 @media (max-width: 768px) {
   .stepper-wrapper {
     margin-bottom: 1.5rem;
+    min-height: 55px; /* Ajustar altura mínima para pantallas medianas */
   }
   
   .step {
@@ -61,6 +67,7 @@
 @media (max-width: 480px) {
   .stepper-wrapper {
     margin-bottom: 1rem;
+    min-height: 50px; /* Ajustar altura mínima para pantallas pequeñas */
   }
   
   .step {
