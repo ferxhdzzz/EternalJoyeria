@@ -31,7 +31,11 @@ export async function apiFetch(path, { method = "GET", body, headers = {} } = {}
 // Helpers de auth (usa rutas SIN /api al inicio)
 export async function getUserData() {
   try {
-    return await apiFetch("/login/me");
+    return await apiFetch("/login/me", {
+      method: "POST",
+      body: { email, password },
+        credentials: "include",
+    });
   } catch (e) {
     console.error("Error al obtener /login/me:", e);
     return null;
