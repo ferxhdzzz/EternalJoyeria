@@ -139,7 +139,7 @@ loginController.login = async (req, res) => {
       { expiresIn: config.jwt.expiresIn }
     );
 
-
+/*
 const cookieOptions = {
   httpOnly: true,
   secure: true,     // Solo se envía por HTTPS
@@ -147,9 +147,11 @@ const cookieOptions = {
   path: "/",
   maxAge: 24 * 60 * 60 * 1000, // 1 día
 };
+*/
 
 // Usar la constante al crear la cookie
-res.cookie("authToken", token, cookieOptions);
+console.log("SE ESTÁ GUARDANDO LA COOKIE")
+res.cookie("authToken", token);
 
     res.status(200).json({
       success: true,

@@ -14,6 +14,7 @@ export default function useLogin() {
       const res = await apiFetch("/login", {
         method: "POST",
         body: { email, password },
+          credentials: "include",
       });
       
       // backend responde: { success, userType, user: { id, email, name? } }
