@@ -1,5 +1,5 @@
 // src/lib/api.js
-const BASE_URL = import.meta.env.VITE_API_URL; // Debe ser: https://eternal-joyeria.vercel.app
+/*const BASE_URL = import.meta.env.VITE_API_URL; // Debe ser: https://eternal-joyeria.vercel.app
 
 export async function apiFetch(path, { method = "GET", body, headers = {} } = {}) {
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -28,6 +28,7 @@ export async function apiFetch(path, { method = "GET", body, headers = {} } = {}
   return isJSON ? res.json() : res.text();
 }
 
+/*
 // Helpers de auth (usa rutas SIN /api al inicio)
 export async function getUserData() {
   try {
@@ -42,6 +43,7 @@ export async function getUserData() {
   }
 }
 
+
 export async function loginUser(email, password) {
   try {
     return await apiFetch("/login", {
@@ -53,4 +55,4 @@ export async function loginUser(email, password) {
     console.error("Error al iniciar sesión:", e);
     return null;
   }
-}
+}*/

@@ -1,42 +1,40 @@
-// src/hooks/auth/useLogin.js
 import { useState } from "react";
-import { apiFetch } from "../../lib/api";
-import { useContext } from "react";
-import { AuthContext } from "../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 export default function useLogin() {
-  const { setUser } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
+  const { setUser } = useAuth();
 
   const login = async ({ email, password }) => {
     setLoading(true);
     try {
-      const res = await apiFetch("/login", {
+      const res = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/login", {
         method: "POST",
-        body: { email, password },
-          credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // importante para sesiones
+        body: JSON.stringify({ email, password }),
       });
-      
-      // backend responde: { success, userType, user: { id, email, name? } }
-      if (res?.success) {
-        setUser({
-          id: res.user?.id || res.user?._id,
-          email: res.user?.email,
-          userType: res.userType,
-          name: res.user?.name || res.user?.firstName || "",
-          firstName: res.user?.firstName,
-          lastName: res.user?.lastName,
-        });
-        return { success: true, user: res.user };
-      } else {
-        return { success: false, error: res.message || 'Error al iniciar sesión' };
+
+      const data = await res.json();
+
+      if (!res.ok || !data.ok) {
+        return { success: false, message: data.message || "Credenciales incorrectas." };
       }
-    } catch (error) {
-      console.error('Error en login:', error);
-      return { 
-        success: false, 
-        error: error.message || 'Error de conexión al iniciar sesión' 
+
+      // Normaliza y guarda el usuario en el contexto
+      const user = {
+        id: data.id || data._id,
+        email: data.email,
+        userType: data.userType || "customer",
       };
+
+      setUser(user);
+      return { success: true };
+    } catch (error) {
+      console.error("Error en login:", error);
+      return { success: false, message: error.message || "Error al iniciar sesión." };
     } finally {
       setLoading(false);
     }

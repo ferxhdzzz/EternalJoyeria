@@ -1,9 +1,9 @@
-// src/context/AuthContext.jsx
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { apiFetch } from "../lib/api";
 
+// Crear el contexto
 export const AuthContext = createContext();
 
+// Proveedor del contexto
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -40,29 +40,59 @@ export const AuthProvider = ({ children }) => {
 
   const hydrate = useCallback(async () => {
     console.log("[Auth] hydrate ->", import.meta.env.VITE_API_URL);
+
     try {
-      // 1) Intentar ruta clásica /login/me
       let me = null;
+
+      // 1. Intentar /login/me
       try {
-        me = await apiFetch("/login/me", { method: "GET" });
-        console.log("[Auth] /login/me ->", me);
+        const res = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/login/me", {
+          method: "GET",
+          credentials: "include",
+        });
+        if (res.ok) {
+          me = await res.json();
+          console.log("[Auth] /login/me ->", me);
+        }
       } catch (e) {
-        if (e?.status !== 404) throw e; // si no es 404, re-lanzar
+        console.error("Error en /login/me:", e);
       }
 
-      // 2) Fallback a /customers/me si /login/me no existe o no sirve
+      // 2. Fallback a /customers/me
       if (!me) {
         try {
-          const cm = await apiFetch("/customers/me", { method: "GET" });
-          console.log("[Auth] /customers/me ->", cm);
-          me = cm;
+          const res = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/customers/me", {
+            method: "GET",
+            credentials: "include",
+          });
+          if (res.ok) {
+            me = await res.json();
+            console.log("[Auth] /customers/me ->", me);
+          }
         } catch (e) {
-          if (![401, 403, 404].includes(e?.status)) throw e; // errores no esperados
+          console.error("Error en /customers/me:", e);
         }
       }
 
       const u = normalizeUser(me);
-      setUser(u);
+      if (u) {
+        // Verifica si es admin
+        try {
+          const adminRes = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/login/checkAdmin", {
+            method: "GET",
+            credentials: "include",
+          });
+          const adminData = await adminRes.json();
+          const isAdmin = adminRes.ok && adminData.ok;
+
+          setUser({ ...u, isAdmin });
+        } catch (e) {
+          console.error("Error al verificar admin:", e);
+          setUser(u); // si falla admin check, sigue como user normal
+        }
+      } else {
+        setUser(null);
+      }
     } catch (e) {
       console.log("[Auth] hydrate error:", e?.message);
       setUser(null);
@@ -76,9 +106,20 @@ export const AuthProvider = ({ children }) => {
   }, [hydrate]);
 
   const logout = async () => {
-    // Intenta ambas rutas comunes; ignora errores
-    try { await apiFetch("/login/logout", { method: "POST" }); } catch {}
-    try { await apiFetch("/logout", { method: "POST" }); } catch {}
+    try {
+      await fetch("https://eternaljoyeria-cg5d.onrender.com/api/login/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch {}
+
+    try {
+      await fetch("https://eternaljoyeria-cg5d.onrender.com/api/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch {}
+
     setUser(null);
   };
 
@@ -89,5 +130,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Hook de conveniencia (opcional, no rompe usos previos)
+// Hook de conveniencia para consumir el contexto
 export const useAuth = () => useContext(AuthContext);
