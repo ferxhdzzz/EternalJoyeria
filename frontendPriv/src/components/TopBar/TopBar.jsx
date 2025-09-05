@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaSearch, FaBell, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaBell, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
 import usePerfilAdmin from "../../hooks/Ajustes/useFetchAjustes";
 import './TopBar.css';
@@ -13,11 +13,6 @@ const TopBar = () => {
   return (
     <div className="topbar">
       <div className="topbar-right">
-        <div className="search-box">
-          <FaSearch className="search-icon" />
-          <input type="text" placeholder="Buscar..." />
-        </div>
-
         <div className="icon-button">
           <FaBell />
         </div>
@@ -38,11 +33,6 @@ const TopBar = () => {
 
       {menuOpen && (
         <div className="mobile-menu">
-          <div className="search-box mobile-search">
-            <FaSearch className="search-icon" />
-            <input type="text" placeholder="Buscar..." />
-          </div>
-
           <div className="icon-button mobile-bell">
             <FaBell />
           </div>

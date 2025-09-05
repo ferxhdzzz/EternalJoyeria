@@ -244,7 +244,10 @@ const CategoryProducts = () => {
                   {product.stock !== undefined && (
                     <div style={{ padding: '10px', background: '#f8f9fa', borderRadius: '8px' }}>
                       <strong>Stock:</strong><br/>
-                      <span style={{ color: '#666' }}>{product.stock} unidades</span>
+                      <span style={{ 
+                        color: product.stock < 3 ? '#dc3545' : '#666',
+                        fontWeight: product.stock < 3 ? 'bold' : 'normal'
+                      }}>{product.stock} unidades</span>
                     </div>
                   )}
                 </div>
@@ -259,13 +262,13 @@ const CategoryProducts = () => {
                   {product.stock !== undefined && (
                     <div style={{ 
                       padding: '8px 15px', 
-                      background: product.stock > 0 ? '#d4edda' : '#f8d7da',
-                      color: product.stock > 0 ? '#155724' : '#721c24',
+                      background: product.stock === 0 ? '#f8d7da' : product.stock < 3 ? '#f8d7da' : '#d4edda',
+                      color: product.stock === 0 ? '#721c24' : product.stock < 3 ? '#721c24' : '#155724',
                       borderRadius: '20px',
                       fontSize: '14px',
                       fontWeight: 'bold'
                     }}>
-                      {product.stock > 0 ? `${product.stock} en stock` : 'Sin stock'}
+                      {product.stock === 0 ? 'Sin stock' : product.stock < 3 ? `${product.stock} en stock (¡Pocas unidades!)` : `${product.stock} en stock`}
                     </div>
                   )}
                   <div style={{ 

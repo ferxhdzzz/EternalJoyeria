@@ -114,9 +114,6 @@ const EditSale = ({ saleId, onClose, onSave }) => {
         )}
 
         <div className="edit-sale-buttons">
-          <button type="submit" className="btn-edit" disabled={submitting}>
-            {submitting ? "Actualizando..." : "Guardar"}
-          </button>
           <button
             type="button"
             onClick={onClose}
@@ -124,6 +121,9 @@ const EditSale = ({ saleId, onClose, onSave }) => {
             disabled={submitting}
           >
             Cancelar
+          </button>
+          <button type="submit" className="btn-edit" disabled={submitting}>
+            {submitting ? "Actualizando..." : "Guardar"}
           </button>
         </div>
       </form>

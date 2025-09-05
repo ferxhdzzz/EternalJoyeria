@@ -300,11 +300,11 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
           />
 
           <div className="buttons-roww">
-            <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? "Actualizando..." : "Guardar"}
-            </button>
             <button type="button" onClick={onClose} className="main-buttoon" disabled={loading}>
               Cancelar
+            </button>
+            <button type="submit" className="btn-primary" disabled={loading}>
+              {loading ? "Actualizando..." : "Guardar"}
             </button>
           </div>
         </form>

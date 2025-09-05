@@ -208,9 +208,8 @@ const ProfileCard = () => {
 
              <br />  <br />
             <div className="button-group">
-              <Button text="Guardar" type="submit" />   
               <Button text="Cancelar" className="cc" onClick={() => setEditingField(null)} />
-
+              <Button text="Guardar" type="submit" />   
             </div>
           </div>
         </div>
@@ -227,9 +226,8 @@ const ProfileCard = () => {
             <input type="file" accept="image/*" onChange={handleFileChange} />
             <br /> <br />
             <div className="button-group">
-              <Button text="Guardar" onClick={handleImageSubmit} />
               <Button text="Cancelar" onClick={() => { setEditingField(null); setNuevaFoto(null); }} />
-              
+              <Button text="Guardar" onClick={handleImageSubmit} />
             </div>
           </div>
         </div>
