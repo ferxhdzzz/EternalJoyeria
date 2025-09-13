@@ -1,13 +1,14 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import ProductScreen from '../screens/ProductScreen';
+import ProductScreen from '../screens/ProductScreenNew';
 import ProfileScreen from '../screens/ProfileScreen';
 import CartScreen from '../screens/CartScreen';
+import OrdersScreen from '../screens/OrdersScreen';
 
 const Tab = createBottomTabNavigator();
 
-const BottomTabNavigator = ({ navigation }) => {
+const BottomTabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -18,6 +19,8 @@ const BottomTabNavigator = ({ navigation }) => {
             iconName = 'home';
           } else if (route.name === 'Carrito') {
             iconName = 'cart';
+          } else if (route.name === 'Pedidos') {
+            iconName = 'receipt';
           } else if (route.name === 'Perfil') {
             iconName = 'person';
           }
@@ -33,7 +36,7 @@ const BottomTabNavigator = ({ navigation }) => {
           paddingBottom: 5,
           paddingTop: 5,
           height: 60,
-          marginBottom: 20, // Mover el menú más arriba para evitar la barra del iPhone
+          marginBottom: 20,
         },
         tabBarLabelStyle: {
           fontSize: 12,
@@ -42,20 +45,18 @@ const BottomTabNavigator = ({ navigation }) => {
         headerShown: false,
       })}
     >
-      <Tab.Screen 
-        name="Inicio" 
-        component={ProductScreen}
-        initialParams={{ navigation }}
-      />
+      <Tab.Screen name="Inicio" component={ProductScreen} />
       <Tab.Screen 
         name="Carrito" 
         component={CartScreen}
-        initialParams={{ navigation }}
+      />
+      <Tab.Screen 
+        name="Pedidos" 
+        component={OrdersScreen}
       />
       <Tab.Screen 
         name="Perfil" 
         component={ProfileScreen}
-        initialParams={{ navigation }}
       />
     </Tab.Navigator>
   );

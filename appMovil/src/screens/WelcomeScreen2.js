@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions, Animated, ScrollView } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
@@ -9,6 +10,7 @@ const WelcomeScreen2 = ({ onNext }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
   const buttonScaleAnim = useRef(new Animated.Value(0.8)).current;
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     // Animación de entrada con fade y slide
@@ -53,62 +55,69 @@ const WelcomeScreen2 = ({ onNext }) => {
   };
 
   return (
-    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
-      <View style={styles.imageSection}>
-        <LinearGradient
-          colors={['#FFE4E1', '#FFF5F5']}
-          style={styles.gradientBackground}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 1 }}
-        >
-          <Animated.View 
-            style={[
-              styles.imageContainer,
-              { 
-                transform: [{ translateY: slideAnim }],
-                opacity: fadeAnim 
-              }
-            ]}
+    <SafeAreaView style={styles.container}>
+      <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+        <View style={styles.imageSection}>
+          <LinearGradient
+            colors={['#FFE4E1', '#FFF5F5']}
+            style={styles.gradientBackground}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
           >
-            <Image
-              source={require('../../assets/welcome-images/bienvenida2.png')}
-              style={styles.womanImage}
-              resizeMode="cover"
-            />
-          </Animated.View>
-        </LinearGradient>
-      </View>
-
-      <Animated.View 
-        style={[
-          styles.contentSection,
-          { 
-            transform: [{ translateY: slideAnim }],
-            opacity: fadeAnim 
-          }
-        ]}
-      >
-        <View style={styles.curveSeparator} />
-        <Text style={styles.mainTitle}>
-          Luce la elegancia{'\n'}de la naturaleza
-        </Text>
-        <Text style={styles.description}>
-          Descubre nuestras mejores{'\n'}colecciones a los mejores precios y{'\n'}calidad excepcional.
-        </Text>
-        <View style={styles.bottomRow}>
-          <View style={styles.navigationDots}>
-            <View style={styles.dot} />
-            <View style={[styles.dot, styles.activeDot]} />
-            <View style={styles.dot} />
-          </View>
-          <View>
-            <TouchableOpacity style={styles.startButton} onPress={handleStart}>
-              <Text style={styles.startButtonText}>Comenzar</Text>
-            </TouchableOpacity>
-          </View>
+            <Animated.View 
+              style={[
+                styles.imageContainer,
+                { 
+                  transform: [{ translateY: slideAnim }],
+                  opacity: fadeAnim 
+                }
+              ]}
+            >
+              <Image
+                source={require('../../assets/welcome-images/bienvenida2.png')}
+                style={styles.womanImage}
+                resizeMode="cover"
+              />
+            </Animated.View>
+          </LinearGradient>
         </View>
+        <Animated.View 
+          style={[
+            styles.contentSection,
+            { 
+              transform: [{ translateY: slideAnim }],
+              opacity: fadeAnim 
+            }
+          ]}
+        >
+          <View style={styles.curveSeparator} />
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: insets.bottom + 120 }}
+            showsVerticalScrollIndicator={false}
+          >
+            <Text style={styles.mainTitle}>
+              Luce la elegancia{'\n'}de la naturaleza
+            </Text>
+            <Text style={styles.description}>
+              Descubre nuestras mejores{'\n'}colecciones a los mejores precios y{'\n'}calidad excepcional.
+            </Text>
+            <View style={styles.navigationDots}>
+              <View style={styles.dot} />
+              <View style={[styles.dot, styles.activeDot]} />
+              <View style={styles.dot} />
+            </View>
+          </ScrollView>
+          <TouchableOpacity 
+            style={[styles.startButton, { bottom: Math.max(12, insets.bottom + 8) }]} 
+            onPress={handleStart}
+          >
+            <Animated.Text style={[styles.startButtonText, { transform: [{ scale: buttonScaleAnim }] }]}>
+              Comenzar
+            </Animated.Text>
+          </TouchableOpacity>
+        </Animated.View>
       </Animated.View>
-    </Animated.View>
+    </SafeAreaView>
   );
 };
 
@@ -145,7 +154,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingHorizontal: 0,
     paddingTop: 20,
-    paddingBottom: 140, // Aumentado de 100 a 140 para parte de abajo más alargada
+    paddingBottom: 80, // Reducido para que el botón no quede fuera en pantallas pequeñas
     position: 'relative',
   },
   curveSeparator: {
@@ -199,14 +208,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 40,
+    marginTop: 20,
     paddingRight: 0,
     paddingLeft: 30, // Padding solo a la izquierda para los puntos
   },
   startButton: {
     backgroundColor: '#000',
-    paddingVertical: 40, // Aumentado de 28 a 40 para hacer el botón más largo verticalmente
-    paddingHorizontal: 80,
+    paddingVertical: 16,
+    paddingHorizontal: 36,
     borderTopLeftRadius: 35,
     borderTopRightRadius: 0,
     borderBottomLeftRadius: 0,
@@ -219,21 +228,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    minWidth: 180,
+    minWidth: 140,
     marginRight: 0,
     marginLeft: 'auto',
     position: 'absolute',
-    right: -10, // Cambiado de 0 a -10 para mover el botón un poco más a la derecha
-    bottom: -50, // Cambiado de -40 a -50 para mover el botón un poquito más abajo
+    right: 16,
+    bottom: 16,
   },
   startButtonText: { 
     color: '#fff', 
-    fontSize: 18, 
+    fontSize: 16, 
     fontWeight: '600', 
     textAlign: 'left', 
-    marginTop: -8,
-    marginLeft: -20,
+    marginTop: 0,
+    marginLeft: 0,
   },
 });
 
-export default WelcomeScreen2; 
+export default WelcomeScreen2;

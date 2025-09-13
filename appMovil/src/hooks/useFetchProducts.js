@@ -8,14 +8,20 @@ const useFetchProducts = () => {
   const [error, setError] = useState(null);
 
   // URL del backend (misma que en AuthContext)
-  const BACKEND_URL = 'http://192.168.0.11:4000';
+  const BACKEND_URL = 'http://192.168.1.200:4000';
 
-  const fetchProductos = async () => {
+  const fetchProductos = async (categoryId = null) => {
     setLoading(true);
     setError(null);
     
     try {
-      const response = await fetch(`${BACKEND_URL}/api/products`);
+      const url = categoryId && categoryId !== 'todos'
+        ? `${BACKEND_URL}/api/products/category/${categoryId}`
+        : `${BACKEND_URL}/api/products`;
+      
+      const response = await fetch(url, {
+        credentials: 'include', // Importante para enviar cookies
+      });
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -24,6 +30,7 @@ const useFetchProducts = () => {
       const data = await response.json();
       
       // El backend puede devolver directamente el array o dentro de un objeto
+      // API devuelve array directo
       let productsArray;
       if (Array.isArray(data)) {
         productsArray = data;
@@ -55,8 +62,8 @@ const useFetchProducts = () => {
   };
 
   // Función para refrescar productos
-  const refreshProductos = () => {
-    fetchProductos();
+  const refreshProductos = (categoryId = null) => {
+    fetchProductos(categoryId);
   };
 
   useEffect(() => {

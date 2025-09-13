@@ -226,7 +226,7 @@ async function getOrder(req, res) {
   try {
     const order = await Order.findById(req.params.id)
       .populate("idCustomer", "firstName lastName email")
-      .populate("products.productId", "name price discountPercentage finalPrice");
+      .populate("products.productId", "name images price discountPercentage finalPrice");
     if (!order) return res.status(404).json({ message: "Orden no encontrada" });
     res.json(order);
   } catch (error) {
@@ -305,6 +305,38 @@ async function markAsPaid(req, res) {
   }
 }
 
+// GET /api/orders/user -> obtiene todas las órdenes del usuario autenticado
+async function getUserOrders(req, res) {
+  try {
+    console.log("🔍 [getUserOrders] Iniciando función...");
+    console.log("🔍 [getUserOrders] req.userId:", req.userId);
+    console.log("🔍 [getUserOrders] req.userType:", req.userType);
+    
+    const userId = req.userId;
+
+    if (!userId) {
+      console.error("❌ [getUserOrders] No hay userId en el request");
+      return res.status(400).json({ message: "Usuario no identificado" });
+    }
+
+    console.log("🔍 [getUserOrders] Buscando órdenes para userId:", userId);
+
+    const orders = await Order.find({ idCustomer: userId })
+      .populate("idCustomer", "firstName lastName email")
+      .populate("products.productId", "name images price finalPrice discountPercentage")
+      .sort({ createdAt: -1 }); // Ordenar por fecha más reciente
+
+    console.log("✅ [getUserOrders] Órdenes encontradas:", orders.length);
+    console.log("✅ [getUserOrders] IDs de órdenes:", orders.map(o => o._id));
+
+    res.json(orders);
+  } catch (error) {
+    console.error("❌ [getUserOrders] Error:", error);
+    console.error("❌ [getUserOrders] Stack:", error.stack);
+    res.status(500).json({ message: "Error al obtener órdenes del usuario", error: error.message });
+  }
+}
+
 /* ===== Export default ===== */
 const ordersController = {
   getOrCreateCart,
@@ -317,6 +349,7 @@ const ordersController = {
   updateOrder,
   deleteOrder,
   markAsPaid,
+  getUserOrders,
 };
 
 export default ordersController;

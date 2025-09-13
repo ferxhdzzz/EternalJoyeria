@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import useRegistro from '../hooks/Register/useRegistro';
 
 const { width, height } = Dimensions.get('window');
 
@@ -35,9 +36,8 @@ const RegisterScreen = ({ navigation, route }) => {
   const [passwordError, setPasswordError] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
 
-  // Estados para el registro
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  // Hook de registro
+  const { registerClient, loading, error } = useRegistro();
 
   // Referencias para las animaciones
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -219,66 +219,6 @@ const RegisterScreen = ({ navigation, route }) => {
     }
   }, [firstName, lastName, email, phone, password]);
 
-  // Función para registrar usuario
-  const registerClient = async (formData) => {
-    try {
-      // Para Android Studio Emulador: 10.0.2.2 mapea a localhost de tu PC
-      // Para iOS Simulador: localhost funciona normalmente  
-      // Para dispositivo físico: usa la IP de tu red local
-      const baseURL = Platform.OS === 'android' ? 'http://10.0.2.2:4000' : 'http://localhost:4000';
-      
-      console.log('🌐 Intentando conectar a:', baseURL);
-      
-      // Crear FormData para enviar datos multipart
-      const form = new FormData();
-      
-      form.append('firstName', formData.firstName);
-      form.append('lastName', formData.lastName);
-      form.append('email', formData.email);
-      form.append('password', formData.password);
-      form.append('phone', formData.phone);
-
-      // TEST: Primero probar conectividad básica
-      const testResponse = await fetch(`${baseURL}/`, {
-        method: 'GET',
-      });
-      console.log('🧪 Test de conectividad:', testResponse.status);
-      
-      const response = await fetch(`${baseURL}/api/registerCustomers`, {
-        method: 'POST',
-        headers: {
-          // Para FormData, no especifiques Content-Type manualmente
-          // React Native lo configurará automáticamente con boundary
-        },
-        body: form,
-        timeout: 10000, // 10 segundos de timeout
-      });
-
-      console.log('📡 Respuesta del servidor:', response.status);
-
-      const data = await response.json();
-      console.log('📄 Datos recibidos:', data);
-
-      if (!response.ok) {
-        throw new Error(data.message || `Error ${response.status}: ${response.statusText}`);
-      }
-
-      return { success: true, data };
-
-    } catch (err) {
-      console.error('❌ Error en registerClient:', err);
-      
-      // Verificar tipo de error para dar mejor feedback
-      if (err.message.includes('Network request failed')) {
-        throw new Error(`No se pudo conectar al servidor. Verifica que:
-1. Tu servidor esté ejecutándose en puerto 4000
-2. Estés usando la IP correcta (10.0.2.2 para Android Studio)
-3. No tengas firewall bloqueando la conexión`);
-      }
-      
-      throw new Error(err.message || 'Error desconocido en el registro');
-    }
-  };
 
   // Manejar registro
   const handleRegister = async () => {
@@ -288,8 +228,6 @@ const RegisterScreen = ({ navigation, route }) => {
       return;
     }
 
-    setLoading(true);
-    setError(null);
 
     // Preparar datos del formulario
     const formData = {
@@ -309,25 +247,22 @@ const RegisterScreen = ({ navigation, route }) => {
           'Te hemos enviado un código de verificación a tu correo electrónico.',
           [
             {
-              text: 'Continuar',
+              text: 'Verificar Código',
               onPress: () => {
-                // Navegar a Products usando el callback
-                const onNavigateToProducts = route.params?.onNavigateToProducts;
-                if (onNavigateToProducts) {
-                  onNavigateToProducts('Products', {
-                    email: formData.email,
-                    userData: formData
-                  });
-                }
+                // Navegar a VerifyCodeScreen con el email y callback
+                navigation.navigate('VerifyCode', { 
+                  email: formData.email,
+                  onNavigateToProducts: route.params?.onNavigateToProducts
+                });
               },
             },
           ]
         );
+      } else {
+        Alert.alert('Error de Registro', result.error || 'Ocurrió un error durante el registro.');
       }
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      Alert.alert('Error', 'Ocurrió un error inesperado. Intenta de nuevo.');
     }
   };
 
@@ -362,8 +297,8 @@ const RegisterScreen = ({ navigation, route }) => {
       >
         {/* Botón de regreso con animación */}
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Text style={styles.backButtonText}>← Volver</Text>
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={24} color="#2c3e50" />
           </TouchableOpacity>
         </Animated.View>
 
@@ -531,15 +466,17 @@ const RegisterScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f8f8f8',
   },
   scrollContainer: {
     flexGrow: 1,
+    paddingTop: 60,
+    paddingBottom: 40,
   },
   backButton: {
     position: 'absolute',
-    top: 15,
-    left: 20,
+    top: 10,
+    left: 15,
     zIndex: 10,
     padding: 10,
   },
