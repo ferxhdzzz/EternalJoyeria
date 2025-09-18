@@ -98,7 +98,7 @@ const VerifyCodeScreen = ({ route }) => {
     try {
       if (isPasswordRecovery) {
         // Para recuperación de contraseña
-        response = await fetch('http://192.168.1.200:4000/api/recoveryPassword/verifyCode', {
+        response = await fetch('http://192.168.56.1.200:4000/api/recoveryPassword/verifyCode', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

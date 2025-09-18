@@ -24,7 +24,7 @@ const OrdersScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const BACKEND_URL = 'http://192.168.1.200:4000';
+  const BACKEND_URL = 'http://192.168.56.1.200:4000';
 
   // Función para obtener pedidos del usuario
   const fetchUserOrders = async () => {

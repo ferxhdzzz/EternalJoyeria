@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // URL del backend
-  const BACKEND_URL = 'http://192.168.1.200:4000'; // Dirección IP actualizada
+  const BACKEND_URL = 'http://192.168.56.1:4000'; // Dirección IP actualizada
 
   // Asegura que profilePicture sea una URL absoluta
   const normalizeProfileUrl = (url) => {

@@ -23,7 +23,7 @@ const { width, height } = Dimensions.get('window');
 const ReviewsScreen = ({ navigation, route }) => {
   const { product } = route.params;
   const { user } = useAuth();
-  const BACKEND_URL = 'http://192.168.1.200:4000';
+  const BACKEND_URL = 'http://192.168.56.1.200:4000';
   const [reviewText, setReviewText] = useState('');
   const [selectedRating, setSelectedRating] = useState(5);
   const [selectedImage, setSelectedImage] = useState(null);

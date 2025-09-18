@@ -20,7 +20,7 @@ const OrderDetailScreen = ({ route, navigation }) => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const BACKEND_URL = 'http://192.168.1.200:4000';
+  const BACKEND_URL = 'http://192.168.56.1.200:4000';
 
   useEffect(() => {
     fetchOrderDetail();
