@@ -113,47 +113,59 @@ const LoginScreen = ({ navigation, route }) => {
     }
   }, [email, password]);
 
-  // Función de login que utiliza el contexto de autenticación
+  // Función de login corregida para tu arquitectura
   const handleLogin = async () => {
+    console.log('Iniciando proceso de login...');
+    console.log('Email:', email);
+    console.log('Formulario válido:', isFormValid);
+    
     validateForm();
     if (isFormValid) {
       setIsLoading(true);
       try {
+        console.log('Llamando a login del AuthContext...');
         const result = await login(email, password);
+        
+        console.log('Resultado del login:', result);
+        
         if (result.success) {
+          console.log('Login exitoso, navegando a productos...');
+          console.log('Usuario logueado:', result.user);
+          
+          // Usar el callback de App.js para cambiar a pantalla de productos
+          const onNavigateToProducts = route?.params?.onNavigateToProducts;
+          console.log('Callback onNavigateToProducts:', onNavigateToProducts);
+          
+          if (onNavigateToProducts) {
+            console.log('Ejecutando callback para navegar a Products...');
+            onNavigateToProducts('Products', result.user);
+            console.log('Callback ejecutado');
+          } else {
+            console.log('No hay callback disponible');
+            Alert.alert('Error', 'No se pudo navegar a productos. Callback no disponible.');
+          }
+          
           // Mostrar mensaje de éxito
           Alert.alert(
             'Login Exitoso', 
-            `¡Bienvenido ${result.user.name}!${result.userType ? `\nTipo de usuario: ${result.userType}` : ''}`,
-            [
-              {
-                text: 'Continuar',
-                onPress: () => {
-                  // Navegar según el tipo de usuario o callback
-                  const onNavigateToProducts = route?.params?.onNavigateToProducts;
-                  if (onNavigateToProducts) {
-                    onNavigateToProducts('Products', result.user);
-                  } else {
-                    // Navegación directa
-                    if (result.userType === 'admin') {
-                      navigation.navigate('AdminDashboard', result.user);
-                    } else {
-                      navigation.navigate('Products', result.user);
-                    }
-                  }
-                }
-              }
-            ]
+            `¡Bienvenido ${result.user.name || result.user.firstName || result.user.email}!`
           );
+          
         } else {
+          console.log('Error de login:', result.error);
           Alert.alert('Error de Login', result.error || 'Error al iniciar sesión');
         }
       } catch (error) {
-        console.error('Error de login:', error);
+        console.error('Error inesperado en login:', error);
         Alert.alert('Error', 'Error inesperado al iniciar sesión');
       } finally {
         setIsLoading(false);
+        console.log('Proceso de login terminado');
       }
+    } else {
+      console.log('Formulario no válido');
+      console.log('Error email:', emailError);
+      console.log('Error password:', passwordError);
     }
   };
 
@@ -171,15 +183,7 @@ const LoginScreen = ({ navigation, route }) => {
         useNativeDriver: true,
       }),
     ]).start(() => {
-      // Si estamos en el stack de autenticación, ir a la pantalla de bienvenida
-      const onNavigateToProducts = route?.params?.onNavigateToProducts;
-      if (onNavigateToProducts) {
-        // Aquí podríamos implementar una lógica para volver a la pantalla de bienvenida
-        // Por ahora, simplemente usamos goBack del stack
-        navigation.goBack();
-      } else {
-        navigation.goBack();
-      }
+      navigation.goBack();
     });
   };
 

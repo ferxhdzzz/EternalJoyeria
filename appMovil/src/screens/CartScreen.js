@@ -32,7 +32,7 @@ const CartScreen = ({ navigation }) => {
   };
 
   const handleCheckout = () => {
-    navigation.navigate('Payment', { totalAmount: getTotalPrice() });
+    navigation.navigate('Checkout');
   };
 
   if (cartItems.length === 0) {
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   // Estilos para el carrito vacío
   emptyContainer: {
     flex: 1,
-    backgroundColor: '#FFE7E7', // Fondo rosa claro como en la imagen
+    backgroundColor: '#FFE7E7',
   },
   header: {
     paddingTop: 60,
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     alignItems: 'center',
-    marginBottom: 20, // Adjusted for button position
+    marginBottom: 20,
   },
   mainText: {
     fontSize: 24,
@@ -214,12 +214,12 @@ const styles = StyleSheet.create({
     paddingVertical: 22,
     paddingHorizontal: 50,
     borderTopLeftRadius: 18,
-    borderTopRightRadius: 0, // Esquina superior derecha no redondeada
+    borderTopRightRadius: 0,
     borderBottomRightRadius: 18,
-    borderBottomLeftRadius: 0, // Esquina inferior izquierda no redondeada como en la imagen
-    marginLeft: 'auto', // Empuja el botón hacia la derecha
-    marginRight: 0, // Completamente a la derecha
-    marginBottom: 0, // Moved very close to bottom (minimal marginBottom)
+    borderBottomLeftRadius: 0,
+    marginLeft: 'auto',
+    marginRight: 0,
+    marginBottom: 0,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -243,19 +243,14 @@ const styles = StyleSheet.create({
   },
   cartHeader: {
     alignItems: 'center',
-    justifyContent: 'center', // Centered without back button
     paddingTop: 60,
-    paddingHorizontal: 20,
     paddingBottom: 20,
     backgroundColor: '#FFFFFF',
   },
   cartHeaderTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: '700',
     color: '#000',
-  },
-  placeholder: {
-    width: 40,
   },
   productList: {
     flex: 1,
@@ -290,7 +285,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#000',
-    marginBottom: 5, // Adjusted for size text
+    marginBottom: 5,
   },
   productSize: {
     fontSize: 14,

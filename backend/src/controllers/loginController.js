@@ -140,11 +140,13 @@ loginController.login = async (req, res) => {
     );
 
 
+const isProd = process.env.NODE_ENV === 'production';
 const cookieOptions = {
   httpOnly: true,
-  secure: true,     // Solo se envía por HTTPS
-  sameSite: "strict",
-  path: "/",
+  // En producción se requiere HTTPS y sameSite 'none' para permitir cookies cross-site
+  secure: isProd,
+  sameSite: isProd ? 'none' : 'lax',
+  path: '/',
   maxAge: 24 * 60 * 60 * 1000, // 1 día
 };
 

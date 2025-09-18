@@ -90,10 +90,8 @@ const ForgotPasswordScreen = ({ navigation }) => {
     if (isFormValid) {
       setIsLoading(true);
       try {
-        // Aquí iría la llamada al backend para enviar el código
-        // Por ahora simulamos el envío
+        // Simulación del envío del código (sin llamada al backend)
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
         Alert.alert(
           'Código enviado',
           'Se ha enviado un código de verificación a tu correo electrónico',
@@ -139,8 +137,12 @@ const ForgotPasswordScreen = ({ navigation }) => {
       >
         {/* Botón de regreso con animación */}
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Text style={styles.backButtonText}>← Volver</Text>
+          <TouchableOpacity 
+            style={styles.backButton} 
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="arrow-back" size={24} color="#2c3e50" />
           </TouchableOpacity>
         </Animated.View>
 
@@ -217,10 +219,12 @@ const ForgotPasswordScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f8f8f8',
   },
   scrollContainer: {
     flexGrow: 1,
+    paddingTop: 60,
+    paddingBottom: 40,
   },
   backButton: {
     position: 'absolute',

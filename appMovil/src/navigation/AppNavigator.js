@@ -6,16 +6,13 @@ import TermsConditionsScreen from '../screens/TermsConditionsScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
 import ReviewsScreen from '../screens/ReviewsScreen';
 import PaymentScreen from '../screens/PaymentScreen';
+import CheckoutScreen from '../screens/CheckoutScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import VerifyCodeScreen from '../screens/VerifyCodeScreen';
 import ChangePasswordScreen from '../screens/ChangePasswordScreen';
+import OrderDetailScreen from '../screens/OrderDetailScreen';
 
 const Stack = createStackNavigator();
-
-// Componente separado para evitar la función inline
-const MainTabsComponent = ({ navigation }) => (
-  <BottomTabNavigator navigation={navigation} />
-);
 
 const AppNavigator = () => {
   return (
@@ -24,10 +21,7 @@ const AppNavigator = () => {
         headerShown: false,
       }}
     >
-      <Stack.Screen 
-        name="MainTabs" 
-        component={MainTabsComponent}
-      />
+      <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
       <Stack.Screen 
         name="PrivacyPolicy" 
         component={PrivacyPolicyScreen}
@@ -39,6 +33,12 @@ const AppNavigator = () => {
       <Stack.Screen 
         name="ProductDetail" 
         component={ProductDetailScreen}
+        options={{
+          headerShown: true,
+          title: 'Detalle del producto',
+          headerBackTitleVisible: false,
+          headerLeft: () => null,
+        }}
       />
       <Stack.Screen 
         name="Reviews" 
@@ -47,6 +47,10 @@ const AppNavigator = () => {
       <Stack.Screen 
         name="Payment" 
         component={PaymentScreen}
+      />
+      <Stack.Screen 
+        name="Checkout" 
+        component={CheckoutScreen}
       />
       <Stack.Screen 
         name="ForgotPassword" 
@@ -59,6 +63,17 @@ const AppNavigator = () => {
       <Stack.Screen 
         name="ChangePassword" 
         component={ChangePasswordScreen}
+        options={{
+          headerShown: true,
+          title: 'Cambiar contraseña',
+          headerBackTitleVisible: false,
+          headerTintColor: '#2c3e50',
+          headerStyle: { backgroundColor: '#fff' },
+        }}
+      />
+      <Stack.Screen 
+        name="OrderDetail" 
+        component={OrderDetailScreen}
       />
     </Stack.Navigator>
   );

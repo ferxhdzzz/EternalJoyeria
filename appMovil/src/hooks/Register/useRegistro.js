@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
  * Custom hook useRegistro para React Native
@@ -18,7 +19,6 @@ const useRegistro = () => {
    * @param {Object} formData - Datos del formulario de registro
    * @param {string} formData.firstName - Nombre del cliente
    * @param {string} formData.lastName - Apellido del cliente
-   * @param {string} formData.username - Nombre de usuario del cliente
    * @param {string} formData.email - Email del cliente
    * @param {string} formData.password - Contraseña del cliente
    * @param {string} formData.phone - Teléfono del cliente
@@ -34,8 +34,7 @@ const useRegistro = () => {
     try {
       // Validaciones básicas del lado del cliente
       if (!formData.firstName?.trim() || !formData.lastName?.trim() || 
-          !formData.username?.trim() || !formData.email?.trim() || 
-          !formData.password || !formData.phone?.trim()) {
+          !formData.email?.trim() || !formData.password || !formData.phone?.trim()) {
         throw new Error('Todos los campos son obligatorios');
       }
 
@@ -68,7 +67,6 @@ const useRegistro = () => {
       // Mapear los datos del formulario al formato que espera el backend
       form.append('firstName', formData.firstName.trim());
       form.append('lastName', formData.lastName.trim());
-      form.append('username', formData.username.trim());
       // Normalizar email a minúsculas para consistencia
       form.append('email', formData.email.trim().toLowerCase());
       form.append('password', formData.password);
@@ -99,8 +97,11 @@ const useRegistro = () => {
         }
       }
 
-      // Realizar petición HTTP al endpoint de registro
-      const response = await fetch('http://localhost:4000/api/registerCustomers', {
+      // URL del backend - debe coincidir con la configuración del servidor
+      const getBaseURL = () => 'http://192.168.1.200:4000';
+
+      // Hacer la petición al backend
+      const response = await fetch(`${getBaseURL()}/api/registerCustomers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -108,12 +109,15 @@ const useRegistro = () => {
         body: form,
       });
 
-      // Parsear respuesta JSON del servidor
       const data = await response.json();
 
-      // Si la respuesta no es exitosa, lanzar error con el mensaje del servidor
       if (!response.ok) {
-        throw new Error(data.message || `Error ${response.status}: ${response.statusText}`);
+        throw new Error(data.message || 'Error al registrar el usuario');
+      }
+
+      // Guardar el token de verificación si viene en la respuesta
+      if (data.verificationToken) {
+        await AsyncStorage.setItem('verificationToken', data.verificationToken);
       }
 
       // Si llegamos aquí, el registro fue exitoso
@@ -158,8 +162,11 @@ const useRegistro = () => {
       const codeStr = verificationCode.toString().trim();
       const emailNormalized = email.trim().toLowerCase();
 
+      // URL del backend - debe coincidir con la configuración del servidor
+      const BACKEND_URL = 'http://10.10.4.11:4000';
+
       // Realizar petición al endpoint de verificación
-      const response = await fetch('http://localhost:4000/api/registerCustomers/verifyCodeEmail', {
+      const response = await fetch(`${BACKEND_URL}/api/registerCustomers/verifyCodeEmail`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -220,7 +227,7 @@ const useRegistro = () => {
       }
 
       // Petición para generar y enviar nuevo código
-      const response = await fetch('http://localhost:4000/api/registerCustomers/resend-code', {
+      const response = await fetch('http://192.168.137.1:4000/api/registerCustomers/resend-code', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -274,12 +281,6 @@ const useRegistro = () => {
       errors.lastName = 'El apellido debe tener al menos 2 caracteres';
     }
 
-    // Validar usuario
-    if (!formData.username?.trim()) {
-      errors.username = 'El usuario es requerido';
-    } else if (formData.username.length < 3) {
-      errors.username = 'El usuario debe tener al menos 3 caracteres';
-    }
 
     // Validar email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

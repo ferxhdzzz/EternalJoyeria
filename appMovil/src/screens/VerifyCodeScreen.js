@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
   Text,
@@ -10,25 +11,56 @@ import {
   SafeAreaView,
   Animated,
   Alert,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
 
-const VerifyCodeScreen = ({ navigation, route }) => {
-  const { email } = route.params;
-  const [code, setCode] = useState('');
+const VerifyCodeScreen = ({ route }) => {
+  const navigation = useNavigation();
+  const { email, isPasswordRecovery = false } = route.params;
+  const [code, setCode] = useState(['', '', '', '', '']);
   const [codeError, setCodeError] = useState('');
-  const [isFormValid, setIsFormValid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [countdown, setCountdown] = useState(60);
+  const [canResend, setCanResend] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState(null); // 'success' or 'error'
+  const [isFormValid, setIsFormValid] = useState(false);
+  
+  // Inicializar referencias de los inputs
+  const inputRefs = useRef([
+    React.createRef(),
+    React.createRef(),
+    React.createRef(),
+    React.createRef(),
+    React.createRef()
+  ]).current;
 
   // Referencias para las animaciones de entrada
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const formSlideAnim = useRef(new Animated.Value(50)).current;
 
-  React.useEffect(() => {
+  // Efecto para el contador de reenvío
+  useEffect(() => {
+    let timer;
+    if (countdown > 0 && !canResend) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    } else if (countdown === 0) {
+      setCanResend(true);
+    }
+    return () => clearTimeout(timer);
+  }, [countdown, canResend]);
+
+  // Efecto para animaciones de entrada
+  useEffect(() => {
     // Animación de entrada suave
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -50,84 +82,237 @@ const VerifyCodeScreen = ({ navigation, route }) => {
     ]).start();
   }, []);
 
-  // Validar código
-  const validateCode = (code) => {
-    if (!code) {
-      setCodeError('El código es requerido');
+  // Verificar el código
+  const verifyCode = async () => {
+    const codeString = code.join('');
+    if (codeString.length !== 5) {
+      setCodeError('Por favor ingresa los 5 dígitos del código');
+      setVerificationStatus('error');
       return false;
-    } else if (code.length < 4) {
-      setCodeError('El código debe tener al menos 4 dígitos');
-      return false;
-    } else {
-      setCodeError('');
+    }
+
+    setIsLoading(true);
+    setCodeError('');
+    
+    let response;
+    try {
+      if (isPasswordRecovery) {
+        // Para recuperación de contraseña
+        response = await fetch('http://192.168.1.200:4000/api/recoveryPassword/verifyCode', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            code: codeString
+          }),
+          credentials: 'include' // Importante para enviar las cookies
+        });
+      } else {
+        // Obtener el token de verificación guardado
+        const verificationToken = await AsyncStorage.getItem('verificationToken');
+        
+        if (!verificationToken) {
+          throw new Error('No se encontró el token de verificación. Por favor, regístrese nuevamente.');
+        }
+
+        // Para verificación de email
+        response = await fetch('http://192.168.1.200:4000/api/registerCustomers/verifyCodeEmail', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${verificationToken}`
+          },
+          body: JSON.stringify({
+            verificationCode: codeString
+          })
+        });
+      }
+
+      let data;
+      const contentType = response.headers.get('content-type');
+      
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        console.error('Respuesta no es JSON:', text);
+        throw new Error('Respuesta del servidor no válida');
+      }
+      
+      if (!response.ok) {
+        const errorMessage = data.message || 'Error al verificar el código';
+        setCodeError(errorMessage);
+        setVerificationStatus('error');
+        throw new Error(errorMessage);
+      }
+
+      setVerificationStatus('success');
+      
+      // Navegar a la pantalla de nueva contraseña o dashboard según corresponda
+      if (isPasswordRecovery) {
+        navigation.navigate('NewPassword', { 
+          email, 
+          code: codeString,
+          token: data.token
+        });
+      } else {
+        // Navegar al dashboard o pantalla principal
+        navigation.navigate('App');
+      }
+      
       return true;
+    } catch (error) {
+      console.error('Error al verificar el código:', error.message);
+      // Solo mostrar el mensaje de error si no es un error de validación de longitud
+      if (error.message !== 'Por favor ingresa los 5 dígitos del código') {
+        setCodeError('Código incorrecto o expirado. Por favor, verifica e inténtalo de nuevo.');
+        setVerificationStatus('error');
+      }
+      setCodeError(error.message || 'Código inválido o expirado');
+      setVerificationStatus('error');
+      return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Validar formulario completo
-  const validateForm = () => {
-    const isCodeValid = validateCode(code);
-    setIsFormValid(isCodeValid);
+  // Manejar cambios en los inputs de código
+  const handleCodeChange = (text, index) => {
+    // Solo permitir dígitos
+    const numericValue = text.replace(/[^0-9]/g, '');
+    
+    // Crear un nuevo array con el código actual
+    const newCode = [...code];
+    
+    // Asegurarse de que el índice sea válido
+    if (index >= 0 && index < 5) {
+      // Actualizar solo si el valor es un dígito o está vacío
+      newCode[index] = numericValue.slice(0, 1); // Tomar solo el primer dígito
+      setCode(newCode);
+      
+      // Mover al siguiente campo si se ingresó un dígito
+      if (numericValue && index < 4 && inputRefs[index + 1]?.current) {
+        inputRefs[index + 1].current.focus();
+      }
+      
+      // Limpiar mensajes de error al escribir
+      setVerificationStatus(null);
+      setCodeError('');
+      
+      // Si se completaron los 5 dígitos, verificar automáticamente
+      const isComplete = newCode.every(digit => digit !== '') && newCode.length === 5;
+      if (isComplete) {
+        verifyCode();
+      }
+    }
   };
-
-  // Manejar cambios en el código
-  const handleCodeChange = (text) => {
-    setCode(text);
-    if (codeError) {
-      validateCode(text);
+  
+  // Manejar tecla borrar
+  const handleKeyPress = (e, index) => {
+    if (e.nativeEvent.key === 'Backspace' && !code[index] && index > 0) {
+      // Si el campo está vacío y se presiona borrar, ir al campo anterior
+      inputRefs[index - 1].current.focus();
     }
   };
 
   // Validar formulario cada vez que cambie el código
-  React.useEffect(() => {
+  const validateForm = () => {
+    const codeString = code.join('');
+    const isValid = codeString.length === 5 && /^\d+$/.test(codeString);
+    setIsFormValid(isValid);
+    return isValid;
+  };
+
+  // Efecto para validar el formulario cuando cambia el código
+  useEffect(() => {
     if (code) {
       validateForm();
     }
   }, [code]);
 
-  const handleVerifyCode = async () => {
-    validateForm();
-    if (isFormValid) {
-      setIsLoading(true);
-      try {
-        // Aquí iría la llamada al backend para verificar el código
-        // Por ahora simulamos la verificación
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        Alert.alert(
-          'Código verificado',
-          'Tu código ha sido verificado correctamente. Ahora puedes cambiar tu contraseña.',
-          [
-            {
-              text: 'Continuar',
-              onPress: () => navigation.navigate('ChangePassword', { email, code })
-            }
-          ]
-        );
-      } catch (error) {
-        Alert.alert('Error', 'El código no es válido. Intenta de nuevo.');
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
-
+  // Reenviar código
   const handleResendCode = async () => {
+    if (!canResend) return;
+    
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      // Aquí iría la llamada al backend para reenviar el código
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('http://192.168.1.200:4000/api/auth/resend-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          userType: 'customer',
+          isPasswordRecovery
+        })
+      });
       
-      Alert.alert(
-        'Código reenviado',
-        'Se ha reenviado un nuevo código a tu correo electrónico.'
-      );
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Error al reenviar el código');
+      }
+      
+      // Reiniciar el contador
+      setCountdown(60);
+      setCanResend(false);
+      setVerificationStatus(null);
+      setCodeError('');
+      
+      // Iniciar el contador
+      const timer = setInterval(() => {
+        setCountdown(prevCountdown => {
+          if (prevCountdown <= 1) {
+            clearInterval(timer);
+            setCanResend(true);
+            return 0;
+          }
+          return prevCountdown - 1;
+        });
+      }, 1000);
+      
+      // Limpiar campos
+      setCode(['', '', '', '', '']);
+      if (inputRefs[0]?.current) {
+        inputRefs[0].current.focus();
+      }
+      
+      // Mostrar mensaje de éxito
+      setVerificationStatus('resend_success');
+      
     } catch (error) {
-      Alert.alert('Error', 'No se pudo reenviar el código. Intenta de nuevo.');
+      console.error('Error al reenviar el código:', error);
+      setCodeError(error.message || 'Ocurrió un error al reenviar el código');
+      setVerificationStatus('error');
     } finally {
       setIsLoading(false);
     }
   };
+  
+  // Verificar el código
+  const handleVerifyCode = async () => {
+    if (code.join('').length !== 5) {
+      setCodeError('Por favor ingresa un código válido de 5 dígitos');
+      setVerificationStatus('error');
+      return;
+    }
+    await verifyCode();
+  };
+  
+  // Efecto para manejar el contador de reenvío
+  useEffect(() => {
+    if (countdown > 0 && !canResend) {
+      const timer = setTimeout(() => {
+        setCountdown(prev => prev - 1);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    } else if (countdown === 0) {
+      setCanResend(true);
+    }
+  }, [countdown, canResend]);
 
   const handleBack = () => {
     // Animación de salida antes de regresar
@@ -149,91 +334,110 @@ const VerifyCodeScreen = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView 
-        contentContainerStyle={styles.scrollContainer}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        {/* Botón de regreso con animación */}
-        <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Text style={styles.backButtonText}>← Volver</Text>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* Sección superior rosa con curva cóncava */}
-        <Animated.View style={[styles.topSection, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <LinearGradient
-            colors={['#FFFFFF', '#FFE7E7']}
-            style={styles.pinkGradient}
+            colors={['#f8f9fa', '#e9ecef']}
+            style={styles.background}
           >
-            {/* Curva cóncava */}
-            <View style={styles.curveContainer}>
-              <View style={styles.curve} />
-            </View>
-            
-            {/* Texto de bienvenida */}
-            <View style={styles.welcomeTextContainer}>
-              <Text style={styles.welcomeTitle}>Verificar código</Text>
-              <Text style={styles.welcomeDescription}>
-                Hemos enviado un código de{'\n'}
-                verificación a tu correo.{'\n'}
-                Ingresa el código para{'\n'}
-                continuar con la{'\n'}
-                recuperación.
-              </Text>
-            </View>
+            <ScrollView 
+              contentContainerStyle={styles.scrollContainer}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              {/* Botón de regreso */}
+              <Animated.View style={[styles.backButtonContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+                <TouchableOpacity 
+                  onPress={handleBack}
+                  disabled={isLoading}
+                >
+                  <Ionicons name="arrow-back" size={24} color="#333" />
+                </TouchableOpacity>
+              </Animated.View>
+              <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+                <Text style={styles.title}>{isPasswordRecovery ? 'Recuperar Contraseña' : 'Verificación'}</Text>
+                <Text style={styles.subtitle}>
+                  {isPasswordRecovery
+                    ? 'Ingresa el código de verificación que enviamos a tu correo electrónico para restablecer tu contraseña.'
+                    : 'Ingresa el código de verificación que enviamos a tu correo electrónico.'}
+                </Text>
+              </Animated.View>
+
+              <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
+              <View style={styles.codeContainer}>
+                {[0, 1, 2, 3, 4].map((index) => (
+                  <TextInput
+                    key={`code-input-${index}`}
+                    ref={(ref) => {
+                      if (ref) {
+                        inputRefs[index] = { current: ref };
+                      }
+                    }}
+                    style={[
+                      styles.codeInput, 
+                      verificationStatus === 'error' && styles.inputError,
+                      verificationStatus === 'success' && styles.inputSuccess
+                    ]}
+                    value={code[index] || ''}
+                    onChangeText={(text) => handleCodeChange(text, index)}
+                    onKeyPress={(e) => handleKeyPress(e, index)}
+                    keyboardType="number-pad"
+                    maxLength={1}
+                    selectTextOnFocus
+                    textContentType="oneTimeCode"
+                    returnKeyType={index === 4 ? 'done' : 'next'}
+                    blurOnSubmit={false}
+                    editable={!isLoading}
+                  />
+                ))}
+              </View>
+
+              {/* Mensajes de estado */}
+              {verificationStatus === 'error' && codeError ? (
+                <Text style={styles.errorText}>{codeError}</Text>
+              ) : verificationStatus === 'resend_success' ? (
+                <Text style={styles.successText}>¡Código reenviado con éxito!</Text>
+              ) : (
+                <Text style={styles.hintText}>
+                  Ingresa el código de 5 dígitos que enviamos a {email}
+                </Text>
+              )}
+
+              {/* Botón de verificación (opcional, ya que se verifica automáticamente) */}
+              <TouchableOpacity
+                style={[styles.button, isLoading && styles.buttonDisabled]}
+                onPress={verifyCode}
+                disabled={isLoading}
+                activeOpacity={0.8}
+              >
+                {isLoading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.buttonText}>
+                    {isLoading ? 'Verificando...' : 'Verificar Código'}
+                  </Text>
+                )}
+              </TouchableOpacity>
+
+              <View style={styles.resendContainer}>
+                <Text style={styles.resendText}>
+                  ¿No recibiste el código?{' '}
+                  <Text
+                    style={[styles.resendLink, !canResend && styles.resendLinkDisabled]}
+                    onPress={canResend ? handleResendCode : undefined}
+                  >
+                    {canResend ? 'Reenviar código' : `Reenviar en ${countdown}s`}
+                  </Text>
+                </Text>
+              </View>
+              </Animated.View>
+            </ScrollView>
           </LinearGradient>
-        </Animated.View>
-
-        {/* Sección inferior blanca con animación del formulario */}
-        <Animated.View style={[styles.bottomSection, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
-          {/* Formulario */}
-          <View style={styles.formContainer}>
-            {/* Campo Código */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Código de verificación</Text>
-              <TextInput
-                style={[styles.textInput, codeError ? styles.inputError : null]}
-                placeholder="1234"
-                placeholderTextColor="#666"
-                value={code}
-                onChangeText={handleCodeChange}
-                onBlur={() => validateCode(code)}
-                keyboardType="number-pad"
-                maxLength={6}
-                editable={!isLoading}
-              />
-              {codeError ? <Text style={styles.errorText}>{codeError}</Text> : null}
-            </View>
-
-            {/* Información adicional */}
-            <View style={styles.infoContainer}>
-              <Text style={styles.infoText}>
-                Revisa tu correo electrónico y ingresa el código de 4-6 dígitos que recibiste.
-              </Text>
-            </View>
-
-            {/* Enlace para reenviar código */}
-            <TouchableOpacity style={styles.resendLink} onPress={handleResendCode}>
-              <Text style={styles.resendText}>
-                ¿No recibiste el código? <Text style={styles.resendHighlight}>Reenviar</Text>
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Botón de verificar código */}
-          <TouchableOpacity 
-            style={[styles.verifyButton, !isFormValid || isLoading ? styles.verifyButtonDisabled : null]} 
-            onPress={handleVerifyCode}
-            disabled={!isFormValid || isLoading}
-          >
-            <Text style={styles.verifyButtonText}>
-              {isLoading ? 'Verificando...' : 'Verificar código'}
-            </Text>
-          </TouchableOpacity>
-        </Animated.View>
-      </ScrollView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -241,166 +445,225 @@ const VerifyCodeScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f8f8f8',
+  },
+  background: {
+    flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
+    padding: 20,
+    paddingTop: 40,
+  },
+  backButtonContainer: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    zIndex: 10,
   },
   backButton: {
-    position: 'absolute',
-    top: 15,
-    left: 20,
-    zIndex: 10,
-    padding: 10,
+    padding: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    borderRadius: 20,
   },
-  backButtonText: {
-    fontSize: 16,
-    color: '#2c3e50',
-    fontWeight: '600',
-  },
-  topSection: {
-    height: height * 0.4,
-    position: 'relative',
-  },
-  pinkGradient: {
-    flex: 1,
-    position: 'relative',
-  },
-  curveContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 60,
-  },
-  curve: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 60,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 60,
-    borderTopRightRadius: 60,
-  },
-  welcomeTextContainer: {
-    flex: 1,
-    justifyContent: 'center',
+  header: {
+    marginBottom: 30,
     alignItems: 'center',
-    paddingHorizontal: 40,
-    paddingBottom: 60,
   },
-  welcomeTitle: {
-    fontSize: 28,
+  title: {
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#2c3e50',
-    marginBottom: 20,
+    marginBottom: 10,
     textAlign: 'center',
   },
-  welcomeDescription: {
+  subtitle: {
     fontSize: 16,
-    color: '#2c3e50',
+    color: '#7f8c8d',
     textAlign: 'center',
-    lineHeight: 24,
-  },
-  bottomSection: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 30,
-    paddingTop: 40,
-    paddingBottom: 100,
+    paddingHorizontal: 20,
+    lineHeight: 22,
   },
   formContainer: {
-    flex: 1,
+    width: '100%',
   },
-  inputContainer: {
-    marginBottom: 30,
+  codeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
   },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2c3e50',
-    marginBottom: 12,
-  },
-  textInput: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    fontSize: 16,
+  codeInput: {
+    width: 50,
+    height: 60,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    color: '#2c3e50',
+    borderColor: '#ddd',
+    borderRadius: 10,
+    backgroundColor: '#fff',
     textAlign: 'center',
-    letterSpacing: 8,
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#2c3e50',
   },
   inputError: {
     borderColor: '#e74c3c',
-    borderWidth: 2,
+    backgroundColor: '#fff8f8',
+  },
+  inputSuccess: {
+    borderColor: '#2ecc71',
+    backgroundColor: '#f0fdf4',
   },
   errorText: {
     color: '#e74c3c',
     fontSize: 14,
-    marginTop: 8,
-    marginLeft: 4,
+    marginBottom: 15,
+    textAlign: 'center',
+    fontFamily: 'Poppins-Medium',
   },
-  infoContainer: {
-    backgroundColor: '#f8f9fa',
-    padding: 16,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e9ecef',
+  successText: {
+    color: '#2ecc71',
+    fontSize: 14,
+    marginBottom: 15,
+    textAlign: 'center',
+    fontFamily: 'Poppins-Medium',
+  },
+  hintText: {
+    color: '#7f8c8d',
+    fontSize: 14,
+    marginBottom: 25,
+    textAlign: 'center',
+  },
+  button: {
+    backgroundColor: '#3498db',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
     marginBottom: 20,
   },
-  infoText: {
-    fontSize: 14,
-    color: '#6c757d',
-    lineHeight: 20,
-    textAlign: 'center',
-    fontStyle: 'italic',
+  buttonDisabled: {
+    backgroundColor: '#bdc3c7',
   },
-  resendLink: {
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  resendContainer: {
     alignItems: 'center',
+    marginTop: 10,
   },
   resendText: {
+    color: '#7f8c8d',
     fontSize: 14,
-    color: '#666',
   },
-  resendHighlight: {
-    color: '#E8B4B4',
-    fontWeight: '600',
-    textDecorationLine: 'underline',
+  resendLink: {
+    color: '#3498db',
+    fontWeight: 'bold',
   },
-  verifyButton: {
-    backgroundColor: '#000000',
-    paddingVertical: 15,
-    paddingHorizontal: 45,
-    marginTop: 60,
+  resendLinkDisabled: {
+    color: '#bdc3c7',
+  },
+  title: {
+    fontSize: 26,
+    fontFamily: 'Poppins-Bold',
+    color: '#2c3e50',
+    marginBottom: 15,
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  subtitle: {
+    fontSize: 15,
+    color: '#7f8c8d',
+    textAlign: 'center',
+    marginTop: 10,
+    paddingHorizontal: 15,
+    lineHeight: 22,
+    fontFamily: 'Poppins-Regular',
+  },
+  formContainer: {
+    width: '100%',
+    maxWidth: 400,
     alignSelf: 'center',
-    borderRadius: 50,
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-    width: 200,
-    height: 60,
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  codeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 30,
+    marginTop: 10,
+  },
+  codeInput: {
+    width: 55,
+    height: 65,
+    borderWidth: 1.5,
+    borderColor: '#e0e0e0',
+    borderRadius: 12,
+    textAlign: 'center',
+    fontSize: 26,
+    fontWeight: '600',
+    color: '#2c3e50',
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  inputError: {
+    borderColor: '#e74c3c',
+    backgroundColor: '#fff8f8',
+  },
+  errorText: {
+    color: '#e74c3c',
+    fontSize: 14,
+    marginBottom: 15,
+    textAlign: 'center',
+    fontFamily: 'Poppins-Medium',
+    backgroundColor: '#fef2f2',
+    padding: 10,
+    borderRadius: 8,
+    marginTop: -15,
+  },
+  hintText: {
+    color: '#7f8c8d',
+    fontSize: 14,
+    marginBottom: 25,
+    textAlign: 'center',
+    fontFamily: 'Poppins-Regular',
+    lineHeight: 20,
+  },
+  button: {
+    backgroundColor: '#d4af37',
+    borderRadius: 30,
+    height: 58,
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 15,
+    shadowColor: '#d4af37',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 8,
   },
-  verifyButtonDisabled: {
+  buttonDisabled: {
     backgroundColor: '#bdc3c7',
     shadowOpacity: 0.1,
   },
-  verifyButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 17,
+    fontFamily: 'Poppins-SemiBold',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  }
 });
 
 export default VerifyCodeScreen;
