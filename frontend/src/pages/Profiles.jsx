@@ -1,12 +1,13 @@
+// src/pages/Profile.jsx
 import React, { useState, useEffect } from 'react';
 import Swal from "sweetalert2";
 import Nav from '../components/Nav/Nav';
 import '../styles/Profile.css';
 import Footer from '../components/Footer';
-import '../styles/ProfileRedesign.css';
+import '../styles/ProfileRedesign.css'; // Asegúrate de que este archivo exista
 import { useProfile } from '../hooks/useProfile';
 import { useAuth } from '../context/AuthContext';
-import { LockIcon, HistoryIcon, CheckIcon, XIcon } from '../components/Icons';
+import { LockIcon, HistoryIcon, CheckIcon, XIcon, LogoutIcon } from '../components/Icons'; // Asegúrate de tener LogoutIcon
 
 const Profile = () => {
   const { logout } = useAuth();
@@ -21,27 +22,27 @@ const Profile = () => {
   const [tempValue, setTempValue] = useState('');
   const [message, setMessage] = useState('');
   const [localUser, setLocalUser] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
+    firstName: 'Usuario',
+    lastName: 'Demo',
+    email: 'usuario@ejemplo.com',
+    phone: '+34123456789',
     password: '****',
-    street: '',
-    city: '',
-    department: '',
-    zipCode: '',
-    country: '',
+    street: 'Calle Principal #123',
+    city: 'San Salvador',
+    department: 'San Salvador',
+    zipCode: '1101',
+    country: 'El Salvador',
   });
 
   useEffect(() => {
     if (user) {
       setLocalUser(prev => ({
         ...prev,
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        profilePicture: user.profilePicture || '',
+        firstName: user.firstName || prev.firstName,
+        lastName: user.lastName || prev.lastName,
+        email: user.email || prev.email,
+        phone: user.phone || prev.phone,
+        profilePicture: user.profilePicture || prev.profilePicture,
       }));
 
       if (user.profilePicture) {
@@ -105,15 +106,7 @@ const Profile = () => {
       if (Object.keys(updateData).length > 0) {
         const result = await updateProfile(updateData);
         if (result.success) {
-          if (field === 'name') {
-            setLocalUser(prev => ({
-              ...prev,
-              firstName: updateData.firstName,
-              lastName: updateData.lastName
-            }));
-          } else {
-            setLocalUser(prev => ({ ...prev, [field]: tempValue }));
-          }
+          setLocalUser(prev => ({ ...prev, [field]: tempValue }));
           showMessage('Perfil actualizado correctamente!');
         } else {
           showMessage('Error al actualizar: ' + result.error);
@@ -188,7 +181,9 @@ const Profile = () => {
     if (isPassword) {
       return (
         <div className="profile-info-row">
-          <div className="profile-info-label">{label}</div>
+          <div>
+            <div className="profile-info-label">{label}</div>
+          </div>
           <button
             className="edit-btn"
             onClick={() => window.location.href = '/recuperacion'}
@@ -217,7 +212,7 @@ const Profile = () => {
           )}
         </div>
         {isEditing ? (
-          <div className="edit-actions">
+          <div style={{ display: 'flex', gap: '8px' }}>
             <button className="edit-btn save" onClick={() => handleSaveEdit(field)}>
               <CheckIcon size={12} color="white" />
             </button>
@@ -232,16 +227,23 @@ const Profile = () => {
     );
   };
 
-  if (loading) return <div>Cargando...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) {
+    return <div>Cargando...</div>;
+  }
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div>
       <Nav cartOpen={cartOpen} />
-      {message && <div className="toast">{message}</div>}
+      {message && (
+        <div className="toast">{message}</div>
+      )}
 
       <div className="profile-page">
         <div className="profile-redesign-container">
+          {/* Card principal */}
           <div className="profile-card left">
             <div className="profile-photo-section">
               <img
@@ -265,10 +267,10 @@ const Profile = () => {
             <div className="profile-info-box">
               {renderField('name', 'Tu nombre', `${localUser.firstName} ${localUser.lastName}`)}
               {renderField('email', 'Tu correo', localUser.email)}
-              {renderField('phone', 'Tu teléfono', localUser.phone)}
+              {renderField('phone', 'Tu telefono', localUser.phone)}
               {renderField('password', 'Tu contraseña', '••••••••', true)}
 
-              <div className="profile-actions">
+              <div style={{ marginTop: 20 }}>
                 <button
                   className="order-history-btn"
                   onClick={() => window.location.href = '/historial'}
@@ -287,7 +289,7 @@ const Profile = () => {
                   className="logout-btn"
                   onClick={handleLogout}
                 >
-                  Desconectarse
+                  <LogoutIcon size={16} /> Desconectarse
                 </button>
               </div>
             </div>
