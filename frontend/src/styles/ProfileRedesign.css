@@ -63,17 +63,18 @@
   transform: translateX(-50%) scale(1.02);
 }
 
+/* Centrar la card principal */
 .profile-redesign-container {
-  width: 90vw;
+  width: 100%;
   max-width: 1200px;
-  margin: 0 auto;
-  margin-top: 120px;
+  margin: 120px auto 64px auto; /* margen arriba y abajo */
   display: flex;
-  justify-content: center; /* 👉 la centra */
+  justify-content: center; /* 👉 centra horizontal */
+  align-items: flex-start; /* alineación arriba */
   position: relative;
   z-index: 1;
-  margin-bottom: 64px;
 }
+
 
 .profile-card {
   background: #fff;
@@ -97,8 +98,9 @@
 }
 
 .profile-card.left {
-  align-items: center;
-  animation: slideInLeft 0.8s ease-out 0.4s both;
+  flex: none; /* no crecer */
+  width: 420px; /* tamaño fijo */
+  min-height: 420px;
 }
 
 .profile-card.right {
