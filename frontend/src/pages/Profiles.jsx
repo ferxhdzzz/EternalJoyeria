@@ -497,12 +497,24 @@ const Profile = () => {
                 </button>
               </div>
               </div>
+              <br />
+<br />
+
             </div>
+            <br />
+<br />
+
           </div>
+<br />
+<br />
 
        
         </div>
+        <br />
+<br />
+
       </div>
+
       <Footer />
     </div>
   );
