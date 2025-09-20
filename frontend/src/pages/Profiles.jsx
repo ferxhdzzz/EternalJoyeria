@@ -426,35 +426,14 @@ const Profile = () => {
               <div style={{ marginTop: 20, paddingTop: 15, borderTop: '1px solid #f0f0f0' }}>
                 <h4 style={{ fontSize: 16, fontWeight: 600, color: '#333', marginBottom: 15 }}>Historiales</h4>
 
-                <div className="profile-settings-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                  <div className="profile-info-label" style={{ fontWeight: 500, fontSize: 14 }}>Notificaciones</div>
-                  <div className="checkbox-wrapper-5">
-                    <div className="check">
-                      <input
-                        type="checkbox"
-                        id="check-5"
-                        checked={notifications}
-                        onChange={() => setNotifications((n) => !n)}
-                      />
-                      <label htmlFor="check-5"></label>
-                    </div>
-                  </div>
-                </div>
+                
 
+               
                 <div className="profile-settings-row" style={{ marginBottom: 12 }}>
-                  <div className="profile-info-label" style={{ fontWeight: 500, fontSize: 14, cursor: 'pointer', color: '#666' }}
-                    onClick={() => window.open('/privacy', '_blank')}>
-                    Política de privacidad
-                  </div>
-                </div>
-                <div className="profile-settings-row" style={{ marginBottom: 12 }}>
-                  <div className="profile-info-label" style={{ fontWeight: 500, fontSize: 14, cursor: 'pointer', color: '#666' }}
-                    onClick={() => window.open('/terms', '_blank')}>
-                    Términos y condiciones
-                  </div>
+                  
 
-                <button
-                  onClick={copyAddressToClipboard}
+              <button
+                  className="order-history-btn"
                   style={{
                     background: '#F0EFFA',
                     color: '#222',
@@ -462,18 +441,48 @@ const Profile = () => {
                     borderRadius: 8,
                     padding: '8px 16px',
                     fontWeight: 600,
-                    fontSize: 13,
+                    fontSize: 14,
                     cursor: 'pointer',
-                    marginTop: 10,
                     width: '100%',
+                    transition: 'all 0.3s ease',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '8px'
                   }}
+                  onMouseEnter={(e) => { e.target.style.background = '#eab5c5'; e.target.style.color = '#fff'; }}
+                  onMouseLeave={(e) => { e.target.style.background = '#F0EFFA'; e.target.style.color = '#222'; }}
+                  onClick={() => window.location.href = '/historial'}
                 >
-                  <CopyIcon size={14} color="#222" />
-                  Copiar dirección completa
+                  <HistoryIcon size={16} color="currentColor" />
+                  Historial de pedidos
+                </button>
+
+
+   <button
+                  className="order-history-btn"
+                  style={{
+                    background: '#F0EFFA',
+                    color: '#222',
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '8px 16px',
+                    fontWeight: 600,
+                    fontSize: 14,
+                    cursor: 'pointer',
+                    width: '100%',
+                    transition: 'all 0.3s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                  onMouseEnter={(e) => { e.target.style.background = '#eab5c5'; e.target.style.color = '#fff'; }}
+                  onMouseLeave={(e) => { e.target.style.background = '#F0EFFA'; e.target.style.color = '#222'; }}
+                  onClick={() => window.location.href = '/histReview'}
+                >
+                  <HistoryIcon size={16} color="currentColor" />
+                  Historial de reseñas
                 </button>
 
                 </div>
@@ -506,33 +515,7 @@ const Profile = () => {
 
               </div>
 
-              <div className="profile-settings-row" style={{ marginBottom: 12 }}>
-                <button
-                  className="order-history-btn"
-                  style={{
-                    background: '#F0EFFA',
-                    color: '#222',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '8px 16px',
-                    fontWeight: 600,
-                    fontSize: 14,
-                    cursor: 'pointer',
-                    width: '100%',
-                    transition: 'all 0.3s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px'
-                  }}
-                  onMouseEnter={(e) => { e.target.style.background = '#eab5c5'; e.target.style.color = '#fff'; }}
-                  onMouseLeave={(e) => { e.target.style.background = '#F0EFFA'; e.target.style.color = '#222'; }}
-                  onClick={() => window.location.href = '/historial'}
-                >
-                  <HistoryIcon size={16} color="currentColor" />
-                  Historial de pedidos
-                </button>
-              </div>
+              
 
               <div className="profile-settings-row" style={{ marginBottom: 12 }}>
                 <button
