@@ -431,7 +431,7 @@ const Profile = () => {
             
 
 
-            
+               
                 <div className="profile-settings-row" style={{ marginBottom: 12 }}>
                 <button
                   className="logout-btn"
@@ -445,9 +445,7 @@ const Profile = () => {
             </div>
           </div>
 
-       <br />
-       <br />
-       <br />
+       
         </div>
       </div>
       <Footer />
