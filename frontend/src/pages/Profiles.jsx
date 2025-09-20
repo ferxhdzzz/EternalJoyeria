@@ -504,27 +504,7 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Card derecha */}
-          <div className="profile-card right" style={{ background: '#fff', borderRadius: '12px', boxShadow: '0 2px 12px #eab5c555', padding: '2.5rem 2rem', minWidth: 420, maxWidth: 520, minHeight: 420 }}>
-            <div className="profile-settings-box">
-              {renderField('language', 'Idioma', localUser.language)}
-              {renderField('currency', 'Moneda', localUser.currency)}
-
-              <div style={{ marginBottom: 20, paddingTop: 10, borderTop: '1px solid #f0f0f0' }}>
-                <h4 style={{ fontSize: 16, fontWeight: 600, color: '#333', marginBottom: 15 }}>Información de Dirección</h4>
-                {renderField('street', 'Calle y número', localUser.street)}
-                {renderField('city', 'Ciudad', localUser.city)}
-                {renderField('department', 'Departamento', localUser.department)}
-                {renderField('zipCode', 'Código postal', localUser.zipCode)}
-                {renderField('country', 'País', localUser.country)}
-
-              </div>
-
-             
-
-              
-            </div>
-          </div>
+       
         </div>
       </div>
       <Footer />
