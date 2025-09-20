@@ -424,7 +424,7 @@ const Profile = () => {
               </div>
 
               <div style={{ marginTop: 20, paddingTop: 15, borderTop: '1px solid #f0f0f0' }}>
-                <h4 style={{ fontSize: 16, fontWeight: 600, color: '#333', marginBottom: 15 }}>Configuraciones</h4>
+                <h4 style={{ fontSize: 16, fontWeight: 600, color: '#333', marginBottom: 15 }}>Historiales</h4>
 
                 <div className="profile-settings-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                   <div className="profile-info-label" style={{ fontWeight: 500, fontSize: 14 }}>Notificaciones</div>
@@ -452,6 +452,30 @@ const Profile = () => {
                     onClick={() => window.open('/terms', '_blank')}>
                     Términos y condiciones
                   </div>
+
+                <button
+                  onClick={copyAddressToClipboard}
+                  style={{
+                    background: '#F0EFFA',
+                    color: '#222',
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '8px 16px',
+                    fontWeight: 600,
+                    fontSize: 13,
+                    cursor: 'pointer',
+                    marginTop: 10,
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <CopyIcon size={14} color="#222" />
+                  Copiar dirección completa
+                </button>
+
                 </div>
                 <div className="profile-settings-row" style={{ marginBottom: 12 }}>
                 <button
@@ -480,28 +504,6 @@ const Profile = () => {
                 {renderField('zipCode', 'Código postal', localUser.zipCode)}
                 {renderField('country', 'País', localUser.country)}
 
-                <button
-                  onClick={copyAddressToClipboard}
-                  style={{
-                    background: '#F0EFFA',
-                    color: '#222',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '8px 16px',
-                    fontWeight: 600,
-                    fontSize: 13,
-                    cursor: 'pointer',
-                    marginTop: 10,
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px'
-                  }}
-                >
-                  <CopyIcon size={14} color="#222" />
-                  Copiar dirección completa
-                </button>
               </div>
 
               <div className="profile-settings-row" style={{ marginBottom: 12 }}>
