@@ -1,192 +1,79 @@
-// src/pages/Profile.jsx
-import React, { useState, useEffect } from 'react';
-import Swal from "sweetalert2";
-import Nav from '../components/Nav/Nav';
-import '../styles/Profile.css';
-import Footer from '../components/Footer';
-import '../styles/ProfileRedesign.css';
-import { useProfile } from '../hooks/useProfile';
-import { useAuth } from '../context/AuthContext';
-import { LockIcon, InfoIcon, CopyIcon, HistoryIcon, CheckIcon, XIcon } from '../components/Icons';
+import React, { useState } from "react";
+import { LockIcon, CheckIcon, XIcon, HistoryIcon } from "lucide-react";
 
 const Profile = () => {
-  const { logout } = useAuth();
-
-  // Hook de perfil (usuario autenticado)
-  const { user, loading, error, updateProfile, updateProfilePicture } = useProfile();
-
-  // Estado UI
-  const [profileImage, setProfileImage] = useState('/Perfil/foto-perfil.png');
-  const [cartOpen, setCartOpen] = useState(false);
   const [editingField, setEditingField] = useState(null);
-  const [tempValue, setTempValue] = useState('');
-  const [message, setMessage] = useState('');
-  const [localUser, setLocalUser] = useState({
-    firstName: 'Usuario',
-    lastName: 'Demo',
-    email: 'usuario@ejemplo.com',
-    phone: '+34123456789',
-    password: '****',
-    street: 'Calle Principal #123',
-    city: 'San Salvador',
-    department: 'San Salvador',
-    zipCode: '1101',
-    country: 'El Salvador',
+  const [tempValue, setTempValue] = useState("");
+
+  const [profile, setProfile] = useState({
+    name: "Fernanda Hernández",
+    email: "ferhernandez@gmail.com",
+    phone: "7776-2920",
   });
-
-  useEffect(() => {
-    if (user) {
-      setLocalUser(prev => ({
-        ...prev,
-        firstName: user.firstName || prev.firstName,
-        lastName: user.lastName || prev.lastName,
-        email: user.email || prev.email,
-        phone: user.phone || prev.phone,
-        profilePicture: user.profilePicture || prev.profilePicture,
-      }));
-
-      if (user.profilePicture) {
-        setProfileImage(user.profilePicture);
-      } else {
-        setProfileImage('/Perfil/foto-perfil.png');
-      }
-    }
-  }, [user]);
-
-  const showMessage = (text) => {
-    setMessage(text);
-    setTimeout(() => setMessage(''), 3000);
-  };
-
-  const handlePhotoChange = async (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setProfileImage(event.target.result);
-      };
-      reader.readAsDataURL(file);
-
-      const result = await updateProfilePicture(file);
-      if (result.success) {
-        showMessage('Foto de perfil actualizada correctamente! 🎉');
-        if (result.data && result.data.profilePicture) {
-          setProfileImage(result.data.profilePicture);
-        }
-      } else {
-        showMessage('Error al actualizar la foto: ' + result.error);
-        if (user && user.profilePicture) {
-          setProfileImage(user.profilePicture);
-        } else {
-          setProfileImage('/Perfil/foto-perfil.png');
-        }
-      }
-    }
-  };
 
   const handleEditClick = (field) => {
     setEditingField(field);
-    setTempValue(localUser[field]);
+    setTempValue(profile[field]);
   };
 
-  const handleSaveEdit = async (field) => {
-    try {
-      let updateData = {};
-      if (field === 'name') {
-        const nameParts = tempValue.split(' ');
-        updateData.firstName = nameParts[0] || '';
-        updateData.lastName = nameParts.slice(1).join(' ') || '';
-      } else if (field === 'phone') {
-        updateData.phone = tempValue;
-      } else if (field === 'email') {
-        updateData.email = tempValue;
-      }
-
-      if (Object.keys(updateData).length > 0) {
-        const result = await updateProfile(updateData);
-        if (result.success) {
-          setLocalUser(prev => ({ ...prev, [field]: tempValue }));
-          showMessage('Perfil actualizado correctamente!');
-        } else {
-          showMessage('Error al actualizar: ' + result.error);
-          return;
-        }
-      }
-      setEditingField(null);
-      setTempValue('');
-    } catch (err) {
-      showMessage('Error al actualizar el perfil');
-    }
+  const handleSaveEdit = (field) => {
+    setProfile((prev) => ({
+      ...prev,
+      [field]: tempValue,
+    }));
+    setEditingField(null);
   };
 
   const handleCancelEdit = () => {
     setEditingField(null);
-    setTempValue('');
+    setTempValue("");
   };
 
   const handleKeyPress = (e, field) => {
-    if (e.key === 'Enter') handleSaveEdit(field);
-    else if (e.key === 'Escape') handleCancelEdit();
+    if (e.key === "Enter") handleSaveEdit(field);
+    if (e.key === "Escape") handleCancelEdit();
   };
 
-  const handleLogout = async () => {
-    const confirmResult = await Swal.fire({
-      title: "¿Cerrar sesión?",
-      text: "Se cerrará tu sesión actual",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#e75480",
-      cancelButtonColor: "#aaa",
-      confirmButtonText: "Sí, cerrar sesión",
-      cancelButtonText: "Cancelar"
-    });
-    if (!confirmResult.isConfirmed) return;
-
-    Swal.fire({
-      title: "Cerrando sesión...",
-      text: "Por favor espera",
-      allowOutsideClick: false,
-      didOpen: () => { Swal.showLoading(); }
-    });
-
-    try {
-      const res = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/logout", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" }
-      });
-      if (!res.ok) throw new Error("Error al cerrar sesión");
-
-      Swal.fire({
-        title: "Sesión cerrada",
-        text: "Serás redirigido al inicio de sesión",
-        icon: "success",
-        timer: 1500,
-        showConfirmButton: false
-      });
-      setTimeout(() => {
-        window.location.href = "/productos";
-      }, 1500);
-    } catch (error) {
-      Swal.fire({
-        title: "Error",
-        text: "No se pudo cerrar sesión. Intenta de nuevo.",
-        icon: "error"
-      });
-    }
+  const handleLogout = () => {
+    alert("Sesión cerrada"); // aquí va tu lógica de logout
   };
 
   const renderField = (field, label, value, isPassword = false) => {
     if (isPassword) {
       return (
-        <div className="profile-info-row">
+        <div
+          className="profile-info-row"
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 12,
+          }}
+        >
           <div>
-            <div className="profile-info-label">{label}</div>
+            <div
+              className="profile-info-label"
+              style={{ fontWeight: 500, fontSize: 14 }}
+            >
+              {label}
+            </div>
           </div>
           <button
             className="edit-btn"
-            onClick={() => window.location.href = '/recuperacion'}
+            style={{
+              background: "#eab5c5",
+              color: "white",
+              border: "none",
+              borderRadius: 8,
+              padding: "8px 16px",
+              fontWeight: 600,
+              fontSize: 13,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+            }}
+            onClick={() => (window.location.href = "/recuperacion")}
           >
             <LockIcon size={14} color="white" /> Cambiar contraseña
           </button>
@@ -196,109 +83,174 @@ const Profile = () => {
 
     const isEditing = editingField === field;
     return (
-      <div className="profile-info-row">
+      <div
+        className="profile-info-row"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 12,
+        }}
+      >
         <div>
-          <div className="profile-info-label">{label}</div>
+          <div
+            className="profile-info-label"
+            style={{ fontWeight: 500, fontSize: 14 }}
+          >
+            {label}
+          </div>
           {isEditing ? (
             <input
               type="text"
               value={tempValue}
               onChange={(e) => setTempValue(e.target.value)}
               onKeyDown={(e) => handleKeyPress(e, field)}
+              style={{
+                border: "2px solid #F0EFFA",
+                borderRadius: "6px",
+                padding: "4px 8px",
+                fontSize: "15px",
+                fontWeight: "600",
+              }}
               autoFocus
             />
           ) : (
-            <div className="profile-info-value">{value}</div>
+            <div
+              className="profile-info-value"
+              style={{ fontWeight: 700, fontSize: 15 }}
+            >
+              {value}
+            </div>
           )}
         </div>
         {isEditing ? (
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button className="edit-btn save" onClick={() => handleSaveEdit(field)}>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <button
+              className="edit-btn"
+              style={{
+                background: "#4CAF50",
+                color: "white",
+                border: "none",
+                borderRadius: 8,
+                padding: "4px 12px",
+                fontWeight: 600,
+                fontSize: 13,
+                cursor: "pointer",
+              }}
+              onClick={() => handleSaveEdit(field)}
+            >
               <CheckIcon size={12} color="white" />
             </button>
-            <button className="edit-btn cancel" onClick={handleCancelEdit}>
+            <button
+              className="edit-btn"
+              style={{
+                background: "#f44336",
+                color: "white",
+                border: "none",
+                borderRadius: 8,
+                padding: "4px 12px",
+                fontWeight: 600,
+                fontSize: 13,
+                cursor: "pointer",
+              }}
+              onClick={handleCancelEdit}
+            >
               <XIcon size={12} color="white" />
             </button>
           </div>
         ) : (
-          <button className="edit-btn" onClick={() => handleEditClick(field)}>Editar</button>
+          <button
+            className="edit-btn"
+            style={{
+              background: "#F0EFFA",
+              color: "#222",
+              border: "none",
+              borderRadius: 8,
+              padding: "4px 12px",
+              fontWeight: 600,
+              fontSize: 13,
+              cursor: "pointer",
+            }}
+            onClick={() => handleEditClick(field)}
+          >
+            Editar
+          </button>
         )}
       </div>
     );
   };
 
-  if (loading) {
-    return <div>Cargando...</div>;
-  }
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
   return (
-    <div>
-      <Nav cartOpen={cartOpen} />
-      {message && (
-        <div className="toast">{message}</div>
-      )}
+    <div style={{ maxWidth: 480, margin: "0 auto", padding: 20 }}>
+      <h2 style={{ marginBottom: 20 }}>Mi perfil</h2>
 
-      <div className="profile-page">
-        <div className="profile-redesign-container">
-          {/* Card principal */}
-          <div className="profile-card left">
-            <div className="profile-photo-section">
-              <img
-                src={profileImage}
-                alt="Foto de perfil"
-                className="profile-avatar"
-                onClick={() => document.getElementById('photo-input').click()}
-              />
-              <label className="update-photo-btn">
-                Actualizar foto
-                <input
-                  id="photo-input"
-                  type="file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  onChange={handlePhotoChange}
-                />
-              </label>
-            </div>
+      {renderField("name", "Nombre", profile.name)}
+      {renderField("email", "Correo electrónico", profile.email)}
+      {renderField("phone", "Teléfono", profile.phone)}
+      {renderField("password", "Contraseña", "********", true)}
 
-            <div className="profile-info-box">
-              {renderField('name', 'Tu nombre', `${localUser.firstName} ${localUser.lastName}`)}
-              {renderField('email', 'Tu correo', localUser.email)}
-              {renderField('phone', 'Tu telefono', localUser.phone)}
-              {renderField('password', 'Tu contraseña', '••••••••', true)}
+      <div
+        style={{
+          marginTop: 30,
+          display: "flex",
+          flexDirection: "column",
+          gap: "10px",
+        }}
+      >
+        <button
+          style={{
+            background: "#F0EFFA",
+            color: "#222",
+            border: "none",
+            borderRadius: 8,
+            padding: "8px 16px",
+            fontWeight: 600,
+            fontSize: 13,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
+          onClick={() => (window.location.href = "/historial")}
+        >
+          <HistoryIcon size={16} /> Historial de pedidos
+        </button>
 
-              {/* Botones movidos */}
-              <div style={{ marginTop: 30 }}>
-                <button
-                  className="order-history-btn"
-                  onClick={() => window.location.href = '/historial'}
-                >
-                  <HistoryIcon size={16} /> Historial de pedidos
-                </button>
+        <button
+          style={{
+            background: "#F0EFFA",
+            color: "#222",
+            border: "none",
+            borderRadius: 8,
+            padding: "8px 16px",
+            fontWeight: 600,
+            fontSize: 13,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
+          onClick={() => (window.location.href = "/histReview")}
+        >
+          <HistoryIcon size={16} /> Historial de reseñas
+        </button>
 
-                <button
-                  className="order-history-btn"
-                  onClick={() => window.location.href = '/histReview'}
-                >
-                  <HistoryIcon size={16} /> Historial de reseñas
-                </button>
-
-                <button
-                  className="logout-btn"
-                  onClick={handleLogout}
-                >
-                  Desconectarse
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <button
+          style={{
+            background: "#eab5c5",
+            color: "white",
+            border: "none",
+            borderRadius: 8,
+            padding: "8px 16px",
+            fontWeight: 600,
+            fontSize: 13,
+            cursor: "pointer",
+          }}
+          onClick={handleLogout}
+        >
+          Desconectarse
+        </button>
       </div>
-
-      <Footer />
     </div>
   );
 };
