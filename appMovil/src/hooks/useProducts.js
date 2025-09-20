@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
+import { BACKEND_URL, API_ENDPOINTS, buildApiUrl } from '../config/api';
 
 const useProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // URL del backend - debe coincidir con AuthContext
-  const BACKEND_URL = 'http://192.168.1.200:4000';
 
   // Obtener todos los productos
   const fetchProducts = async () => {
@@ -14,7 +12,7 @@ const useProducts = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`${BACKEND_URL}/api/products`, {
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.PRODUCTS), {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -38,7 +36,7 @@ const useProducts = () => {
   // Obtener producto por ID
   const fetchProductById = async (productId) => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/products/${productId}`, {
+      const response = await fetch(`${buildApiUrl(API_ENDPOINTS.PRODUCTS)}/${productId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +61,7 @@ const useProducts = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`${BACKEND_URL}/api/products/category/${categoryId}`, {
+      const response = await fetch(`${buildApiUrl(API_ENDPOINTS.PRODUCTS_BY_CATEGORY)}/${categoryId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

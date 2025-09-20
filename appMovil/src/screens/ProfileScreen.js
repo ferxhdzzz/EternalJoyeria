@@ -11,9 +11,12 @@ import {
   Alert,
   Platform,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../context/AuthContext';
+import CustomAlert from '../components/CustomAlert';
+import useCustomAlert from '../hooks/useCustomAlert';
 
 const ProfileScreen = ({ navigation, route }) => {
   const { user, updateUser, updateProfileImage, logout } = useAuth();
@@ -27,6 +30,16 @@ const ProfileScreen = ({ navigation, route }) => {
   
   const [editingField, setEditingField] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  
+  // Hook para alertas personalizadas
+  const {
+    alertConfig,
+    hideAlert,
+    showSuccess,
+    showError,
+    showLogoutConfirm,
+    showPermissionRequired,
+  } = useCustomAlert();
 
   // Sincroniza datos del perfil cuando cambia el usuario
   useEffect(() => {
@@ -72,13 +85,13 @@ const ProfileScreen = ({ navigation, route }) => {
         const result = await updateUser(updateData);
         if (result.success) {
           setProfileData(prev => ({ ...prev, ...updateData }));
-          Alert.alert('Éxito', 'Campo actualizado correctamente');
+          showSuccess('Éxito', 'Campo actualizado correctamente');
         } else {
-          Alert.alert('Error', 'No se pudo actualizar el campo');
+          showError('Error', 'No se pudo actualizar el campo');
         }
       }
     } catch (error) {
-      Alert.alert('Error', 'Error al actualizar el campo');
+      showError('Error', 'Error al actualizar el campo');
     }
     
     setEditingField(null);
@@ -91,10 +104,13 @@ const ProfileScreen = ({ navigation, route }) => {
         camPerm = await ImagePicker.requestCameraPermissionsAsync();
       }
       if (camPerm?.status !== 'granted') {
-        Alert.alert(
+        showPermissionRequired(
           'Permisos de cámara requeridos',
           'Necesitamos acceso a la cámara para tomar tu foto de perfil.',
-          [{ text: 'OK' }]
+          () => {
+            // Aquí podrías abrir la configuración del sistema si es posible
+          },
+          () => {}
         );
         return;
       }
@@ -138,10 +154,10 @@ const ProfileScreen = ({ navigation, route }) => {
 
       const uploadRes = await updateProfileImage(imageUri);
       if (uploadRes?.success) {
-        Alert.alert('Éxito', 'Foto de perfil actualizada correctamente', [{ text: 'OK' }]);
+        showSuccess('Éxito', 'Foto de perfil actualizada correctamente');
         setSelectedImage(null);
       } else {
-        Alert.alert('Error', uploadRes?.error || 'No se pudo actualizar la foto');
+        showError('Error', uploadRes?.error || 'No se pudo actualizar la foto');
       }
     } catch (error) {
       console.log('Camera capture error:', error);
@@ -183,35 +199,29 @@ const ProfileScreen = ({ navigation, route }) => {
       setSelectedImage(imageUri);
       const uploadRes = await updateProfileImage(imageUri);
       if (uploadRes?.success) {
-        Alert.alert('Éxito', 'Foto de perfil actualizada correctamente', [{ text: 'OK' }]);
+        showSuccess('Éxito', 'Foto de perfil actualizada correctamente');
         setSelectedImage(null);
       } else {
-        Alert.alert('Error', uploadRes?.error || 'No se pudo actualizar la foto');
+        showError('Error', uploadRes?.error || 'No se pudo actualizar la foto');
       }
     } catch (e) {
       console.log('Gallery pick error:', e);
-      Alert.alert('Error', 'No se pudo seleccionar la imagen.');
+      showError('Error', 'No se pudo seleccionar la imagen.');
     }
   };
 
   const handleLogout = async () => {
-    Alert.alert(
-      'Cerrar sesión',
-      '¿Estás seguro de que quieres desconectarte?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { 
-          text: 'Desconectarse', 
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await logout();
-            } catch (error) {
-              Alert.alert('Error', 'Error al cerrar sesión');
-            }
-          }
+    showLogoutConfirm(
+      async () => {
+        try {
+          await logout();
+        } catch (error) {
+          showError('Error', 'Error al cerrar sesión');
         }
-      ]
+      },
+      () => {
+        // Usuario canceló, no hacer nada
+      }
     );
   };
 
@@ -258,36 +268,50 @@ const ProfileScreen = ({ navigation, route }) => {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
+    <LinearGradient
+      colors={['#ff6ec7', '#ff9a9e', '#fecfef']}
+      style={styles.container}
+    >
+      {/* Header elegante */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity 
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
-            <Ionicons name="arrow-back" size={24} color="#FFF" />
+            <Ionicons name="arrow-back" size={24} color="#4a148c" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Mi Perfil</Text>
+          <View style={styles.headerCenter}>
+            <Ionicons name="person-circle" size={32} color="#6a1b9a" />
+            <Text style={styles.headerTitle}>Mi Perfil</Text>
+          </View>
           <View style={{ width: 24 }} />
         </View>
       </View>
 
       <ScrollView style={styles.scrollView}>
-        {/* Profile Picture Section */}
+        {/* Profile Picture Section elegante */}
         <View style={styles.profileSection}>
           <TouchableOpacity onPress={pickImage} style={styles.avatarContainer}>
-            <Image 
-              source={selectedImage || user?.profilePicture 
-                ? { uri: selectedImage || user.profilePicture } 
-                : require('../../assets/Usuarionuevo.jpg')
-              } 
-              style={styles.profilePicture} 
-              onError={(e) => console.log('Error loading image:', e.nativeEvent.error)} 
-            />
-            <View style={styles.cameraIcon}>
-              <Ionicons name="camera" size={20} color="#FFF" />
-            </View>
+            <LinearGradient
+              colors={['rgba(255, 255, 255, 0.9)', 'rgba(252, 228, 236, 0.8)']}
+              style={styles.avatarGradient}
+            >
+              <Image 
+                source={selectedImage || user?.profilePicture 
+                  ? { uri: selectedImage || user.profilePicture } 
+                  : require('../../assets/Usuarionuevo.jpg')
+                } 
+                style={styles.profilePicture} 
+                onError={(e) => console.log('Error loading image:', e.nativeEvent.error)} 
+              />
+              <LinearGradient
+                colors={['#e91e63', '#ad1457']}
+                style={styles.cameraIcon}
+              >
+                <Ionicons name="camera" size={22} color="#FFF" />
+              </LinearGradient>
+            </LinearGradient>
           </TouchableOpacity>
           <Text style={styles.userName}>
             {`${profileData.firstName} ${profileData.lastName}`.trim() || 'Usuario'}
@@ -295,95 +319,130 @@ const ProfileScreen = ({ navigation, route }) => {
           <Text style={styles.userEmail}>{profileData.email}</Text>
         </View>
 
-        {/* Personal Information Section */}
+        {/* Personal Information Section elegante */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Información Personal</Text>
+          <LinearGradient
+            colors={['rgba(255, 255, 255, 0.95)', 'rgba(252, 228, 236, 0.8)']}
+            style={styles.sectionGradient}
+          >
+            <View style={styles.sectionHeader}>
+              <Ionicons name="person" size={20} color="#6a1b9a" />
+              <Text style={styles.sectionTitle}>Información Personal</Text>
+            </View>
           
           {renderEditableField('Nombre', 'firstName', 'Ingresa tu nombre')}
           {renderEditableField('Apellidos', 'lastName', 'Ingresa tus apellidos')}
           {renderEditableField('Correo electrónico', 'email', 'correo@ejemplo.com')}
           {renderEditableField('Teléfono', 'phone', 'Ingresa tu teléfono')}
           
-          <TouchableOpacity 
-            style={styles.menuItem}
-            onPress={() => navigation.navigate('ChangePassword')}
-          >
-            <View style={styles.menuItemLeft}>
-              <View style={[styles.menuIcon, { backgroundColor: 'rgba(236, 72, 153, 0.1)' }]}>
-                <Ionicons name="key-outline" size={20} color="#EC4899" />
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => navigation.navigate('ChangePassword')}
+            >
+              <View style={styles.menuItemLeft}>
+                <LinearGradient
+                  colors={['#e91e63', '#ad1457']}
+                  style={styles.menuIcon}
+                >
+                  <Ionicons name="key" size={20} color="#FFF" />
+                </LinearGradient>
+                <Text style={styles.menuItemText}>Cambiar contraseña</Text>
               </View>
-              <Text style={styles.menuItemText}>Cambiar contraseña</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-          </TouchableOpacity>
+              <Ionicons name="chevron-forward" size={20} color="#8e24aa" />
+            </TouchableOpacity>
+          </LinearGradient>
         </View>
         
-        {/* Legal & Support Section */}
+        {/* Legal & Support Section elegante */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Ayuda y Soporte</Text>
-          
-          <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('TermsConditions')}>
-            <View style={styles.menuItemLeft}>
-              <View style={[styles.menuIcon, { backgroundColor: 'rgba(99, 102, 241, 0.1)' }]}>
-                <Ionicons name="document-text-outline" size={20} color="#6366F1" />
-              </View>
-              <Text style={styles.menuItemText}>Términos y condiciones</Text>
+          <LinearGradient
+            colors={['rgba(255, 255, 255, 0.95)', 'rgba(252, 228, 236, 0.8)']}
+            style={styles.sectionGradient}
+          >
+            <View style={styles.sectionHeader}>
+              <Ionicons name="help-circle" size={20} color="#6a1b9a" />
+              <Text style={styles.sectionTitle}>Ayuda y Soporte</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('PrivacyPolicy')}>
-            <View style={styles.menuItemLeft}>
-              <View style={[styles.menuIcon, { backgroundColor: 'rgba(16, 185, 129, 0.1)' }]}>
-                <Ionicons name="shield-checkmark-outline" size={20} color="#10B981" />
+            
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('TermsConditions')}>
+              <View style={styles.menuItemLeft}>
+                <LinearGradient
+                  colors={['#6366f1', '#4f46e5']}
+                  style={styles.menuIcon}
+                >
+                  <Ionicons name="document-text" size={20} color="#FFF" />
+                </LinearGradient>
+                <Text style={styles.menuItemText}>Términos y condiciones</Text>
               </View>
-              <Text style={styles.menuItemText}>Política de privacidad</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-          </TouchableOpacity>
-          
+              <Ionicons name="chevron-forward" size={20} color="#8e24aa" />
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('PrivacyPolicy')}>
+              <View style={styles.menuItemLeft}>
+                <LinearGradient
+                  colors={['#10b981', '#059669']}
+                  style={styles.menuIcon}
+                >
+                  <Ionicons name="shield-checkmark" size={20} color="#FFF" />
+                </LinearGradient>
+                <Text style={styles.menuItemText}>Política de privacidad</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#8e24aa" />
+            </TouchableOpacity>
+          </LinearGradient>
         </View>
 
-        {/* Logout Button */}
-        <TouchableOpacity 
+        {/* Logout Button elegante */}
+        <LinearGradient
+          colors={['#ef4444', '#dc2626']}
           style={styles.logoutButton}
-          onPress={handleLogout}
         >
-          <Ionicons name="log-out-outline" size={20} color="#EF4444" />
-          <Text style={styles.logoutText}>Cerrar sesión</Text>
-        </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.logoutTouchable}
+            onPress={handleLogout}
+          >
+            <Ionicons name="log-out" size={22} color="#FFF" />
+            <Text style={styles.logoutText}>Cerrar sesión</Text>
+          </TouchableOpacity>
+        </LinearGradient>
         
         <View style={styles.versionContainer}>
           <Text style={styles.versionText}>Versión 1.0.0</Text>
         </View>
       </ScrollView>
-    </View>
+      
+      {/* Alerta personalizada */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+        onClose={hideAlert}
+        autoClose={alertConfig.autoClose}
+        autoCloseDelay={alertConfig.autoCloseDelay}
+        showIcon={alertConfig.showIcon}
+        animationType={alertConfig.animationType}
+      />
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F8F8',
   },
   header: {
-    backgroundColor: '#EC4899',
     paddingTop: 50,
-    paddingBottom: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    marginBottom: 20,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
+    paddingBottom: 25,
+    backgroundColor: 'transparent',
+  },
+  headerCenter: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
   },
   headerContent: {
     flexDirection: 'row',
@@ -392,14 +451,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   backButton: {
-    padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 20,
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#6a1b9a',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   headerTitle: {
-    fontSize: 18,
-    fontFamily: 'Poppins-SemiBold',
-    color: '#FFF',
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#4a148c',
   },
   scrollView: {
     flex: 1,
@@ -407,78 +474,110 @@ const styles = StyleSheet.create({
   },
   profileSection: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 30,
   },
   avatarContainer: {
     position: 'relative',
-    marginBottom: 12,
+    marginBottom: 20,
+  },
+  avatarGradient: {
+    borderRadius: 80,
+    padding: 8,
+    shadowColor: '#e91e63',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 10,
   },
   profilePicture: {
     width: 140,
     height: 140,
     borderRadius: 70,
-    borderWidth: 4,
-    borderColor: '#F8E1E9',
-    backgroundColor: '#FFF9FA',
+    borderWidth: 3,
+    borderColor: '#fff',
   },
   cameraIcon: {
     position: 'absolute',
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#EC4899',
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    right: 5,
+    bottom: 5,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 3,
     borderColor: '#FFF',
+    shadowColor: '#e91e63',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   userName: {
-    fontSize: 22,
-    fontFamily: 'Poppins-SemiBold',
-    color: '#111827',
-    marginTop: 12,
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#4a148c',
+    textAlign: 'center',
+    marginBottom: 8,
   },
   userEmail: {
+    fontSize: 16,
+    color: '#6a1b9a',
+    textAlign: 'center',
+    marginBottom: 12,
+    fontWeight: '500',
+  },
+  userBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(233, 30, 99, 0.1)',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(233, 30, 99, 0.3)',
+  },
+  badgeText: {
     fontSize: 14,
-    fontFamily: 'Poppins-Regular',
-    color: '#6B7280',
-    marginTop: 4,
+    fontWeight: '600',
+    color: '#e91e63',
   },
   section: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 2,
-      },
-    }),
+    marginBottom: 20,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#6a1b9a',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  sectionGradient: {
+    padding: 25,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontFamily: 'Poppins-SemiBold',
-    color: '#111827',
-    marginBottom: 16,
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#4a148c',
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 14,
+    paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: 'rgba(171, 71, 188, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    paddingHorizontal: 15,
+    marginVertical: 5,
+    borderRadius: 12,
   },
   menuItemLeft: {
     flexDirection: 'row',
@@ -486,73 +585,92 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   menuIcon: {
-    width: 36,
-    height: 36,
+    width: 40,
+    height: 40,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   menuItemText: {
-    fontSize: 15,
-    fontFamily: 'Poppins-Medium',
-    color: '#1F2937',
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#4a148c',
     flex: 1,
   },
   logoutButton: {
+    borderRadius: 20,
+    marginTop: 10,
+    marginBottom: 25,
+    marginHorizontal: 20,
+    overflow: 'hidden',
+    shadowColor: '#ef4444',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  logoutTouchable: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FEF2F2',
-    padding: 16,
-    borderRadius: 12,
-    marginTop: 8,
-    marginBottom: 24,
+    padding: 18,
+    gap: 10,
   },
   logoutText: {
-    fontSize: 15,
-    fontFamily: 'Poppins-Medium',
-    color: '#EF4444',
-    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFF',
+    letterSpacing: 0.5,
   },
   versionContainer: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 30,
   },
   versionText: {
     fontSize: 12,
-    fontFamily: 'Poppins-Regular',
-    color: '#9CA3AF',
+    color: '#8e24aa',
+    fontWeight: '500',
   },
   fieldContainer: {
-    marginBottom: 18,
+    marginBottom: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    padding: 15,
+    borderRadius: 12,
+    marginVertical: 5,
   },
   fieldLabel: {
-    fontSize: 13,
-    fontFamily: 'Poppins-Medium',
-    color: '#666',
-    marginBottom: 6,
-    letterSpacing: 0.2,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#6a1b9a',
+    marginBottom: 8,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderBottomWidth: 1.5,
-    borderBottomColor: '#F0F0F0',
-    paddingBottom: 8,
+    borderBottomWidth: 2,
+    borderBottomColor: 'rgba(171, 71, 188, 0.3)',
+    paddingBottom: 10,
   },
   inputField: {
     flex: 1,
-    fontSize: 15,
-    fontFamily: 'Poppins-Regular',
-    color: '#2D2D2D',
-    paddingVertical: 8,
-    paddingRight: 10,
+    fontSize: 16,
+    color: '#4a148c',
+    paddingVertical: 10,
+    paddingRight: 12,
+    fontWeight: '500',
   },
   editButton: {
-    padding: 6,
-    backgroundColor: '#F8F0F3',
-    borderRadius: 8,
+    padding: 8,
+    backgroundColor: 'rgba(233, 30, 99, 0.1)',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(233, 30, 99, 0.3)',
   },
   selectionContainer: {
     flexDirection: 'row',
@@ -568,11 +686,11 @@ const styles = StyleSheet.create({
     color: '#2D2D2D',
   },
   readonlyText: {
-    fontSize: 15,
-    fontFamily: 'Poppins-Regular',
-    color: '#2D2D2D',
-    paddingVertical: 8,
+    fontSize: 16,
+    color: '#4a148c',
+    paddingVertical: 10,
     flex: 1,
+    fontWeight: '500',
   },
 });
 

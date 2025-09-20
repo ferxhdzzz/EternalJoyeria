@@ -145,11 +145,11 @@ export const payment3ds = async (req, res) => {
       await order.save();
 
       // Verificar si ya existe una venta para esta orden
-      const existingSale = await Sale.findOne({ idOrder: order._id });
+      let existingSale = await Sale.findOne({ idOrder: order._id });
       
       // Si no existe una venta, crearla
       if (!existingSale) {
-        await Sale.create({
+        existingSale = await Sale.create({
           idOrder: order._id,
           idCustomers: order.idCustomer,
           address: onlyAddressLine(order, formData),
@@ -168,7 +168,8 @@ export const payment3ds = async (req, res) => {
 
       return res.json({
         estadoTransaccion: "APROBADA",
-        sale,
+        success: true,
+        sale: existingSale,
         order: orderOut,
         wompi: { mock: true },
       });

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -11,10 +11,14 @@ import {
   ActivityIndicator,
   SafeAreaView,
   StatusBar,
+  Animated,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useCart } from '../context/CartContext';
 import useProducts from '../hooks/useProducts';
+import CustomAlert from '../components/CustomAlert';
+import useCustomAlert from '../hooks/useCustomAlert';
 
 const { width, height } = Dimensions.get('window');
 
@@ -27,6 +31,19 @@ const ProductDetailScreen = ({ navigation, route }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
+  
+  // Hook para alertas personalizadas
+  const {
+    alertConfig,
+    hideAlert,
+    showAddToCartSuccess,
+  } = useCustomAlert();
+  
+  // Animaciones
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+  const scaleAnim = useRef(new Animated.Value(0.9)).current;
+  const [isAnimationComplete, setIsAnimationComplete] = useState(false);
 
   // Cargar producto por ID
   useEffect(() => {
@@ -41,6 +58,28 @@ const ProductDetailScreen = ({ navigation, route }) => {
             const measurements = Object.keys(result.product.measurements);
             setSelectedSize(measurements[0] || 'Talla única');
           }
+          
+          // Iniciar animaciones después de cargar
+          setTimeout(() => {
+            Animated.parallel([
+              Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 600,
+                useNativeDriver: true,
+              }),
+              Animated.timing(slideAnim, {
+                toValue: 0,
+                duration: 600,
+                useNativeDriver: true,
+              }),
+              Animated.spring(scaleAnim, {
+                toValue: 1,
+                friction: 8,
+                tension: 40,
+                useNativeDriver: true,
+              }),
+            ]).start(() => setIsAnimationComplete(true));
+          }, 100);
           // Logs de diagnóstico para detectar tipos inesperados
           try {
             const p = result.product || {};
@@ -75,11 +114,17 @@ const ProductDetailScreen = ({ navigation, route }) => {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" />
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#D4AF37" />
-          <Text style={styles.loadingText}>Cargando producto...</Text>
-        </View>
+        <StatusBar barStyle="light-content" backgroundColor="#8b4513" />
+        <LinearGradient
+          colors={['#fef7e7', '#fdf4e3', '#fcf1df']}
+          style={styles.background}
+        >
+          <View style={styles.loadingContainer}>
+            <Ionicons name="diamond-outline" size={60} color="#d4af37" />
+            <ActivityIndicator size="large" color="#d4af37" style={{ marginTop: 20 }} />
+            <Text style={styles.loadingText}>Cargando joya exclusiva...</Text>
+          </View>
+        </LinearGradient>
       </SafeAreaView>
     );
   }
@@ -87,13 +132,19 @@ const ProductDetailScreen = ({ navigation, route }) => {
   if (error || !product) {
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" />
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error || 'Producto no encontrado'}</Text>
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-            <Text style={styles.backButtonText}>Volver</Text>
-          </TouchableOpacity>
-        </View>
+        <StatusBar barStyle="light-content" backgroundColor="#8b4513" />
+        <LinearGradient
+          colors={['#fef7e7', '#fdf4e3', '#fcf1df']}
+          style={styles.background}
+        >
+          <View style={styles.errorContainer}>
+            <Ionicons name="sad-outline" size={60} color="#d4af37" />
+            <Text style={styles.errorText}>{error || 'Joya no encontrada'}</Text>
+            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+              <Text style={styles.backButtonText}>Volver</Text>
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
       </SafeAreaView>
     );
   }
@@ -132,19 +183,11 @@ const ProductDetailScreen = ({ navigation, route }) => {
     
     addProductToCart(productToAdd);
     
-    Alert.alert(
-      '¡Producto añadido!',
-      'El producto se ha añadido correctamente al carrito',
-      [
-        {
-          text: 'Seguir comprando',
-          style: 'cancel'
-        },
-        {
-          text: 'Ver carrito',
-          onPress: () => navigation.navigate('MainTabs', { screen: 'Carrito' })
-        }
-      ]
+    // Usar alerta personalizada
+    showAddToCartSuccess(
+      product.name || 'Producto',
+      () => navigation.navigate('MainTabs', { screen: 'Carrito' }), // Ver carrito
+      () => {} // Seguir comprando (no hacer nada)
     );
   };
 
@@ -152,131 +195,195 @@ const ProductDetailScreen = ({ navigation, route }) => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
       
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.headerButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
-        
-        <Text style={styles.headerTitle}>{nameStr}</Text>
-        
-        <TouchableOpacity 
-          style={styles.headerButton}
-          onPress={() => navigation.navigate('Reviews', { product })}
-        >
-          <Ionicons name="chatbubble-ellipses" size={24} color="#000" />
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* Imagen del producto */}
-        <View style={styles.imageContainer}>
-          <Image
-            source={{ uri: imageUri }}
-            style={styles.productImage}
-            resizeMode="cover"
-          />
+      <LinearGradient
+        colors={['#fce4ec', '#f8bbd9', '#f48fb1']}
+        style={styles.background}
+      >
+        {/* Header elegante sin título */}
+        <View style={styles.header}>
+          <TouchableOpacity 
+            style={styles.headerButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="arrow-back" size={24} color="#4a148c" />
+          </TouchableOpacity>
           
-          {/* Badge de descuento */}
-          {hasDiscount && (
-            <View style={styles.discountBadge}>
-              <Text style={styles.discountBadgeText}>-{String(discountPct)}%</Text>
-            </View>
-          )}
+          <View style={styles.headerCenter}>
+          </View>
           
-          {/* Badge de stock */}
-          {isOutOfStock && (
-            <View style={styles.outOfStockBadge}>
-              <Text style={styles.outOfStockBadgeText}>Agotado</Text>
-            </View>
-          )}
+          <TouchableOpacity 
+            style={styles.headerButton}
+            onPress={() => navigation.navigate('Reviews', { product })}
+          >
+            <Ionicons name="chatbubble-ellipses" size={24} color="#4a148c" />
+          </TouchableOpacity>
         </View>
 
-        {/* Información del producto */}
-        <View style={styles.productInfo}>
-          {/* Nombre y categoría */}
-          <Text style={styles.productName}>{nameStr}</Text>
-          <Text style={styles.categoryName}>
-            {`Categoría: ${categoryName}`}
-          </Text>
-
-          {/* Precios */}
-          <View style={styles.priceSection}>
-            {hasDiscount ? (
-              <View style={styles.priceRow}>
-                <Text style={styles.originalPrice}>${priceNum.toLocaleString()}</Text>
-                <Text style={styles.finalPrice}>${finalPriceNum.toLocaleString()}</Text>
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          {/* Imagen del producto con diseño lujoso */}
+          <Animated.View style={[styles.imageContainer, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
+            <View style={styles.imageWrapper}>
+              <Image
+                source={{ uri: imageUri }}
+                style={styles.productImage}
+                resizeMode="cover"
+              />
+              <LinearGradient
+                colors={['transparent', 'rgba(142, 36, 170, 0.1)']}
+                style={styles.imageOverlay}
+              />
+            </View>
+            
+            {/* Badge de descuento elegante */}
+            {hasDiscount && (
+              <View style={styles.discountBadge}>
+                <Ionicons name="pricetag" size={12} color="#fff" />
+                <Text style={styles.discountBadgeText}>-{String(discountPct)}%</Text>
               </View>
-            ) : (
-              <Text style={styles.finalPrice}>${priceNum.toLocaleString()}</Text>
             )}
-          </View>
+            
+            {/* Badge de stock elegante */}
+            {isOutOfStock && (
+              <View style={styles.outOfStockBadge}>
+                <Ionicons name="close-circle" size={12} color="#fff" />
+                <Text style={styles.outOfStockBadgeText}>Agotado</Text>
+              </View>
+            )}
+          </Animated.View>
 
-          {/* Stock */}
-          <View style={styles.stockSection}>
-            <Text style={[
-              styles.stockText,
-              isOutOfStock ? styles.outOfStockText : 
-              stockNum <= 3 ? styles.lowStockText : styles.inStockText
-            ]}>
-              {isOutOfStock ? 'Sin stock disponible' : 
-               stockNum <= 3 ? `Solo ${stockNum} disponibles` : 
-               `${stockNum} disponibles`}
-            </Text>
-          </View>
-
-          {/* Medidas/Tallas */}
-          {measurements.length > 0 && (
-            <View style={styles.measurementsSection}>
-              <Text style={styles.sectionTitle}>Medidas disponibles</Text>
-              <View style={styles.measurementOptions}>
-                {measurements.map((measurement) => (
-                  <TouchableOpacity
-                    key={String(measurement)}
-                    style={[
-                      styles.measurementOption,
-                      selectedSize === measurement && styles.measurementOptionSelected
-                    ]}
-                    onPress={() => setSelectedSize(measurement)}
-                  >
-                    <Text style={[
-                      styles.measurementText,
-                      selectedSize === measurement && styles.measurementTextSelected
-                    ]}>
-                      {String(measurement)}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+          {/* Información del producto con diseño lujoso */}
+          <Animated.View style={[styles.productInfo, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+            <LinearGradient
+              colors={['rgba(255, 255, 255, 0.95)', 'rgba(252, 228, 236, 0.8)']}
+              style={styles.infoGradient}
+            >
+            {/* Nombre y categoría elegantes */}
+            <View style={styles.titleSection}>
+              <Text style={styles.productName}>{nameStr}</Text>
+              <View style={styles.categoryContainer}>
+                <Ionicons name="diamond" size={14} color="#ab47bc" />
+                <Text style={styles.categoryName}>{categoryName}</Text>
               </View>
             </View>
-          )}
 
-          {/* Descripción */}
-          <View style={styles.descriptionSection}>
-            <Text style={styles.sectionTitle}>Descripción</Text>
-            <Text style={styles.descriptionText}>{String(product?.description ?? '')}</Text>
-          </View>
+            {/* Precios con diseño lujoso */}
+            <View style={styles.priceSection}>
+              <LinearGradient
+                colors={['#e91e63', '#ad1457']}
+                style={styles.priceContainer}
+              >
+                {hasDiscount ? (
+                  <View style={styles.priceRow}>
+                    <Text style={styles.originalPrice}>${priceNum.toLocaleString()}</Text>
+                    <Text style={styles.finalPrice}>${finalPriceNum.toLocaleString()}</Text>
+                  </View>
+                ) : (
+                  <Text style={styles.finalPrice}>${priceNum.toLocaleString()}</Text>
+                )}
+              </LinearGradient>
+            </View>
+
+            {/* Stock con indicador elegante */}
+            <View style={styles.stockSection}>
+              <View style={styles.stockContainer}>
+                <View style={[
+                  styles.stockIndicator,
+                  { backgroundColor: isOutOfStock ? '#e74c3c' : stockNum <= 3 ? '#f39c12' : '#27ae60' }
+                ]} />
+                <Text style={[
+                  styles.stockText,
+                  isOutOfStock ? styles.outOfStockText : 
+                  stockNum <= 3 ? styles.lowStockText : styles.inStockText
+                ]}>
+                  {isOutOfStock ? 'Sin stock disponible' : 
+                   stockNum <= 3 ? `Solo ${stockNum} disponibles` : 
+                   `${stockNum} disponibles`}
+                </Text>
+              </View>
+            </View>
+
+            {/* Medidas/Tallas elegantes */}
+            {measurements.length > 0 && (
+              <View style={styles.measurementsSection}>
+                <View style={styles.sectionHeader}>
+                  <Ionicons name="resize" size={18} color="#8e24aa" />
+                  <Text style={styles.sectionTitle}>Medidas disponibles</Text>
+                </View>
+                <View style={styles.measurementOptions}>
+                  {measurements.map((measurement) => (
+                    <TouchableOpacity
+                      key={String(measurement)}
+                      style={[
+                        styles.measurementOption,
+                        selectedSize === measurement && styles.measurementOptionSelected
+                      ]}
+                      onPress={() => setSelectedSize(measurement)}
+                    >
+                      <Text style={[
+                        styles.measurementText,
+                        selectedSize === measurement && styles.measurementTextSelected
+                      ]}>
+                        {String(measurement)}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* Descripción elegante */}
+            <View style={styles.descriptionSection}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="document-text" size={18} color="#8e24aa" />
+                <Text style={styles.sectionTitle}>Descripción</Text>
+              </View>
+              <Text style={styles.descriptionText}>{String(product?.description ?? '')}</Text>
+            </View>
+            </LinearGradient>
+          </Animated.View>
+        </ScrollView>
+
+        {/* Botón de añadir al carrito elegante */}
+        <View style={styles.bottomSection}>
+          <LinearGradient
+            colors={isOutOfStock ? ['#bdbdbd', '#9e9e9e'] : ['#e91e63', '#ad1457']}
+            style={[
+              styles.addToCartButton,
+              isOutOfStock && styles.addToCartButtonDisabled
+            ]}
+          >
+            <TouchableOpacity 
+              style={styles.addToCartTouchable}
+              onPress={handleAddToCart}
+              disabled={isOutOfStock}
+            >
+              <Ionicons 
+                name={isOutOfStock ? "close-circle" : "bag-add"} 
+                size={20} 
+                color="#fff" 
+                style={styles.cartIcon}
+              />
+              <Text style={styles.addToCartText}>
+                {isOutOfStock ? 'Producto agotado' : 'Añadir al carrito'}
+              </Text>
+            </TouchableOpacity>
+          </LinearGradient>
         </View>
-      </ScrollView>
-
-      {/* Botón de añadir al carrito */}
-      <View style={styles.bottomSection}>
-        <TouchableOpacity 
-          style={[
-            styles.addToCartButton,
-            isOutOfStock && styles.addToCartButtonDisabled
-          ]}
-          onPress={handleAddToCart}
-          disabled={isOutOfStock}
-        >
-          <Text style={styles.addToCartText}>
-            {isOutOfStock ? 'Producto agotado' : 'Añadir al carrito'}
-          </Text>
-        </TouchableOpacity>
-      </View>
+      </LinearGradient>
+      
+      {/* Alerta personalizada */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+        onClose={hideAlert}
+        autoClose={alertConfig.autoClose}
+        autoCloseDelay={alertConfig.autoCloseDelay}
+        showIcon={alertConfig.showIcon}
+        animationType={alertConfig.animationType}
+      />
     </SafeAreaView>
   );
 };
@@ -284,7 +391,10 @@ const ProductDetailScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#fce4ec',
+  },
+  background: {
+    flex: 1,
   },
   loadingContainer: {
     flex: 1,
@@ -324,18 +434,26 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    paddingVertical: 20,
+    paddingTop: 50,
+    backgroundColor: 'transparent',
+  },
+  headerCenter: {
+    flex: 1,
+    alignItems: 'center',
   },
   headerButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f8f9fa',
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#8e24aa',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   headerTitle: {
     fontSize: 18,
@@ -349,24 +467,47 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   imageContainer: {
-    backgroundColor: '#fff',
     padding: 20,
     alignItems: 'center',
     position: 'relative',
   },
+  imageWrapper: {
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#8e24aa',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  imageOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '30%',
+  },
   productImage: {
     width: width - 40,
-    height: 300,
-    borderRadius: 12,
+    height: 320,
+    borderRadius: 20,
   },
   discountBadge: {
     position: 'absolute',
     top: 30,
     right: 30,
-    backgroundColor: '#FF6B6B',
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    backgroundColor: '#e91e63',
+    borderRadius: 15,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    shadowColor: '#e91e63',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
   },
   discountBadgeText: {
     color: '#fff',
@@ -377,10 +518,18 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 30,
     left: 30,
-    backgroundColor: '#666',
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    backgroundColor: '#e74c3c',
+    borderRadius: 15,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    shadowColor: '#e74c3c',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
   },
   outOfStockBadgeText: {
     color: '#fff',
@@ -388,22 +537,48 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   productInfo: {
-    backgroundColor: '#fff',
     margin: 16,
-    borderRadius: 12,
-    padding: 20,
+    borderRadius: 25,
+    overflow: 'hidden',
+    shadowColor: '#8e24aa',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  infoGradient: {
+    padding: 25,
+    borderRadius: 25,
+  },
+  titleSection: {
+    marginBottom: 20,
+  },
+  categoryContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 8,
   },
   productName: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
+    color: '#4a148c',
+    textAlign: 'center',
+    letterSpacing: 0.5,
   },
   categoryName: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 16,
+    fontSize: 16,
+    color: '#8e24aa',
+    fontWeight: '600',
     textTransform: 'capitalize',
+  },
+  priceSection: {
+    marginBottom: 20,
+  },
+  priceContainer: {
+    borderRadius: 15,
+    padding: 15,
+    alignItems: 'center',
   },
   priceRow: {
     flexDirection: 'row',
@@ -412,16 +587,32 @@ const styles = StyleSheet.create({
   },
   originalPrice: {
     fontSize: 16,
-    color: '#999',
+    color: 'rgba(255, 255, 255, 0.7)',
     textDecorationLine: 'line-through',
   },
   finalPrice: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#D4AF37',
+    color: '#fff',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   stockSection: {
     marginBottom: 20,
+  },
+  stockContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    padding: 12,
+    borderRadius: 12,
+  },
+  stockIndicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   stockText: {
     fontSize: 14,
@@ -439,11 +630,16 @@ const styles = StyleSheet.create({
   measurementsSection: {
     marginBottom: 20,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 12,
+    color: '#4a148c',
   },
   measurementOptions: {
     flexDirection: 'row',
@@ -452,19 +648,20 @@ const styles = StyleSheet.create({
   },
   measurementOption: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#ab47bc',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
   },
   measurementOptionSelected: {
-    backgroundColor: '#D4AF37',
-    borderColor: '#D4AF37',
+    backgroundColor: '#e91e63',
+    borderColor: '#ad1457',
   },
   measurementText: {
     fontSize: 14,
-    color: '#666',
+    color: '#4a148c',
+    fontWeight: '600',
   },
   measurementTextSelected: {
     color: '#fff',
@@ -475,20 +672,31 @@ const styles = StyleSheet.create({
   },
   descriptionText: {
     fontSize: 16,
-    color: '#666',
+    color: '#4a148c',
     lineHeight: 24,
+    textAlign: 'justify',
   },
   bottomSection: {
-    backgroundColor: '#fff',
     padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#e9ecef',
   },
   addToCartButton: {
-    backgroundColor: '#D4AF37',
-    paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 25,
+    overflow: 'hidden',
+    shadowColor: '#e91e63',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  addToCartTouchable: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 18,
+    gap: 10,
+  },
+  cartIcon: {
+    marginRight: 5,
   },
   addToCartButtonDisabled: {
     backgroundColor: '#ccc',
@@ -497,6 +705,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
 });
 

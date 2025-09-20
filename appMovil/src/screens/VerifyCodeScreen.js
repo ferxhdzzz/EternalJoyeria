@@ -1,32 +1,38 @@
 import React, { useState, useRef, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
-  ScrollView,
-  SafeAreaView,
-  Animated,
   Alert,
-  ActivityIndicator,
+  Animated,
+  Dimensions,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  Image,
+  SafeAreaView,
   TouchableWithoutFeedback,
   Keyboard,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { API_ENDPOINTS, buildApiUrl } from '../config/api';
+import CustomAlert from '../components/CustomAlert';
+import useCustomAlert from '../hooks/useCustomAlert';
 
 const { width, height } = Dimensions.get('window');
 
 const VerifyCodeScreen = ({ route }) => {
   const navigation = useNavigation();
   const { email, isPasswordRecovery = false } = route.params;
-  const [code, setCode] = useState(['', '', '', '', '']);
+  // Determinar la longitud del código según el tipo
+  const codeLength = isPasswordRecovery ? 5 : 6;
+  const [code, setCode] = useState(new Array(codeLength).fill(''));
   const [codeError, setCodeError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [countdown, setCountdown] = useState(60);
@@ -34,14 +40,18 @@ const VerifyCodeScreen = ({ route }) => {
   const [verificationStatus, setVerificationStatus] = useState(null); // 'success' or 'error'
   const [isFormValid, setIsFormValid] = useState(false);
   
-  // Inicializar referencias de los inputs
-  const inputRefs = useRef([
-    React.createRef(),
-    React.createRef(),
-    React.createRef(),
-    React.createRef(),
-    React.createRef()
-  ]).current;
+  // Hook para alertas personalizadas
+  const {
+    alertConfig,
+    hideAlert,
+    showSuccess,
+    showError,
+  } = useCustomAlert();
+  
+  // Inicializar referencias de los inputs dinámicamente
+  const inputRefs = useRef(
+    new Array(codeLength).fill(null).map(() => React.createRef())
+  ).current;
 
   // Referencias para las animaciones de entrada
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -82,14 +92,17 @@ const VerifyCodeScreen = ({ route }) => {
     ]).start();
   }, []);
 
-  // Verificar el código
-  const verifyCode = async () => {
-    const codeString = code.join('');
-    if (codeString.length !== 5) {
-      setCodeError('Por favor ingresa los 5 dígitos del código');
+  // Verificar el código con string específico
+  const verifyCodeWithString = async (codeString) => {
+    console.log('Verificando código con string:', codeString, 'Longitud:', codeString.length);
+    
+    if (codeString.length !== codeLength) {
+      setCodeError(`Por favor completa todos los campos del código`);
       setVerificationStatus('error');
       return false;
     }
+    
+    console.log('Validación exitosa, procediendo con verificación...');
 
     setIsLoading(true);
     setCodeError('');
@@ -97,16 +110,23 @@ const VerifyCodeScreen = ({ route }) => {
     let response;
     try {
       if (isPasswordRecovery) {
+        // Obtener el token de recuperación guardado
+        const recoveryToken = await AsyncStorage.getItem('recoveryToken');
+        
+        if (!recoveryToken) {
+          throw new Error('No se encontró el token de recuperación. Por favor, solicita un nuevo código.');
+        }
+
         // Para recuperación de contraseña
-        response = await fetch('http://192.168.1.200:4000/api/recoveryPassword/verifyCode', {
+        response = await fetch(buildApiUrl(API_ENDPOINTS.RECOVERY_VERIFY), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${recoveryToken}`
           },
           body: JSON.stringify({
             code: codeString
-          }),
-          credentials: 'include' // Importante para enviar las cookies
+          })
         });
       } else {
         // Obtener el token de verificación guardado
@@ -117,7 +137,7 @@ const VerifyCodeScreen = ({ route }) => {
         }
 
         // Para verificación de email
-        response = await fetch('http://192.168.1.200:4000/api/registerCustomers/verifyCodeEmail', {
+        response = await fetch(buildApiUrl(API_ENDPOINTS.VERIFY_EMAIL), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -141,40 +161,74 @@ const VerifyCodeScreen = ({ route }) => {
       }
       
       if (!response.ok) {
-        const errorMessage = data.message || 'Error al verificar el código';
+        const errorMessage = data.message || 'Código incorrecto o expirado';
         setCodeError(errorMessage);
         setVerificationStatus('error');
-        throw new Error(errorMessage);
+        showError('Código Incorrecto', errorMessage);
+        return false;
       }
 
       setVerificationStatus('success');
       
-      // Navegar a la pantalla de nueva contraseña o dashboard según corresponda
+      // Navegar a la pantalla de nueva contraseña o login según corresponda
       if (isPasswordRecovery) {
-        navigation.navigate('NewPassword', { 
-          email, 
-          code: codeString,
-          token: data.token
-        });
+        showSuccess(
+          'Código Verificado',
+          'El código ha sido verificado correctamente. Ahora puedes establecer tu nueva contraseña.',
+          {
+            autoClose: false,
+            buttons: [
+              {
+                text: 'Continuar',
+                style: 'confirm',
+                onPress: () => {
+                  navigation.navigate('NewPassword', { 
+                    email, 
+                    code: codeString,
+                    token: data.token
+                  });
+                }
+              }
+            ]
+          }
+        );
       } else {
-        // Navegar al dashboard o pantalla principal
-        navigation.navigate('App');
+        // Después del registro exitoso, navegar al login para que inicie sesión
+        showSuccess(
+          '¡Cuenta Verificada!',
+          'Tu cuenta ha sido verificada exitosamente. Ahora puedes iniciar sesión.',
+          {
+            autoClose: false,
+            buttons: [
+              {
+                text: 'Iniciar Sesión',
+                style: 'confirm',
+                onPress: () => {
+                  navigation.navigate('Login');
+                }
+              }
+            ]
+          }
+        );
       }
       
       return true;
     } catch (error) {
       console.error('Error al verificar el código:', error.message);
-      // Solo mostrar el mensaje de error si no es un error de validación de longitud
-      if (error.message !== 'Por favor ingresa los 5 dígitos del código') {
-        setCodeError('Código incorrecto o expirado. Por favor, verifica e inténtalo de nuevo.');
-        setVerificationStatus('error');
-      }
-      setCodeError(error.message || 'Código inválido o expirado');
+      const errorMessage = error.message || 'Código inválido o expirado';
+      setCodeError(errorMessage);
       setVerificationStatus('error');
+      showError('Error de Verificación', errorMessage);
       return false;
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Verificar el código (versión original para botón manual)
+  const verifyCode = async () => {
+    const codeString = code.join('');
+    return verifyCodeWithString(codeString);
   };
 
   // Manejar cambios en los inputs de código
@@ -182,28 +236,60 @@ const VerifyCodeScreen = ({ route }) => {
     // Solo permitir dígitos
     const numericValue = text.replace(/[^0-9]/g, '');
     
-    // Crear un nuevo array con el código actual
-    const newCode = [...code];
-    
-    // Asegurarse de que el índice sea válido
-    if (index >= 0 && index < 5) {
-      // Actualizar solo si el valor es un dígito o está vacío
-      newCode[index] = numericValue.slice(0, 1); // Tomar solo el primer dígito
+    if (numericValue.length <= 1) {
+      const newCode = [...code];
+      newCode[index] = numericValue;
       setCode(newCode);
       
-      // Mover al siguiente campo si se ingresó un dígito
-      if (numericValue && index < 4 && inputRefs[index + 1]?.current) {
-        inputRefs[index + 1].current.focus();
+      // Enfocar el siguiente input si hay texto y no es el último
+      if (numericValue && index < codeLength - 1) {
+        setTimeout(() => {
+          inputRefs[index + 1]?.current?.focus();
+        }, 50); // Pequeño delay para asegurar que el estado se actualice
       }
       
       // Limpiar mensajes de error al escribir
       setVerificationStatus(null);
       setCodeError('');
       
-      // Si se completaron los 5 dígitos, verificar automáticamente
-      const isComplete = newCode.every(digit => digit !== '') && newCode.length === 5;
-      if (isComplete) {
-        verifyCode();
+      // Si se completaron todos los dígitos, verificar automáticamente después de un pequeño delay
+      const filledCount = newCode.filter(digit => digit !== '' && digit.trim() !== '').length;
+      console.log('Campos llenos:', filledCount, 'Código:', newCode);
+      
+      if (filledCount === codeLength) {
+        setTimeout(() => {
+          // Usar el newCode actualizado en lugar del state code
+          const finalCodeString = newCode.join('');
+          console.log('Código final para verificación:', finalCodeString, 'Longitud:', finalCodeString.length);
+          verifyCodeWithString(finalCodeString);
+        }, 500); // Pequeño delay para que el usuario vea que se completó
+      }
+    } else if (numericValue.length > 1) {
+      // Si pegan múltiples dígitos, distribuirlos en los campos
+      const digits = numericValue.slice(0, codeLength).split('');
+      const newCode = [...code];
+      
+      digits.forEach((digit, i) => {
+        if (index + i < codeLength) {
+          newCode[index + i] = digit;
+        }
+      });
+      
+      setCode(newCode);
+      
+      // Enfocar el siguiente campo disponible
+      const nextIndex = Math.min(index + digits.length, codeLength - 1);
+      setTimeout(() => {
+        inputRefs[nextIndex]?.current?.focus();
+      }, 50);
+      
+      // Verificar si se completó
+      const filledCount = newCode.filter(digit => digit !== '' && digit.trim() !== '').length;
+      if (filledCount === codeLength) {
+        setTimeout(() => {
+          const finalCodeString = newCode.join('');
+          verifyCodeWithString(finalCodeString);
+        }, 500);
       }
     }
   };
@@ -212,14 +298,16 @@ const VerifyCodeScreen = ({ route }) => {
   const handleKeyPress = (e, index) => {
     if (e.nativeEvent.key === 'Backspace' && !code[index] && index > 0) {
       // Si el campo está vacío y se presiona borrar, ir al campo anterior
-      inputRefs[index - 1].current.focus();
+      setTimeout(() => {
+        inputRefs[index - 1]?.current?.focus();
+      }, 50);
     }
   };
 
   // Validar formulario cada vez que cambie el código
   const validateForm = () => {
     const codeString = code.join('');
-    const isValid = codeString.length === 5 && /^\d+$/.test(codeString);
+    const isValid = codeString.length === codeLength && /^\d+$/.test(codeString);
     setIsFormValid(isValid);
     return isValid;
   };
@@ -237,7 +325,11 @@ const VerifyCodeScreen = ({ route }) => {
     
     setIsLoading(true);
     try {
-      const response = await fetch('http://192.168.1.200:4000/api/auth/resend-code', {
+      const url = isPasswordRecovery 
+        ? buildApiUrl(API_ENDPOINTS.RECOVERY_REQUEST)
+        : buildApiUrl(API_ENDPOINTS.RESEND_CODE);
+      
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -245,7 +337,7 @@ const VerifyCodeScreen = ({ route }) => {
         body: JSON.stringify({
           email,
           userType: 'customer',
-          isPasswordRecovery
+          ...(isPasswordRecovery ? {} : { isPasswordRecovery })
         })
       });
       
@@ -293,8 +385,8 @@ const VerifyCodeScreen = ({ route }) => {
   
   // Verificar el código
   const handleVerifyCode = async () => {
-    if (code.join('').length !== 5) {
-      setCodeError('Por favor ingresa un código válido de 5 dígitos');
+    if (code.join('').length !== codeLength) {
+      setCodeError(`Por favor ingresa un código válido de ${codeLength} dígitos`);
       setVerificationStatus('error');
       return;
     }
@@ -340,9 +432,16 @@ const VerifyCodeScreen = ({ route }) => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <LinearGradient
-            colors={['#f8f9fa', '#e9ecef']}
+            colors={['#fef7f7', '#fce7e7', '#f9a8d4']}
             style={styles.background}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
           >
+            {/* Decorative elements */}
+            <View style={styles.decorativeCircle1} />
+            <View style={styles.decorativeCircle2} />
+            <View style={styles.decorativeCircle3} />
+            
             <ScrollView 
               contentContainerStyle={styles.scrollContainer}
               keyboardShouldPersistTaps="handled"
@@ -351,24 +450,30 @@ const VerifyCodeScreen = ({ route }) => {
               {/* Botón de regreso */}
               <Animated.View style={[styles.backButtonContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
                 <TouchableOpacity 
+                  style={styles.backButton}
                   onPress={handleBack}
                   disabled={isLoading}
                 >
-                  <Ionicons name="arrow-back" size={24} color="#333" />
+                  <Ionicons name="arrow-back" size={24} color="#ec4899" />
                 </TouchableOpacity>
               </Animated.View>
               <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-                <Text style={styles.title}>{isPasswordRecovery ? 'Recuperar Contraseña' : 'Verificación'}</Text>
+                <View style={styles.logoContainer}>
+                  <Text style={styles.brandName}>Eternal Joyería</Text>
+                  <View style={styles.logoAccent} />
+                </View>
+                <Text style={styles.title}>Verificar Código</Text>
                 <Text style={styles.subtitle}>
-                  {isPasswordRecovery
-                    ? 'Ingresa el código de verificación que enviamos a tu correo electrónico para restablecer tu contraseña.'
-                    : 'Ingresa el código de verificación que enviamos a tu correo electrónico.'}
+                  {isPasswordRecovery 
+                    ? 'Ingresa el código de verificación que enviamos a tu correo para restablecer tu contraseña'
+                    : 'Ingresa el código de verificación que enviamos a tu correo para activar tu cuenta'
+                  }
                 </Text>
               </Animated.View>
 
               <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
               <View style={styles.codeContainer}>
-                {[0, 1, 2, 3, 4].map((index) => (
+                {Array.from({ length: codeLength }, (_, index) => (
                   <TextInput
                     key={`code-input-${index}`}
                     ref={(ref) => {
@@ -378,8 +483,8 @@ const VerifyCodeScreen = ({ route }) => {
                     }}
                     style={[
                       styles.codeInput, 
-                      verificationStatus === 'error' && styles.inputError,
-                      verificationStatus === 'success' && styles.inputSuccess
+                      verificationStatus === 'error' && styles.codeInputError,
+                      verificationStatus === 'success' && styles.codeInputSuccess
                     ]}
                     value={code[index] || ''}
                     onChangeText={(text) => handleCodeChange(text, index)}
@@ -388,7 +493,7 @@ const VerifyCodeScreen = ({ route }) => {
                     maxLength={1}
                     selectTextOnFocus
                     textContentType="oneTimeCode"
-                    returnKeyType={index === 4 ? 'done' : 'next'}
+                    returnKeyType={index === codeLength - 1 ? 'done' : 'next'}
                     blurOnSubmit={false}
                     editable={!isLoading}
                   />
@@ -402,7 +507,7 @@ const VerifyCodeScreen = ({ route }) => {
                 <Text style={styles.successText}>¡Código reenviado con éxito!</Text>
               ) : (
                 <Text style={styles.hintText}>
-                  Ingresa el código de 5 dígitos que enviamos a {email}
+                  Ingresa el código de {codeLength} dígitos que enviamos a {email}
                 </Text>
               )}
 
@@ -438,6 +543,20 @@ const VerifyCodeScreen = ({ route }) => {
           </LinearGradient>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
+      
+      {/* Alerta personalizada */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+        onClose={hideAlert}
+        autoClose={alertConfig.autoClose}
+        autoCloseDelay={alertConfig.autoCloseDelay}
+        showIcon={alertConfig.showIcon}
+        animationType={alertConfig.animationType}
+      />
     </SafeAreaView>
   );
 };
@@ -445,41 +564,67 @@ const VerifyCodeScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#fef7f7',
   },
   background: {
     flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
+    justifyContent: 'center',
     padding: 20,
-    paddingTop: 40,
+    minHeight: height - 100,
   },
   backButtonContainer: {
     position: 'absolute',
-    top: 16,
-    left: 16,
+    top: 50,
+    left: 20,
     zIndex: 10,
   },
   backButton: {
-    padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: 20,
+    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 25,
+    shadowColor: '#ec4899',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  brandName: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#ec4899',
+    fontFamily: 'System',
+    letterSpacing: 1,
+    textShadow: '0 2px 4px rgba(236, 72, 153, 0.3)',
+  },
+  logoAccent: {
+    width: 60,
+    height: 3,
+    backgroundColor: '#f472b6',
+    borderRadius: 2,
+    marginTop: 8,
   },
   header: {
-    marginBottom: 30,
+    marginBottom: 40,
     alignItems: 'center',
+    paddingTop: 60,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#ec4899',
     marginBottom: 10,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: '#7f8c8d',
+    color: '#be185d',
     textAlign: 'center',
     paddingHorizontal: 20,
     lineHeight: 22,
@@ -495,21 +640,31 @@ const styles = StyleSheet.create({
   codeInput: {
     width: 50,
     height: 60,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#f9a8d4',
+    borderRadius: 12,
     textAlign: 'center',
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#ec4899',
+    backgroundColor: '#fff',
+    shadowColor: '#f472b6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  inputError: {
-    borderColor: '#e74c3c',
-    backgroundColor: '#fff8f8',
+  codeInputFocused: {
+    borderColor: '#ec4899',
+    backgroundColor: '#fef7f7',
+    shadowOpacity: 0.2,
   },
-  inputSuccess: {
-    borderColor: '#2ecc71',
+  codeInputError: {
+    borderColor: '#e11d48',
+    backgroundColor: '#fef2f2',
+  },
+  codeInputSuccess: {
+    borderColor: '#10b981',
     backgroundColor: '#f0fdf4',
   },
   errorText: {
@@ -531,16 +686,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 25,
     textAlign: 'center',
+    fontFamily: 'Poppins-Regular',
+    lineHeight: 20,
   },
   button: {
-    backgroundColor: '#3498db',
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: '#ec4899',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 25,
     alignItems: 'center',
-    marginBottom: 20,
+    marginTop: 20,
+    shadowColor: '#ec4899',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   buttonDisabled: {
-    backgroundColor: '#bdc3c7',
+    backgroundColor: '#f9a8d4',
+    shadowOpacity: 0.1,
   },
   buttonText: {
     color: '#fff',
@@ -556,114 +720,42 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   resendLink: {
-    color: '#3498db',
+    color: '#ec4899',
     fontWeight: 'bold',
   },
   resendLinkDisabled: {
-    color: '#bdc3c7',
+    color: '#f9a8d4',
   },
-  title: {
-    fontSize: 26,
-    fontFamily: 'Poppins-Bold',
-    color: '#2c3e50',
-    marginBottom: 15,
-    textAlign: 'center',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+  decorativeCircle1: {
+    position: 'absolute',
+    top: 100,
+    right: -50,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(244, 114, 182, 0.1)',
+    zIndex: 1,
   },
-  subtitle: {
-    fontSize: 15,
-    color: '#7f8c8d',
-    textAlign: 'center',
-    marginTop: 10,
-    paddingHorizontal: 15,
-    lineHeight: 22,
-    fontFamily: 'Poppins-Regular',
+  decorativeCircle2: {
+    position: 'absolute',
+    bottom: 200,
+    left: -30,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(236, 72, 153, 0.15)',
+    zIndex: 1,
   },
-  formContainer: {
-    width: '100%',
-    maxWidth: 400,
-    alignSelf: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 15,
-    padding: 25,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  codeContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 30,
-    marginTop: 10,
-  },
-  codeInput: {
-    width: 55,
-    height: 65,
-    borderWidth: 1.5,
-    borderColor: '#e0e0e0',
-    borderRadius: 12,
-    textAlign: 'center',
-    fontSize: 26,
-    fontWeight: '600',
-    color: '#2c3e50',
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  inputError: {
-    borderColor: '#e74c3c',
-    backgroundColor: '#fff8f8',
-  },
-  errorText: {
-    color: '#e74c3c',
-    fontSize: 14,
-    marginBottom: 15,
-    textAlign: 'center',
-    fontFamily: 'Poppins-Medium',
-    backgroundColor: '#fef2f2',
-    padding: 10,
-    borderRadius: 8,
-    marginTop: -15,
-  },
-  hintText: {
-    color: '#7f8c8d',
-    fontSize: 14,
-    marginBottom: 25,
-    textAlign: 'center',
-    fontFamily: 'Poppins-Regular',
-    lineHeight: 20,
-  },
-  button: {
-    backgroundColor: '#d4af37',
+  decorativeCircle3: {
+    position: 'absolute',
+    top: 300,
+    left: 30,
+    width: 60,
+    height: 60,
     borderRadius: 30,
-    height: 58,
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 15,
-    shadowColor: '#d4af37',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 8,
+    backgroundColor: 'rgba(249, 168, 212, 0.2)',
+    zIndex: 1,
   },
-  buttonDisabled: {
-    backgroundColor: '#bdc3c7',
-    shadowOpacity: 0.1,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 17,
-    fontFamily: 'Poppins-SemiBold',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  }
 });
 
 export default VerifyCodeScreen;

@@ -18,7 +18,10 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { API_ENDPOINTS, buildApiUrl } from '../config/api';
 import { useNavigation } from '@react-navigation/native';
+import CustomAlert from '../components/CustomAlert';
+import useCustomAlert from '../hooks/useCustomAlert';
 
 const { width, height } = Dimensions.get('window');
 
@@ -33,6 +36,15 @@ const NewPasswordScreen = ({ route }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  // Hook para alertas personalizadas
+  const {
+    alertConfig,
+    hideAlert,
+    showValidationError,
+    showError,
+    showSuccess,
+  } = useCustomAlert();
 
   // Referencias para animaciones
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -69,8 +81,11 @@ const NewPasswordScreen = ({ route }) => {
     if (!newPassword) {
       setPasswordError('La contraseña es requerida');
       valid = false;
-    } else if (newPassword.length < 6) {
-      setPasswordError('La contraseña debe tener al menos 6 caracteres');
+    } else if (newPassword.length < 8) {
+      setPasswordError('La contraseña debe tener al menos 8 caracteres');
+      valid = false;
+    } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(newPassword)) {
+      setPasswordError('La contraseña debe contener al menos un carácter especial');
       valid = false;
     } else {
       setPasswordError('');
@@ -109,7 +124,7 @@ const NewPasswordScreen = ({ route }) => {
     setIsLoading(true);
     
     try {
-      const response = await fetch('http://192.168.1.200:4000/api/recovery-password/new-password', {
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.RECOVERY_RESET), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -130,23 +145,27 @@ const NewPasswordScreen = ({ route }) => {
       }
       
       // Mostrar mensaje de éxito y navegar a la pantalla de inicio de sesión
-      Alert.alert(
-        '¡Contraseña actualizada!',
+      showSuccess(
+        '¡Contraseña Actualizada!',
         'Tu contraseña ha sido actualizada correctamente. Por favor inicia sesión con tu nueva contraseña.',
-        [
-          { 
-            text: 'Aceptar', 
-            onPress: () => navigation.reset({
-              index: 0,
-              routes: [{ name: 'Login' }],
-            })
-          }
-        ]
+        {
+          autoClose: false,
+          buttons: [
+            { 
+              text: 'Iniciar Sesión', 
+              style: 'confirm',
+              onPress: () => navigation.reset({
+                index: 0,
+                routes: [{ name: 'Login' }],
+              })
+            }
+          ]
+        }
       );
       
     } catch (error) {
       console.error('Error al actualizar la contraseña:', error);
-      Alert.alert('Error', error.message || 'Ocurrió un error al actualizar la contraseña. Por favor, inténtalo de nuevo.');
+      showError('Error al Actualizar', error.message || 'Ocurrió un error al actualizar la contraseña. Por favor, inténtalo de nuevo.');
     } finally {
       setIsLoading(false);
     }
@@ -158,190 +177,257 @@ const NewPasswordScreen = ({ route }) => {
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <LinearGradient
-            colors={['#f8f9fa', '#e9ecef']}
+            colors={['#fef7f7', '#fce7e7', '#f9a8d4']}
             style={styles.background}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
           >
-            {/* Botón de regreso */}
-            <TouchableOpacity 
-              style={styles.backButton}
-              onPress={handleGoBack}
-              disabled={isLoading}
+            {/* Decorative elements */}
+            <View style={styles.decorativeCircle1} />
+            <View style={styles.decorativeCircle2} />
+            <View style={styles.decorativeCircle3} />
+            
+            <ScrollView 
+              contentContainerStyle={styles.scrollContainer}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
             >
-              <Ionicons name="arrow-back" size={24} color="#333" />
-            </TouchableOpacity>
-        <ScrollView 
-          contentContainerStyle={styles.scrollContainer}
-          keyboardShouldPersistTaps="handled"
-        >
-          <Animated.View 
-            style={[
-              styles.header,
-              {
-                opacity: fadeAnim,
-                transform: [{ translateY: slideAnim }]
-              }
-            ]}
-          >
-            <Text style={styles.title}>Establecer Nueva Contraseña</Text>
-            <Text style={styles.subtitle}>Crea una nueva contraseña segura para tu cuenta</Text>
-          </Animated.View>
-
-          <Animated.View 
-            style={[
-              styles.formContainer,
-              {
-                opacity: fadeAnim,
-                transform: [{ translateY: formSlideAnim }]
-              }
-            ]}
-          >
-            {/* Campo de nueva contraseña */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Nueva Contraseña</Text>
-              <View style={[
-                styles.inputWrapper,
-                passwordError ? styles.inputError : null
-              ]}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Ingresa tu nueva contraseña"
-                  placeholderTextColor="#999"
-                  value={newPassword}
-                  onChangeText={handlePasswordChange}
-                  secureTextEntry={!showPassword}
-                  autoCapitalize="none"
-                  onBlur={validateForm}
-                />
+              {/* Botón de regreso */}
+              <Animated.View style={[styles.backButtonContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
                 <TouchableOpacity 
-                  style={styles.visibilityIcon}
-                  onPress={() => setShowPassword(!showPassword)}
+                  style={styles.backButton}
+                  onPress={handleGoBack}
+                  disabled={isLoading}
                 >
-                  <Ionicons 
-                    name={showPassword ? 'eye-off-outline' : 'eye-outline'} 
-                    size={22} 
-                    color="#666" 
-                  />
+                  <Ionicons name="arrow-back" size={24} color="#ec4899" />
                 </TouchableOpacity>
-              </View>
-              {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+              </Animated.View>
+              <Animated.View 
+                style={[
+                  styles.header,
+                  {
+                    opacity: fadeAnim,
+                    transform: [{ translateY: slideAnim }]
+                  }
+                ]}
+              >
+                <View style={styles.logoContainer}>
+                  <Text style={styles.logoText}>EternalJoyería</Text>
+                  <View style={styles.logoUnderline} />
+                </View>
+                <Text style={styles.title}>Establecer Nueva Contraseña</Text>
+                <Text style={styles.subtitle}>Crea una nueva contraseña segura para tu cuenta</Text>
+              </Animated.View>
+
+              <Animated.View 
+                style={[
+                  styles.formContainer,
+                  {
+                    opacity: fadeAnim,
+                    transform: [{ translateY: formSlideAnim }]
+                  }
+                ]}
+              >
+                {/* Campo de nueva contraseña */}
+                <View style={styles.inputContainer}>
+                  <Text style={styles.inputLabel}>Nueva Contraseña</Text>
+                  <View style={[
+                    styles.inputWrapper,
+                    passwordError ? styles.inputError : null
+                  ]}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Nueva contraseña"
+                      placeholderTextColor="#999"
+                      value={newPassword}
+                      onChangeText={handlePasswordChange}
+                      secureTextEntry={!showPassword}
+                      autoCapitalize="none"
+                      onBlur={validateForm}
+                      multiline={false}
+                      numberOfLines={1}
+                      textContentType="newPassword"
+                      scrollEnabled={false}
+                      blurOnSubmit={true}
+                    />
+                    <TouchableOpacity 
+                      style={styles.visibilityIcon}
+                      onPress={() => setShowPassword(!showPassword)}
+                    >
+                      <Ionicons 
+                        name={showPassword ? 'eye-off-outline' : 'eye-outline'} 
+                        size={22} 
+                        color="#ec4899" 
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
               
-              <Text style={[styles.inputLabel, { marginTop: 20 }]}>Confirmar Contraseña</Text>
-              <View style={[
-                styles.inputWrapper,
-                confirmPasswordError ? styles.inputError : null
-              ]}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Confirma tu nueva contraseña"
-                  placeholderTextColor="#999"
-                  value={confirmPassword}
-                  onChangeText={handleConfirmPasswordChange}
-                  secureTextEntry={!showConfirmPassword}
-                  autoCapitalize="none"
-                  onBlur={validateForm}
-                />
-                <TouchableOpacity 
-                  style={styles.visibilityIcon}
-                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  <Ionicons 
-                    name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'} 
-                    size={22} 
-                    color="#666" 
-                  />
-                </TouchableOpacity>
-              </View>
-              {confirmPasswordError ? (
-                <Text style={styles.errorText}>{confirmPasswordError}</Text>
-              ) : (
-                <Text style={styles.hintText}>
-                  La contraseña debe tener al menos 6 caracteres
-                </Text>
-              )}
-            </View>
+                  <Text style={[styles.inputLabel, { marginTop: 20 }]}>Confirmar Contraseña</Text>
+                  <View style={[
+                    styles.inputWrapper,
+                    confirmPasswordError ? styles.inputError : null
+                  ]}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Confirmar contraseña"
+                      placeholderTextColor="#999"
+                      value={confirmPassword}
+                      onChangeText={handleConfirmPasswordChange}
+                      secureTextEntry={!showConfirmPassword}
+                      autoCapitalize="none"
+                      onBlur={validateForm}
+                      multiline={false}
+                      numberOfLines={1}
+                      textContentType="newPassword"
+                      scrollEnabled={false}
+                      blurOnSubmit={true}
+                    />
+                    <TouchableOpacity 
+                      style={styles.visibilityIcon}
+                      onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      <Ionicons 
+                        name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'} 
+                        size={22} 
+                        color="#ec4899" 
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  {confirmPasswordError ? (
+                    <Text style={styles.errorText}>{confirmPasswordError}</Text>
+                  ) : (
+                    <Text style={styles.hintText}>
+                      La contraseña debe tener al menos 8 caracteres y un carácter especial
+                    </Text>
+                  )}
+                </View>
 
-            {/* Botón de actualizar contraseña */}
-            <TouchableOpacity
-              style={[
-                styles.button,
-                (!isFormValid || isLoading) && styles.buttonDisabled
-              ]}
-              onPress={handleResetPassword}
-              disabled={!isFormValid || isLoading}
-              activeOpacity={0.8}
-            >
-              {isLoading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.buttonText}>Actualizar Contraseña</Text>
-              )}
-            </TouchableOpacity>
-          </Animated.View>
-        </ScrollView>
-      </LinearGradient>
+                {/* Botón de actualizar contraseña */}
+                <TouchableOpacity
+                  style={[
+                    styles.button,
+                    (!isFormValid || isLoading) && styles.buttonDisabled
+                  ]}
+                  onPress={handleResetPassword}
+                  disabled={!isFormValid || isLoading}
+                  activeOpacity={0.8}
+                >
+                  {isLoading ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <Text style={styles.buttonText}>Actualizar Contraseña</Text>
+                  )}
+                </TouchableOpacity>
+              </Animated.View>
+            </ScrollView>
+          </LinearGradient>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+
+      {/* Alerta personalizada */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+        onClose={hideAlert}
+        autoClose={alertConfig.autoClose}
+        autoCloseDelay={alertConfig.autoCloseDelay}
+        showIcon={alertConfig.showIcon}
+        animationType={alertConfig.animationType}
+      />
     </SafeAreaView>
-  </TouchableWithoutFeedback>
-</KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
-  backButton: {
-    position: 'absolute',
-    top: 16,
-    left: 16,
-    zIndex: 10,
-    padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: 20,
-  },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#fef7f7',
   },
   background: {
     flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
+    justifyContent: 'center',
     padding: 20,
-    paddingTop: 40,
+    minHeight: height - 100,
+  },
+  backButtonContainer: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    zIndex: 10,
+  },
+  backButton: {
+    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 25,
+    shadowColor: '#ec4899',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   header: {
     marginBottom: 40,
     alignItems: 'center',
+    zIndex: 2,
   },
-  backButton: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    padding: 10,
-    zIndex: 1,
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  logoText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#ec4899',
+    letterSpacing: 1,
+  },
+  logoUnderline: {
+    width: 60,
+    height: 3,
+    backgroundColor: '#f472b6',
+    marginTop: 5,
+    borderRadius: 2,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#2d3748',
     marginBottom: 10,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#718096',
     textAlign: 'center',
     marginTop: 10,
+    lineHeight: 22,
   },
   formContainer: {
     width: '100%',
     maxWidth: 400,
     alignSelf: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 20,
+    padding: 30,
+    shadowColor: '#ec4899',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 8,
+    zIndex: 2,
   },
   inputContainer: {
     marginBottom: 25,
@@ -349,7 +435,7 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#444',
+    color: '#2d3748',
     marginBottom: 8,
     marginLeft: 5,
   },
@@ -357,55 +443,69 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    paddingHorizontal: 15,
-    height: 56,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: '#f472b6',
+    paddingHorizontal: 16,
+    paddingVertical: 12, // Padding moderado
+    shadowColor: '#ec4899',
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 4,
+    height: 56, // Altura fija moderada
   },
   input: {
     flex: 1,
-    height: '100%',
     fontSize: 16,
     color: '#333',
-    paddingRight: 10,
+    fontWeight: '500',
+    paddingRight: 12,
+    paddingLeft: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
+    margin: 0,
+    textAlignVertical: 'center',
+    includeFontPadding: false, // Elimina padding extra en Android
+    lineHeight: 20, // Controla la altura de línea
   },
   visibilityIcon: {
-    padding: 5,
+    padding: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 32,
+    minHeight: 32,
   },
   inputError: {
-    borderColor: '#ff3b30',
+    borderColor: '#e53e3e',
+    backgroundColor: '#fed7d7',
   },
   errorText: {
-    color: '#ff3b30',
+    color: '#e53e3e',
     fontSize: 13,
     marginTop: 5,
     marginLeft: 5,
+    fontWeight: '500',
   },
   hintText: {
-    color: '#666',
+    color: '#718096',
     fontSize: 13,
     marginTop: 5,
     marginLeft: 5,
     fontStyle: 'italic',
   },
   button: {
-    backgroundColor: '#d4af37',
-    borderRadius: 10,
+    backgroundColor: '#ec4899',
+    borderRadius: 15,
     height: 56,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    marginTop: 30,
+    shadowColor: '#ec4899',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 6,
   },
   buttonDisabled: {
     opacity: 0.6,
@@ -413,7 +513,38 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  decorativeCircle1: {
+    position: 'absolute',
+    top: 100,
+    right: -50,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(244, 114, 182, 0.1)',
+    zIndex: 1,
+  },
+  decorativeCircle2: {
+    position: 'absolute',
+    bottom: 200,
+    left: -30,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(236, 72, 153, 0.15)',
+    zIndex: 1,
+  },
+  decorativeCircle3: {
+    position: 'absolute',
+    top: 300,
+    left: 30,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(249, 168, 212, 0.2)',
+    zIndex: 1,
   },
 });
 

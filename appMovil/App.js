@@ -9,6 +9,7 @@ import WelcomeScreen2 from './src/screens/WelcomeScreen2';
 import WelcomeScreen3 from './src/screens/WelcomeScreen3';
 import AuthNavigator from './src/navigation/AuthNavigator';
 import AppNavigator from './src/navigation/AppNavigator';
+import { setupErrorHandling } from './src/utils/errorHandler';
 
 const AppContent = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -80,6 +81,11 @@ const AppContent = () => {
 };
 
 export default function App() {
+  // Configurar el manejo de errores al iniciar la app
+  React.useEffect(() => {
+    setupErrorHandling();
+  }, []);
+
   return (
     <SafeAreaProvider>
       <AuthProvider>

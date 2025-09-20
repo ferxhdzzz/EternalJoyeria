@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BACKEND_URL, API_ENDPOINTS, buildApiUrl } from '../../config/api';
 
 /**
  * Custom hook useRegistro para React Native
@@ -97,11 +98,8 @@ const useRegistro = () => {
         }
       }
 
-      // URL del backend - debe coincidir con la configuración del servidor
-      const getBaseURL = () => 'http://192.168.1.200:4000';
-
-      // Hacer la petición al backend
-      const response = await fetch(`${getBaseURL()}/api/registerCustomers`, {
+      // Hacer la petición al backend usando configuración centralizada
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.REGISTER), {
         method: 'POST',
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -162,11 +160,8 @@ const useRegistro = () => {
       const codeStr = verificationCode.toString().trim();
       const emailNormalized = email.trim().toLowerCase();
 
-      // URL del backend - debe coincidir con la configuración del servidor
-      const BACKEND_URL = 'http://10.10.4.11:4000';
-
-      // Realizar petición al endpoint de verificación
-      const response = await fetch(`${BACKEND_URL}/api/registerCustomers/verifyCodeEmail`, {
+      // Realizar petición al endpoint de verificación usando configuración centralizada
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.VERIFY_EMAIL), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -226,8 +221,8 @@ const useRegistro = () => {
         throw new Error('Formato de email inválido');
       }
 
-      // Petición para generar y enviar nuevo código
-      const response = await fetch('http://192.168.137.1:4000/api/registerCustomers/resend-code', {
+      // Petición para generar y enviar nuevo código usando configuración centralizada
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.RESEND_CODE), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

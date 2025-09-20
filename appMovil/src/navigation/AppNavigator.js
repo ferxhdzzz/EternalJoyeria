@@ -34,10 +34,7 @@ const AppNavigator = () => {
         name="ProductDetail" 
         component={ProductDetailScreen}
         options={{
-          headerShown: true,
-          title: 'Detalle del producto',
-          headerBackTitleVisible: false,
-          headerLeft: () => null,
+          headerShown: false,
         }}
       />
       <Stack.Screen 
@@ -64,11 +61,7 @@ const AppNavigator = () => {
         name="ChangePassword" 
         component={ChangePasswordScreen}
         options={{
-          headerShown: true,
-          title: 'Cambiar contraseña',
-          headerBackTitleVisible: false,
-          headerTintColor: '#2c3e50',
-          headerStyle: { backgroundColor: '#fff' },
+          headerShown: false,
         }}
       />
       <Stack.Screen 

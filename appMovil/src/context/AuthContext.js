@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// //
+import { BACKEND_URL, API_ENDPOINTS, buildApiUrl } from '../config/api';
+
 export const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -16,8 +17,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // URL del backend
-  const BACKEND_URL = 'http://192.168.1.200:4000'; // Dirección IP actualizada
+  // URL del backend viene de la configuración centralizada
 
   // Asegura que profilePicture sea una URL absoluta
   const normalizeProfileUrl = (url) => {
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
         // Intentar refrescar datos desde el backend
         let parsedUser = JSON.parse(userData);
         try {
-          const meRes = await fetch(`${BACKEND_URL}/api/customers/me`, {
+          const meRes = await fetch(buildApiUrl(API_ENDPOINTS.CUSTOMERS_ME), {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${token}` },
           });
@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
   // Función de login que se conecta al backend
   const login = async (email, password) => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/login`, {
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.LOGIN), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ export const AuthProvider = ({ children }) => {
         await AsyncStorage.setItem('authToken', data.token);
 
         // Obtener perfil completo del usuario autenticado
-        const meRes = await fetch(`${BACKEND_URL}/api/customers/me`, {
+        const meRes = await fetch(buildApiUrl(API_ENDPOINTS.CUSTOMERS_ME), {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${data.token}`,
@@ -146,7 +146,7 @@ export const AuthProvider = ({ children }) => {
   const updateUser = async (newData) => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch(`${BACKEND_URL}/api/customers/me`, {
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.CUSTOMERS_ME), {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -205,7 +205,7 @@ export const AuthProvider = ({ children }) => {
         name: `profile.${ext}`,
       });
 
-      const response = await fetch(`${BACKEND_URL}/api/customers/me`, {
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.CUSTOMERS_ME), {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -250,7 +250,7 @@ export const AuthProvider = ({ children }) => {
       console.log('🔐 [Frontend] Token encontrado:', token.substring(0, 50) + '...');
       
       // Probemos primero con una solicitud simple para verificar conectividad
-      const testUrl = `${BACKEND_URL}/api/customers/me`;
+      const testUrl = buildApiUrl(API_ENDPOINTS.CUSTOMERS_ME);
       console.log('🔐 [Frontend] Probando conectividad con:', testUrl);
       
       try {
@@ -266,7 +266,7 @@ export const AuthProvider = ({ children }) => {
         throw new Error('No se puede conectar al servidor. Verifica tu conexión.');
       }
 
-      const changePasswordUrl = `${BACKEND_URL}/api/profile/change-password`;
+      const changePasswordUrl = buildApiUrl(API_ENDPOINTS.PROFILE_CHANGE_PASSWORD);
       console.log('🔐 [Frontend] Enviando solicitud a:', changePasswordUrl);
       console.log('🔐 [Frontend] Datos enviados:', {
         currentPassword: '***',

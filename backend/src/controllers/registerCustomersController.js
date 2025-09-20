@@ -194,7 +194,8 @@ registerCustomersController.registerClient = async (req, res) => {
 
     // ===== RESPUESTA EXITOSA =====
     res.status(201).json({ 
-      message: "Registration successful. Verification email sent." 
+      message: "Registration successful. Verification email sent.",
+      verificationToken: tokenCode // Incluir token para app móvil
     });
 
   } catch (error) {
@@ -216,7 +217,11 @@ registerCustomersController.registerClient = async (req, res) => {
 
 registerCustomersController.verifyCodeEmail = async (req, res) => {
   const { verificationCode } = req.body; // código recibido desde el cliente
-  const token = req.cookies.verificationToken; // token guardado en la cookie
+  // Obtener token desde cookie (web) o Authorization header (móvil)
+  const token = req.cookies.verificationToken || 
+                (req.headers.authorization && req.headers.authorization.startsWith('Bearer ') 
+                  ? req.headers.authorization.substring(7) 
+                  : null);
 
 
   try {

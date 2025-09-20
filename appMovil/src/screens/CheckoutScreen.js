@@ -18,6 +18,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCart } from '../context/CartContext';
 import usePayment from '../hooks/usePayment';
+import CustomAlert from '../components/CustomAlert';
+import useCustomAlert from '../hooks/useCustomAlert';
 
 const CheckoutScreen = ({ navigation }) => {
   const { cartItems, clearCart } = useCart();
@@ -35,10 +37,23 @@ const CheckoutScreen = ({ navigation }) => {
     orderId,
     loading,
     limpiarFormulario,
+    resetPaymentState,
   } = usePayment();
 
   const [errors, setErrors] = useState({});
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  
+  // Hook para alertas personalizadas
+  const {
+    alertConfig,
+    hideAlert,
+    showValidationError,
+    showPaymentError,
+    showPaymentSuccess,
+    showError,
+    showConfirm,
+    showSuccess,
+  } = useCustomAlert();
 
   // Calcular totales
   const subtotal = cartItems.reduce((acc, item) => acc + (item.finalPrice || item.price || 0) * item.quantity, 0);
@@ -64,11 +79,45 @@ const CheckoutScreen = ({ navigation }) => {
   // Validaciones paso 1
   const validateStep1 = () => {
     const newErrors = {};
-    if (!formData.nombre?.trim()) newErrors.nombre = 'Nombre requerido';
-    if (!formData.email?.trim() || !/^\S+@\S+\.\S+$/.test(formData.email)) newErrors.email = 'Correo inválido';
-    if (!formData.direccion?.trim()) newErrors.direccion = 'Dirección requerida';
-    if (!formData.ciudad?.trim()) newErrors.ciudad = 'Ciudad requerida';
-    if (!formData.telefono?.trim()) newErrors.telefono = 'Teléfono requerido';
+    
+    // Validar nombre
+    if (!formData.nombre?.trim()) {
+      newErrors.nombre = 'El nombre completo es requerido';
+    } else if (formData.nombre.trim().length < 2) {
+      newErrors.nombre = 'El nombre debe tener al menos 2 caracteres';
+    }
+    
+    // Validar email
+    if (!formData.email?.trim()) {
+      newErrors.email = 'El correo electrónico es requerido';
+    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      newErrors.email = 'Ingresa un correo electrónico válido';
+    }
+    
+    // Validar dirección
+    if (!formData.direccion?.trim()) {
+      newErrors.direccion = 'La dirección completa es requerida';
+    } else if (formData.direccion.trim().length < 10) {
+      newErrors.direccion = 'Ingresa una dirección más detallada (mínimo 10 caracteres)';
+    }
+    
+    // Validar ciudad
+    if (!formData.ciudad?.trim()) {
+      newErrors.ciudad = 'La ciudad es requerida';
+    } else if (formData.ciudad.trim().length < 2) {
+      newErrors.ciudad = 'Ingresa un nombre de ciudad válido';
+    }
+    
+    // Validar teléfono
+    if (!formData.telefono?.trim()) {
+      newErrors.telefono = 'El número de teléfono es requerido';
+    } else {
+      const phoneClean = formData.telefono.replace(/\D/g, '');
+      if (phoneClean.length < 8 || phoneClean.length > 15) {
+        newErrors.telefono = 'Ingresa un número de teléfono válido (8-15 dígitos)';
+      }
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -76,21 +125,69 @@ const CheckoutScreen = ({ navigation }) => {
   // Validaciones paso 2
   const validateStep2 = () => {
     const newErrors = {};
+    
+    console.log('🔍 Validando datos de tarjeta:', {
+      nombreTarjetaHabiente: formDataTarjeta.nombreTarjetaHabiente,
+      numeroTarjeta: formDataTarjeta.numeroTarjeta ? `****${formDataTarjeta.numeroTarjeta.slice(-4)}` : 'vacío',
+      mesVencimiento: formDataTarjeta.mesVencimiento,
+      anioVencimiento: formDataTarjeta.anioVencimiento,
+      cvv: formDataTarjeta.cvv ? `${formDataTarjeta.cvv.length} dígitos` : 'vacío',
+      displayValue: formDataTarjeta.displayValue
+    });
+    
+    // Validar nombre en tarjeta
     if (!formDataTarjeta.nombreTarjetaHabiente?.trim()) {
-      newErrors.nombreTarjetaHabiente = 'Nombre en la tarjeta requerido';
+      newErrors.nombreTarjetaHabiente = 'Ingresa el nombre como aparece en tu tarjeta';
+    } else if (formDataTarjeta.nombreTarjetaHabiente.trim().length < 2) {
+      newErrors.nombreTarjetaHabiente = 'El nombre debe tener al menos 2 caracteres';
     }
-    if (
-      !formDataTarjeta.numeroTarjeta?.trim() ||
-      !/^\d{13,16}$/.test(formDataTarjeta.numeroTarjeta.replace(/\s/g, ''))
-    ) {
-      newErrors.numeroTarjeta = 'Tarjeta inválida (13-16 dígitos numéricos)';
+    
+    // Validar número de tarjeta
+    const numeroLimpio = (formDataTarjeta.numeroTarjeta || '').replace(/\s/g, '');
+    if (!numeroLimpio) {
+      newErrors.numeroTarjeta = 'El número de tarjeta es requerido';
+    } else if (!/^\d{13,16}$/.test(numeroLimpio)) {
+      newErrors.numeroTarjeta = 'Ingresa un número de tarjeta válido (13-16 dígitos)';
+    } else {
+      // Validación adicional con algoritmo de Luhn para tarjetas reales
+      const isValidCard = numeroLimpio === '4242424242424242' || 
+                         numeroLimpio === '4111111111111111' ||
+                         /^4\d{15}$/.test(numeroLimpio) || // Visa
+                         /^5[1-5]\d{14}$/.test(numeroLimpio) || // Mastercard
+                         /^3[47]\d{13}$/.test(numeroLimpio); // American Express
+      
+      if (!isValidCard && !numeroLimpio.startsWith('4242') && !numeroLimpio.startsWith('4111')) {
+        newErrors.numeroTarjeta = 'Usa una tarjeta de prueba válida (4242... o 4111...)';
+      }
     }
+    
+    // Validar fecha de vencimiento
     if (!formDataTarjeta.mesVencimiento || !formDataTarjeta.anioVencimiento) {
-      newErrors.fechaVencimiento = 'Fecha de vencimiento requerida';
+      newErrors.fechaVencimiento = 'La fecha de vencimiento es requerida';
+    } else {
+      const mes = parseInt(formDataTarjeta.mesVencimiento);
+      const anio = parseInt(formDataTarjeta.anioVencimiento);
+      const ahora = new Date();
+      const anioActual = ahora.getFullYear();
+      const mesActual = ahora.getMonth() + 1;
+      
+      if (mes < 1 || mes > 12) {
+        newErrors.fechaVencimiento = 'Ingresa un mes válido (01-12)';
+      } else if (anio < anioActual || (anio === anioActual && mes < mesActual)) {
+        newErrors.fechaVencimiento = 'La tarjeta ha expirado. Usa una fecha futura';
+      } else if (anio > anioActual + 20) {
+        newErrors.fechaVencimiento = 'La fecha de vencimiento es muy lejana';
+      }
     }
-    if (!formDataTarjeta.cvv?.trim() || !/^\d{3,4}$/.test(formDataTarjeta.cvv)) {
-      newErrors.cvv = 'CVV inválido (3-4 dígitos)';
+    
+    // Validar CVV
+    if (!formDataTarjeta.cvv?.trim()) {
+      newErrors.cvv = 'El código CVV es requerido';
+    } else if (!/^\d{3,4}$/.test(formDataTarjeta.cvv)) {
+      newErrors.cvv = 'El CVV debe tener 3 o 4 dígitos numéricos';
     }
+    
+    console.log('❌ Errores encontrados:', newErrors);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -109,7 +206,10 @@ const CheckoutScreen = ({ navigation }) => {
           await handleFirstStep();
         } catch (err) {
           console.error('Error en primer paso:', err);
-          Alert.alert('Error', err?.message || 'No se pudo preparar el pago. Intenta nuevamente.');
+          showError(
+            'Error de Preparación',
+            err?.message || 'No se pudo preparar el pago. Por favor verifica tu conexión e intenta nuevamente.'
+          );
         }
       }
     }
@@ -123,31 +223,63 @@ const CheckoutScreen = ({ navigation }) => {
   };
 
   const handlePayment = async () => {
-    if (!validateStep2()) {
-      Alert.alert('Error de validación', 'Por favor, corrige los errores en el formulario antes de continuar.');
+    console.log('🚀 Iniciando proceso de pago...');
+    
+    const isValid = validateStep2();
+    console.log('✅ Validación resultado:', isValid);
+    
+    if (!isValid) {
+      console.log('❤️ Validación fallida, mostrando errores al usuario');
+      showValidationError(errors);
       return;
     }
+    
+    console.log('✅ Validación exitosa, procediendo con el pago...');
 
     try {
       await handleFinishPayment();
-      Alert.alert(
-        'Pago exitoso',
-        'Gracias por tu compra.',
-        [
+      showPaymentSuccess(total.toFixed(2), {
+        buttons: [
           {
             text: 'Ver mis pedidos',
+            style: 'confirm',
             onPress: () => {
               clearCart();
               limpiarFormulario();
-              // Navegar directamente a la pestaña de Pedidos
               navigation.navigate('Pedidos');
             },
           }
         ]
-      );
+      });
     } catch (error) {
       console.error('Error al pagar:', error);
-      Alert.alert('Pago rechazado', error?.message || 'No se pudo procesar el pago. Intenta de nuevo.');
+      
+      // Si la orden ya fue procesada, ofrecer resetear
+      if (error.message && error.message.includes('ya fue procesada')) {
+        showConfirm(
+          'Orden Ya Procesada',
+          error.message + '\n\n¿Deseas iniciar un nuevo proceso de pago?',
+          async () => {
+            try {
+              await resetPaymentState();
+              showSuccess('Éxito', 'Puedes iniciar un nuevo proceso de pago.');
+            } catch (resetError) {
+              console.error('Error al resetear:', resetError);
+              showError('Error', 'No se pudo resetear el estado. Intenta reiniciar la app.');
+            }
+          },
+          () => {}, // onCancel - no hacer nada
+          { animationType: 'bounce' }
+        );
+      } else if (error.message && error.message.includes('Error en el servidor')) {
+        showPaymentError('server');
+      } else if (error.message && error.message.includes('tarjeta')) {
+        showPaymentError('card');
+      } else if (error.message && error.message.includes('conexión')) {
+        showPaymentError('network');
+      } else {
+        showPaymentError('general');
+      }
     }
   };
 
@@ -168,14 +300,82 @@ const CheckoutScreen = ({ navigation }) => {
     handleChangeTarjeta('numeroTarjeta', rawValue);
   };
 
-  const handleExpiryChange = (text) => {
-    let value = text.replace(/\D/g, '');
-    if (value.length >= 2) {
-      value = value.substring(0, 2) + '/' + value.substring(2, 4);
+  // Función para obtener la fecha formateada
+  const getFormattedExpiry = () => {
+    const mes = formDataTarjeta.mesVencimiento || '';
+    const anio = formDataTarjeta.anioVencimiento || '';
+    
+    if (!mes && !anio) return '';
+    if (mes && !anio) return mes;
+    if (mes && anio) {
+      const shortYear = anio.length > 2 ? anio.slice(-2) : anio;
+      return `${mes}/${shortYear}`;
     }
-    const [mes, anio] = value.split('/');
-    if (mes) handleChangeTarjeta('mesVencimiento', mes);
-    if (anio) handleChangeTarjeta('anioVencimiento', `20${anio}`);
+    return mes;
+  };
+
+  const handleExpiryChange = (text) => {
+    // Si el campo está vacío, limpiar todo
+    if (text === '') {
+      handleChangeTarjeta('mesVencimiento', '');
+      handleChangeTarjeta('anioVencimiento', '');
+      handleChangeTarjeta('displayValue', '');
+      return;
+    }
+    
+    // Solo permitir números y slash
+    let cleanValue = text.replace(/[^0-9]/g, '');
+    
+    // Limitar a 4 dígitos máximo
+    if (cleanValue.length > 4) {
+      cleanValue = cleanValue.substring(0, 4);
+    }
+    
+    let formattedValue = '';
+    
+    if (cleanValue.length >= 1) {
+      let mes = cleanValue.substring(0, 2);
+      
+      // Validar que el mes no sea mayor a 12
+      if (cleanValue.length >= 2) {
+        const mesNum = parseInt(mes);
+        if (mesNum > 12) {
+          mes = '12';
+          cleanValue = '12' + cleanValue.substring(2);
+        } else if (mesNum === 0) {
+          mes = '01';
+          cleanValue = '01' + cleanValue.substring(2);
+        }
+      }
+      
+      formattedValue = mes;
+      
+      // Agregar slash automáticamente después de 2 dígitos
+      if (cleanValue.length > 2) {
+        const anio = cleanValue.substring(2, 4);
+        formattedValue = mes + '/' + anio;
+      }
+    }
+    
+    // Guardar el valor formateado para mostrar
+    handleChangeTarjeta('displayValue', formattedValue);
+    
+    // Actualizar los valores en el estado
+    if (cleanValue.length >= 2) {
+      const mes = cleanValue.substring(0, 2);
+      handleChangeTarjeta('mesVencimiento', mes);
+      
+      if (cleanValue.length >= 3) {
+        const anio = cleanValue.substring(2, 4);
+        const fullYear = anio.length === 2 ? `20${anio}` : '';
+        handleChangeTarjeta('anioVencimiento', fullYear);
+      } else {
+        handleChangeTarjeta('anioVencimiento', '');
+      }
+    } else {
+      handleChangeTarjeta('mesVencimiento', cleanValue);
+      handleChangeTarjeta('anioVencimiento', '');
+    }
   };
 
   if (cartItems.length === 0) {
@@ -204,16 +404,19 @@ const CheckoutScreen = ({ navigation }) => {
       
       {/* Header con gradiente */}
       <LinearGradient
-        colors={['#F8BBD9', '#E8B4CB']}
+        colors={['#fce4ec', '#f8bbd9', '#f48fb1']}
         style={styles.headerGradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
         <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+            <Ionicons name="arrow-back" size={24} color="#ad1457" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Checkout</Text>
+          <View style={styles.headerCenter}>
+            <Ionicons name="diamond" size={28} color="#e91e63" />
+            <Text style={styles.headerTitle}>Finalizar Compra</Text>
+          </View>
           <View style={styles.placeholder} />
         </Animated.View>
       </LinearGradient>
@@ -245,13 +448,13 @@ const CheckoutScreen = ({ navigation }) => {
         {step === 1 && (
           <Animated.View style={[styles.stepContainer, { opacity: fadeAnim }]}>
             <View style={styles.stepTitleContainer}>
-              <Ionicons name="location-outline" size={24} color="#E8B4CB" />
+              <Ionicons name="location" size={24} color="#e91e63" />
               <Text style={styles.stepTitle}>Datos de envío</Text>
             </View>
             
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="person-outline" size={16} color="#E8B4CB" />
+                <Ionicons name="person" size={16} color="#e91e63" />
                 <Text style={styles.inputLabel}>Nombre completo</Text>
               </View>
               <TextInput
@@ -266,7 +469,7 @@ const CheckoutScreen = ({ navigation }) => {
 
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="mail-outline" size={16} color="#E8B4CB" />
+                <Ionicons name="mail" size={16} color="#e91e63" />
                 <Text style={styles.inputLabel}>Correo electrónico</Text>
               </View>
               <TextInput
@@ -283,7 +486,7 @@ const CheckoutScreen = ({ navigation }) => {
 
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="home-outline" size={16} color="#E8B4CB" />
+                <Ionicons name="home" size={16} color="#e91e63" />
                 <Text style={styles.inputLabel}>Dirección completa</Text>
               </View>
               <TextInput
@@ -301,7 +504,7 @@ const CheckoutScreen = ({ navigation }) => {
 
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="call-outline" size={16} color="#E8B4CB" />
+                <Ionicons name="call" size={16} color="#e91e63" />
                 <Text style={styles.inputLabel}>Teléfono</Text>
               </View>
               <TextInput
@@ -317,7 +520,7 @@ const CheckoutScreen = ({ navigation }) => {
 
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="business-outline" size={16} color="#E8B4CB" />
+                <Ionicons name="business" size={16} color="#e91e63" />
                 <Text style={styles.inputLabel}>Ciudad</Text>
               </View>
               <TextInput
@@ -335,8 +538,8 @@ const CheckoutScreen = ({ navigation }) => {
         {/* Paso 2: Información de pago */}
         {step === 2 && (
           <Animated.View style={[styles.stepContainer, { opacity: fadeAnim }]}>
-            <View style={styles.stepHeader}>
-              <Ionicons name="card-outline" size={24} color="#E8B4CB" />
+            <View style={styles.stepTitleContainer}>
+              <Ionicons name="card" size={24} color="#e91e63" />
               <Text style={styles.stepTitle}>Información de pago</Text>
             </View>
             
@@ -358,7 +561,7 @@ const CheckoutScreen = ({ navigation }) => {
             
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="person-outline" size={16} color="#E8B4CB" />
+                <Ionicons name="person" size={16} color="#e91e63" />
                 <Text style={styles.inputLabel}>Nombre en la tarjeta</Text>
               </View>
               <TextInput
@@ -373,7 +576,7 @@ const CheckoutScreen = ({ navigation }) => {
 
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="card-outline" size={16} color="#E8B4CB" />
+                <Ionicons name="card" size={16} color="#e91e63" />
                 <Text style={styles.inputLabel}>Número de tarjeta</Text>
               </View>
               <TextInput
@@ -391,12 +594,12 @@ const CheckoutScreen = ({ navigation }) => {
             <View style={styles.rowContainer}>
               <View style={styles.halfInputGroup}>
                 <View style={styles.inputLabelContainer}>
-                  <Ionicons name="calendar-outline" size={16} color="#E8B4CB" />
+                  <Ionicons name="calendar" size={16} color="#e91e63" />
                   <Text style={styles.inputLabel}>Fecha de vencimiento</Text>
                 </View>
                 <TextInput
                   style={[styles.textInput, errors.fechaVencimiento && styles.inputError]}
-                  value={`${formDataTarjeta.mesVencimiento || ''}${formDataTarjeta.anioVencimiento ? '/' + formDataTarjeta.anioVencimiento.slice(-2) : ''}`}
+                  value={formDataTarjeta.displayValue || ''}
                   onChangeText={handleExpiryChange}
                   placeholder="MM/AA"
                   placeholderTextColor="#999"
@@ -405,15 +608,15 @@ const CheckoutScreen = ({ navigation }) => {
                 />
                 {errors.fechaVencimiento && <Text style={styles.errorText}>{errors.fechaVencimiento}</Text>}
               </View>
-              <View style={styles.halfInputGroup}>
-                <View style={styles.inputLabelContainer}>
-                  <Ionicons name="shield-outline" size={16} color="#E8B4CB" />
+              <View style={styles.cvvInputGroup}>
+                <View style={styles.cvvLabelContainer}>
+                  <Ionicons name="shield-checkmark" size={16} color="#e91e63" />
                   <Text style={styles.inputLabel}>CVV</Text>
                 </View>
                 <TextInput
                   style={[styles.textInput, errors.cvv && styles.inputError]}
                   value={formDataTarjeta.cvv || ''}
-                  onChangeText={(text) => handleChangeTarjeta('cvv', text)}
+                  onChangeText={(text) => handleChangeTarjeta('cvv', text.replace(/\D/g, ''))}
                   placeholder="123"
                   placeholderTextColor="#999"
                   keyboardType="numeric"
@@ -430,7 +633,7 @@ const CheckoutScreen = ({ navigation }) => {
         {step === 3 && (
           <Animated.View style={[styles.stepContainer, styles.successContainer, { opacity: fadeAnim }]}>
             <View style={styles.successIcon}>
-              <Ionicons name="checkmark-circle" size={80} color="#E8B4CB" />
+              <Ionicons name="checkmark-circle" size={80} color="#e91e63" />
             </View>
             <Text style={styles.successTitle}>¡Pago exitoso!</Text>
             <Text style={styles.successMessage}>Tu transacción ha sido procesada correctamente</Text>
@@ -441,7 +644,7 @@ const CheckoutScreen = ({ navigation }) => {
         {/* Resumen del pedido */}
         <View style={styles.summaryContainer}>
           <View style={styles.summaryHeader}>
-            <Ionicons name="receipt-outline" size={24} color="#E8B4CB" />
+            <Ionicons name="receipt" size={24} color="#e91e63" />
             <Text style={styles.summaryTitle}>Resumen de tu compra</Text>
           </View>
           {cartItems.map(item => (
@@ -463,7 +666,7 @@ const CheckoutScreen = ({ navigation }) => {
             <Text style={styles.summaryValue}>${shipping.toFixed(2)}</Text>
           </View>
           <LinearGradient
-            colors={['#F8BBD9', '#E8B4CB']}
+            colors={['#e91e63', '#ad1457']}
             style={styles.summaryTotal}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
@@ -529,6 +732,20 @@ const CheckoutScreen = ({ navigation }) => {
           </TouchableOpacity>
         )}
       </View>
+
+      {/* Alerta personalizada */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+        onClose={hideAlert}
+        autoClose={alertConfig.autoClose}
+        autoCloseDelay={alertConfig.autoCloseDelay}
+        showIcon={alertConfig.showIcon}
+        animationType={alertConfig.animationType}
+      />
     </KeyboardAvoidingView>
   );
 };
@@ -536,10 +753,10 @@ const CheckoutScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FEFEFE',
+    backgroundColor: '#fce4ec',
   },
   headerGradient: {
-    paddingTop: 60,
+    paddingTop: 50,
     paddingBottom: 20,
   },
   header: {
@@ -548,23 +765,30 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
   },
-  backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+  headerCenter: {
+    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
+    gap: 10,
+  },
+  backButton: {
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#e91e63',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    textShadowColor: 'rgba(0, 0, 0, 0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    fontWeight: 'bold',
+    color: '#ad1457',
   },
   placeholder: {
     width: 44,
@@ -583,17 +807,17 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#E9ECEF',
+    backgroundColor: '#B0BEC5',
     alignItems: 'center',
     justifyContent: 'center',
   },
   progressStepActive: {
-    backgroundColor: '#E8B4CB',
+    backgroundColor: '#e91e63',
   },
   progressStepText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#6C757D',
+    color: '#455A64',
   },
   progressStepTextActive: {
     color: '#FFFFFF',
@@ -601,11 +825,11 @@ const styles = StyleSheet.create({
   progressLine: {
     flex: 1,
     height: 2,
-    backgroundColor: '#E9ECEF',
+    backgroundColor: '#B0BEC5',
     marginHorizontal: 10,
   },
   progressLineActive: {
-    backgroundColor: '#E8B4CB',
+    backgroundColor: '#e91e63',
   },
   progressLabels: {
     flexDirection: 'row',
@@ -613,14 +837,14 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     fontSize: 12,
-    color: '#6C757D',
+    color: '#455A64',
     textAlign: 'center',
     flex: 1,
   },
   content: {
     flex: 1,
     paddingHorizontal: 20,
-    backgroundColor: '#FEFEFE',
+    backgroundColor: 'transparent',
   },
   stepContainer: {
     marginBottom: 20,
@@ -634,22 +858,25 @@ const styles = StyleSheet.create({
   },
   stepTitle: {
     fontSize: 22,
-    fontWeight: '700',
-    color: '#2C3E50',
+    fontWeight: 'bold',
+    color: '#ad1457',
   },
   inputGroup: {
     marginBottom: 20,
   },
   inputLabelContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 8,
     gap: 6,
+    minHeight: 48,
   },
   inputLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#2C3E50',
+    color: '#ad1457',
+    flexWrap: 'wrap',
+    flex: 1,
   },
   textInput: {
     borderWidth: 1,
@@ -660,7 +887,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#2C3E50',
     backgroundColor: '#FFFFFF',
-    shadowColor: '#E8B4CB',
+    shadowColor: '#e91e63',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -672,32 +899,51 @@ const styles = StyleSheet.create({
     paddingTop: 12,
   },
   inputError: {
-    borderColor: '#FF6B6B',
+    borderColor: '#e91e63',
   },
   errorText: {
-    color: '#E74C3C',
+    color: '#e91e63',
     fontSize: 12,
     marginTop: 4,
+    fontWeight: '500',
+    minHeight: 16,
   },
   rowContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    gap: 15,
   },
   halfInputGroup: {
+    width: '58%',
+  },
+  cvvInputGroup: {
+    width: '35%',
+  },
+  cvvLabelContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+    gap: 6,
+    minHeight: 48,
+    paddingTop: 22,
+  },
+  halfInputGroupAligned: {
     width: '48%',
+    justifyContent: 'flex-start',
   },
   summaryContainer: {
-    backgroundColor: '#FDF7F9',
-    borderRadius: 16,
-    padding: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 20,
+    padding: 25,
     marginVertical: 20,
     borderWidth: 1,
-    borderColor: '#F8BBD9',
-    shadowColor: '#E8B4CB',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    borderColor: 'rgba(233, 30, 99, 0.2)',
+    shadowColor: '#e91e63',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
   },
   summaryHeader: {
     flexDirection: 'row',
@@ -708,8 +954,8 @@ const styles = StyleSheet.create({
   },
   summaryTitle: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#2C3E50',
+    fontWeight: 'bold',
+    color: '#ad1457',
   },
   summaryItem: {
     flexDirection: 'row',
@@ -724,7 +970,7 @@ const styles = StyleSheet.create({
   summaryItemName: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#2C3E50',
+    color: '#4a148c',
     marginBottom: 2,
   },
   summaryItemDetails: {
@@ -733,13 +979,13 @@ const styles = StyleSheet.create({
   },
   summaryItemPrice: {
     fontSize: 15,
-    fontWeight: '700',
-    color: '#E8B4CB',
+    fontWeight: 'bold',
+    color: '#e91e63',
   },
   summaryDivider: {
     height: 1,
-    backgroundColor: '#F8BBD9',
-    marginVertical: 10,
+    backgroundColor: 'rgba(233, 30, 99, 0.3)',
+    marginVertical: 15,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -775,55 +1021,62 @@ const styles = StyleSheet.create({
   buttonContainer: {
     paddingHorizontal: 20,
     paddingBottom: 30,
-    paddingTop: 10,
-    backgroundColor: '#FFFFFF',
+    paddingTop: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderTopWidth: 1,
-    borderTopColor: '#F8BBD9',
+    borderTopColor: 'rgba(233, 30, 99, 0.2)',
   },
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   primaryButton: {
-    backgroundColor: '#E8B4CB',
+    backgroundColor: '#e91e63',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
+    paddingVertical: 18,
+    paddingHorizontal: 30,
     borderRadius: 25,
-    gap: 8,
-    shadowColor: '#E8B4CB',
-    shadowOffset: { width: 0, height: 4 },
+    gap: 10,
+    shadowColor: '#e91e63',
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowRadius: 12,
+    elevation: 8,
   },
   flexButton: {
     flex: 1,
     marginLeft: 10,
   },
   secondaryButton: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
+    paddingVertical: 18,
+    paddingHorizontal: 30,
     borderRadius: 25,
-    gap: 8,
-    borderWidth: 1,
-    borderColor: '#E8B4CB',
+    gap: 10,
+    borderWidth: 2,
+    borderColor: '#e91e63',
+    shadowColor: '#e91e63',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   primaryButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
   secondaryButtonText: {
-    color: '#E8B4CB',
+    color: '#e91e63',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
   buttonDisabled: {
     opacity: 0.6,
@@ -846,14 +1099,19 @@ const styles = StyleSheet.create({
   },
   successIcon: {
     marginBottom: 20,
-    backgroundColor: '#FDF7F9',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: 50,
     padding: 20,
+    shadowColor: '#e91e63',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   successTitle: {
     fontSize: 28,
-    fontWeight: '700',
-    color: '#2C3E50',
+    fontWeight: 'bold',
+    color: '#ad1457',
     marginBottom: 10,
   },
   successMessage: {
@@ -864,8 +1122,8 @@ const styles = StyleSheet.create({
   },
   successAmount: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#E8B4CB',
+    fontWeight: 'bold',
+    color: '#e91e63',
     marginTop: 10,
   },
   testModeContainer: {

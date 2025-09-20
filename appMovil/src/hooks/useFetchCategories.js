@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Alert } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BACKEND_URL, API_ENDPOINTS, buildApiUrl } from '../config/api';
 
 const useFetchCategories = () => {
   // Estados para la lista de categorías
@@ -8,15 +9,12 @@ const useFetchCategories = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // URL del backend (misma que en AuthContext)
-  const BACKEND_URL = 'http://192.168.1.200:4000';
-
   const fetchCategories = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      const response = await fetch(`${BACKEND_URL}/api/categories`, {
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.CATEGORIES), {
         credentials: 'include', // Importante para enviar cookies
       });
       
