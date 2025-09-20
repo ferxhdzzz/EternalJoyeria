@@ -427,70 +427,66 @@ const Profile = () => {
                 <h4 style={{ fontSize: 16, fontWeight: 600, color: '#333', marginBottom: 15 }}>Historiales</h4>
 
                 
+<div className="profile-settings-row" style={{ marginBottom: 12 }}>
+  <button
+    className="order-history-btn"
+    style={{
+      background: '#F0EFFA',
+      color: '#222',
+      border: 'none',
+      borderRadius: 8,
+      padding: '8px 16px',
+      fontWeight: 600,
+      fontSize: 14,
+      cursor: 'pointer',
+      width: '100%',
+      transition: 'all 0.3s ease',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px'
+    }}
+    onMouseEnter={(e) => { e.target.style.background = '#eab5c5'; e.target.style.color = '#fff'; }}
+    onMouseLeave={(e) => { e.target.style.background = '#F0EFFA'; e.target.style.color = '#222'; }}
+    onClick={() => window.location.href = '/historial'}
+  >
+    <HistoryIcon size={16} color="currentColor" />
+    Historial de pedidos
+  </button>
+</div>
 
-               
-                <div className="profile-settings-row" style={{ marginBottom: 12 }}>
-                 
-              
+<div className="profile-settings-row" style={{ marginBottom: 12 }}>
+  <button
+    className="order-history-btn"
+    style={{
+      background: '#F0EFFA',
+      color: '#222',
+      border: 'none',
+      borderRadius: 8,
+      padding: '8px 16px',
+      fontWeight: 600,
+      fontSize: 14,
+      cursor: 'pointer',
+      width: '100%',
+      transition: 'all 0.3s ease',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px'
+    }}
+    onMouseEnter={(e) => { e.target.style.background = '#eab5c5'; e.target.style.color = '#fff'; }}
+    onMouseLeave={(e) => { e.target.style.background = '#F0EFFA'; e.target.style.color = '#222'; }}
+    onClick={() => window.location.href = '/histReview'}
+  >
+    <HistoryIcon size={16} color="currentColor" />
+    Historial de reseñas
+  </button>
+</div>
 
- <div className="profile-settings-row" style={{ marginBottom: 12 }}>
-                <button
-                  className="order-history-btn"
-                  style={{
-                    background: '#F0EFFA',
-                    color: '#222',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '8px 16px',
-                    fontWeight: 600,
-                    fontSize: 14,
-                    cursor: 'pointer',
-                    width: '100%',
-                    transition: 'all 0.3s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px'
-                  }}
-                  onMouseEnter={(e) => { e.target.style.background = '#eab5c5'; e.target.style.color = '#fff'; }}
-                  onMouseLeave={(e) => { e.target.style.background = '#F0EFFA'; e.target.style.color = '#222'; }}
-                  onClick={() => window.location.href = '/historial'}
-                >
-                  <HistoryIcon size={16} color="currentColor" />
-                  Historial de pedidos
-                </button>
-              </div>
-
-              <div className="profile-settings-row" style={{ marginBottom: 12 }}>
-                <button
-                  className="order-history-btn"
-                  style={{
-                    background: '#F0EFFA',
-                    color: '#222',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '8px 16px',
-                    fontWeight: 600,
-                    fontSize: 14,
-                    cursor: 'pointer',
-                    width: '100%',
-                    transition: 'all 0.3s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px'
-                  }}
-                  onMouseEnter={(e) => { e.target.style.background = '#eab5c5'; e.target.style.color = '#fff'; }}
-                  onMouseLeave={(e) => { e.target.style.background = '#F0EFFA'; e.target.style.color = '#222'; }}
-                  onClick={() => window.location.href = '/histReview'}
-                >
-                  <HistoryIcon size={16} color="currentColor" />
-                  Historial de reseñas
-                </button>
-              </div>
+            
 
 
-                </div>
+            
                 <div className="profile-settings-row" style={{ marginBottom: 12 }}>
                 <button
                   className="logout-btn"
