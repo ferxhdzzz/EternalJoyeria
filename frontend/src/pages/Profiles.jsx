@@ -261,6 +261,7 @@ const Profile = () => {
                 borderRadius: '6px',
                 padding: '4px 8px',
                 fontSize: '15px',
+                  color: '#fff' ,
                 fontWeight: '600',
                   background: '#fff'   // <- aquí
               }}
