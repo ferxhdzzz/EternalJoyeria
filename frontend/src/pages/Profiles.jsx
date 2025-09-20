@@ -453,6 +453,15 @@ const Profile = () => {
                     Términos y condiciones
                   </div>
                 </div>
+                <div className="profile-settings-row" style={{ marginBottom: 12 }}>
+                <button
+                  className="logout-btn"
+                  style={{ background: 'none', color: '#e75480', border: 'none', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}
+                  onClick={handleLogout}
+                >
+                  Desconectarse
+                </button>
+              </div>
               </div>
             </div>
           </div>
@@ -551,15 +560,7 @@ const Profile = () => {
                 </button>
               </div>
 
-              <div className="profile-settings-row" style={{ marginBottom: 12 }}>
-                <button
-                  className="logout-btn"
-                  style={{ background: 'none', color: '#e75480', border: 'none', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}
-                  onClick={handleLogout}
-                >
-                  Desconectarse
-                </button>
-              </div>
+              
             </div>
           </div>
         </div>
