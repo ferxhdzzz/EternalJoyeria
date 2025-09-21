@@ -16,17 +16,12 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 const ReviewStats = ({ stats }) => {
   const { averageRating, totalReviews, ratingDistribution } = stats;
 
-  // Calcular porcentajes
-  const getPercentage = (count) => {
-    return totalReviews > 0 ? Math.round((count / totalReviews) * 100) : 0;
-  };
-
   // Datos para la gráfica
   const chartData = {
     labels: ["⭐ 5", "⭐ 4", "⭐ 3", "⭐ 2", "⭐ 1"],
     datasets: [
       {
-        label: "Cantidad de reseñas",
+        label: "Reseñas",
         data: [
           ratingDistribution[5] || 0,
           ratingDistribution[4] || 0,
@@ -34,34 +29,49 @@ const ReviewStats = ({ stats }) => {
           ratingDistribution[2] || 0,
           ratingDistribution[1] || 0,
         ],
-        backgroundColor: [
-          "rgba(255, 206, 86, 0.8)",  // Amarillo
-          "rgba(75, 192, 192, 0.8)",  // Verde
-          "rgba(54, 162, 235, 0.8)",  // Azul
-          "rgba(255, 99, 132, 0.8)",  // Rojo
-          "rgba(153, 102, 255, 0.8)", // Morado
-        ],
-        borderRadius: 6,
+        backgroundColor: "rgba(255, 105, 180, 0.7)", // 🌸 Rosa
+        borderColor: "rgba(255, 105, 180, 1)",
+        borderWidth: 1,
+        borderRadius: 8,
+        barThickness: 12, // ✅ más delgadas
       },
     ],
   };
 
   const chartOptions = {
+    indexAxis: "y", // ✅ hace que sean horizontales
     responsive: true,
     plugins: {
       legend: {
-        position: "top",
+        display: false, // ocultamos la leyenda si no la necesitas
       },
       title: {
         display: true,
         text: "Distribución de reseñas",
+        color: "#ff69b4",
+        font: {
+          size: 16,
+          weight: "bold",
+        },
       },
     },
     scales: {
-      y: {
+      x: {
         beginAtZero: true,
         ticks: {
           precision: 0,
+          color: "#555",
+        },
+        grid: {
+          color: "rgba(255, 105, 180, 0.1)",
+        },
+      },
+      y: {
+        ticks: {
+          color: "#555",
+        },
+        grid: {
+          display: false,
         },
       },
     },
