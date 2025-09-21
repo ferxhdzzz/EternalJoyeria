@@ -122,7 +122,7 @@ const ReviewsSection = ({ productId, productName }) => {
           <h3 className="reviews-title">Reseñas de clientes</h3>
           <div className="reviews-summary">
             <div className="rating-display">
-              <span className="average-rating">{stats.averageRating.toFixed(1)}</span>
+  
              
              
             </div>
