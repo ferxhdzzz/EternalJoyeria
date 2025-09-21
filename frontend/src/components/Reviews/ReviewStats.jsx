@@ -26,7 +26,7 @@ const ReviewStats = ({ stats }) => {
     labels: ["⭐ 5", "⭐ 4", "⭐ 3", "⭐ 2", "⭐ 1"],
     datasets: [
       {
-       
+        label: "Estadisticas",
         data: [
           ratingDistribution[5] || 0,
           ratingDistribution[4] || 0,
