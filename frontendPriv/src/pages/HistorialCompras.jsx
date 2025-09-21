@@ -1,29 +1,24 @@
-import React, { useState } from "react";
+// src/pages/HistorialCompras.jsx
+import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import Titulo from "../components/Componte-hook/Titulos";
 import SubTitulo from "../components/Componte-hook/SubTitulo";
-import Button from "../components/Componte-hook/Button";
 import Sidebar from "../components/Sidebar/Sidebar";
 import Topbar from "../components/TopBar/TopBar";
+import EditSale from "../hooks/HistorialVentas/EditSale";
 import useFetchSales from "../hooks/HistorialVentas/useFetchSales";
 import useSaleActions from "../hooks/HistorialVentas/useSaleActions";
-import EditSale from "../hooks/HistorialVentas/EditSale";
 import "../Styles/HistorialCompras.css";
+import "../styles/shared/buttons.css";
 
 const HistorialCompras = () => {
-  // Hook personalizado para obtener ventas y refrescarlas
   const { sales, getSales } = useFetchSales();
-  // Hook personalizado para acciones sobre ventas, recibe función para refrescar
   const { deleteSale: deleteSaleOriginal } = useSaleActions(getSales);
 
-  // Estado para controlar qué venta está en modo edición
   const [editingSaleId, setEditingSaleId] = useState(null);
-  // Estado para controlar loading individual por venta (borrar/editar)
   const [loadingId, setLoadingId] = useState(null);
 
-  // Función para eliminar una venta con confirmación SweetAlert
   const deleteSale = async (id) => {
-    // Mostrar confirmación al usuario antes de eliminar
     const result = await Swal.fire({
       title: "¿Estás seguro?",
       text: "No podrás revertir esta acción",
@@ -37,26 +32,18 @@ const HistorialCompras = () => {
 
     if (result.isConfirmed) {
       try {
-        setLoadingId(id); // Marcar venta en loading para deshabilitar botones
-
-        // Mostrar loading mientras se procesa eliminación
+        setLoadingId(id);
         await Swal.fire({
           title: "Eliminando...",
           allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          },
+          didOpen: () => Swal.showLoading(),
           showConfirmButton: false,
         });
 
-        // Llamar a la función original para eliminar venta
         await deleteSaleOriginal(id);
-
-        // Refrescar la lista de ventas luego de eliminar
         await getSales();
 
-        Swal.close(); // Cerrar modal de loading
-        // Mostrar mensaje de éxito breve
+        Swal.close();
         Swal.fire({
           icon: "success",
           title: "Venta eliminada",
@@ -66,7 +53,6 @@ const HistorialCompras = () => {
         });
       } catch (error) {
         Swal.close();
-        // Mostrar mensaje de error si falla la eliminación
         Swal.fire({
           icon: "error",
           title: "Error",
@@ -74,41 +60,33 @@ const HistorialCompras = () => {
           confirmButtonColor: "#d6336c",
         });
       } finally {
-        setLoadingId(null); // Quitar loading
+        setLoadingId(null);
       }
     }
   };
 
   return (
     <div className="dashboard-container">
-      {/* Sidebar lateral */}
       <Sidebar />
       <div className="main-content">
-        {/* Barra superior */}
         <div className="topbar-wrapper">
           <Topbar />
         </div>
 
-        {/* Contenedor principal de historial */}
         <div className="historial-compras-container">
-          {/* Título y subtítulo */}
           <div className="historial-header">
             <Titulo>Historial de Compras</Titulo>
             <SubTitulo>Administra las ventas de manera efectiva</SubTitulo>
           </div>
 
-          {/* Contenedor para las ventas */}
           <div className="sales-container">
-            {/* Mostrar mensaje si no hay ventas */}
             {sales.length === 0 ? (
               <div className="no-sales-message">
                 <p>No hay ventas registradas</p>
               </div>
             ) : (
-              // Mapear y mostrar cada venta como tarjeta
               sales.map((sale) => (
                 <div key={sale._id} className="sale-card">
-                  {/* Encabezado con nombre cliente y estado venta */}
                   <div className="sale-header">
                     <div className="sale-customer-info">
                       <h3>
@@ -121,7 +99,6 @@ const HistorialCompras = () => {
                     </div>
                   </div>
 
-                  {/* Detalles principales de la venta */}
                   <div className="sale-details">
                     <p>
                       <strong>Cliente:</strong>{" "}
@@ -135,58 +112,58 @@ const HistorialCompras = () => {
                       <strong>Dirección:</strong> {sale.address}
                     </p>
                     <p>
-                      <strong>Email:</strong>{" "}
-                      {sale.idOrder?.idCustomer?.email}
+                      <strong>Email:</strong> {sale.idOrder?.idCustomer?.email}
                     </p>
                     <p>
                       <strong>Total:</strong> ${sale.idOrder?.total}
                     </p>
                   </div>
 
-                  {/* Lista de productos comprados */}
                   <div className="products-section">
                     <p>Productos:</p>
                     <div className="products-list">
                       {sale.idOrder?.products?.map((product, index) => (
                         <div key={index} className="product-item">
                           <p>
-                            <strong>{product.productId?.name}</strong> -
-                            Cantidad: {product.quantity} - Subtotal: $
-                            {product.subtotal}
+                            <strong>{product.productId?.name}</strong> - Cantidad:{" "}
+                            {product.quantity} - Subtotal: ${product.subtotal}
                           </p>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* Botones de acción para editar o eliminar */}
+                  
                   <div className="action-buttons">
-                    <Button
-                      type="button"
-                      onClick={() => setEditingSaleId(sale._id)}
-                      className="btn-edit"
-                      disabled={loadingId === sale._id} // Deshabilita botón si loading
-                    >
-                      {loadingId === sale._id && editingSaleId !== sale._id
-                        ? "Actualizando..."
-                        : "Editar"}
-                    </Button>
-                    <Button
-                      onClick={() => deleteSale(sale._id)}
-                      className="btn-delete"
-                      disabled={loadingId === sale._id} // Deshabilita botón si loading
-                    >
-                      {loadingId === sale._id ? "Eliminando..." : "Eliminar"}
-                    </Button>
+                    <div className="ej-btn-set">
+                      <button
+                        type="button"
+                        className="ej-btn ej-approve ej-size-sm"
+                        onClick={() => setEditingSaleId(sale._id)}
+                        disabled={loadingId === sale._id}
+                      >
+                        {loadingId === sale._id && editingSaleId !== sale._id
+                          ? "Actualizando..."
+                          : "Editar"}
+                      </button>
+
+                      <button
+                        type="button"
+                        className="ej-btn ej-danger ej-size-sm"
+                        onClick={() => deleteSale(sale._id)}
+                        disabled={loadingId === sale._id}
+                      >
+                        {loadingId === sale._id ? "Eliminando..." : "Eliminar"}
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Mostrar componente para editar venta si corresponde */}
                   {editingSaleId === sale._id && (
                     <EditSale
                       key={sale._id}
                       saleId={sale._id}
                       onClose={() => setEditingSaleId(null)}
-                      onSave={getSales} // Refrescar lista al guardar cambios
+                      onSave={getSales}
                     />
                   )}
                 </div>

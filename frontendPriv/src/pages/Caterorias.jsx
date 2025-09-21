@@ -1,3 +1,4 @@
+// src/pages/Categorias.jsx
 import React, { useEffect } from "react";
 import SidebarPrivate from "../components/Sidebar/Sidebar";
 import TopNavbarPrivate from "../components/TopBar/TopBar";
@@ -26,7 +27,6 @@ const Categorias = () => {
           <div className="padded-content-wrapperr">
             <div className="products-area-privater">
               <CategorieGrid cats={categories} refreshCategories={getCategories} />
-              {/* ✅ Le pasamos la función para que el form pueda actualizar */}
               <CategoriasForm refreshCategories={getCategories} />
             </div>
           </div>

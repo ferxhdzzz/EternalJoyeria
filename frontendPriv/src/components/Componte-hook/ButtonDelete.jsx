@@ -1,13 +1,14 @@
-const ButtonDelete = ({ type, onClick, text }) => {
+import React from "react";
+import "../../styles/shared/buttons.css";
+
+export default function ButtonDelete({ children = "Eliminar", className = "", ...props }) {
   return (
     <button
-      type={type}
-      onClick={onClick}
-      className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded transition-colors"
+      type="button"
+      className={`ej-btn ej-danger ${className}`.trim()}
+      {...props}
     >
-      {text}
+      {children}
     </button>
   );
-};
-
-export default ButtonDelete;
+}

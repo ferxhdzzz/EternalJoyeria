@@ -160,3 +160,46 @@
   border-color: #D696BF;
   transform: scale(1.05);
 }
+
+/* En el formulario del modal, NO estirar los labels que son botones */
+.edit-product-form label.ej-btn,
+.edit-product-form .ej-file {
+  width: auto;
+  padding-left: var(--ej-px);
+  text-align: center;
+}
+
+/* --- FIX: que el label "Agregar foto" NO herede el label general --- */
+.edit-product-form label.ej-btn,
+.edit-product-form .ej-file {
+  width: auto !important;
+  padding-left: 0 !important;     /* quita el 10% de padding-left del label general */
+  text-align: center !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* Mismo tamaño que los botones de acción (Cancelar) */
+.edit-product-form .file-input-wrapper > label.ej-btn {
+  min-height: 36px !important;
+  padding: 2.3px 20px !important;
+  font-size: .9rem !important;
+  border-radius: var(--ej-radius) !important;
+  box-shadow: var(--ej-shadow) !important;
+  margin: 0 !important;
+}
+
+/* Asegurar la variante "danger" (rosa pálido) en el label-botón */
+.edit-product-form .file-input-wrapper > label.ej-danger {
+  background: var(--ej-danger-bg) !important;
+  color: var(--ej-danger-text) !important;
+}
+.edit-product-form .file-input-wrapper > label.ej-danger:hover {
+  background: var(--ej-danger-bg-hov) !important;
+}
+.edit-product-form .file-input-wrapper > label.ej-danger:active {
+  background: var(--ej-danger-bg-act) !important;
+  transform: translateY(1px);
+}

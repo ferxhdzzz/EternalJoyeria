@@ -1,8 +1,10 @@
+// src/pages/HistorialResenas.jsx
 import React, { useEffect } from "react";
 import TablaResenas from "../components/reseñas/TablaResena/TablaResenas";
 import Nav from "../components/Sidebar/Sidebar";
 import TopBar from "../components/TopBar/TopBar";
 import "../styles/ResenasHist.css";
+import "../styles/shared/buttons.css";
 import useFetchResenas from "../hooks/Reseñas/useFetchResenas";
 import useResenaAction from "../hooks/Reseñas/useResenaAction";
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Swal from "sweetalert2";
 import Titulo from "../components/Componte-hook/Titulos";
 import SubTitulo from "../components/Componte-hook/SubTitulo";
@@ -8,6 +8,7 @@ import Topbar from "../components/TopBar/TopBar";
 import EditProduct from "../hooks/Productos/EditProduct";
 import "../Styles/PaginaProduct.css";
 import "../Styles/CategoryFilterBar.css";
+import "../styles/shared/buttons.css";
 
 import { useDataProduct } from "../hooks/Productos/UseDataProduct";
 import useDataCategorias from "../hooks/Categorias/useDataCategorias";
@@ -111,14 +112,9 @@ const Products = () => {
             ) : (
               filteredProducts.map((product) => {
                 let medidas = {};
-
                 if (product.measurements) {
                   if (typeof product.measurements === "string") {
-                    try {
-                      medidas = JSON.parse(product.measurements);
-                    } catch (error) {
-                      console.error("Error al parsear medidas:", error);
-                    }
+                    try { medidas = JSON.parse(product.measurements); } catch {}
                   } else if (typeof product.measurements === "object") {
                     medidas = product.measurements;
                   }
@@ -142,8 +138,7 @@ const Products = () => {
                       Precio:{" "}
                       {product.discountPercentage > 0 ? (
                         <>
-                          <s>${product.price ?? "N/A"}</s> →{" "}
-                          <strong>${product.finalPrice ?? "N/A"}</strong>
+                          <s>${product.price ?? "N/A"}</s> → <strong>${product.finalPrice ?? "N/A"}</strong>
                         </>
                       ) : (
                         <>${product.price ?? "N/A"}</>
@@ -155,12 +150,7 @@ const Products = () => {
 
                     <p
                       style={{
-                        color:
-                          product.stock === 0
-                            ? "#dc3545"
-                            : product.stock <= 5
-                            ? "#ffc107"
-                            : "#222",
+                        color: product.stock === 0 ? "#dc3545" : product.stock <= 5 ? "#ffc107" : "#222",
                         fontWeight: product.stock <= 5 ? "bold" : "normal",
                       }}
                     >
@@ -175,14 +165,24 @@ const Products = () => {
                       </>
                     )}
 
+                    {/* Acciones con estilo pastel y mismo tamaño */}
                     <div className="product-actions">
-                      <Button onClick={() => setEditingProductId(product._id)}>Editar</Button>
-                      <Button
-                        onClick={() => handleDelete(product._id)}
-                        style={{ backgroundColor: "#dc3545" }}
-                      >
-                        Eliminar
-                      </Button>
+                      <div className="ej-btn-set">
+                        <button
+                          type="button"
+                          className="ej-btn ej-approve ej-size-sm"
+                          onClick={() => setEditingProductId(product._id)}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          className="ej-btn ej-danger ej-size-sm"
+                          onClick={() => handleDelete(product._id)}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );

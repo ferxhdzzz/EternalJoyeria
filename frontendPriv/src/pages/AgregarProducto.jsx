@@ -1,4 +1,3 @@
-// IMPORTACIÓN DE DEPENDENCIAS Y COMPONENTES NECESARIOS
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -6,8 +5,8 @@ import { useAddProduct } from "../hooks/Productos/useAddProduct";
 import TopBar from "../components/TopBar/TopBar";
 import Sidebar from "../components/Sidebar/Sidebar";
 import "../styles/AddProducts/AgregarProducto.css";
+import "../styles/shared/buttons.css";
 
-// DEFINICIÓN DEL COMPONENTE PRINCIPAL
 export default function AddProductPage() {
   const { addProduct } = useAddProduct();
   const [loading, setLoading] = useState(false);
@@ -20,24 +19,16 @@ export default function AddProductPage() {
     discountPercentage: "",
     stock: "",
     category_id: "",
-    measurements: {
-      weight: "",
-      height: "",
-      width: "",
-    },
+    measurements: { weight: "", height: "", width: "" },
     images: [],
   });
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("http://localhost:4000/api/categories", {
-          withCredentials: true,
-        });
+        const res = await axios.get("http://localhost:4000/api/categories", { withCredentials: true });
         const data = res.data;
-        const categoriesArray = Array.isArray(data)
-          ? data
-          : data.categories || [];
+        const categoriesArray = Array.isArray(data) ? data : data.categories || [];
         setCategories(categoriesArray);
       } catch (error) {
         console.error("Error al obtener categorías:", error);
@@ -50,47 +41,29 @@ export default function AddProductPage() {
         });
       }
     };
-
     fetchCategories();
   }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
     if (["weight", "height", "width"].includes(name)) {
-      setFormData((prev) => ({
-        ...prev,
-        measurements: {
-          ...prev.measurements,
-          [name]: value,
-        },
-      }));
+      setFormData((p) => ({ ...p, measurements: { ...p.measurements, [name]: value } }));
     } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+      setFormData((p) => ({ ...p, [name]: value }));
     }
   };
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    setFormData((prev) => ({
-      ...prev,
-      images: [...prev.images, ...files],
-    }));
+    setFormData((p) => ({ ...p, images: [...p.images, ...files] }));
   };
 
   const handleRemoveImage = (indexToRemove) => {
-    setFormData((prev) => ({
-      ...prev,
-      images: prev.images.filter((_, index) => index !== indexToRemove),
-    }));
+    setFormData((p) => ({ ...p, images: p.images.filter((_, i) => i !== indexToRemove) }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!formData.category_id) {
       Swal.fire({
         icon: "warning",
@@ -100,7 +73,6 @@ export default function AddProductPage() {
       });
       return;
     }
-
     if (formData.images.length === 0) {
       Swal.fire({
         icon: "warning",
@@ -121,22 +93,17 @@ export default function AddProductPage() {
     data.append("stock", formData.stock);
     data.append("category_id", formData.category_id);
     data.append("measurements", JSON.stringify(formData.measurements));
-
-    formData.images.forEach((file) => {
-      data.append("images", file);
-    });
+    formData.images.forEach((file) => data.append("images", file));
 
     try {
       await addProduct(data);
       setLoading(false);
-
       await Swal.fire({
         icon: "success",
         title: "Producto agregado",
         text: "El producto se agregó correctamente.",
         confirmButtonColor: "#d6336c",
       });
-
       setFormData({
         name: "",
         description: "",
@@ -144,11 +111,7 @@ export default function AddProductPage() {
         discountPercentage: "",
         stock: "",
         category_id: "",
-        measurements: {
-          weight: "",
-          height: "",
-          width: "",
-        },
+        measurements: { weight: "", height: "", width: "" },
         images: [],
       });
     } catch (error) {
@@ -165,15 +128,9 @@ export default function AddProductPage() {
   return (
     <div className="container-main">
       <Sidebar />
-
       <div className="main-content">
-        <div className="topbar-wrapper">
-          <TopBar />
-        </div>
-
-        <br />
-        <br />
-
+        <div className="topbar-wrapper"><TopBar /></div>
+        <br /><br />
         <div className="add-product-content">
           <form className="form" onSubmit={handleSubmit}>
             <div className="form-row">
@@ -243,12 +200,9 @@ export default function AddProductPage() {
                 required
               >
                 <option value="">Selecciona Categoría</option>
-                {categories.map((category) => (
-                  <option
-                    key={category._id || category.id}
-                    value={category._id || category.id}
-                  >
-                    {category.name}
+                {categories.map((c) => (
+                  <option key={c._id || c.id} value={c._id || c.id}>
+                    {c.name}
                   </option>
                 ))}
               </select>
@@ -300,9 +254,11 @@ export default function AddProductPage() {
                     multiple
                     accept="image/*"
                     onChange={handleImageUpload}
+                    className="file-input-hidden"
                   />
-                  <label htmlFor="images" className="file-input-label">
-                    Subir imagen
+                  {/* Igual al botón “Agregar”: rosa fuerte + tamaño sm */}
+                  <label htmlFor="images" className="ej-btn ej-danger">
+                    Agregar foto
                   </label>
                 </div>
 
@@ -324,8 +280,9 @@ export default function AddProductPage() {
                       />
                       <button
                         type="button"
-                        className="remove-image-btn"
+                        className="remove-image-btn ej-btn ej-danger ej-size-xs"
                         onClick={() => handleRemoveImage(index)}
+                        title="Eliminar esta imagen"
                       >
                         ×
                       </button>
@@ -335,7 +292,7 @@ export default function AddProductPage() {
               )}
             </div>
 
-            <button type="submit" disabled={loading} className="prod">
+            <button type="submit" disabled={loading} className="ej-btn ej-approve">
               {loading ? "Agregando..." : "Agregar Producto"}
             </button>
           </form>

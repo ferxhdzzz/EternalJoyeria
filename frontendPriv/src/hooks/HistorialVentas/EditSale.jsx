@@ -114,13 +114,13 @@ const EditSale = ({ saleId, onClose, onSave }) => {
         )}
 
         <div className="edit-sale-buttons">
-          <button type="submit" className="btn-edit" disabled={submitting}>
+          <button type="submit" className="ej-btn ej-approve" disabled={submitting}>
             {submitting ? "Actualizando..." : "Guardar"}
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="btn-delete"
+            className="ej-btn ej-danger"
             disabled={submitting}
           >
             Cancelar

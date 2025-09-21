@@ -1,9 +1,10 @@
+// src/components/Products-Private/CategorieGrid.jsx
 import React, { useState } from "react";
 import CategoriaCard from "./CategoriaCard";
 import EditCategoryModal from "../Categorias/EditCategoryModal";
 import Swal from "sweetalert2";
-import useDataCategorie from "../../hooks/Categorias/useDataCategorias";
 import useCategoriasAction from "../../hooks/Categorias/useCategoriasAction";
+import "../../styles/shared/buttons.css";
 
 const CategorieGrid = ({ cats = [], refreshCategories }) => {
   const [editingCategory, setEditingCategory] = useState(null);
@@ -23,7 +24,7 @@ const CategorieGrid = ({ cats = [], refreshCategories }) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         await deleteCategorieById(categorie._id);
-        refreshCategories(); // 🔁 Refresca la lista tras eliminar
+        refreshCategories?.();
         Swal.fire("Eliminado!", "La categoría fue eliminada.", "success");
       }
     });
@@ -48,7 +49,7 @@ const CategorieGrid = ({ cats = [], refreshCategories }) => {
         <EditCategoryModal
           categorie={editingCategory}
           onClose={closeModal}
-          refreshCategories={refreshCategories} // ✅ importante
+          refreshCategories={refreshCategories}
         />
       )}
     </>

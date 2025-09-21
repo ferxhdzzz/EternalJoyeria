@@ -1,23 +1,40 @@
-import React from 'react';
-import '../../styles/CardProd.css';
-import EditButton from './EditButton';
-import DeleteButton from './DeleteButton';
+// src/components/Products-Private/CategoriaCard.jsx
+import React from "react";
+import "../../styles/shared/buttons.css";
 
 const CategoriaCard = ({ categorie, onEdit, onDelete }) => {
   return (
-    <div className="product-card-privates">
-      <img
-        src={categorie.image ? `${categorie.image}?t=${new Date().getTime()}` : "/karinaaaaaa.jpg"}
-        alt={categorie.name}
-        className="product-image-privates"
-      />
-      <h3 className="product-name-privates">{categorie.name}</h3>
-      <p className="product-description-privates">
-        {categorie.description}
-      </p>
-      <div className="product-actions-privates">
-        <EditButton onClick={() => onEdit(categorie)} />
-        <DeleteButton onClick={() => onDelete(categorie)} />
+    <div className="categoria-card">
+      <div className="categoria-card__image">
+        <img
+          src={categorie.image || "/karinaaaaaa.jpg"}
+          alt={categorie.name}
+          style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: 12 }}
+        />
+      </div>
+
+      <div className="categoria-card__body" style={{ padding: 12 }}>
+        <h3 style={{ margin: "8px 0" }}>{categorie.name}</h3>
+        {categorie.description && (
+          <p style={{ marginBottom: 12, color: "#444" }}>{categorie.description}</p>
+        )}
+
+        <div className="ej-btn-set">
+          <button
+            type="button"
+            className="ej-btn ej-approve ej-size-sm"
+            onClick={() => onEdit?.(categorie)}
+          >
+            Editar
+          </button>
+          <button
+            type="button"
+            className="ej-btn ej-danger ej-size-sm"
+            onClick={() => onDelete?.(categorie)}
+          >
+            Eliminar
+          </button>
+        </div>
       </div>
     </div>
   );

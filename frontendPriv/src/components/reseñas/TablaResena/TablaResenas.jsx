@@ -3,13 +3,10 @@ import ResenaRow from "../row/ResenaRow";
 import ConfirmacionModal from "../modal/ConfirmacionModal";
 import Swal from "sweetalert2";
 import "./TablaResenas.css";
+import "../../../styles/shared/buttons.css";
 
 const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
   const [resenaSeleccionada, setResenaSeleccionada] = useState(null);
-
-  const handleEliminarClick = (review) => {
-    setResenaSeleccionada(review);
-  };
 
   const confirmarEliminacion = async () => {
     try {
@@ -32,42 +29,41 @@ const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
     }
   };
 
-  const cancelarEliminacion = () => {
-    setResenaSeleccionada(null);
-  };
+  const cancelarEliminacion = () => setResenaSeleccionada(null);
 
   return (
     <div className="tabla-resenas-wrapper">
-    <div className="tabla-resenas-container">
-  <h2>{titulo}</h2>
-  <div className="tabla-scroll-wrapper">
-    <table className="tabla-resenas">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Calificación</th>
-          <th>Comentario</th>
-          <th>Compra</th>
-        </tr>
-      </thead>
-      <tbody>
-        {reviews.length > 0 ? (
-          reviews.map((review) => (
-            <ResenaRow
-              key={review._id}
-              {...review}
-              onClick={() => handleEliminarClick(review)}
-            />
-          ))
-        ) : (
-          <tr>
-            <td colSpan="4">No hay reseñas disponibles.</td>
-          </tr>
-        )}
-      </tbody>
-    </table>
-  </div>
-</div>
+      <div className="tabla-resenas-container">
+        <h2>{titulo}</h2>
+        <div className="tabla-scroll-wrapper">
+          <table className="tabla-resenas">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Calificación</th>
+                <th>Comentario</th>
+                <th>Compra</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.isArray(reviews) && reviews.length > 0 ? (
+                reviews.map((review) => (
+                  <ResenaRow
+                    key={review._id}
+                    {...review}
+                    onDeleteClick={() => setResenaSeleccionada(review)}
+                  />
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5">No hay reseñas disponibles.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {resenaSeleccionada && (
         <ConfirmacionModal

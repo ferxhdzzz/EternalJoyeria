@@ -1,50 +1,42 @@
-import React, { useRef, useState } from "react";
+// src/components/Categorias/UploadImage.jsx
+import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import "./UploadImage.css";
+import "../../styles/shared/buttons.css";
 
 const UploadImage = ({ onUploadComplete, error }) => {
-  const fileInputRef = useRef(null);
   const [preview, setPreview] = useState(null);
   const [uploading, setUploading] = useState(false);
 
-  const handleCustomButtonClick = () => {
-    fileInputRef.current.click();
-  };
-
   const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-
+    const file = e.target.files?.[0];
     if (!file) return;
 
-    const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
-    if (!allowedTypes.includes(file.type)) {
-      toast.error("Formato de imagen no válido. Usa JPG, PNG o WEBP.");
+    const allowed = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+    if (!allowed.includes(file.type)) {
+      toast.error("Formato no válido. Usa JPG, PNG o WEBP.");
       return;
     }
 
     const previewURL = URL.createObjectURL(file);
     setPreview(previewURL);
 
-    // Subir imagen a Cloudinary
     try {
       setUploading(true);
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", "upload_preset_eternaljoyeria");
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("upload_preset", "upload_preset_eternaljoyeria");
 
       const res = await fetch("https://api.cloudinary.com/v1_1/dosy4rouu/upload", {
         method: "POST",
-        body: formData,
+        body: fd,
       });
-
       if (!res.ok) throw new Error("Error al subir imagen");
-
       const data = await res.json();
-      onUploadComplete(data.secure_url); // se lo mandamos al form
-
-    } catch (error) {
+      onUploadComplete?.(data.secure_url);
+    } catch (err) {
+      console.error(err);
       toast.error("No se pudo subir la imagen");
-      console.error("Error al subir imagen:", error);
     } finally {
       setUploading(false);
     }
@@ -60,24 +52,22 @@ const UploadImage = ({ onUploadComplete, error }) => {
         )}
       </div>
 
+      {/* input oculto + label con estilo DANGER (rosa pálido) */}
       <input
         type="file"
+        id="categoryImage"
         accept="image/*"
-        ref={fileInputRef}
         onChange={handleFileChange}
-        style={{ display: "none" }}
+        className="file-input-hidden"
       />
-
-      <button
-        type="button"
-        className="upload-button"
-        onClick={handleCustomButtonClick}
-        disabled={uploading}
+      <label
+        htmlFor="categoryImage"
+        className="ej-btn ej-danger "
+        style={{ pointerEvents: uploading ? "none" : "auto", opacity: uploading ? 0.7 : 1 }}
       >
-        {uploading ? "Subiendo..." : "Subir imagen"}
-      </button>
+        {uploading ? "Subiendo..." : "Agregar foto"}
+      </label>
 
-      {/* ✅ Mostrar error debajo del botón */}
       {error && <span className="error-message">{error}</span>}
     </div>
   );

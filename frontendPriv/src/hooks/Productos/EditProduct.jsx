@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import "./EditDataProduct.css";
+import "../../styles/shared/buttons.css";
 
 const EditProduct = ({ productId, onClose, refreshProducts }) => {
   const [categories, setCategories] = useState([]);
@@ -15,7 +16,7 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
     category_id: "",
   });
 
-  // previewImages ahora guarda objetos: { url: string, isNew: boolean, file?: File }
+  // previewImages: { url: string, isNew: boolean, file?: File }
   const [previewImages, setPreviewImages] = useState([]);
 
   useEffect(() => {
@@ -36,11 +37,7 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
           stock: data.stock || "",
         });
 
-        // Setear imágenes existentes como objetos { url, isNew: false }
-        const imagesData = (data.images || []).map((url) => ({
-          url,
-          isNew: false,
-        }));
+        const imagesData = (data.images || []).map((url) => ({ url, isNew: false }));
         setPreviewImages(imagesData);
       } catch (err) {
         console.error(err);
@@ -75,9 +72,8 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
     input.type = "file";
     input.accept = "image/*";
     input.onchange = (e) => {
-      const file = e.target.files[0];
+      const file = e.target.files?.[0];
       if (file) {
-        // Liberar URL anterior si era nueva imagen
         if (previewImages[index].isNew) {
           URL.revokeObjectURL(previewImages[index].url);
         }
@@ -95,9 +91,7 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
   // Agregar imágenes nuevas
   const handleAddImages = (e) => {
     const files = Array.from(e.target.files);
-
-    // Filtrar para evitar duplicados (mismo nombre y tamaño)
-    const filteredFiles = files.filter((file) => {
+    const filtered = files.filter((file) => {
       return !previewImages.some(
         (img) =>
           img.isNew &&
@@ -108,19 +102,18 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
       );
     });
 
-    if (filteredFiles.length === 0) {
+    if (filtered.length === 0) {
       e.target.value = "";
       return;
     }
 
-    const newImagesObjs = filteredFiles.map((file) => ({
+    const newObjs = filtered.map((file) => ({
       url: URL.createObjectURL(file),
       isNew: true,
       file,
     }));
 
-    setPreviewImages((prev) => [...prev, ...newImagesObjs]);
-
+    setPreviewImages((prev) => [...prev, ...newObjs]);
     e.target.value = "";
   };
 
@@ -134,10 +127,7 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
     }).then((result) => {
       if (result.isConfirmed) {
         setPreviewImages((prev) => {
-          // Liberar URL si es imagen nueva
-          if (prev[index].isNew) {
-            URL.revokeObjectURL(prev[index].url);
-          }
+          if (prev[index].isNew) URL.revokeObjectURL(prev[index].url);
           return prev.filter((_, i) => i !== index);
         });
       }
@@ -149,37 +139,29 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
     setLoading(true);
     try {
       const form = new FormData();
+      Object.entries(formData).forEach(([k, v]) => form.append(k, v));
 
-      Object.entries(formData).forEach(([key, value]) => {
-        form.append(key, value);
-      });
-
-      // Imágenes existentes (urls)
-      const existingImages = previewImages
-        .filter((img) => !img.isNew)
-        .map((img) => img.url);
+      // URLs que se mantienen
+      const existingImages = previewImages.filter((i) => !i.isNew).map((i) => i.url);
       form.append("existingImages", JSON.stringify(existingImages));
 
-      // Imágenes nuevas (archivos)
+      // Nuevas imágenes
       previewImages
-        .filter((img) => img.isNew && img.file)
-        .forEach((img) => {
-          form.append("images", img.file);
-        });
+        .filter((i) => i.isNew && i.file)
+        .forEach((i) => form.append("images", i.file));
 
       const res = await fetch(`http://localhost:4000/api/products/${productId}`, {
         method: "PUT",
         credentials: "include",
         body: form,
       });
-
       const resJson = await res.json();
       if (!res.ok) throw new Error(resJson.message || "Error al actualizar el producto");
 
-      await refreshProducts();
+      await refreshProducts?.();
       setLoading(false);
       Swal.fire({ icon: "success", title: "Producto actualizado" });
-      onClose();
+      onClose?.();
     } catch (err) {
       setLoading(false);
       Swal.fire({ icon: "error", title: "Error", text: err.message });
@@ -191,7 +173,9 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
       <div className="modal-overlay" onClick={onClose} />
       <div className="edit-modal-card scrollable-form">
         <h2 className="modal-title">Editar Producto</h2>
-        <form onSubmit={handleSubmit} className="edit-category-form">
+
+        {/* usa la clase que mapea tu CSS del modal */}
+        <form onSubmit={handleSubmit} className="edit-product-form">
           <label>Nombre</label>
           <input
             type="text"
@@ -268,21 +252,17 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
                 <button
                   type="button"
                   onClick={() => handleDeleteImage(index)}
+                  className="ej-btn ej-danger ej-size-xs"
                   style={{
                     position: "absolute",
-                    top: "-25px",
-                    right: "-15px",
-                    background: "transparent",
-                    color: "black",
-                    border: "none",
-                    borderRadius: "50%",
-                    width: "20px",
-                    height: "20px",
-                    cursor: "pointer",
-                    fontSize: "20px",
-                    lineHeight: "18px",
+                    top: "-10px",
+                    right: "-10px",
+                    padding: "0 10px",
+                    borderRadius: "999px",
+                    minWidth: "auto",
                   }}
                   aria-label="Eliminar imagen"
+                  title="Eliminar imagen"
                 >
                   ×
                 </button>
@@ -291,19 +271,30 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
           </div>
 
           <label>Agregar más imágenes</label>
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleAddImages}
-            className="input-field"
-          />
+          <div className="file-input-wrapper" style={{ marginBottom: 8 }}>
+            <input
+              type="file"
+              id="moreProductImages"
+              multiple
+              accept="image/*"
+              onChange={handleAddImages}
+              className="file-input-hidden"
+            />
+            {/* Pálido (danger) como pediste */}
+            <label
+  htmlFor="moreProductImages"
+  className="ej-btn ej-danger ej-size-sm ej-file"
+>
+  Agregar foto
+</label>
 
-          <div className="buttons-roww">
-            <button type="submit" className="btn-primary" disabled={loading}>
+          </div>
+
+          <div className="buttons-row ej-btn-set" style={{ marginTop: 12 }}>
+            <button type="submit" className="ej-btn ej-approve" disabled={loading}>
               {loading ? "Actualizando..." : "Guardar"}
             </button>
-            <button type="button" onClick={onClose} className="main-buttoon" disabled={loading}>
+            <button type="button" onClick={onClose} className="ej-btn ej-danger" disabled={loading}>
               Cancelar
             </button>
           </div>

@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import useDataCategorie from "../../hooks/Categorias/useDataCategorias";
 import "./EditCategoryModal.css";
+import "../../styles/shared/buttons.css"; 
 
 const EditCategoryModal = ({ categorie, onClose, refreshCategories }) => {
   const {
@@ -122,11 +123,14 @@ const EditCategoryModal = ({ categorie, onClose, refreshCategories }) => {
             />
           </div>
 
-          <div className="buttons-row">
-            <button type="submit" disabled={uploading} className="btn-primarycat">
+          <div className="buttons-row" style={{ display: "flex", gap: 8 }}>
+            {/* Confirmar/Guardar (rosa pastel) */}
+            <button type="submit" disabled={uploading} className="ej-btn ej-approve">
               {uploading ? "Subiendo..." : "Guardar"}
             </button>
-            <button type="button"  onClick={onClose} className="btn-secondarycat">
+
+            {/* Cancelar (rose/salmón pastel) */}
+            <button type="button" onClick={onClose} className="ej-btn ej-danger">
               Cancelar
             </button>
           </div>
