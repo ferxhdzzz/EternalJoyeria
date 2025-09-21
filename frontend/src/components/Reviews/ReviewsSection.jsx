@@ -145,18 +145,6 @@ const ReviewsSection = ({ productId, productName }) => {
       <div className={`reviews-expandable ${isExpanded ? 'expanded' : ''}`}>
         <ReviewStats stats={stats} />
 
-        {/* 📊 Gráfica de reseñas */}
-        <div style={{ width: "100%", height: 300, margin: "20px 0" }}>
-          <ResponsiveContainer>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis domain={[0, 5]} ticks={[1, 2, 3, 4, 5]} />
-              <Tooltip formatter={(value) => `${value} ⭐`} labelFormatter={(label) => `Fecha: ${label}`} />
-              <Line type="monotone" dataKey="rating" stroke="#FF69B4" strokeWidth={2} dot={{ r: 5 }} activeDot={{ r: 7 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
 
         <div id="reviews-list">
           <ReviewList 
