@@ -35,10 +35,10 @@ const ReviewStats = ({ stats }) => {
           ratingDistribution[1] || 0,
         ],
         backgroundColor: [
-          "rgba(255, 206, 86, 0.8)",  // Amarillo
-          "rgba(75, 192, 192, 0.8)",  // Verde
-          "rgba(54, 162, 235, 0.8)",  // Azul
-          "rgba(255, 99, 132, 0.8)",  // Rojo
+          "rgba(255, 156, 234, 0.8)",  // Amarillo
+          "rgba(215, 52, 142, 0.8)",  // Verde
+          "rgba(137, 8, 111, 0.8)",  // Azul
+          "rgba(121, 30, 110, 0.8)",  // Rojo
           "rgba(153, 102, 255, 0.8)", // Morado
         ],
         borderRadius: 6,
@@ -81,7 +81,7 @@ const ReviewStats = ({ stats }) => {
                   width="20"
                   height="20"
                   viewBox="0 0 24 24"
-                  fill={star <= averageRating ? "#FFD700" : "#E0E0E0"}
+                  fill={star <= averageRating ? "#FFD700" : "#ffffffff"}
                 >
                   <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                 </svg>
