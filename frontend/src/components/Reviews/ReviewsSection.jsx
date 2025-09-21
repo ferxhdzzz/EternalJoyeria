@@ -1,8 +1,20 @@
+// src/components/ReviewsSection.jsx
 import React, { useState, useEffect } from 'react';
 import ReviewList from './ReviewList';
 import AddReviewModal from './AddReviewModal';
 import ReviewStats from './ReviewStats';
 import './Reviews.css';
+
+// 📊 Importamos Recharts
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer
+} from "recharts";
 
 const ReviewsSection = ({ productId, productName }) => {
   const [reviews, setReviews] = useState([]);
@@ -49,7 +61,6 @@ const ReviewsSection = ({ productId, productName }) => {
     try {
       const response = await fetch(`https://eternaljoyeria-cg5d.onrender.com/api/reviews/product/${productId}`);
       if (!response.ok) {
-        // Maneja el caso de que no haya reseñas para el producto
         if (response.status === 404) {
           setReviews([]);
           setStats(calculateStats([]));
@@ -63,7 +74,6 @@ const ReviewsSection = ({ productId, productName }) => {
       }
     } catch (error) {
       console.error('Error cargando reseñas:', error);
-      // Opcional: mostrar un mensaje de error al usuario
     } finally {
       setIsLoading(false);
     }
@@ -76,10 +86,7 @@ const ReviewsSection = ({ productId, productName }) => {
   }, [productId]);
 
   // ✅ Función para agregar una nueva reseña
-  const handleAddReview = async (reviewData) => {
-    // La lógica de envío ya está en AddReviewModal.jsx,
-    // aquí solo actualizamos los datos después del éxito.
-    // ✅ Volvemos a cargar las reseñas desde el backend para tener los datos más recientes
+  const handleAddReview = async () => {
     await fetchReviews(); 
     setShowAddReviewModal(false);
   };
@@ -87,22 +94,26 @@ const ReviewsSection = ({ productId, productName }) => {
   // Función para eliminar una reseña
   const handleDeleteReview = async (reviewId) => {
     try {
-      // ✅ Llamada al backend para eliminar la reseña
       const response = await fetch(`https://eternaljoyeria-cg5d.onrender.com/api/reviews/${reviewId}`, {
         method: 'DELETE'
       });
       if (!response.ok) {
         throw new Error('Error al eliminar la reseña');
       }
-      
-      // ✅ Volvemos a cargar las reseñas después de eliminar
       await fetchReviews();
-
     } catch (error) {
       console.error('Error eliminando reseña:', error);
-      // Opcional: mostrar un mensaje de error al usuario
     }
   };
+
+  // 📊 Preparar datos para la gráfica
+  const chartData = reviews.map((review, index) => ({
+    id: index + 1,
+    rating: review.rank,
+    date: review.createdAt
+      ? new Date(review.createdAt).toLocaleDateString("es-ES")
+      : `Reseña ${index + 1}`
+  }));
 
   return (
     <div className="reviews-section">
@@ -141,6 +152,19 @@ const ReviewsSection = ({ productId, productName }) => {
 
       <div className={`reviews-expandable ${isExpanded ? 'expanded' : ''}`}>
         <ReviewStats stats={stats} />
+
+        {/* 📊 Gráfica de reseñas */}
+        <div style={{ width: "100%", height: 300, margin: "20px 0" }}>
+          <ResponsiveContainer>
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis domain={[0, 5]} ticks={[1, 2, 3, 4, 5]} />
+              <Tooltip formatter={(value) => `${value} ⭐`} labelFormatter={(label) => `Fecha: ${label}`} />
+              <Line type="monotone" dataKey="rating" stroke="#FF69B4" strokeWidth={2} dot={{ r: 5 }} activeDot={{ r: 7 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
 
         <div id="reviews-list">
           <ReviewList 
