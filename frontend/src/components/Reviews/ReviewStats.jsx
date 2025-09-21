@@ -26,7 +26,7 @@ const ReviewStats = ({ stats }) => {
     labels: ["⭐ 5", "⭐ 4", "⭐ 3", "⭐ 2", "⭐ 1"],
     datasets: [
       {
-        label: "Cantidad de reseñas",
+       
         data: [
           ratingDistribution[5] || 0,
           ratingDistribution[4] || 0,
@@ -52,10 +52,7 @@ const ReviewStats = ({ stats }) => {
       legend: {
         position: "top",
       },
-      title: {
-        display: true,
-        text: "Distribución de reseñas",
-      },
+     
     },
     scales: {
       y: {
@@ -81,7 +78,7 @@ const ReviewStats = ({ stats }) => {
                   width="20"
                   height="20"
                   viewBox="0 0 24 24"
-                  fill={star <= averageRating ? "#FFD700" : "#ffffffff"}
+                  fill={star <= averageRating ? "#FFD700" : "#ccccccff"}
                 >
                   <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                 </svg>
