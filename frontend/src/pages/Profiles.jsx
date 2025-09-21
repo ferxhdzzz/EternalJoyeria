@@ -162,49 +162,51 @@ const Profile = () => {
     else if (e.key === 'Escape') handleCancelEdit();
   };
 
-  const handleLogout = async () => {
-    const confirmResult = await Swal.fire({
-      title: "¿Cerrar sesión?",
-      text: "Se cerrará tu sesión actual",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#e75480",
-      cancelButtonColor: "#aaa",
-      confirmButtonText: "Sí, cerrar sesión",
-      cancelButtonText: "Cancelar"
-    });
+const handleLogout = async () => {
+  const confirmResult = await Swal.fire({
+    title: "¿Cerrar sesión?",
+    text: "Se cerrará tu sesión actual",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#e75480",
+    cancelButtonColor: "#aaa",
+    confirmButtonText: "Sí, cerrar sesión",
+    cancelButtonText: "Cancelar"
+  });
 
-    if (!confirmResult.isConfirmed) return;
+  if (!confirmResult.isConfirmed) return;
+
+  Swal.fire({
+    title: "Cerrando sesión...",
+    text: "Por favor espera",
+    allowOutsideClick: false,
+    didOpen: () => { Swal.showLoading(); }
+  });
+
+  try {
+    await logout(); // 👈 aquí usamos el contexto
 
     Swal.fire({
-      title: "Cerrando sesión...",
-      text: "Por favor espera",
-      allowOutsideClick: false,
-      didOpen: () => { Swal.showLoading(); }
+      title: "Sesión cerrada",
+      text: "Serás redirigido al inicio de sesión",
+      icon: "success",
+      timer: 1500,
+      showConfirmButton: false
     });
 
-    try {
-      const res = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/logout", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" }
-      });
-      if (!res.ok) throw new Error("Error al cerrar sesión");
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 1500);
+  } catch (error) {
+    console.error("Error cerrando sesión:", error);
+    Swal.fire({
+      title: "Error",
+      text: "No se pudo cerrar sesión. Intenta de nuevo.",
+      icon: "error"
+    });
+  }
+};
 
-      Swal.fire({
-        title: "Sesión cerrada",
-        text: "Serás redirigido al inicio de sesión",
-        icon: "success",
-        timer: 1500,
-        showConfirmButton: false
-      });
-
-      setTimeout(() => { window.location.href = "/productos"; }, 1500);
-    } catch (error) {
-      console.error("Error cerrando sesión:", error);
-      Swal.fire({ title: "Error", text: "No se pudo cerrar sesión. Intenta de nuevo.", icon: "error" });
-    }
-  };
 
   const copyAddressToClipboard = () => {
     const fullAddress = `${localUser.street}, ${localUser.city}, ${localUser.department}, ${localUser.zipCode}, ${localUser.country}`;
