@@ -130,9 +130,7 @@ const ReviewsSection = ({ productId, productName }) => {
                   </svg>
                 ))}
               </div>
-              <span className="total-reviews-count">
-                ({stats.totalReviews} reseñas)
-              </span>
+             
             </div>
           </div>
         </div>
