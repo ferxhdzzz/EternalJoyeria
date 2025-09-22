@@ -143,3 +143,39 @@
 .btn-secondary:hover {
   background-color: #e573a1;
 }
+.categorias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+}
+.categoria-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 4px 18px rgba(0,0,0,.05);
+}
+/* Centra la fila del botón de file */
+.ej-upload-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+/* Evita que los estilos generales de label lo hagan 100% ancho */
+.edit-category-form label.ej-btn {
+  display: inline-flex;
+  width: auto;
+}
+
+/* El input file debe estar oculto */
+.file-input-hidden {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+/* Forzar color de texto blanco en botones label.ej-danger */
+label.ej-btn.ej-danger {
+  color: var(--ej-danger-text) !important;
+}

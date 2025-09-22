@@ -1,8 +1,11 @@
+// frontendPriv/src/hooks/Productos/EditProduct.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import "./EditDataProduct.css";
 import "../../styles/shared/buttons.css";
+import "../../styles/shared/modal.css";
+import EJModal from "../../components/Ui/EJModal.jsx";
+import "./EditDataProduct.css"; // Mantén estilos internos (grid, inputs). Quita overlays/card si existían.
 
 const EditProduct = ({ productId, onClose, refreshProducts }) => {
   const [categories, setCategories] = useState([]);
@@ -66,7 +69,6 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Reemplazar imagen existente
   const handleImageClick = (index) => {
     const input = document.createElement("input");
     input.type = "file";
@@ -88,7 +90,6 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
     input.click();
   };
 
-  // Agregar imágenes nuevas
   const handleAddImages = (e) => {
     const files = Array.from(e.target.files);
     const filtered = files.filter((file) => {
@@ -117,7 +118,6 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
     e.target.value = "";
   };
 
-  // Eliminar imagen (sea nueva o existente)
   const handleDeleteImage = (index) => {
     Swal.fire({
       title: "¿Eliminar esta imagen?",
@@ -141,11 +141,9 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
       const form = new FormData();
       Object.entries(formData).forEach(([k, v]) => form.append(k, v));
 
-      // URLs que se mantienen
       const existingImages = previewImages.filter((i) => !i.isNew).map((i) => i.url);
       form.append("existingImages", JSON.stringify(existingImages));
 
-      // Nuevas imágenes
       previewImages
         .filter((i) => i.isNew && i.file)
         .forEach((i) => form.append("images", i.file));
@@ -169,138 +167,133 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
   };
 
   return (
-    <>
-      <div className="modal-overlay" onClick={onClose} />
-      <div className="edit-modal-card scrollable-form">
-        <h2 className="modal-title">Editar Producto</h2>
+    <EJModal
+      isOpen={true}
+      onClose={onClose}
+      title="Editar Producto"
+      footer={
+        <>
+          <button type="button" className="ej-btn ej-danger ej-size-sm" onClick={onClose}>
+            Cancelar
+          </button>
+          <button form="edit-product-form" type="submit" className="ej-btn ej-approve ej-size-sm" data-autofocus>
+            {loading ? "Actualizando..." : "Guardar"}
+          </button>
+        </>
+      }
+    >
+      <form id="edit-product-form" onSubmit={handleSubmit} className="edit-product-form">
+        <label>Nombre</label>
+        <input
+          type="text"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          required
+          className="input-field"
+          data-autofocus
+        />
 
-        {/* usa la clase que mapea tu CSS del modal */}
-        <form onSubmit={handleSubmit} className="edit-product-form">
-          <label>Nombre</label>
+        <label>Descripción</label>
+        <textarea
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+          className="input-field"
+        />
+
+        <label>Precio</label>
+        <input
+          type="number"
+          name="price"
+          value={formData.price}
+          onChange={handleChange}
+          required
+          className="input-field"
+        />
+
+        <label>Categoría</label>
+        <select
+          name="category_id"
+          value={formData.category_id}
+          onChange={handleChange}
+          className="select"
+          required
+        >
+          <option value="">Selecciona Categoría</option>
+          {categories.map((category) => (
+            <option key={category._id || category.id} value={category._id || category.id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+
+        <label>% Descuento</label>
+        <input
+          type="number"
+          name="discountPercentage"
+          value={formData.discountPercentage}
+          onChange={handleChange}
+          className="input-field"
+        />
+
+        <label>Stock</label>
+        <input
+          type="number"
+          name="stock"
+          value={formData.stock}
+          onChange={handleChange}
+          className="input-field"
+        />
+
+        <label>Imágenes actuales</label>
+        <div className="edit-image-preview">
+          {previewImages.map((img, index) => (
+            <div key={index} style={{ position: "relative" }}>
+              <img
+                src={img.url}
+                alt={`preview-${index}`}
+                className="editable-img"
+                onClick={() => handleImageClick(index)}
+                title="Click para reemplazar"
+              />
+              <button
+                type="button"
+                onClick={() => handleDeleteImage(index)}
+                className="ej-btn ej-danger ej-size-xs"
+                style={{
+                  position: "absolute",
+                  top: "-10px",
+                  right: "-10px",
+                  padding: "0 10px",
+                  borderRadius: "999px",
+                  minWidth: "auto",
+                }}
+                aria-label="Eliminar imagen"
+                title="Eliminar imagen"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <label>Agregar más imágenes</label>
+        <div className="file-input-wrapper" style={{ marginBottom: 8 }}>
           <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            className="input-field"
+            type="file"
+            id="moreProductImages"
+            multiple
+            accept="image/*"
+            onChange={handleAddImages}
+            className="file-input-hidden"
           />
-
-          <label>Descripción</label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            className="input-field"
-          />
-
-          <label>Precio</label>
-          <input
-            type="number"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            required
-            className="input-field"
-          />
-
-          <label>Categoría</label>
-          <select
-            name="category_id"
-            value={formData.category_id}
-            onChange={handleChange}
-            className="select"
-            required
-          >
-            <option value="">Selecciona Categoría</option>
-            {categories.map((category) => (
-              <option key={category._id || category.id} value={category._id || category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-
-          <label>% Descuento</label>
-          <input
-            type="number"
-            name="discountPercentage"
-            value={formData.discountPercentage}
-            onChange={handleChange}
-            className="input-field"
-          />
-
-          <label>Stock</label>
-          <input
-            type="number"
-            name="stock"
-            value={formData.stock}
-            onChange={handleChange}
-            className="input-field"
-          />
-
-          <label>Imágenes actuales</label>
-          <div className="edit-image-preview">
-            {previewImages.map((img, index) => (
-              <div key={index} style={{ position: "relative" }}>
-                <img
-                  src={img.url}
-                  alt={`preview-${index}`}
-                  className="editable-img"
-                  onClick={() => handleImageClick(index)}
-                  title="Click para reemplazar"
-                />
-                <button
-                  type="button"
-                  onClick={() => handleDeleteImage(index)}
-                  className="ej-btn ej-danger ej-size-xs"
-                  style={{
-                    position: "absolute",
-                    top: "-10px",
-                    right: "-10px",
-                    padding: "0 10px",
-                    borderRadius: "999px",
-                    minWidth: "auto",
-                  }}
-                  aria-label="Eliminar imagen"
-                  title="Eliminar imagen"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-
-          <label>Agregar más imágenes</label>
-          <div className="file-input-wrapper" style={{ marginBottom: 8 }}>
-            <input
-              type="file"
-              id="moreProductImages"
-              multiple
-              accept="image/*"
-              onChange={handleAddImages}
-              className="file-input-hidden"
-            />
-            {/* Pálido (danger) como pediste */}
-            <label
-  htmlFor="moreProductImages"
-  className="ej-btn ej-danger ej-size-sm ej-file"
->
-  Agregar foto
-</label>
-
-          </div>
-
-          <div className="buttons-row ej-btn-set" style={{ marginTop: 12 }}>
-            <button type="submit" className="ej-btn ej-approve" disabled={loading}>
-              {loading ? "Actualizando..." : "Guardar"}
-            </button>
-            <button type="button" onClick={onClose} className="ej-btn ej-danger" disabled={loading}>
-              Cancelar
-            </button>
-          </div>
-        </form>
-      </div>
-    </>
+          <label htmlFor="moreProductImages" className="ej-btn ej-danger ej-size-sm ej-w-140">
+            Agregar foto
+          </label>
+        </div>
+      </form>
+    </EJModal>
   );
 };
 

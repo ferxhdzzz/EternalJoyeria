@@ -1,3 +1,4 @@
+// frontendPriv/src/components/Ajustes/ProfileCard.jsx
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { NavLink } from "react-router-dom";
@@ -6,12 +7,20 @@ import usePerfilAdmin from "../../hooks/Ajustes/useFetchAjustes";
 import useDataAjustes from "../../hooks/Ajustes/useDataAjustes";
 import Label from "./Label";
 import "./ProfileCard.css";
-import "../../styles/shared/buttons.css";
+import "../../styles/Shared/buttons.css";
+import "../../styles/Shared/modal.css";
+import EJModal from "../Ui/EJModal.jsx";
 
 const ProfileCard = () => {
   const { admin, loading, error } = usePerfilAdmin();
   const { updateAdmin, uploadImage } = useDataAjustes();
-  const { register, handleSubmit, reset, formState: { errors }, getValues } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+    getValues,
+  } = useForm();
 
   const [imagenPreview, setImagenPreview] = useState(null);
   const [editingField, setEditingField] = useState(null); // "nombre" | "correo" | "foto"
@@ -40,7 +49,12 @@ const ProfileCard = () => {
     if (result.isConfirmed) {
       await updateAdmin(updatedData);
       setEditingField(null);
-      Swal.fire({ title: "Actualizado", text: "Tu perfil ha sido actualizado", icon: "success", confirmButtonColor: "#e91e63" });
+      Swal.fire({
+        title: "Actualizado",
+        text: "Tu perfil ha sido actualizado",
+        icon: "success",
+        confirmButtonColor: "#e91e63",
+      });
     }
   };
 
@@ -51,9 +65,21 @@ const ProfileCard = () => {
     setImagenPreview(URL.createObjectURL(file));
   };
 
+  const handleRemoveNewPhoto = () => {
+    setNuevaFoto(null);
+    setImagenPreview(admin?.profilePicture || null);
+    const input = document.getElementById("profileImageInput");
+    if (input) input.value = "";
+  };
+
   const handleImageSubmit = async () => {
     if (!nuevaFoto) {
-      Swal.fire({ title: "Error", text: "Selecciona una imagen primero.", icon: "error", confirmButtonColor: "#e91e63" });
+      Swal.fire({
+        title: "Error",
+        text: "Selecciona una imagen primero.",
+        icon: "error",
+        confirmButtonColor: "#e91e63",
+      });
       return;
     }
     const result = await Swal.fire({
@@ -68,13 +94,26 @@ const ProfileCard = () => {
       const imageUrl = await uploadImage(nuevaFoto);
       if (imageUrl) {
         const valores = getValues();
-        await updateAdmin({ name: valores.nombre, email: valores.correo, profilePicture: imageUrl });
-        Swal.fire({ title: "Foto actualizada", icon: "success", confirmButtonColor: "#e91e63" });
+        await updateAdmin({
+          name: valores.nombre,
+          email: valores.correo,
+          profilePicture: imageUrl,
+        });
+        Swal.fire({
+          title: "Foto actualizada",
+          icon: "success",
+          confirmButtonColor: "#e91e63",
+        });
         setEditingField(null);
         setNuevaFoto(null);
         setImagenPreview(imageUrl);
       } else {
-        Swal.fire({ title: "Error", text: "No se pudo actualizar la foto.", icon: "error", confirmButtonColor: "#e91e63" });
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo actualizar la foto.",
+          icon: "error",
+          confirmButtonColor: "#e91e63",
+        });
       }
     }
   };
@@ -85,10 +124,17 @@ const ProfileCard = () => {
   return (
     <form className="profile-card" onSubmit={handleSubmit(onSubmit)}>
       <div className="profile-header">
-        {imagenPreview && <div className="preview-circle" style={{ backgroundImage: `url(${imagenPreview})` }} />}
-
-        {/* ✅ En Ajustes: estilo “Agregar” */}
-        <button type="button" className="ej-btn ej-approve ej-size-sm" onClick={() => handleEdit("foto")}>
+        {imagenPreview && (
+          <div
+            className="preview-circle"
+            style={{ backgroundImage: `url(${imagenPreview})` }}
+          />
+        )}
+        <button
+          type="button"
+          className="ej-btn ej-approve ej-size-sm"
+          onClick={() => handleEdit("foto")}
+        >
           Actualizar foto
         </button>
       </div>
@@ -97,9 +143,16 @@ const ProfileCard = () => {
         <div className="info-box">
           <Label text="Nombre" />
           <div className="info-row">
-            <input {...register("nombre", { required: "El nombre es obligatorio" })} className="info-input" disabled />
-            {/* ✅ “Agregar” */}
-            <button type="button" className="ej-btn ej-approve ej-size-xs" onClick={() => handleEdit("nombre")}>
+            <input
+              {...register("nombre", { required: "El nombre es obligatorio" })}
+              className="info-input"
+              disabled
+            />
+            <button
+              type="button"
+              className="ej-btn ej-approve ej-size-xs"
+              onClick={() => handleEdit("nombre")}
+            >
               Editar
             </button>
           </div>
@@ -109,23 +162,36 @@ const ProfileCard = () => {
             <input
               {...register("correo", {
                 required: "El correo es obligatorio",
-                pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Formato de correo inválido" }
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Formato de correo inválido",
+                },
               })}
               className="info-input"
               disabled
             />
-            {/* ✅ “Agregar” */}
-            <button type="button" className="ej-btn ej-approve ej-size-xs" onClick={() => handleEdit("correo")}>
+            <button
+              type="button"
+              className="ej-btn ej-approve ej-size-xs"
+              onClick={() => handleEdit("correo")}
+            >
               Editar
             </button>
           </div>
 
           <Label text="Contraseña" />
           <div className="info-row">
-            <input type="password" className="info-input" value="**********" disabled readOnly />
-            {/* ✅ “Agregar” */}
+            <input
+              type="password"
+              className="info-input"
+              value="**********"
+              disabled
+              readOnly
+            />
             <NavLink to="/recuperacion/">
-              <span className="ej-btn ej-approve ej-size-xs">¿Olvidó la contraseña?</span>
+              <span className="ej-btn ej-approve ej-size-xs">
+                ¿Olvidó la contraseña?
+              </span>
             </NavLink>
           </div>
         </div>
@@ -133,72 +199,147 @@ const ProfileCard = () => {
         <div className="admin-box">
           <Label text="Acerca del administrador" />
           <p className="admin-description">
-            El administrador es el usuario responsable de gestionar y supervisar el funcionamiento completo del
-            sitio web de Eternal Joyería. Tiene acceso exclusivo a las funciones internas de la plataforma,
-            permitiéndole agregar, editar o eliminar productos, gestionar pedidos, revisar comentarios de clientes
-            y mantener actualizada la información de la tienda.
+            El administrador es el usuario responsable de gestionar y
+            supervisar el funcionamiento completo del sitio web de Eternal
+            Joyería. Tiene acceso exclusivo a las funciones internas de la
+            plataforma, permitiéndole agregar, editar o eliminar productos,
+            gestionar pedidos, revisar comentarios de clientes y mantener
+            actualizada la información de la tienda.
           </p>
         </div>
 
-        <br /><br /><br /><br /><br /><br /><br /><br /><br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
       </div>
 
       {/* Modal editar nombre/correo */}
       {editingField && editingField !== "foto" && (
-        <div className="overlay-form">
-          <div className="form-content">
-            <h3>Editar {editingField === "nombre" ? "Nombre" : "Correo"}</h3>
+        <EJModal
+          isOpen={true}
+          onClose={() => setEditingField(null)}
+          title={`Editar ${editingField === "nombre" ? "Nombre" : "Correo"}`}
+          footer={
+            <>
+              <button
+                type="button"
+                className="ej-btn ej-danger ej-size-sm"
+                onClick={() => setEditingField(null)}
+              >
+                Cancelar
+              </button>
+              <button
+                form="ajustes-edit-form"
+                className="ej-btn ej-approve ej-size-sm"
+                data-autofocus
+              >
+                Guardar
+              </button>
+            </>
+          }
+        >
+          <form id="ajustes-edit-form" onSubmit={handleSubmit(onSubmit)}>
             <input
               {...register(editingField, {
                 required: `El ${editingField} es obligatorio`,
-                ...(editingField === "correo" && { pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Formato de correo inválido" } }),
+                ...(editingField === "correo" && {
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "Formato de correo inválido",
+                  },
+                }),
               })}
               className="floating-input"
               placeholder={`Nuevo ${editingField}`}
-              autoFocus
+              data-autofocus
             />
-            {errors[editingField] && <p className="error-texto">{errors[editingField].message}</p>}
-
-            <div className="button-group ej-btn-set">
-              {/* ✅ Guardar = “Agregar” */}
-              <button type="submit" className="ej-btn ej-approve ej-size-sm">Guardar</button>
-              {/* ✅ Cancelar = “Danger” */}
-              <button type="button" className="ej-btn ej-danger ej-size-sm" onClick={() => setEditingField(null)}>
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
+            {errors[editingField] && (
+              <p className="error-texto">{errors[editingField].message}</p>
+            )}
+          </form>
+        </EJModal>
       )}
 
       {/* Modal actualizar foto */}
       {editingField === "foto" && (
-        <div className="overlay-form">
-          <div className="form-content">
-            <h3>Actualizar Foto</h3>
-
-            {nuevaFoto && <img src={URL.createObjectURL(nuevaFoto)} alt="preview" className="preview-img" />}
-
-            <input id="profileImageInput" type="file" accept="image/*" onChange={handleFileChange} className="file-input-hidden" />
-            {/* ⬇️ Aquí sí: “Danger” para el label que edita/agrega la foto */}
-            <label htmlFor="profileImageInput" className="ej-btn ej-danger " style={{ marginBottom: 12 }}>
-              Agregar foto
-            </label>
-
-            <div className="button-group ej-btn-set">
-              {/* Guardar = “Agregar” */}
-              <button type="button" className="ej-btn ej-approve ej-size-sm" onClick={handleImageSubmit}>Guardar</button>
-              {/* Cancelar = “Danger” */}
+        <EJModal
+          isOpen={true}
+          onClose={() => {
+            setEditingField(null);
+            setNuevaFoto(null);
+            setImagenPreview(admin?.profilePicture || null);
+          }}
+          title="Actualizar Foto"
+          footer={
+            <>
               <button
                 type="button"
                 className="ej-btn ej-danger ej-size-sm"
-                onClick={() => { setEditingField(null); setNuevaFoto(null); }}
+                onClick={() => {
+                  setEditingField(null);
+                  setNuevaFoto(null);
+                  setImagenPreview(admin?.profilePicture || null);
+                }}
               >
                 Cancelar
               </button>
-            </div>
+              <button
+                type="button"
+                className="ej-btn ej-approve ej-size-sm"
+                onClick={handleImageSubmit}
+                data-autofocus
+              >
+                Guardar
+              </button>
+            </>
+          }
+        >
+          <div className="ej-media-uploader">
+            {nuevaFoto ? (
+              <div className="ej-media-preview">
+                <img
+                  src={URL.createObjectURL(nuevaFoto)}
+                  alt="preview"
+                  className="ej-media-img"
+                />
+                <button
+                  type="button"
+                  className="ej-btn ej-danger ej-size-xs ej-media-remove"
+                  onClick={handleRemoveNewPhoto}
+                  aria-label="Quitar foto"
+                  title="Quitar foto"
+                >
+                  ×
+                </button>
+              </div>
+            ) : (
+              <p className="ej-media-hint">
+                Selecciona una imagen JPG/PNG desde tu dispositivo.
+              </p>
+            )}
+
+            <input
+              id="profileImageInput"
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="file-input-hidden"
+            />
+            <label
+              htmlFor="profileImageInput"
+              className="ej-btn ej-danger "
+              style={{ marginTop: 4 }}
+            >
+              Agregar foto
+            </label>
           </div>
-        </div>
+        </EJModal>
       )}
     </form>
   );

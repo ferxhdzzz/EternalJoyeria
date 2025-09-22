@@ -1,64 +1,153 @@
-.products-private-page-containerr {
-  display: flex;
-  height: 100vh;
-  background-color: #FFF3F2;
-  overflow: hidden; /* ❌ impide que toda la pantalla scrollee */
+/* =============== LAYOUT BASE PRIVADO =============== */
+.products-private-page-containerr{
+  display:flex;
+  height:100vh;
+  background:#FFF3F2;
+  overflow:hidden;
 }
-.product-grid-private {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 24px;
-  width: 100%;
+.main-content-wrapperr{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  overflow:hidden;
 }
-
-.sidebar-privater {
-  height: 100vh;
-  flex-shrink: 0;
+.fixed-topbarr{flex-shrink:0;}
+.scrollable-contentr{
+  flex:1;
+  overflow-y:auto;
+  padding:20px;
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
 }
-
-/* Contenedor general sin scroll */
-.main-content-wrapperr {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  height: 100vh;
-  overflow: hidden; /* 👈 importante */
-}
-
-/* Topbar queda arriba y fijo */
-.fixed-topbarr {
-  flex-shrink: 0;
+.padded-content-wrapperr{
+  box-sizing:border-box;
+  flex:1;
+  display:flex;
+  flex-direction:column;
 }
 
-/* Este contenedor ahora scrollea solo */
-.scrollable-contentr {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
+/* =============== CATEGORÍAS: LAYOUT PÁGINA =============== */
+.cat-page-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 360px; /* cards | form */
+  gap:28px;
+  align-items:start;
 }
-
-/* Sección para las cards y el form */
-.padded-content-wrapperr {
-  padding-right: 375px;
-  box-sizing: border-box;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+.cat-left{min-width:0;}
+.cat-right{
+  position:sticky;
+  top:8px;               /* ajusta si quieres más arriba/abajo */
+  width:360px;
 }
-
-/* Área de productos */
-.products-area-privater {
-  flex-grow: 1;
-  overflow: visible;
-}
-
-/* Responsive: formulario abajo */
-@media (max-width: 1245px) {
-  .padded-content-wrapperr {
-    padding-right: 0;
+@media (max-width:1200px){
+  .cat-page-grid{
+    grid-template-columns:1fr;
+    gap:20px;
   }
+  .cat-right{position:static;width:auto;}
+}
+
+/* =============== GRID DE CARDS =============== */
+.categorias-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(220px,1fr));
+  gap:20px;
+}
+@media (max-width:1400px){
+  .categorias-grid{grid-template-columns:repeat(3,minmax(210px,1fr));}
+}
+@media (max-width:980px){
+  .categorias-grid{grid-template-columns:repeat(2,minmax(200px,1fr));}
+}
+@media (max-width:600px){
+  .categorias-grid{grid-template-columns:1fr;}
+}
+
+.categoria-card{
+  background:#fff;
+  border-radius:20px;
+  padding:14px;
+  box-shadow:0 4px 18px rgba(0,0,0,.05);
+}
+
+/* Media más “cuadrada” y consistente */
+.categoria-media{
+  aspect-ratio:6/5;      /* ~1.2 */
+  height:auto;
+  max-height:200px;
+  border-radius:16px;
+  overflow:hidden;
+  margin-bottom:10px;
+}
+@supports not (aspect-ratio:1){
+  .categoria-media{height:180px;}
+}
+.categoria-media img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.categoria-title{margin:4px 0 6px;font-weight:800;}
+.categoria-desc{margin:0 0 10px;color:#666;font-size:14px;line-height:1.35;}
+.categoria-actions{display:flex;gap:10px;flex-wrap:wrap;}
+
+/* =============== PANEL DERECHO: AGREGAR CATEGORÍA =============== */
+.cat-right h2,.cat-right .form-titler{margin-top:0;}
+
+.cat-right .upload-preview-box,
+.cat-right .image-preview-box,
+.cat-right .upload-image-container,
+.cat-right .ej-uploader{
+  width:220px;
+  height:220px;
+  border-radius:16px;
+  background:#fbe6ea;            /* fondo suave si no hay imagen */
+  box-shadow:0 6px 18px rgba(0,0,0,.08);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 10px auto;       /* CENTRADO */
+  overflow:hidden;
+}
+
+/* la imagen llena el recuadro */
+.cat-right .upload-preview-box img,
+.cat-right .image-preview-box img,
+.cat-right .upload-image-container img,
+.cat-right .ej-uploader img,
+.cat-right .upload-preview,
+.cat-right .image-preview,
+.cat-right .preview-image,
+.cat-right .upload-image-preview,
+.cat-right .ej-image-preview{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  margin:0;
+}
+
+/* botón “Agregar foto” centrado */
+.cat-right label[for="categoryFile"],
+.cat-right .ej-btn.ej-danger.ej-w-140{
+  display:inline-block;
+  margin-left:auto;
+  margin-right:auto;
+}
+/* === Ajustes botones en las cards de categorías === */
+.categoria-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;   /* centra horizontalmente */
+}
+
+.categoria-actions button {
+  flex: 1;                   /* que ocupen mismo ancho */
+  min-width: 90px;           /* evita que sean demasiado pequeños */
+  text-align: center;
+  justify-content: center;
 }

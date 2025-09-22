@@ -1,0 +1,74 @@
+/* src/styles/shared/modal.css */
+.body--modal-open { overflow: hidden; }
+
+/* Overlay con blur real + velo sutil */
+.ej-modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.15);
+  z-index: 2000;
+  padding: 16px; /* evita que la card pegue a los bordes en móvil */
+}
+
+/* Card base */
+.ej-modal {
+  box-sizing: border-box;
+  width: min(560px, calc(100vw - 32px));  /* sin overflow horizontal */
+  max-height: min(90vh, 720px);           /* evita scroll “de la página” */
+  background: #fff;
+  border-radius: 16px;
+  box-shadow:
+    0 8px 24px rgba(0,0,0,.12),
+    0 2px 8px rgba(0,0,0,.06);
+  overflow: hidden;                        /* el scroll vive en __content */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.ej-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+}
+.ej-modal__title { margin: 0; font-size: 1.05rem; font-weight: 700; }
+.ej-modal__close { margin-left: 12px; }
+
+/* Contenido scrolleable si es largo, solo en Y */
+.ej-modal__content {
+  padding: 16px 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Footer CENTRADO y con buen spacing */
+.ej-modal__footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;   /* <-- centrado global */
+  padding: 14px 20px 18px;
+  border-top: 1px solid rgba(0,0,0,.06);
+}
+
+/* Utilidad para labels de file */
+.ej-w-140 { width: 140px; display: inline-block; }
+
+@media (max-width: 480px) {
+  .ej-modal__content { max-height: 65vh; }
+}
+.ej-modal__message {
+  text-align: center;
+  font-size: 15px;
+  margin: 20px 0;
+}
+.swal2-container {
+  z-index: 9999 !important; /* más alto que tu EJModal */
+}

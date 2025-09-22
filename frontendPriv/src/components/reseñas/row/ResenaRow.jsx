@@ -1,22 +1,22 @@
-// src/components/reseñas/row/ResenaRow.jsx
+// frontendPriv/src/components/reseñas/row/ResenaRow.jsx
 import React from "react";
 import "./ResenaRow.css";
-import "../../../styles/shared/buttons.css";
+import "../../../styles/Shared/buttons.css"; 
 
 /**
- * Fila de reseña adaptada:
- * - Mantiene la API anterior (onClick para eliminar).
- * - Muestra Nombre / Calificación / Comentario / Compra con fallbacks
- *   para distintos shapes de datos que pueda enviar el backend.
+ * Fila de reseña:
+ * - Usa onDeleteClick (y soporta onClick como fallback por compatibilidad).
+ * - Muestra Nombre / Calificación / Comentario / Compra con fallbacks.
  */
 const ResenaRow = ({
   id_customer,
   rank,
   comment,
   id_product,
-  onClick,
+  onDeleteClick,      // <-- nombre correcto
+  onClick,            // fallback por si en algún sitio viejo aún usan onClick
 
-  // Fallbacks opcionales por si el backend cambia nombres
+  // Fallbacks opcionales
   name,
   user,
   customer,
@@ -29,7 +29,6 @@ const ResenaRow = ({
   purchaseId,
   idOrder,
 }) => {
-  // Nombre (preferencia: objeto con first/last -> string -> name)
   const nombre =
     (typeof id_customer === "object" &&
       `${id_customer?.firstName || ""} ${id_customer?.lastName || ""}`.trim()) ||
@@ -41,11 +40,8 @@ const ResenaRow = ({
     name ||
     "—";
 
-  // Calificación (rank/rating/score/stars)
-  const calificacion =
-    rank ?? rating ?? score ?? stars ?? "—";
+  const calificacion = rank ?? rating ?? score ?? stars ?? "—";
 
-  // Compra / Producto (preferencia: nombre de producto; si no, id de orden/compra)
   const compra =
     (typeof id_product === "object" && (id_product?.name || id_product?.title)) ||
     (typeof product === "object" && (product?.name || product?.title)) ||
@@ -56,6 +52,8 @@ const ResenaRow = ({
     (typeof idOrder === "object" ? (idOrder?.code || idOrder?._id) : idOrder) ||
     "—";
 
+  const handleDelete = onDeleteClick || onClick; // compat
+
   return (
     <tr className="resena-row">
       <td>{nombre || "—"}</td>
@@ -63,11 +61,10 @@ const ResenaRow = ({
       <td>{comment ? String(comment) : "—"}</td>
       <td>{typeof compra === "string" ? compra : String(compra || "—")}</td>
       <td>
-        {/* Botón unificado pastel (rosa claro) para eliminar */}
         <button
           type="button"
           className="ej-btn ej-danger ej-size-sm"
-          onClick={onClick}
+          onClick={handleDelete}
           title="Eliminar reseña"
         >
           Eliminar

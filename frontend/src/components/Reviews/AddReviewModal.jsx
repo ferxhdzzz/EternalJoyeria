@@ -1,7 +1,11 @@
+// frontend/src/components/Reviews/AddReviewModal.jsx
 import React, { useState } from 'react';
 import Swal from 'sweetalert2';
 import { useAuth } from '../../context/AuthContext';
-import '../../styles/AddReviewModal.css';
+import '../../styles/shared/buttons.css';
+import '../../styles/shared/modal.css';
+import EJModal from '../../components/ui/EJModal.jsx';
+import '../../styles/AddReviewModal.css'; // Mantén estilos internos (rating, previews). Quita overlay/card antiguos.
 
 const AddReviewModal = ({ isOpen, onClose, onSubmit, productName, productId }) => {
   const [rating, setRating] = useState(0);
@@ -17,12 +21,6 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName, productId }) =
     setErrors({});
     setImages([]);
     onClose();
-  };
-
-  const handleOverlayClick = (e) => {
-    if (e.target.classList.contains('modal-overlay')) {
-      handleClose();
-    }
   };
 
   const validateForm = () => {
@@ -46,7 +44,7 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName, productId }) =
     }
     files.forEach(file => {
       const reader = new FileReader();
-      reader.onloadend = () => setImages(prev => [...prev, file]); // guardamos el File, no el base64
+      reader.onloadend = () => setImages(prev => [...prev, file]);
       reader.readAsDataURL(file);
     });
   };
@@ -81,7 +79,6 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName, productId }) =
       formData.append("rank", rating);
       formData.append("comment", comment);
 
-      // Agregar archivos (File objects) al formData
       images.forEach((img) => formData.append("images", img));
 
       const res = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/reviews", {
@@ -95,8 +92,7 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName, productId }) =
         throw new Error(errorData.message || "Error al enviar la reseña.");
       }
 
-      const reviewData = await res.json(); // ✅ obtenemos la reseña creada del backend
-
+      const reviewData = await res.json();
       Swal.fire({
         title: '¡Reseña publicada!',
         text: 'Gracias por compartir tu opinión.',
@@ -105,7 +101,7 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName, productId }) =
         timer: 2000
       });
 
-      onSubmit(reviewData); // ✅ enviamos la reseña creada al padre
+      onSubmit(reviewData);
       handleClose();
 
     } catch (error) {
@@ -132,105 +128,102 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName, productId }) =
     if (errors.comment) setErrors(prev => ({ ...prev, comment: '' }));
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="modal-container" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h3>Escribir reseña</h3>
-          <button className="modal-close" onClick={handleClose} disabled={isSubmitting}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/>
-            </svg>
+    <EJModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title="Escribir reseña"
+      footer={
+        <>
+          <button type="button" className="ej-btn ej-danger ej-size-sm" onClick={handleClose} disabled={isSubmitting}>
+            Cancelar
           </button>
-        </div>
+          <button form="add-review-form" type="submit" className="ej-btn ej-approve ej-size-sm" data-autofocus
+            disabled={isSubmitting || rating === 0 || !comment.trim()}>
+            {isSubmitting ? 'Enviando...' : 'Publicar reseña'}
+          </button>
+        </>
+      }
+    >
+      <h4 style={{ marginTop: 0, marginBottom: 8 }}>Reseña para: {productName}</h4>
+      <form id="add-review-form" onSubmit={handleSubmit} className="review-form">
+        {errors.general && <span className="error-message">{errors.general}</span>}
 
-        <div className="modal-body">
-          <h4>Reseña para: {productName}</h4>
-
-          <form onSubmit={handleSubmit} className="review-form">
-            {errors.general && <span className="error-message">{errors.general}</span>}
-
-            {/* Calificación */}
-            <div className="form-group">
-              <label className="form-label">Tu calificación *</label>
-              <div className="rating-input">
-                {[1, 2, 3, 4, 5].map(star => (
-                  <button
-                    key={star}
-                    type="button"
-                    className={`star-btn ${star <= rating ? 'active' : ''}`}
-                    onClick={() => handleRatingChange(star)}
-                    disabled={isSubmitting}
-                  >
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill={star <= rating ? "#FFD700" : "#E0E0E0"}>
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                  </button>
-                ))}
-              </div>
-              {errors.rating && <span className="error-message">{errors.rating}</span>}
-            </div>
-
-            {/* Comentario */}
-            <div className="form-group">
-              <label className="form-label">Tu comentario *</label>
-              <textarea
-                value={comment}
-                onChange={handleCommentChange}
-                className={`form-textarea ${errors.comment ? 'error' : ''}`}
-                placeholder="Comparte tu experiencia con este producto..."
-                rows="5"
+        {/* Calificación */}
+        <div className="form-group">
+          <label className="form-label">Tu calificación *</label>
+          <div className="rating-input">
+            {[1, 2, 3, 4, 5].map(star => (
+              <button
+                key={star}
+                type="button"
+                className={`star-btn ${star <= rating ? 'active' : ''}`}
+                onClick={() => handleRatingChange(star)}
                 disabled={isSubmitting}
-              />
-              {errors.comment && <span className="error-message">{errors.comment}</span>}
-              <div className="char-count">{comment.length}/500 caracteres</div>
-            </div>
-
-            {/* Subida de imágenes */}
-            <div className="form-group">
-              <label className="form-label">Subir imágenes (opcional, máximo 5)</label>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                className="form-control-file"
-                onChange={handleImageUpload}
-                disabled={isSubmitting || images.length >= 5}
-              />
-              <div className="image-preview-container">
-                {images.map((img, index) => (
-                  <div key={index} className="image-preview">
-                    <img
-                      src={URL.createObjectURL(img)}
-                      alt={`Preview ${index + 1}`}
-                      className="preview-image"
-                    />
-                    <button
-                      type="button"
-                      className="remove-image-btn"
-                      onClick={() => removeImage(index)}
-                      disabled={isSubmitting}
-                    >
-                      &times;
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Botones */}
-            <div className="modal-actions">
-              <button type="button" className="btn-cancel" onClick={handleClose} disabled={isSubmitting}>Cancelar</button>
-              <button type="submit" className="btn-submit" disabled={isSubmitting || rating === 0 || !comment.trim()}>
-                {isSubmitting ? 'Enviando...' : 'Publicar reseña'}
+                aria-label={`Calificación ${star}`}
+              >
+                <svg width="32" height="32" viewBox="0 0 24 24" fill={star <= rating ? "#FFD700" : "#E0E0E0"}>
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
               </button>
-            </div>
-          </form>
+            ))}
+          </div>
+          {errors.rating && <span className="error-message">{errors.rating}</span>}
         </div>
-      </div>
-    </div>
+
+        {/* Comentario */}
+        <div className="form-group">
+          <label className="form-label">Tu comentario *</label>
+          <textarea
+            value={comment}
+            onChange={handleCommentChange}
+            className={`form-textarea ${errors.comment ? 'error' : ''}`}
+            placeholder="Comparte tu experiencia con este producto..."
+            rows="5"
+            disabled={isSubmitting}
+            data-autofocus
+          />
+          {errors.comment && <span className="error-message">{errors.comment}</span>}
+          <div className="char-count">{comment.length}/500 caracteres</div>
+        </div>
+
+        {/* Subida de imágenes */}
+        <div className="form-group">
+          <label className="form-label">Subir imágenes (opcional, máximo 5)</label>
+
+          <input
+            id="reviewImages"
+            type="file"
+            accept="image/*"
+            multiple
+            className="file-input-hidden"
+            onChange={handleImageUpload}
+            disabled={isSubmitting || images.length >= 5}
+          />
+          <label htmlFor="reviewImages" className="ej-btn ej-danger ej-size-sm ej-w-140" style={{ marginBottom: 8 }}>
+            Agregar fotos
+          </label>
+
+          <div className="image-preview-container">
+            {images.map((img, index) => (
+              <div key={index} className="image-preview">
+                <img src={URL.createObjectURL(img)} alt={`Preview ${index + 1}`} className="preview-image" />
+                <button
+                  type="button"
+                  className="remove-image-btn ej-btn ej-danger ej-size-xs"
+                  onClick={() => removeImage(index)}
+                  disabled={isSubmitting}
+                  aria-label="Eliminar imagen"
+                  title="Eliminar imagen"
+                >
+                  &times;
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </form>
+    </EJModal>
   );
 };
 

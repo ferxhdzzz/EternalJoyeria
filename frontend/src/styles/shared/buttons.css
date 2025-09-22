@@ -1,0 +1,104 @@
+/* === Botones pastel unificados (funciona en <button> y <label>) === */
+:root{
+  --ej-radius: 12px;
+  --ej-py: 10px;
+  --ej-px: 16px;
+  --ej-shadow: 0 2px 6px rgba(0,0,0,.12);
+
+  /* Confirmar / Editar */
+  --ej-approve-bg: #f78da7;
+  --ej-approve-bg-hov: #f36c8f;
+  --ej-approve-bg-act: #eb4d76;
+  --ej-approve-text: #ffffff;
+
+  /* Cancelar / Eliminar */
+  --ej-danger-bg: #f8c9d4;
+  --ej-danger-bg-hov: #f3a9bb;
+  --ej-danger-bg-act: #ed91aa;
+  --ej-danger-text: #ffffff;
+
+  /* Neutro opcional */
+  --ej-primary-bg: #111827;
+  --ej-primary-bg-hov: #1f2937;
+  --ej-primary-bg-act: #0b1220;
+  --ej-primary-text: #ffffff;
+}
+
+/* Piel base (sirve para button y label) */
+.ej-btn,
+button.ej-btn,
+label.ej-btn {
+  border: none;
+  border-radius: var(--ej-radius);
+  padding: var(--ej-py) var(--ej-px);
+  font-weight: 600;
+  line-height: 1.2;
+  box-shadow: var(--ej-shadow);
+  cursor: pointer;
+  transition: transform .02s ease-in, background-color .15s ease-in-out, box-shadow .15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+/* Variantes — aplican a button y label */
+button.ej-primary, label.ej-primary, .ej-primary { background: var(--ej-primary-bg); color: var(--ej-primary-text); }
+.ej-primary:hover { background: var(--ej-primary-bg-hov); }
+.ej-primary:active { background: var(--ej-primary-bg-act); transform: translateY(1px); }
+.ej-primary:disabled { opacity:.6; cursor:not-allowed; box-shadow:none; }
+
+button.ej-approve, label.ej-approve, .ej-approve { background: var(--ej-approve-bg); color: var(--ej-approve-text); }
+.ej-approve:hover { background: var(--ej-approve-bg-hov); }
+.ej-approve:active { background: var(--ej-approve-bg-act); transform: translateY(1px); }
+.ej-approve:disabled { opacity:.6; cursor:not-allowed; box-shadow:none; }
+
+button.ej-danger, label.ej-danger, .ej-danger { background: var(--ej-danger-bg); color: var(--ej-danger-text); }
+.ej-danger:hover { background: var(--ej-danger-bg-hov); }
+.ej-danger:active { background: var(--ej-danger-bg-act); transform: translateY(1px); }
+.ej-danger:disabled { opacity:.6; cursor:not-allowed; box-shadow:none; }
+
+/* Tamaños */
+.ej-size-xs { min-height: 32px; padding: 6px 12px; font-size: .85rem; }
+.ej-size-sm { min-height: 36px; padding: 8px 14px; font-size: .9rem; }
+.ej-size-md { min-height: 44px; padding: 10px 18px; font-size: .95rem; }
+
+/* Grupos con mismo ancho */
+.ej-btn-set { display:flex; gap:8px; }
+.ej-btn-set .ej-btn { min-width:120px; text-align:center; }
+
+/* File input escondido + label “bonito” */
+.file-input-hidden { position:absolute; left:-10000px; width:1px; height:1px; overflow:hidden; }
+.ej-file { display:inline-flex; align-items:center; justify-content:center; line-height:1; }
+.ej-w-140 { min-width:140px; text-align:center; }
+
+/* — Overrides para tarjetas de productos (si hubiera estilos viejos) */
+.products-list .product-card .product-actions .ej-approve { background: var(--ej-approve-bg) !important; color: var(--ej-approve-text) !important; }
+.products-list .product-card .product-actions .ej-approve:hover { background: var(--ej-approve-bg-hov) !important; }
+.products-list .product-card .product-actions .ej-approve:active { background: var(--ej-approve-bg-act) !important; transform: translateY(1px); }
+
+.products-list .product-card .product-actions .ej-danger { background: var(--ej-danger-bg) !important; color: var(--ej-danger-text) !important; }
+.products-list .product-card .product-actions .ej-danger:hover { background: var(--ej-danger-bg-hov) !important; }
+.products-list .product-card .product-actions .ej-danger:active { background: var(--ej-danger-bg-act) !important; transform: translateY(1px); }
+
+/* === Labels que actúan como botón (file) === */
+.ej-file {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  width: auto;
+}
+
+/* asegúrate que el label-botón no herede estilos de otros "label" */
+label.ej-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  padding-left: var(--ej-px);
+  padding-right: var(--ej-px);
+}
+
+/* tamaño igual al botón pequeño (como "Cancelar") */
+.ej-size-sm { min-height: 36px; padding: 8px 14px; font-size: .9rem; }

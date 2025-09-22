@@ -1,9 +1,12 @@
+// frontendPriv/src/components/Categorias/EditCategoryModal.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import useDataCategorie from "../../hooks/Categorias/useDataCategorias";
+import "../../styles/Shared/buttons.css";
+import "../../styles/Shared/modal.css";
+import EJModal from "../Ui/EJModal.jsx";
 import "./EditCategoryModal.css";
-import "../../styles/shared/buttons.css"; 
 
 const EditCategoryModal = ({ categorie, onClose, refreshCategories }) => {
   const {
@@ -27,28 +30,21 @@ const EditCategoryModal = ({ categorie, onClose, refreshCategories }) => {
   const watchFile = watch("file");
   const objectUrlRef = useRef(null);
 
+  // Preview al seleccionar archivo
   useEffect(() => {
     if (watchFile && watchFile.length > 0) {
-      // Revocar URL blob anterior si existe
-      if (objectUrlRef.current) {
-        URL.revokeObjectURL(objectUrlRef.current);
-      }
-
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
       const file = watchFile[0];
       const objectUrl = URL.createObjectURL(file);
       objectUrlRef.current = objectUrl;
-
       setPreviewImage(objectUrl);
     } else {
-      // Sin archivo nuevo: revocar blob y mostrar imagen original
       if (objectUrlRef.current) {
         URL.revokeObjectURL(objectUrlRef.current);
         objectUrlRef.current = null;
       }
       setPreviewImage(categorie.image || "/karinaaaaaa.jpg");
     }
-
-    // Limpiar al desmontar componente
     return () => {
       if (objectUrlRef.current) {
         URL.revokeObjectURL(objectUrlRef.current);
@@ -57,6 +53,7 @@ const EditCategoryModal = ({ categorie, onClose, refreshCategories }) => {
     };
   }, [watchFile, categorie.image]);
 
+  // Reset al cambiar de categoría
   useEffect(() => {
     reset({
       name: categorie.name,
@@ -72,6 +69,7 @@ const EditCategoryModal = ({ categorie, onClose, refreshCategories }) => {
       title: "Actualizando categoría...",
       didOpen: () => Swal.showLoading(),
       allowOutsideClick: false,
+      showConfirmButton: false,
     });
 
     let imageUrl = data.image;
@@ -88,55 +86,97 @@ const EditCategoryModal = ({ categorie, onClose, refreshCategories }) => {
     });
 
     Swal.close();
-    refreshCategories(); // Actualiza la lista sin recargar página
-    onClose(); // Cierra el modal
+    await refreshCategories?.();
+    onClose();
   };
 
   return (
-    <>
-      <div className="modal-overlay" onClick={onClose} />
+    <EJModal
+      isOpen={true}
+      onClose={onClose}
+      title="Editar Categoría"
+      footer={
+        <>
+          <button type="button" className="ej-btn ej-danger ej-size-sm" onClick={onClose}>
+            Cancelar
+          </button>
+          <button form="edit-category-form" type="submit" className="ej-btn ej-approve ej-size-sm" data-autofocus>
+            {uploading ? "Subiendo..." : "Guardar"}
+          </button>
+        </>
+      }
+    >
+      <form id="edit-category-form" onSubmit={handleSubmit(onSubmit)} className="edit-category-form">
+        <label>Nombre </label>
+        <input
+          type="text"
+          {...register("name", { required: "El nombre es obligatorio" })}
+          autoFocus
+          className={errors.name ? "input-error" : ""}
+        />
+        {errors.name && <p className="error">{errors.name.message}</p>}
 
-      <div className="edit-modal-card">
-        <h2 className="modal-title">Editar Categoría</h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="edit-category-form">
-          <label>Nombre </label>
-          <input
-            type="text"
-            {...register("name", { required: "El nombre es obligatorio" })}
-            autoFocus
-            className={errors.name ? "input-error" : ""}
-          />
-          {errors.name && <p className="error">{errors.name.message}</p>}
+        <label>Descripción</label>
+        <textarea {...register("description")} />
 
-          <label>Descripción</label>
-          <textarea {...register("description")} />
+        <label>Imagen (subir nueva para cambiar)</label>
 
-          <label>Imagen (subir nueva para cambiar)</label>
-          <input type="file" {...register("file")} accept="image/*" />
+        {/* Input file oculto */}
+        <input
+          id="categoryFile"
+          type="file"
+          accept="image/*"
+          {...register("file")}
+          className="file-input-hidden"
+        />
 
-          <div className="image-preview-box">
-            <p>Previsualización de la imagen:</p>
-            <img
-              src={previewImage}
-              alt="Preview"
-              className="preview-image"
-            />
+        {/* Botón igual al de "Agregar categoría" */}
+        <div className="ej-upload-row">
+          <label
+            htmlFor="categoryFile"
+            className="ej-btn ej-danger ej-file"
+            style={{ pointerEvents: "auto", opacity: 1 }}
+          >
+            Agregar foto
+          </label>
+        </div>
+
+        <div className="image-preview-box" style={{ textAlign: "center" }}>
+          <p>Previsualización de la imagen:</p>
+          <div style={{ position: "relative", display: "inline-block" }}>
+            <img src={previewImage} alt="Preview" className="preview-image" />
+            {watchFile && watchFile.length > 0 && (
+              <button
+                type="button"
+                className="ej-btn ej-danger ej-size-xs"
+                style={{
+                  position: "absolute",
+                  top: -8,
+                  right: -8,
+                  borderRadius: 999,
+                  minWidth: "auto",
+                  padding: "0 10px",
+                }}
+                onClick={() => {
+                  reset((prev) => ({ ...prev, file: null }));
+                  if (objectUrlRef.current) {
+                    URL.revokeObjectURL(objectUrlRef.current);
+                    objectUrlRef.current = null;
+                  }
+                  setPreviewImage(categorie.image || "/karinaaaaaa.jpg");
+                  const input = document.getElementById("categoryFile");
+                  if (input) input.value = "";
+                }}
+                title="Quitar imagen seleccionada"
+                aria-label="Quitar imagen seleccionada"
+              >
+                ×
+              </button>
+            )}
           </div>
-
-          <div className="buttons-row" style={{ display: "flex", gap: 8 }}>
-            {/* Confirmar/Guardar (rosa pastel) */}
-            <button type="submit" disabled={uploading} className="ej-btn ej-approve">
-              {uploading ? "Subiendo..." : "Guardar"}
-            </button>
-
-            {/* Cancelar (rose/salmón pastel) */}
-            <button type="button" onClick={onClose} className="ej-btn ej-danger">
-              Cancelar
-            </button>
-          </div>
-        </form>
-      </div>
-    </>
+        </div>
+      </form>
+    </EJModal>
   );
 };
 
