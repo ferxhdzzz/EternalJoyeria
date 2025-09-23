@@ -116,7 +116,6 @@ res.cookie(COOKIE_NAME, token, {
 httpOnly: true,
 secure: true,
 sameSite: "lax",
-partitioned: true, // <- clave para cookies third-party en Chrome actual
 path: "/",
 maxAge: 7 * 24 * 60 * 60 * 1000,
 });
