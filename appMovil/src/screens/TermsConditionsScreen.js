@@ -17,7 +17,7 @@ const TermsConditionsScreen = ({ navigation }) => {
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
-        {/* Header elegante */}
+        {/* Encabezado */}
         <View style={styles.header}>
           <TouchableOpacity 
             style={styles.backButton}
@@ -183,9 +183,14 @@ const TermsConditionsScreen = ({ navigation }) => {
                 Si tienes preguntas sobre estos términos y condiciones, contáctanos en:
               </Text>
               <View style={styles.contactContainer}>
-                <View style={styles.contactItem}>
-                  <Ionicons name="mail" size={16} color="#e91e63" />
-                  <Text style={styles.contactInfo}>legal@eternaljoyeria.com</Text>
+                <View style={styles.contactItemEmail}>
+                  <View style={styles.emailRow}>
+                    <Ionicons name="mail" size={16} color="#e91e63" />
+                    <Text style={styles.emailLabel}>Correo:</Text>
+                  </View>
+                  <Text style={styles.emailText}>
+                    legal@eternaljoyeria.com
+                  </Text>
                 </View>
                 <View style={styles.contactItem}>
                   <Ionicons name="call" size={16} color="#e91e63" />
@@ -194,7 +199,7 @@ const TermsConditionsScreen = ({ navigation }) => {
               </View>
             </View>
 
-            {/* Espacio extra para evitar que el menú tape el contenido */}
+            {/* Espacio adicional */}
             <View style={styles.extraSpace} />
           </LinearGradient>
         </ScrollView>
@@ -308,16 +313,46 @@ const styles = StyleSheet.create({
   },
   contactItem: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 10,
     backgroundColor: 'rgba(233, 30, 99, 0.1)',
-    padding: 12,
+    padding: 15,
     borderRadius: 10,
+    minHeight: 60,
   },
   contactInfo: {
     fontSize: 16,
     color: '#ad1457',
     fontWeight: '600',
+    flex: 1,
+    lineHeight: 22,
+  },
+  contactItemEmail: {
+    backgroundColor: 'rgba(233, 30, 99, 0.1)',
+    padding: 15,
+    borderRadius: 10,
+    minHeight: 70,
+    width: '100%',
+  },
+  emailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  emailLabel: {
+    fontSize: 16,
+    color: '#ad1457',
+    fontWeight: '600',
+  },
+  emailText: {
+    fontSize: 15,
+    color: '#ad1457',
+    fontWeight: '600',
+    paddingLeft: 24,
+    width: '100%',
+    flexWrap: 'wrap',
+    lineHeight: 20,
   },
   extraSpace: {
     height: 50,

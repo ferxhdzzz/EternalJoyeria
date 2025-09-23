@@ -19,6 +19,28 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     loadCartFromStorage();
   }, []);
+  
+  // Actualizar productos existentes en el carrito con stock y tallas corregidas
+  useEffect(() => {
+    const updateExistingProducts = () => {
+      setCartItems(prevItems => 
+        prevItems.map(item => ({
+          ...item,
+          // Corregir tallas en espanol
+          size: item.size === 'Unica' ? 'Talla única' : 
+                item.size === 'One Size' ? 'Talla única' : 
+                item.size === 'unique' ? 'Talla única' : 
+                item.size || 'Talla única',
+          // Asegurar que tenga stock (usar un valor por defecto si no existe)
+          stock: item.stock || 999
+        }))
+      );
+    };
+    
+    if (cartItems.length > 0) {
+      updateExistingProducts();
+    }
+  }, []);
 
   // Guardar carrito en AsyncStorage cada vez que cambie
   useEffect(() => {
@@ -47,32 +69,59 @@ export const CartProvider = ({ children }) => {
   };
 
   const addProductToCart = (newProduct) => {
-    const productSize = newProduct.size || 'Unica';
+    const productSize = newProduct.selectedSize || newProduct.size || 'Talla única';
+    const productStock = newProduct.stock || 0;
     
     const existingProductIndex = cartItems.findIndex(item => 
       item._id === newProduct._id && item.size === productSize
     );
     
     if (existingProductIndex >= 0) {
+      const currentQuantity = cartItems[existingProductIndex].quantity;
+      if (currentQuantity >= productStock) {
+        console.log('No se puede agregar más, stock insuficiente');
+        return false; // No se puede agregar mas
+      }
       setCartItems(prevItems => 
         prevItems.map((item, index) => 
           index === existingProductIndex 
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: Math.min(item.quantity + 1, productStock) }
             : item
         )
       );
     } else {
-      setCartItems(prevItems => [...prevItems, { ...newProduct, quantity: 1, size: productSize }]);
+      if (productStock <= 0) {
+        console.log('Producto sin stock disponible');
+        return false;
+      }
+      setCartItems(prevItems => [...prevItems, { 
+        ...newProduct, 
+        quantity: 1, 
+        size: productSize,
+        stock: productStock 
+      }]);
     }
+    return true; // Agregado exitosamente
   };
 
   const updateQuantity = (id, size, change) => {
     setCartItems(prevItems =>
-      prevItems.map(item =>
-        item._id === id && item.size === size
-          ? { ...item, quantity: Math.max(1, item.quantity + change) }
-          : item
-      )
+      prevItems.map(item => {
+        if (item._id === id && item.size === size) {
+          const newQuantity = item.quantity + change;
+          const maxStock = item.stock || 999; // Si no hay stock definido, usar un numero alto
+          
+          // No permitir menos de 1 ni mas que el stock disponible
+          const finalQuantity = Math.max(1, Math.min(newQuantity, maxStock));
+          
+          if (newQuantity > maxStock) {
+            console.log(`Stock insuficiente. Máximo disponible: ${maxStock}`);
+          }
+          
+          return { ...item, quantity: finalQuantity };
+        }
+        return item;
+      })
     );
   };
 

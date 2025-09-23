@@ -14,7 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = (width - 40) / 2; // Ancho para 2 columnas con margen
+const CARD_WIDTH = (width - 40) / 2; // Ancho para dos columnas con margen
 
 const ProductCard = ({ product, onPress }) => {
   const [isFavorite, setIsFavorite] = useState(false);
@@ -24,7 +24,7 @@ const ProductCard = ({ product, onPress }) => {
   const isOutOfStock = product.stock === 0;
   const stockStatus = product.stock > 10 ? 'high' : product.stock > 0 ? 'low' : 'out';
   
-  // Fade in animation on mount
+  // Animacion de aparicion al montar componente
   useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -71,9 +71,9 @@ const ProductCard = ({ product, onPress }) => {
 
   const getStockStatusColor = () => {
     switch(stockStatus) {
-      case 'high': return '#10B981'; // Green
-      case 'low': return '#F59E0B'; // Amber
-      default: return '#EF4444'; // Red
+      case 'high': return '#10B981'; // Verde
+      case 'low': return '#F59E0B'; // Amarillo
+      default: return '#EF4444'; // Rojo
     }
   };
 
@@ -210,7 +210,7 @@ const ProductCard = ({ product, onPress }) => {
   );
 };
 
-// Función para formatear el precio
+// Funcion para formatear el precio
 const formatPrice = (price) => {
   return new Intl.NumberFormat('es-MX', {
     style: 'currency',

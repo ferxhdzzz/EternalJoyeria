@@ -55,7 +55,7 @@ const useProducts = () => {
     }
   };
 
-  // Obtener productos por categoría
+  // Obtener productos por categoria
   const fetchProductsByCategory = async (categoryId) => {
     try {
       setLoading(true);

@@ -26,7 +26,7 @@ const OrdersScreen = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
 
 
-  // Función para obtener pedidos del usuario
+  // Obtener pedidos del usuario
   const fetchUserOrders = async () => {
     try {
       console.log('🔄 [OrdersScreen] Iniciando fetchUserOrders...');
@@ -51,7 +51,7 @@ const OrdersScreen = ({ navigation }) => {
         const data = await response.json();
         console.log('✅ [OrdersScreen] Datos recibidos:', data.length, 'pedidos');
         
-        // Filtrar solo pedidos pagados y ordenar por fecha más reciente
+        // Filtrar pedidos pagados y ordenar por fecha
         const paidOrders = data.filter(order => order.status === 'pagado')
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         console.log('📦 [OrdersScreen] Pedidos pagados:', paidOrders.length);
@@ -68,7 +68,7 @@ const OrdersScreen = ({ navigation }) => {
     }
   };
 
-  // Actualizar pedidos cuando la pantalla esté en foco
+  // Actualizar pedidos al enfocar pantalla
   useFocusEffect(
     React.useCallback(() => {
       fetchUserOrders();

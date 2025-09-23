@@ -39,6 +39,7 @@ const ProfileScreen = ({ navigation, route }) => {
     showError,
     showLogoutConfirm,
     showPermissionRequired,
+    showImagePickerOptions,
   } = useCustomAlert();
 
   // Sincroniza datos del perfil cuando cambia el usuario
@@ -97,7 +98,17 @@ const ProfileScreen = ({ navigation, route }) => {
     setEditingField(null);
   };
 
-  const pickImage = async () => {
+  // Función principal que muestra la alerta personalizada de selección
+  const pickImage = () => {
+    showImagePickerOptions(
+      () => pickFromCamera(), // Acción para cámara
+      () => pickFromGallery(), // Acción para galería
+      () => {} // Acción para cancelar (no hacer nada)
+    );
+  };
+
+  // Función para tomar foto con cámara
+  const pickFromCamera = async () => {
     try {
       let camPerm = await ImagePicker.getCameraPermissionsAsync();
       if (camPerm?.status !== 'granted') {
@@ -108,7 +119,7 @@ const ProfileScreen = ({ navigation, route }) => {
           'Permisos de cámara requeridos',
           'Necesitamos acceso a la cámara para tomar tu foto de perfil.',
           () => {
-            // Aquí podrías abrir la configuración del sistema si es posible
+            showError('Instrucciones', '1. Ve a Configuración\n2. Busca "Eternal Joyería" o "Expo Go"\n3. Activa "Cámara"\n4. Regresa a la app');
           },
           () => {}
         );
@@ -126,49 +137,21 @@ const ProfileScreen = ({ navigation, route }) => {
       }
 
       if (cameraResult.canceled === true) {
-        return Alert.alert(
-          'Captura cancelada',
-          '¿Deseas elegir una foto de tu galería?',
-          [
-            { text: 'No', style: 'cancel' },
-            { text: 'Sí', onPress: () => pickFromGallery() },
-          ]
-        );
+        return; // Usuario canceló, no hacer nada
       }
 
       const assets = Array.isArray(cameraResult.assets) ? cameraResult.assets : [];
       const first = assets[0];
       const imageUri = first?.uri;
       if (!imageUri) {
-        return Alert.alert(
-          'Sin imagen',
-          'No se obtuvo una imagen válida. ¿Deseas elegir una foto de tu galería?',
-          [
-            { text: 'No', style: 'cancel' },
-            { text: 'Sí', onPress: () => pickFromGallery() },
-          ]
-        );
+        showError('Error', 'No se obtuvo una imagen válida de la cámara.');
+        return;
       }
 
-      setSelectedImage(imageUri);
-
-      const uploadRes = await updateProfileImage(imageUri);
-      if (uploadRes?.success) {
-        showSuccess('Éxito', 'Foto de perfil actualizada correctamente');
-        setSelectedImage(null);
-      } else {
-        showError('Error', uploadRes?.error || 'No se pudo actualizar la foto');
-      }
-    } catch (error) {
-      console.log('Camera capture error:', error);
-      Alert.alert(
-        'Error con la cámara',
-        '¿Deseas elegir una foto de tu galería en su lugar?',
-        [
-          { text: 'Cancelar', style: 'cancel' },
-          { text: 'Abrir galería', onPress: () => pickFromGallery() },
-        ]
-      );
+      await uploadProfileImage(imageUri);
+    } catch (e) {
+      console.log('Camera pick error:', e);
+      showError('Error de cámara', 'No se pudo tomar la foto. Inténtalo de nuevo.');
     }
   };
 
@@ -179,7 +162,14 @@ const ProfileScreen = ({ navigation, route }) => {
         libPerm = await ImagePicker.requestMediaLibraryPermissionsAsync();
       }
       if (libPerm?.status !== 'granted') {
-        Alert.alert('Permiso requerido', 'Necesitamos acceso a tus fotos para elegir una imagen.');
+        showPermissionRequired(
+          'Permisos de galería requeridos',
+          'Necesitamos acceso a tu galería para seleccionar una foto de perfil.',
+          () => {
+            showError('Instrucciones', '1. Ve a Configuración\n2. Busca "Eternal Joyería" o "Expo Go"\n3. Activa "Fotos"\n4. Regresa a la app');
+          },
+          () => {}
+        );
         return;
       }
 
@@ -194,8 +184,21 @@ const ProfileScreen = ({ navigation, route }) => {
       const assets = Array.isArray(libResult.assets) ? libResult.assets : [];
       const first = assets[0];
       const imageUri = first?.uri;
-      if (!imageUri) return;
+      if (!imageUri) {
+        showError('Error', 'No se obtuvo una imagen válida de la galería.');
+        return;
+      }
 
+      await uploadProfileImage(imageUri);
+    } catch (e) {
+      console.log('Gallery pick error:', e);
+      showError('Error', 'No se pudo seleccionar la imagen de la galería.');
+    }
+  };
+
+  // Función centralizada para subir imagen de perfil
+  const uploadProfileImage = async (imageUri) => {
+    try {
       setSelectedImage(imageUri);
       const uploadRes = await updateProfileImage(imageUri);
       if (uploadRes?.success) {
@@ -204,9 +207,10 @@ const ProfileScreen = ({ navigation, route }) => {
       } else {
         showError('Error', uploadRes?.error || 'No se pudo actualizar la foto');
       }
-    } catch (e) {
-      console.log('Gallery pick error:', e);
-      showError('Error', 'No se pudo seleccionar la imagen.');
+    } catch (error) {
+      console.log('Upload profile image error:', error);
+      showError('Error', 'No se pudo subir la imagen. Inténtalo de nuevo.');
+      setSelectedImage(null);
     }
   };
 
@@ -272,7 +276,7 @@ const ProfileScreen = ({ navigation, route }) => {
       colors={['#ff6ec7', '#ff9a9e', '#fecfef']}
       style={styles.container}
     >
-      {/* Header elegante */}
+      {/* Encabezado */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity 
@@ -282,15 +286,14 @@ const ProfileScreen = ({ navigation, route }) => {
             <Ionicons name="arrow-back" size={24} color="#4a148c" />
           </TouchableOpacity>
           <View style={styles.headerCenter}>
-            <Ionicons name="person-circle" size={32} color="#6a1b9a" />
             <Text style={styles.headerTitle}>Mi Perfil</Text>
           </View>
-          <View style={{ width: 24 }} />
+          <View style={styles.headerSpacer} />
         </View>
       </View>
 
       <ScrollView style={styles.scrollView}>
-        {/* Profile Picture Section elegante */}
+        {/* Seccion de foto de perfil */}
         <View style={styles.profileSection}>
           <TouchableOpacity onPress={pickImage} style={styles.avatarContainer}>
             <LinearGradient
@@ -319,7 +322,7 @@ const ProfileScreen = ({ navigation, route }) => {
           <Text style={styles.userEmail}>{profileData.email}</Text>
         </View>
 
-        {/* Personal Information Section elegante */}
+        {/* Seccion de informacion personal */}
         <View style={styles.section}>
           <LinearGradient
             colors={['rgba(255, 255, 255, 0.95)', 'rgba(252, 228, 236, 0.8)']}
@@ -330,7 +333,7 @@ const ProfileScreen = ({ navigation, route }) => {
               <Text style={styles.sectionTitle}>Información Personal</Text>
             </View>
           
-          {renderEditableField('Nombre', 'firstName', 'Ingresa tu nombre')}
+          {renderEditableField('Nombres', 'firstName', 'Ingresa tu nombre')}
           {renderEditableField('Apellidos', 'lastName', 'Ingresa tus apellidos')}
           {renderEditableField('Correo electrónico', 'email', 'correo@ejemplo.com')}
           {renderEditableField('Teléfono', 'phone', 'Ingresa tu teléfono')}
@@ -353,7 +356,7 @@ const ProfileScreen = ({ navigation, route }) => {
           </LinearGradient>
         </View>
         
-        {/* Legal & Support Section elegante */}
+        {/* Seccion de ayuda y soporte */}
         <View style={styles.section}>
           <LinearGradient
             colors={['rgba(255, 255, 255, 0.95)', 'rgba(252, 228, 236, 0.8)']}
@@ -391,13 +394,13 @@ const ProfileScreen = ({ navigation, route }) => {
             </TouchableOpacity>
           </LinearGradient>
         </View>
-
-        {/* Logout Button elegante */}
+        
+        {/* Seccion de cerrar sesion */}
         <LinearGradient
           colors={['#ef4444', '#dc2626']}
           style={styles.logoutButton}
         >
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.logoutTouchable}
             onPress={handleLogout}
           >
@@ -411,7 +414,7 @@ const ProfileScreen = ({ navigation, route }) => {
         </View>
       </ScrollView>
       
-      {/* Alerta personalizada */}
+      {/* Componente de alerta */}
       <CustomAlert
         visible={alertConfig.visible}
         type={alertConfig.type}
@@ -443,6 +446,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
+  },
+  headerSpacer: {
+    width: 45,
   },
   headerContent: {
     flexDirection: 'row',

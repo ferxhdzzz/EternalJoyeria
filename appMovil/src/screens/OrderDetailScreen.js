@@ -148,7 +148,7 @@ const OrderDetailScreen = ({ route, navigation }) => {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Información del pedido elegante */}
+        {/* Informacion del pedido */}
         <View style={styles.orderInfoCard}>
           <LinearGradient
             colors={['rgba(255, 255, 255, 0.95)', 'rgba(232, 234, 246, 0.8)']}
@@ -185,7 +185,7 @@ const OrderDetailScreen = ({ route, navigation }) => {
           </LinearGradient>
         </View>
 
-        {/* Productos elegantes */}
+        {/* Productos del pedido */}
         <View style={styles.productsCard}>
           <LinearGradient
             colors={['rgba(255, 255, 255, 0.95)', 'rgba(232, 234, 246, 0.8)']}
@@ -241,7 +241,7 @@ const OrderDetailScreen = ({ route, navigation }) => {
           </LinearGradient>
         </View>
 
-        {/* Información de envío elegante */}
+        {/* Informacion de envio */}
         {order.shippingAddress && (
           <View style={styles.shippingCard}>
             <LinearGradient
@@ -282,7 +282,7 @@ const OrderDetailScreen = ({ route, navigation }) => {
           </View>
         )}
 
-        {/* Resumen de costos elegante */}
+        {/* Resumen de costos */}
         <View style={styles.summaryCard}>
           <LinearGradient
             colors={['rgba(255, 255, 255, 0.95)', 'rgba(232, 234, 246, 0.8)']}

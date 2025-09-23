@@ -180,7 +180,7 @@ const CustomAlert = ({
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
               >
-                {/* Decorative circles */}
+                {/* Circulos decorativos */}
                 <View style={styles.decorativeCircle1} />
                 <View style={styles.decorativeCircle2} />
                 
@@ -210,7 +210,7 @@ const CustomAlert = ({
                     <Text style={styles.alertMessage}>{message}</Text>
                   )}
                   
-                  {/* Botones personalizados o botón de cerrar por defecto */}
+                  {/* Botones de accion */}
                   <View style={[
                     styles.buttonsContainer,
                     buttons.length === 3 && styles.threeButtonsContainer

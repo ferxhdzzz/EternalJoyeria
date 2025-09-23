@@ -266,7 +266,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
-        {/* Header elegante */}
+        {/* Encabezado */}
         <View style={styles.header}>
           <TouchableOpacity 
             style={styles.backButton}
@@ -291,7 +291,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
               colors={['rgba(255, 255, 255, 0.95)', 'rgba(252, 228, 236, 0.8)']}
               style={styles.formGradient}
             >
-              {/* Contraseña Actual */}
+              {/* Contrasena actual */}
               <View style={styles.inputContainer}>
                 <View style={styles.labelContainer}>
                   <Ionicons name="lock-closed" size={16} color="#e91e63" />
@@ -325,7 +325,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
                 {currentPasswordError ? <Text style={styles.errorText}>{currentPasswordError}</Text> : null}
               </View>
 
-              {/* Nueva Contraseña */}
+              {/* Nueva contrasena */}
               <View style={styles.inputContainer}>
                 <View style={styles.labelContainer}>
                   <Ionicons name="lock-open" size={16} color="#e91e63" />
@@ -359,7 +359,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
                 {newPasswordError ? <Text style={styles.errorText}>{newPasswordError}</Text> : null}
               </View>
 
-              {/* Confirmar Nueva Contraseña */}
+              {/* Confirmar nueva contrasena */}
               <View style={styles.inputContainer}>
                 <View style={styles.labelContainer}>
                   <Ionicons name="checkmark-circle" size={16} color="#e91e63" />
@@ -393,7 +393,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
                 {confirmPasswordError ? <Text style={styles.errorText}>{confirmPasswordError}</Text> : null}
               </View>
 
-              {/* Botón de Actualizar elegante */}
+              {/* Boton de actualizar */}
               <LinearGradient
                 colors={(!isFormValid || isLoading) ? ['#f8bbd9', '#f48fb1'] : ['#e91e63', '#ad1457']}
                 style={styles.submitButton}
@@ -415,7 +415,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
                 </TouchableOpacity>
               </LinearGradient>
 
-              {/* Mensaje de ayuda elegante */}
+              {/* Mensaje de ayuda */}
               <View style={styles.helpContainer}>
                 <Ionicons name="information-circle" size={16} color="#f06292" />
                 <Text style={styles.helpText}>
@@ -427,7 +427,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
         </ScrollView>
       </SafeAreaView>
 
-      {/* Alerta personalizada */}
+      {/* Componente de alerta */}
       <CustomAlert
         visible={alertConfig.visible}
         type={alertConfig.type}

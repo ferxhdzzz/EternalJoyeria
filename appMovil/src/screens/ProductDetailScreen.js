@@ -37,6 +37,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
     alertConfig,
     hideAlert,
     showAddToCartSuccess,
+    showStockError,
   } = useCustomAlert();
   
   // Animaciones
@@ -57,6 +58,8 @@ const ProductDetailScreen = ({ navigation, route }) => {
           if (result.product.measurements) {
             const measurements = Object.keys(result.product.measurements);
             setSelectedSize(measurements[0] || 'Talla única');
+          } else {
+            setSelectedSize('Talla única');
           }
           
           // Iniciar animaciones después de cargar
@@ -177,18 +180,29 @@ const ProductDetailScreen = ({ navigation, route }) => {
 
     const productToAdd = {
       ...product,
-      selectedSize: selectedSize,
+      selectedSize: selectedSize || 'Talla única',
+      size: selectedSize || 'Talla única',
       quantity: 1,
+      stock: stockNum, // Pasar el stock actual
     };
     
-    addProductToCart(productToAdd);
+    const success = addProductToCart(productToAdd);
     
-    // Usar alerta personalizada
-    showAddToCartSuccess(
-      product.name || 'Producto',
-      () => navigation.navigate('MainTabs', { screen: 'Carrito' }), // Ver carrito
-      () => {} // Seguir comprando (no hacer nada)
-    );
+    if (success) {
+      // Usar alerta personalizada
+      showAddToCartSuccess(
+        product.name || 'Producto',
+        () => navigation.navigate('MainTabs', { screen: 'Carrito' }), // Ver carrito
+        () => {} // Seguir comprando (no hacer nada)
+      );
+    } else {
+      showStockError(
+        product.name || 'Producto',
+        stockNum,
+        () => navigation.navigate('MainTabs', { screen: 'Carrito' }), // Ver carrito
+        () => navigation.goBack() // Seguir comprando (volver)
+      );
+    }
   };
 
   return (
@@ -199,7 +213,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
         colors={['#fce4ec', '#f8bbd9', '#f48fb1']}
         style={styles.background}
       >
-        {/* Header elegante sin título */}
+        {/* Encabezado */}
         <View style={styles.header}>
           <TouchableOpacity 
             style={styles.headerButton}
@@ -220,7 +234,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
         </View>
 
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          {/* Imagen del producto con diseño lujoso */}
+          {/* Imagen del producto */}
           <Animated.View style={[styles.imageContainer, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
             <View style={styles.imageWrapper}>
               <Image
@@ -234,7 +248,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
               />
             </View>
             
-            {/* Badge de descuento elegante */}
+            {/* Indicador de descuento */}
             {hasDiscount && (
               <View style={styles.discountBadge}>
                 <Ionicons name="pricetag" size={12} color="#fff" />
@@ -242,7 +256,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
               </View>
             )}
             
-            {/* Badge de stock elegante */}
+            {/* Indicador de stock */}
             {isOutOfStock && (
               <View style={styles.outOfStockBadge}>
                 <Ionicons name="close-circle" size={12} color="#fff" />
@@ -251,13 +265,13 @@ const ProductDetailScreen = ({ navigation, route }) => {
             )}
           </Animated.View>
 
-          {/* Información del producto con diseño lujoso */}
+          {/* Informacion del producto */}
           <Animated.View style={[styles.productInfo, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
             <LinearGradient
               colors={['rgba(255, 255, 255, 0.95)', 'rgba(252, 228, 236, 0.8)']}
               style={styles.infoGradient}
             >
-            {/* Nombre y categoría elegantes */}
+            {/* Nombre y categoria */}
             <View style={styles.titleSection}>
               <Text style={styles.productName}>{nameStr}</Text>
               <View style={styles.categoryContainer}>
@@ -266,7 +280,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
               </View>
             </View>
 
-            {/* Precios con diseño lujoso */}
+            {/* Seccion de precios */}
             <View style={styles.priceSection}>
               <LinearGradient
                 colors={['#e91e63', '#ad1457']}
@@ -283,7 +297,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
               </LinearGradient>
             </View>
 
-            {/* Stock con indicador elegante */}
+            {/* Indicador de stock */}
             <View style={styles.stockSection}>
               <View style={styles.stockContainer}>
                 <View style={[
@@ -302,7 +316,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
               </View>
             </View>
 
-            {/* Medidas/Tallas elegantes */}
+            {/* Medidas y tallas */}
             {measurements.length > 0 && (
               <View style={styles.measurementsSection}>
                 <View style={styles.sectionHeader}>
@@ -331,7 +345,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
               </View>
             )}
 
-            {/* Descripción elegante */}
+            {/* Descripcion del producto */}
             <View style={styles.descriptionSection}>
               <View style={styles.sectionHeader}>
                 <Ionicons name="document-text" size={18} color="#8e24aa" />
@@ -343,7 +357,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
           </Animated.View>
         </ScrollView>
 
-        {/* Botón de añadir al carrito elegante */}
+        {/* Boton agregar al carrito */}
         <View style={styles.bottomSection}>
           <LinearGradient
             colors={isOutOfStock ? ['#bdbdbd', '#9e9e9e'] : ['#e91e63', '#ad1457']}
@@ -371,7 +385,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
         </View>
       </LinearGradient>
       
-      {/* Alerta personalizada */}
+      {/* Componente de alerta */}
       <CustomAlert
         visible={alertConfig.visible}
         type={alertConfig.type}

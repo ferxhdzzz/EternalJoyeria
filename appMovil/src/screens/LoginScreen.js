@@ -222,7 +222,7 @@ const LoginScreen = ({ navigation, route }) => {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >
-            {/* Decorative elements - optimizados */}
+            {/* Elementos decorativos */}
             {isAnimationComplete && (
               <>
                 <View style={styles.decorativeCircle1} />
@@ -240,7 +240,7 @@ const LoginScreen = ({ navigation, route }) => {
               bounces={false} // Evitar rebote excesivo
             >
 
-              {/* Header con logo */}
+              {/* Encabezado con logo */}
               <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
                 <View style={styles.logoContainer}>
                   <Text style={styles.logoText}>Eternal Joyería</Text>
@@ -252,9 +252,9 @@ const LoginScreen = ({ navigation, route }) => {
                 </Text>
               </Animated.View>
 
-              {/* Formulario */}
+              {/* Formulario de inicio de sesion */}
               <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
-                {/* Campo Email */}
+                {/* Campo de correo electronico */}
                 <View style={styles.inputContainer}>
                   <Text style={styles.inputLabel}>Correo Electrónico</Text>
                   <View style={[styles.inputWrapper, emailError ? styles.inputError : null]}>
@@ -274,7 +274,7 @@ const LoginScreen = ({ navigation, route }) => {
                   {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
                 </View>
 
-                {/* Campo Contraseña */}
+                {/* Campo de contrasena */}
                 <View style={styles.inputContainer}>
                   <Text style={styles.inputLabel}>Contraseña</Text>
                   <View style={[styles.inputWrapper, passwordError ? styles.inputError : null]}>
@@ -304,7 +304,7 @@ const LoginScreen = ({ navigation, route }) => {
                   {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
                 </View>
 
-                {/* Botón de inicio de sesión */}
+                {/* Boton de inicio de sesion */}
                 <TouchableOpacity
                   style={[styles.loginButton, !isFormValid || isLoading ? styles.loginButtonDisabled : null]}
                   onPress={handleLogin}
@@ -315,7 +315,7 @@ const LoginScreen = ({ navigation, route }) => {
                   </Text>
                 </TouchableOpacity>
 
-                {/* Enlaces */}
+                {/* Enlaces de navegacion */}
                 <View style={styles.linksContainer}>
                   <TouchableOpacity style={styles.forgotPasswordLink} onPress={() => navigation.navigate('ForgotPassword')}>
                     <Text style={styles.forgotPasswordText}>
@@ -335,7 +335,7 @@ const LoginScreen = ({ navigation, route }) => {
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
 
-      {/* Alerta personalizada para errores */}
+      {/* Componente de alerta */}
       <CustomAlert
         visible={alertConfig.visible}
         type={alertConfig.type}

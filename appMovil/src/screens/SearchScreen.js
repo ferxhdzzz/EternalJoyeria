@@ -116,7 +116,7 @@ const SearchScreen = ({ navigation }) => {
           </>
         )}
 
-        {/* Header Elegante */}
+        {/* Encabezado */}
         <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
           <View style={styles.logoContainer}>
             <Text style={styles.logoText}>Buscar Joyas</Text>
@@ -127,7 +127,7 @@ const SearchScreen = ({ navigation }) => {
           </Text>
         </Animated.View>
 
-        {/* Barra de búsqueda */}
+        {/* Barra de busqueda */}
         <Animated.View style={[styles.searchContainer, { opacity: fadeAnim }]}>
           <View style={styles.searchInputContainer}>
             <Ionicons name="search-outline" size={20} color="#d4af37" style={styles.searchIcon} />
@@ -150,7 +150,7 @@ const SearchScreen = ({ navigation }) => {
           </View>
         </Animated.View>
 
-        {/* Categorías */}
+        {/* Categorias */}
         <Animated.View style={[styles.categoriesContainer, { opacity: fadeAnim }]}>
           <FlatList
             data={categories}
@@ -182,7 +182,7 @@ const SearchScreen = ({ navigation }) => {
           />
         </Animated.View>
 
-        {/* Resultados */}
+        {/* Resultados de busqueda */}
         <Animated.View style={[styles.resultsContainer, { opacity: fadeAnim }]}>
           {searchQuery.trim() === '' ? (
             <View style={styles.emptySearchContainer}>

@@ -402,7 +402,7 @@ const CheckoutScreen = ({ navigation }) => {
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       
-      {/* Header con gradiente */}
+      {/* Encabezado */}
       <LinearGradient
         colors={['#fce4ec', '#f8bbd9', '#f48fb1']}
         style={styles.headerGradient}
@@ -421,7 +421,7 @@ const CheckoutScreen = ({ navigation }) => {
         </Animated.View>
       </LinearGradient>
 
-      {/* Progress Bar */}
+      {/* Barra de progreso */}
       <View style={styles.progressContainer}>
         <View style={styles.progressBar}>
           <View style={[styles.progressStep, step >= 1 && styles.progressStepActive]}>
@@ -444,7 +444,7 @@ const CheckoutScreen = ({ navigation }) => {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Paso 1: Datos de envío */}
+        {/* Paso 1: Datos de envio */}
         {step === 1 && (
           <Animated.View style={[styles.stepContainer, { opacity: fadeAnim }]}>
             <View style={styles.stepTitleContainer}>
@@ -535,7 +535,7 @@ const CheckoutScreen = ({ navigation }) => {
           </Animated.View>
         )}
 
-        {/* Paso 2: Información de pago */}
+        {/* Paso 2: Informacion de pago */}
         {step === 2 && (
           <Animated.View style={[styles.stepContainer, { opacity: fadeAnim }]}>
             <View style={styles.stepTitleContainer}>
@@ -543,7 +543,7 @@ const CheckoutScreen = ({ navigation }) => {
               <Text style={styles.stepTitle}>Información de pago</Text>
             </View>
             
-            {/* Información de modo prueba */}
+            {/* Informacion de modo prueba */}
             <View style={styles.testModeContainer}>
               <View style={styles.testModeHeader}>
                 <Ionicons name="information-circle" size={20} color="#4CAF50" />
@@ -629,7 +629,7 @@ const CheckoutScreen = ({ navigation }) => {
           </Animated.View>
         )}
 
-        {/* Paso 3: Confirmación */}
+        {/* Paso 3: Confirmacion */}
         {step === 3 && (
           <Animated.View style={[styles.stepContainer, styles.successContainer, { opacity: fadeAnim }]}>
             <View style={styles.successIcon}>
@@ -677,7 +677,7 @@ const CheckoutScreen = ({ navigation }) => {
         </View>
       </ScrollView>
 
-      {/* Botones de acción */}
+      {/* Botones de accion */}
       <View style={styles.buttonContainer}>
         {step === 1 && (
           <TouchableOpacity 
@@ -733,7 +733,7 @@ const CheckoutScreen = ({ navigation }) => {
         )}
       </View>
 
-      {/* Alerta personalizada */}
+      {/* Componente de alerta */}
       <CustomAlert
         visible={alertConfig.visible}
         type={alertConfig.type}

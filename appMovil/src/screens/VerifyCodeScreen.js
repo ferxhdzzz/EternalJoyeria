@@ -437,7 +437,7 @@ const VerifyCodeScreen = ({ route }) => {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >
-            {/* Decorative elements */}
+            {/* Elementos decorativos */}
             <View style={styles.decorativeCircle1} />
             <View style={styles.decorativeCircle2} />
             <View style={styles.decorativeCircle3} />
@@ -447,7 +447,7 @@ const VerifyCodeScreen = ({ route }) => {
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
             >
-              {/* Botón de regreso */}
+              {/* Boton de regreso */}
               <Animated.View style={[styles.backButtonContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
                 <TouchableOpacity 
                   style={styles.backButton}
@@ -511,7 +511,7 @@ const VerifyCodeScreen = ({ route }) => {
                 </Text>
               )}
 
-              {/* Botón de verificación (opcional, ya que se verifica automáticamente) */}
+              {/* Boton de verificacion */}
               <TouchableOpacity
                 style={[styles.button, isLoading && styles.buttonDisabled]}
                 onPress={verifyCode}
@@ -544,7 +544,7 @@ const VerifyCodeScreen = ({ route }) => {
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
       
-      {/* Alerta personalizada */}
+      {/* Componente de alerta */}
       <CustomAlert
         visible={alertConfig.visible}
         type={alertConfig.type}

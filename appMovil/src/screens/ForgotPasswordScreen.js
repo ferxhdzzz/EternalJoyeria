@@ -196,7 +196,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >
-            {/* Elementos decorativos - optimizados */}
+            {/* Elementos decorativos */}
             {isAnimationComplete && (
               <>
                 <View style={styles.decorativeCircle1} />
@@ -212,14 +212,14 @@ const ForgotPasswordScreen = ({ navigation }) => {
               keyboardDismissMode="on-drag"
               bounces={false}
             >
-              {/* Botón de regreso con animación */}
+              {/* Boton de regreso */}
               <Animated.View style={[styles.backButtonContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
                 <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                   <Ionicons name="arrow-back" size={24} color="#d4af37" />
                 </TouchableOpacity>
               </Animated.View>
 
-              {/* Header con logo */}
+              {/* Encabezado con logo */}
               <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
                 <View style={styles.logoContainer}>
                   <Text style={styles.logoText}>Eternal Joyería</Text>
@@ -231,9 +231,9 @@ const ForgotPasswordScreen = ({ navigation }) => {
                 </Text>
               </Animated.View>
 
-              {/* Formulario */}
+              {/* Formulario de recuperacion */}
               <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
-                {/* Campo Email */}
+                {/* Campo de correo electronico */}
                 <View style={styles.inputContainer}>
                   <Text style={styles.inputLabel}>Correo Electrónico</Text>
                   <View style={[styles.inputWrapper, emailError ? styles.inputError : null]}>
@@ -253,7 +253,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
                   {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
                 </View>
 
-                {/* Información adicional */}
+                {/* Informacion adicional */}
                 <View style={styles.infoContainer}>
                   <Ionicons name="information-circle-outline" size={20} color="#d4af37" style={styles.infoIcon} />
                   <Text style={styles.infoText}>
@@ -261,7 +261,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
                   </Text>
                 </View>
 
-                {/* Botón de enviar código */}
+                {/* Boton de enviar codigo */}
                 <TouchableOpacity 
                   style={[
                     styles.sendCodeButton, 
@@ -282,7 +282,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
                   )}
                 </TouchableOpacity>
 
-                {/* Enlaces */}
+                {/* Enlaces de navegacion */}
                 <View style={styles.linksContainer}>
                   <TouchableOpacity 
                     style={styles.backToLoginLink} 
@@ -300,7 +300,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
 
-      {/* Alerta personalizada */}
+      {/* Componente de alerta */}
       <CustomAlert
         visible={alertConfig.visible}
         type={alertConfig.type}

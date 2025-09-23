@@ -118,7 +118,7 @@ const ProductScreen = ({ route }) => {
           </>
         )}
 
-        {/* Header Elegante */}
+        {/* Encabezado */}
         <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
           <View style={styles.logoContainer}>
             <Text style={styles.logoText}>Eternal Joyería</Text>
@@ -142,7 +142,7 @@ const ProductScreen = ({ route }) => {
           </View>
         </Animated.View>
 
-        {/* Categorías Elegantes */}
+        {/* Seccion de categorias */}
         <Animated.View style={[styles.categoriesSection, { opacity: fadeAnim }]}>
           <View style={styles.categoriesHeader}>
             <Ionicons name="diamond-outline" size={20} color="#4a148c" />
@@ -179,7 +179,7 @@ const ProductScreen = ({ route }) => {
           </ScrollView>
         </Animated.View>
 
-        {/* Productos con diseño elegante */}
+        {/* Seccion de productos */}
         <Animated.View style={[styles.productsSection, { opacity: fadeAnim }]}>
           <ScrollView
             refreshControl={
@@ -218,13 +218,13 @@ const ProductScreen = ({ route }) => {
                           style={styles.cardImage}
                         />
                         
-                        {/* Gradiente overlay */}
+                        {/* Gradiente de imagen */}
                         <LinearGradient
                           colors={['transparent', 'rgba(232, 180, 203, 0.1)', 'rgba(232, 180, 203, 0.2)']}
                           style={styles.imageGradient}
                         />
                         
-                        {/* Badge de descuento */}
+                        {/* Indicador de descuento */}
                         {hasDiscount && (
                           <View style={styles.discountBadge}>
                             <Ionicons name="pricetag" size={10} color="#fff" />
@@ -232,7 +232,7 @@ const ProductScreen = ({ route }) => {
                           </View>
                         )}
                         
-                        {/* Badge de stock */}
+                        {/* Indicador de stock */}
                         {isOutOfStock && (
                           <View style={styles.outOfStockBadge}>
                             <Text style={styles.outOfStockText}>AGOTADO</Text>
@@ -257,7 +257,7 @@ const ProductScreen = ({ route }) => {
                           )}
                         </View>
                         
-                        {/* Indicador de stock */}
+                        {/* Estado de stock */}
                         <View style={styles.stockIndicatorContainer}>
                           <View style={[
                             styles.stockIndicator,

@@ -32,8 +32,10 @@ const ReviewsScreen = ({ navigation, route }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [reviews, setReviews] = useState([]);
+  const [filteredReviews, setFilteredReviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState('all'); // Filtro seleccionado
   
   // Hook para alertas personalizadas
   const {
@@ -47,12 +49,12 @@ const ReviewsScreen = ({ navigation, route }) => {
     showImagePickerOptions,
   } = useCustomAlert();
 
-  // Derivar imagen del producto desde backend si existe
+  // Obtener imagen del producto
   const productImageUri = Array.isArray(product?.images) && product.images.length
     ? product.images[0]
     : (typeof product?.image === 'string' ? product.image : null);
 
-  // Cargar reseñas reales
+  // Cargar reseñas del producto
   useEffect(() => {
     const fetchReviews = async () => {
       try {
@@ -71,7 +73,7 @@ const ReviewsScreen = ({ navigation, route }) => {
         console.log('[Reviews] Response status:', res.status);
         
         if (!res.ok) {
-          // Handle 404 as no reviews instead of error
+          // Manejar 404 como sin reseñas
           if (res.status === 404) {
             console.log('[Reviews] No reviews found for this product');
             setReviews([]);
@@ -102,19 +104,130 @@ const ReviewsScreen = ({ navigation, route }) => {
     
     fetchReviews();
   }, [product?._id, product?.id, BACKEND_URL]);
+  
+  // Filtrar reseñas segun filtro seleccionado
+  useEffect(() => {
+    let filtered = [...reviews];
+    
+    switch (selectedFilter) {
+      case 'all':
+        filtered = reviews;
+        break;
+      case '5':
+        filtered = reviews.filter(r => Number(r.rank) === 5);
+        break;
+      case '4':
+        filtered = reviews.filter(r => Number(r.rank) === 4);
+        break;
+      case '3':
+        filtered = reviews.filter(r => Number(r.rank) === 3);
+        break;
+      case '2':
+        filtered = reviews.filter(r => Number(r.rank) === 2);
+        break;
+      case '1':
+        filtered = reviews.filter(r => Number(r.rank) === 1);
+        break;
+      case 'good':
+        filtered = reviews.filter(r => Number(r.rank) >= 4);
+        break;
+      case 'bad':
+        filtered = reviews.filter(r => Number(r.rank) <= 2);
+        break;
+      default:
+        filtered = reviews;
+    }
+    
+    setFilteredReviews(filtered);
+  }, [reviews, selectedFilter]);
+  
+  // Calcular estadisticas de resenas
+  const getReviewStats = () => {
+    if (reviews.length === 0) {
+      return {
+        average: 0,
+        total: 0,
+        distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+      };
+    }
+    
+    const total = reviews.length;
+    const sum = reviews.reduce((acc, r) => acc + Number(r?.rank || 0), 0);
+    const average = sum / total;
+    
+    const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    reviews.forEach(r => {
+      const rank = Number(r?.rank || 0);
+      if (rank >= 1 && rank <= 5) {
+        distribution[rank]++;
+      }
+    });
+    
+    return { average, total, distribution };
+  };
+  
+  const stats = getReviewStats();
 
-  // helpers para mapear datos del backend a UI
+  // Funciones auxiliares para datos del backend
   const getUserName = (r) => {
     const c = r?.id_customer;
     if (c && typeof c === 'object') {
-      return c.name || c.fullName || c.email || 'Usuario';
+      // Priorizar nombres completos
+      const firstName = c.firstName || c.name || '';
+      const lastName = c.lastName || c.surname || '';
+      
+      if (firstName && lastName) {
+        return `${firstName} ${lastName}`;
+      } else if (firstName) {
+        return firstName;
+      } else if (c.fullName) {
+        return c.fullName;
+      } else {
+        // Usar email como ultimo recurso
+        const email = c.email || '';
+        if (email) {
+          const [username] = email.split('@');
+          return username || 'Usuario';
+        }
+      }
     }
     return 'Usuario';
   };
+  
   const getAvatarSource = (r) => {
     const c = r?.id_customer;
-    const uri = c && typeof c === 'object' && typeof c.profileImage === 'string' ? c.profileImage : null;
-    return uri ? { uri } : require('../../assets/Usuarionuevo.jpg');
+    let uri = null;
+    
+    console.log('[ReviewsScreen] Getting avatar for customer:', c);
+    
+    if (c && typeof c === 'object') {
+      // Buscar imagen de perfil
+      uri = c.profileImage || c.avatar || c.image || c.photo || c.profilePicture || c.picture;
+      
+      console.log('[ReviewsScreen] Found profile image URI:', uri);
+      
+      // Validar URI de imagen
+      if (uri && typeof uri === 'string' && uri.trim() !== '') {
+        // Construir URL completa si es necesario
+        if (!uri.startsWith('http')) {
+          // Limpiar URI
+          uri = uri.trim();
+          
+          // Construir URL completa
+          if (uri.startsWith('/')) {
+            uri = `${BACKEND_URL}${uri}`;
+          } else {
+            uri = `${BACKEND_URL}/${uri}`;
+          }
+        }
+        
+        console.log('[ReviewsScreen] Final avatar URI:', uri);
+        return { uri };
+      }
+    }
+    
+    console.log('[ReviewsScreen] Using default avatar');
+    return require('../../assets/Usuarionuevo.jpg');
   };
 
   const renderStars = (rating) => {
@@ -138,6 +251,8 @@ const ReviewsScreen = ({ navigation, route }) => {
         showReviewError('Por favor escribe un comentario.');
         return;
       }
+      
+      console.log('[ReviewsScreen] Current user data:', user);
       setSubmitting(true);
 
       const token = await AsyncStorage.getItem('authToken');
@@ -171,8 +286,22 @@ const ReviewsScreen = ({ navigation, route }) => {
         throw new Error(data.message || 'No se pudo crear la reseña');
       }
 
-      // Agregar reseña creada a la lista
-      setReviews((prev) => [data, ...prev]);
+      // Agregar nueva resena a la lista
+      const newReview = {
+        ...data,
+        id_customer: {
+          ...data.id_customer,
+          firstName: user?.firstName || data.id_customer?.firstName,
+          lastName: user?.lastName || data.id_customer?.lastName,
+          profileImage: user?.profileImage || data.id_customer?.profileImage,
+          avatar: user?.avatar || data.id_customer?.avatar,
+          image: user?.image || data.id_customer?.image,
+          email: user?.email || data.id_customer?.email,
+        }
+      };
+      
+      console.log('[ReviewsScreen] Adding new review with user data:', newReview);
+      setReviews((prev) => [newReview, ...prev]);
       setReviewText('');
       setSelectedImage(null);
       setSelectedRating(5);
@@ -186,7 +315,7 @@ const ReviewsScreen = ({ navigation, route }) => {
   };
 
   const toggleForm = () => {
-    // Validación: requiere sesión para abrir el formulario
+    // Validar sesion de usuario
     const isLoggedIn = !!(user?._id || user?.id);
     if (!isLoggedIn) {
       showLoginRequired(
@@ -197,7 +326,7 @@ const ReviewsScreen = ({ navigation, route }) => {
     }
     setShowForm(!showForm);
     if (!showForm) {
-      // Si se va a mostrar el formulario, resetear los campos
+      // Resetear campos del formulario
       setReviewText('');
       setSelectedImage(null);
       setSelectedRating(5);
@@ -310,30 +439,92 @@ const ReviewsScreen = ({ navigation, route }) => {
                     <Ionicons name="diamond" size={30} color="#8e24aa" />
                   </View>
                 )}
-                <View style={styles.imageOverlay} />
               </View>
               <View style={styles.productDetails}>
                 <Text style={styles.productName}>{String(product?.name || '')}</Text>
                 <View style={styles.ratingContainer}>
                   <Ionicons name="star" size={22} color="#ffc107" />
-                  <Text style={styles.ratingText}>
-                    {reviews.length
-                      ? (
-                          (
-                            reviews.reduce((acc, r) => acc + Number(r?.rank || 0), 0) /
-                            reviews.length
-                          ).toFixed(1)
-                        )
-                      : '0.0'}
-                  </Text>
+                  <Text style={styles.ratingText}>{stats.average.toFixed(1)}</Text>
+                  <Text style={styles.ratingSubtext}>({stats.total} reseñas)</Text>
                 </View>
-                <View style={styles.reviewCountContainer}>
-                  <Ionicons name="chatbubble-ellipses" size={16} color="#8e24aa" />
-                  <Text style={styles.reviewCount}>{reviews.length} reseñas</Text>
+                
+                {/* Distribución de estrellas */}
+                <View style={styles.starsDistribution}>
+                  {[5, 4, 3, 2, 1].map(star => {
+                    const count = stats.distribution[star];
+                    const percentage = stats.total > 0 ? (count / stats.total) * 100 : 0;
+                    return (
+                      <View key={star} style={styles.starDistributionRow}>
+                        <Text style={styles.starNumber}>{star}</Text>
+                        <Ionicons name="star" size={12} color="#ffc107" />
+                        <View style={styles.progressBarContainer}>
+                          <View 
+                            style={[
+                              styles.progressBar, 
+                              { width: `${percentage}%` }
+                            ]} 
+                          />
+                        </View>
+                        <Text style={styles.starCount}>{count}</Text>
+                      </View>
+                    );
+                  })}
                 </View>
               </View>
             </LinearGradient>
           </View>
+
+          {/* Filtros de reseñas */}
+          {reviews.length > 0 && (
+            <View style={styles.filtersSection}>
+              <LinearGradient
+                colors={['rgba(255, 255, 255, 0.95)', 'rgba(225, 190, 231, 0.8)']}
+                style={styles.filtersGradient}
+              >
+                <View style={styles.filtersHeader}>
+                  <Ionicons name="filter" size={18} color="#6a1b9a" />
+                  <Text style={styles.filtersTitle}>Filtrar reseñas</Text>
+                </View>
+                <ScrollView 
+                  horizontal 
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.filtersScrollView}
+                >
+                  {[
+                    { key: 'all', label: `Todas (${stats.total})`, icon: 'list' },
+                    { key: '5', label: `5 ★ (${stats.distribution[5]})`, icon: 'star' },
+                    { key: '4', label: `4 ★ (${stats.distribution[4]})`, icon: 'star-half' },
+                    { key: '3', label: `3 ★ (${stats.distribution[3]})`, icon: 'star-half' },
+                    { key: '2', label: `2 ★ (${stats.distribution[2]})`, icon: 'star-outline' },
+                    { key: '1', label: `1 ★ (${stats.distribution[1]})`, icon: 'star-outline' },
+                    { key: 'good', label: `Buenas (${stats.distribution[5] + stats.distribution[4]})`, icon: 'thumbs-up' },
+                    { key: 'bad', label: `Malas (${stats.distribution[2] + stats.distribution[1]})`, icon: 'thumbs-down' },
+                  ].map(filter => (
+                    <TouchableOpacity
+                      key={filter.key}
+                      style={[
+                        styles.filterButton,
+                        selectedFilter === filter.key && styles.filterButtonActive
+                      ]}
+                      onPress={() => setSelectedFilter(filter.key)}
+                    >
+                      <Ionicons 
+                        name={filter.icon} 
+                        size={16} 
+                        color={selectedFilter === filter.key ? '#fff' : '#8e24aa'} 
+                      />
+                      <Text style={[
+                        styles.filterButtonText,
+                        selectedFilter === filter.key && styles.filterButtonTextActive
+                      ]}>
+                        {filter.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </LinearGradient>
+            </View>
+          )}
 
           {/* Reviews List elegante */}
           <View style={styles.reviewsSection}>
@@ -342,8 +533,8 @@ const ReviewsScreen = ({ navigation, route }) => {
                 <Ionicons name="diamond-outline" size={40} color="#8e24aa" />
                 <Text style={styles.loadingText}>Cargando reseñas...</Text>
               </View>
-            ) : (
-              reviews.map((review) => (
+            ) : filteredReviews.length > 0 ? (
+              filteredReviews.map((review) => (
                 <View key={review._id || `${review.id_customer}-${review.createdAt}`} style={styles.reviewCard}>
                   <LinearGradient
                     colors={['rgba(255, 255, 255, 0.95)', 'rgba(240, 230, 255, 0.8)']}
@@ -351,7 +542,16 @@ const ReviewsScreen = ({ navigation, route }) => {
                   >
                     <View style={styles.reviewHeader}>
                       <View style={styles.avatarContainer}>
-                        <Image source={getAvatarSource(review)} style={styles.userAvatar} />
+                        <Image 
+                          source={getAvatarSource(review)} 
+                          style={styles.userAvatar}
+                          onError={(error) => {
+                            console.log('[ReviewsScreen] Error loading avatar:', error.nativeEvent.error);
+                          }}
+                          onLoad={() => {
+                            console.log('[ReviewsScreen] Avatar loaded successfully');
+                          }}
+                        />
                         <View style={styles.avatarBorder} />
                       </View>
                       <View style={styles.reviewInfo}>
@@ -366,6 +566,19 @@ const ReviewsScreen = ({ navigation, route }) => {
                   </LinearGradient>
                 </View>
               ))
+            ) : (
+              <View style={styles.noReviewsContainer}>
+                <Ionicons name="chatbubbles-outline" size={60} color="#ab47bc" />
+                <Text style={styles.noReviewsTitle}>
+                  {selectedFilter === 'all' ? 'No hay reseñas aún' : 'No hay reseñas con este filtro'}
+                </Text>
+                <Text style={styles.noReviewsSubtitle}>
+                  {selectedFilter === 'all' 
+                    ? '¡Sé el primero en dejar una reseña!' 
+                    : 'Prueba con otro filtro para ver más reseñas'
+                  }
+                </Text>
+              </View>
             )}
           </View>
 
@@ -561,16 +774,6 @@ const styles = StyleSheet.create({
     position: 'relative',
     marginRight: 15,
   },
-  imageOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#ab47bc',
-  },
   productImage: {
     width: 85,
     height: 85,
@@ -603,6 +806,46 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#4a148c',
     marginLeft: 6,
+  },
+  ratingSubtext: {
+    fontSize: 14,
+    color: '#8e24aa',
+    marginLeft: 4,
+    fontWeight: '500',
+  },
+  starsDistribution: {
+    marginTop: 12,
+  },
+  starDistributionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+    gap: 6,
+  },
+  starNumber: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#4a148c',
+    width: 12,
+  },
+  progressBarContainer: {
+    flex: 1,
+    height: 8,
+    backgroundColor: 'rgba(171, 71, 188, 0.2)',
+    borderRadius: 4,
+    marginHorizontal: 6,
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: '#ffc107',
+    borderRadius: 4,
+  },
+  starCount: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6a1b9a',
+    width: 20,
+    textAlign: 'right',
   },
   reviewCountContainer: {
     flexDirection: 'row',
@@ -726,7 +969,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 0.5,
   },
-  // Form styles
+  // Estilos del formulario
   addReviewForm: {
     marginBottom: 20,
     marginHorizontal: 20,
@@ -815,6 +1058,79 @@ const styles = StyleSheet.create({
     color: '#4a148c',
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
     textAlignVertical: 'top',
+  },
+  // Estilos de filtros
+  filtersSection: {
+    marginBottom: 20,
+    marginHorizontal: 20,
+    borderRadius: 15,
+    overflow: 'hidden',
+    shadowColor: '#6a1b9a',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  filtersGradient: {
+    padding: 15,
+  },
+  filtersHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  filtersTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#4a148c',
+  },
+  filtersScrollView: {
+    flexDirection: 'row',
+  },
+  filterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginRight: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderWidth: 1,
+    borderColor: '#ab47bc',
+    gap: 6,
+  },
+  filterButtonActive: {
+    backgroundColor: '#8e24aa',
+    borderColor: '#8e24aa',
+  },
+  filterButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#8e24aa',
+  },
+  filterButtonTextActive: {
+    color: '#fff',
+  },
+  // Estilos para mensaje sin resenas
+  noReviewsContainer: {
+    alignItems: 'center',
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+  },
+  noReviewsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#4a148c',
+    marginTop: 15,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  noReviewsSubtitle: {
+    fontSize: 14,
+    color: '#8e24aa',
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });
 

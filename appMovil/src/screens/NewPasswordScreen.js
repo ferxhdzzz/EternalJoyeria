@@ -189,7 +189,7 @@ const NewPasswordScreen = ({ route }) => {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >
-            {/* Decorative elements */}
+            {/* Elementos decorativos */}
             <View style={styles.decorativeCircle1} />
             <View style={styles.decorativeCircle2} />
             <View style={styles.decorativeCircle3} />
@@ -199,7 +199,7 @@ const NewPasswordScreen = ({ route }) => {
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
             >
-              {/* Botón de regreso */}
+              {/* Boton de regreso */}
               <Animated.View style={[styles.backButtonContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
                 <TouchableOpacity 
                   style={styles.backButton}
@@ -235,7 +235,7 @@ const NewPasswordScreen = ({ route }) => {
                   }
                 ]}
               >
-                {/* Campo de nueva contraseña */}
+                {/* Campo de nueva contrasena */}
                 <View style={styles.inputContainer}>
                   <Text style={styles.inputLabel}>Nueva Contraseña</Text>
                   <View style={[
@@ -310,7 +310,7 @@ const NewPasswordScreen = ({ route }) => {
                   )}
                 </View>
 
-                {/* Botón de actualizar contraseña */}
+                {/* Boton de actualizar contrasena */}
                 <TouchableOpacity
                   style={[
                     styles.button,
@@ -332,7 +332,7 @@ const NewPasswordScreen = ({ route }) => {
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
 
-      {/* Alerta personalizada */}
+      {/* Componente de alerta */}
       <CustomAlert
         visible={alertConfig.visible}
         type={alertConfig.type}

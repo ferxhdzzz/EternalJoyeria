@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_URL, API_ENDPOINTS, buildApiUrl } from '../config/api';
 
 const useFetchCategories = () => {
-  // Estados para la lista de categorías
+  // Estados para la lista de categorias
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,7 +25,7 @@ const useFetchCategories = () => {
       const data = await response.json();
       
       if (data.categories) {
-        // Agregar categoría "Todos" al inicio
+        // Agregar categoria "Todos" al inicio
         const allCategories = [
           { _id: 'todos', name: 'Todos', description: 'Todos los productos' },
           ...data.categories
@@ -52,7 +52,7 @@ const useFetchCategories = () => {
     }
   };
 
-  // Función para refrescar categorías
+  // Funcion para refrescar categorias
   const refreshCategories = () => {
     fetchCategories();
   };

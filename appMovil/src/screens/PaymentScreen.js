@@ -306,7 +306,7 @@ const PaymentScreen = ({ navigation, route }) => {
     >
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       
-      {/* Header */}
+      {/* Encabezado */}
       <Animated.View 
         style={[
           styles.header,
@@ -352,7 +352,7 @@ const PaymentScreen = ({ navigation, route }) => {
         </View>
       </Animated.View>
 
-      {/* Formulario */}
+      {/* Formulario de pago */}
       <ScrollView 
         style={styles.formContainer} 
         showsVerticalScrollIndicator={false}
@@ -366,7 +366,7 @@ const PaymentScreen = ({ navigation, route }) => {
         keyboardDismissMode="interactive"
         scrollEventThrottle={16}
       >
-        {/* Número de tarjeta */}
+        {/* Numero de tarjeta */}
         <Animated.View 
           style={[
             styles.inputGroup,
@@ -412,7 +412,7 @@ const PaymentScreen = ({ navigation, route }) => {
           )}
         </Animated.View>
 
-        {/* Nombre de tarjeta */}
+        {/* Nombre en tarjeta */}
         <Animated.View 
           style={[
             styles.inputGroup,
@@ -447,7 +447,7 @@ const PaymentScreen = ({ navigation, route }) => {
           )}
         </Animated.View>
 
-        {/* Fecha y CVV */}
+        {/* Fecha de expiracion y CVV */}
         <Animated.View 
           style={[
             styles.rowContainer,
@@ -516,13 +516,13 @@ const PaymentScreen = ({ navigation, route }) => {
           </View>
         </Animated.View>
 
-        {/* Espacio extra para el teclado */}
+        {/* Espacio para teclado */}
         {keyboardHeight > 0 && (
           <View style={{ height: 80 }} />
         )}
       </ScrollView>
 
-      {/* Botón de pago */}
+      {/* Boton de pago */}
       <Animated.View 
         style={[
           styles.buttonContainer,

@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { CartProvider } from './src/context/CartContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import SplashScreen from './src/components/SplashScreen';
 import WelcomeScreen1 from './src/screens/WelcomeScreen1';
 import WelcomeScreen2 from './src/screens/WelcomeScreen2';
 import WelcomeScreen3 from './src/screens/WelcomeScreen3';
@@ -13,8 +14,9 @@ import { setupErrorHandling } from './src/utils/errorHandler';
 
 const AppContent = () => {
   const { isAuthenticated, loading } = useAuth();
-  const [currentScreen, setCurrentScreen] = useState(0);
+  const [currentScreen, setCurrentScreen] = useState(-1); // Empezar con splash
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     // Si el estado de autenticación cambia, ajustamos la pantalla
@@ -46,6 +48,16 @@ const AppContent = () => {
       setTimeout(() => setIsTransitioning(false), 400);
     }
   }, [isTransitioning]);
+
+  const handleSplashFinish = useCallback(() => {
+    setShowSplash(false);
+    setCurrentScreen(0); // Ir a WelcomeScreen1
+  }, []);
+
+  // Mostrar splash screen personalizado al inicio
+  if (showSplash) {
+    return <SplashScreen onFinish={handleSplashFinish} />;
+  }
 
   if (loading && currentScreen === 0) {
     return <ActivityIndicator size="large" style={styles.container} />;

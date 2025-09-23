@@ -11,6 +11,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCart } from '../context/CartContext';
+import CustomAlert from '../components/CustomAlert';
+import useCustomAlert from '../hooks/useCustomAlert';
 
 const { width, height } = Dimensions.get('window');
 
@@ -21,6 +23,30 @@ const CartScreen = ({ navigation }) => {
     removeItem, 
     getTotalPrice 
   } = useCart();
+  
+  // Hook para alertas personalizadas
+  const {
+    alertConfig,
+    hideAlert,
+    showStockError,
+  } = useCustomAlert();
+  
+  const handleQuantityChange = (item, change) => {
+    const newQuantity = item.quantity + change;
+    const maxStock = item.stock || 999;
+    
+    if (change > 0 && newQuantity > maxStock) {
+      showStockError(
+        item.name || 'Producto',
+        maxStock,
+        () => navigation.navigate('MainTabs', { screen: 'Carrito' }), // Ver carrito (ya está aquí)
+        () => navigation.navigate('MainTabs', { screen: 'Inicio' }) // Seguir comprando
+      );
+      return;
+    }
+    
+    updateQuantity(item._id, item.size, change);
+  };
 
   const getProductImage = (product) => {
     // ✅ Se corrigió esta función para usar el array de imágenes del producto
@@ -119,16 +145,19 @@ const CartScreen = ({ navigation }) => {
                 <View style={styles.quantityControls}>
                   <TouchableOpacity 
                     style={styles.quantityButton}
-                    onPress={() => updateQuantity(item._id, item.size, -1)}
+                    onPress={() => handleQuantityChange(item, -1)}
                   >
                     <Ionicons name="remove" size={18} color="#4a148c" />
                   </TouchableOpacity>
                   <View style={styles.quantityDisplay}>
                     <Text style={styles.quantityText}>{item.quantity}</Text>
+                    {item.stock && (
+                      <Text style={styles.stockInfo}>/{item.stock}</Text>
+                    )}
                   </View>
                   <TouchableOpacity 
                     style={styles.quantityButton}
-                    onPress={() => updateQuantity(item._id, item.size, 1)}
+                    onPress={() => handleQuantityChange(item, 1)}
                   >
                     <Ionicons name="add" size={18} color="#4a148c" />
                   </TouchableOpacity>
@@ -177,6 +206,20 @@ const CartScreen = ({ navigation }) => {
           </LinearGradient>
         </LinearGradient>
       </View>
+      
+      {/* Componente de alerta */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+        onClose={hideAlert}
+        autoClose={alertConfig.autoClose}
+        autoCloseDelay={alertConfig.autoCloseDelay}
+        showIcon={alertConfig.showIcon}
+        animationType={alertConfig.animationType}
+      />
     </LinearGradient>
   );
 };
@@ -398,6 +441,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#4a148c',
     textAlign: 'center',
+  },
+  stockInfo: {
+    fontSize: 12,
+    color: '#8e24aa',
+    textAlign: 'center',
+    marginTop: 2,
   },
   priceContainer: {
     flexDirection: 'row',

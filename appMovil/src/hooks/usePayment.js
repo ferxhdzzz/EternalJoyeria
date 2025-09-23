@@ -1,4 +1,4 @@
-// src/hooks/usePayment.js
+// Hook para manejo de pagos
 import { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -10,15 +10,15 @@ export default function usePayment() {
   const { user } = useAuth();
   const [step, setStep] = useState(1);
   
-  // Estados de Order en servidor
+  // Estados de orden en servidor
   const [order, setOrder] = useState(null);
-  const [orderId, setOrderId] = useState(null);             // carrito actual (status: cart)
-  const [lockedOrderId, setLockedOrderId] = useState(null); // orden "congelada" en pending_payment
+  const [orderId, setOrderId] = useState(null);             // carrito actual
+  const [lockedOrderId, setLockedOrderId] = useState(null); // orden congelada
   const [wompiReference, setWompiReference] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // URL del backend viene de la configuración centralizada
+  // URL del backend viene de la configuracion centralizada
 
   // Datos del formulario (envío)
   const [formData, setFormData] = useState({
@@ -71,7 +71,7 @@ export default function usePayment() {
       cvv: '',
       mesVencimiento: '',
       anioVencimiento: '',
-      displayValue: '', // Limpiar también el valor de visualización
+      displayValue: '', // Limpiar tambien el valor de visualizacion
     });
     setStep(1);
     setOrder(null);
@@ -83,7 +83,7 @@ export default function usePayment() {
     if (syncTimer.current) clearTimeout(syncTimer.current);
   };
 
-  // Función para resetear el estado de pago y permitir reintentos
+  // Funcion para resetear el estado de pago y permitir reintentos
   const resetPaymentState = async () => {
     try {
       console.log('🔄 Reseteando estado de pago...');
@@ -103,7 +103,7 @@ export default function usePayment() {
 
   /* === API CALLS === */
 
-  // Función helper para hacer requests autenticadas
+  // Funcion helper para hacer requests autenticadas
   const apiFetch = async (endpoint, options = {}) => {
     try {
       const token = await AsyncStorage.getItem('authToken');
@@ -143,12 +143,12 @@ export default function usePayment() {
     }
   };
 
-  // Obtiene o crea el carrito (status: cart) del usuario
+  // Obtiene o crea el carrito del usuario
   const loadOrCreateCart = async () => {
     try {
       setLoading(true);
-      // Usar directamente getOrCreateCart que es idempotente
-      // Este endpoint automáticamente crea el carrito si no existe
+      // Usar directamente getOrCreateCart (función idempotente - segura de llamar múltiples veces)
+      // Este endpoint automaticamente crea el carrito si no existe
       const o = await apiFetch(API_ENDPOINTS.ORDERS_CART);
       
       if (!o?._id) {
@@ -217,7 +217,7 @@ export default function usePayment() {
     syncTimer.current = setTimeout(exec, 500);
   };
 
-  // Guarda snapshot de dirección en la Order (shippingAddress)
+  // Guarda snapshot de direccion en la orden
   const saveAddresses = async () => {
     try {
       const payload = {
@@ -247,7 +247,7 @@ export default function usePayment() {
     }
   };
 
-  // Mueve la Order a pending_payment y devuelve referencia + orden
+  // Mueve la orden a pending_payment y devuelve referencia
   const goPending = async () => {
     if (!orderId) throw new Error('No hay orderId');
     
@@ -264,7 +264,7 @@ export default function usePayment() {
     }
   };
 
-  // Obtiene token de Wompi (mock o real)
+  // Obtiene token de Wompi
   const getWompiToken = async () => {
     try {
       const tk = await apiFetch(API_ENDPOINTS.WOMPI_TOKEN, { method: 'POST' });
@@ -277,7 +277,7 @@ export default function usePayment() {
     }
   };
 
-  // Paso 1 → Paso 2
+  // Paso 1 a Paso 2
   const handleFirstStep = async () => {
     try {
       setLoading(true);
@@ -293,7 +293,7 @@ export default function usePayment() {
     }
   };
 
-  // Pagar 3DS
+  // Procesar pago 3DS
   const handleFinishPayment = async () => {
     const idToPay = lockedOrderId || orderId;
     if (!idToPay) throw new Error('No hay orderId para pagar');
@@ -344,7 +344,7 @@ export default function usePayment() {
             `${nombre} ${apellido}`.trim(),
         },
 
-        // comprador (desde paso 1)
+        // comprador desde paso 1
         nombre,
         apellido,
         email: formData.email,
@@ -355,7 +355,7 @@ export default function usePayment() {
         idPais: formData.idPais,
         idRegion: formData.idRegion,
 
-        // 3DS redirección (para app móvil, podríamos usar deep linking)
+        // 3DS redireccion para app movil
         urlRedirect: 'eternaljoyeria://payment-success',
         referencia: idToPay,
       };
@@ -384,7 +384,7 @@ export default function usePayment() {
         return out;
       }
 
-      // Si hay un mensaje específico, usarlo
+      // Si hay un mensaje especifico, usarlo
       const errorMessage = out?.message || out?.error || 'Pago rechazado o pendiente';
       throw new Error(errorMessage);
     } catch (error) {
@@ -398,12 +398,12 @@ export default function usePayment() {
           error.message.includes('DUPLICATED')
         )) {
         console.log('⚠️ Orden ya procesada, sugiriendo reset...');
-        // En este caso, podríamos automáticamente resetear
-        // o lanzar un error específico para que la UI maneje
+        // En este caso, podriamos automaticamente resetear
+        // o lanzar un error especifico para que la UI maneje
         throw new Error('Esta orden ya fue procesada. Por favor, inicia un nuevo proceso de pago.');
       }
       
-      // Si es error 500, dar más contexto
+      // Si es error 500, dar mas contexto
       if (error.message.includes('HTTP 500') || error.message.includes('Error al procesar pago 3DS')) {
         console.log('❌ Error 500 del servidor - problema en backend');
         throw new Error('Error en el servidor. Por favor, verifica que el backend esté funcionando correctamente y que el modo mock esté configurado.');

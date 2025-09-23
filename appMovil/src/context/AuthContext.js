@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_URL, API_ENDPOINTS, buildApiUrl } from '../config/api';
+import { Alert } from 'react-native';
 
 export const AuthContext = createContext();
 
@@ -17,7 +18,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // URL del backend viene de la configuración centralizada
+  // URL del backend viene de la configuracion centralizada
 
   // Asegura que profilePicture sea una URL absoluta
   const normalizeProfileUrl = (url) => {
@@ -38,8 +39,28 @@ export const AuthProvider = ({ children }) => {
     try {
       const userData = await AsyncStorage.getItem('userData');
       const token = await AsyncStorage.getItem('authToken');
+      const savedBackendUrl = await AsyncStorage.getItem('lastBackendUrl');
       
       if (userData && token) {
+        // Verificar si la IP del backend ha cambiado
+        if (savedBackendUrl && savedBackendUrl !== BACKEND_URL) {
+          console.log('IP del backend cambio, limpiando sesion...');
+          console.log('IP anterior:', savedBackendUrl);
+          console.log('IP actual:', BACKEND_URL);
+          
+          // Mostrar alerta informativa al usuario
+          setTimeout(() => {
+            Alert.alert(
+              'Cambio de red detectado',
+              'Se ha detectado un cambio en la conexion. Por favor, inicia sesion nuevamente.',
+              [{ text: 'Entendido', style: 'default' }]
+            );
+          }, 500);
+          
+          await logout();
+          return;
+        }
+        
         // Intentar refrescar datos desde el backend
         let parsedUser = JSON.parse(userData);
         try {
@@ -59,9 +80,35 @@ export const AuthProvider = ({ children }) => {
             };
             parsedUser = refreshedUser;
             await AsyncStorage.setItem('userData', JSON.stringify(refreshedUser));
+            // Guardar la IP actual como válida
+            await AsyncStorage.setItem('lastBackendUrl', BACKEND_URL);
+          } else {
+            // Si el token no es valido, limpiar sesion
+            console.log('Token invalido, limpiando sesion...');
+            await logout();
+            return;
           }
         } catch (e) {
-          // si falla, seguimos con el cache
+          console.log('Error de conexion al verificar sesion:', e.message);
+          // Si hay error de conexion, limpiar sesion para forzar nuevo login
+          if (e.message.includes('Network request failed') || 
+              e.message.includes('fetch') ||
+              e.message.includes('timeout')) {
+            console.log('Error de red detectado, limpiando sesion...');
+            
+            // Mostrar alerta informativa al usuario
+            setTimeout(() => {
+              Alert.alert(
+                'Error de conexion',
+                'No se pudo conectar con el servidor. Por favor, verifica tu conexion e inicia sesion nuevamente.',
+                [{ text: 'Entendido', style: 'default' }]
+              );
+            }, 500);
+            
+            await logout();
+            return;
+          }
+          // Si es otro tipo de error, seguir con cache
         }
         setUser(parsedUser);
         setIsAuthenticated(true);
@@ -73,7 +120,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Función de login que se conecta al backend
+  // Funcion de login que se conecta al backend
   const login = async (email, password) => {
     try {
       const response = await fetch(buildApiUrl(API_ENDPOINTS.LOGIN), {
@@ -114,6 +161,9 @@ export const AuthProvider = ({ children }) => {
 
         // Guardar usuario normalizado
         await AsyncStorage.setItem('userData', JSON.stringify(finalUser));
+        
+        // Guardar la IP actual del backend para detectar cambios futuros
+        await AsyncStorage.setItem('lastBackendUrl', BACKEND_URL);
 
         // Actualizar estado
         setUser(finalUser);
@@ -129,11 +179,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Función de logout
+  // Funcion de logout
   const logout = async () => {
     try {
       await AsyncStorage.removeItem('userData');
       await AsyncStorage.removeItem('authToken');
+      await AsyncStorage.removeItem('lastBackendUrl'); // Limpiar IP guardada
       setUser(null);
       setIsAuthenticated(false);
       console.log('Sesión cerrada correctamente');
@@ -142,7 +193,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Función para actualizar datos del usuario
+  // Funcion para actualizar datos del usuario
   const updateUser = async (newData) => {
     try {
       const token = await AsyncStorage.getItem('authToken');
@@ -184,14 +235,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Función para actualizar foto de perfil
+  // Funcion para actualizar foto de perfil
   const updateProfileImage = async (imageUri) => {
     try {
       const token = await AsyncStorage.getItem('authToken');
       
       // Crear FormData para la imagen
       const formData = new FormData();
-      // Intentar inferir extensión y mime
+      // Intentar inferir extension y mime
       const uriParts = (imageUri || '').split('.')
       const ext = uriParts.length > 1 ? uriParts.pop().toLowerCase() : 'jpg';
       const mime = ext === 'png' ? 'image/png' : ext === 'gif' ? 'image/gif' : 'image/jpeg';
@@ -236,22 +287,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Función para cambiar la contraseña
+  // Funcion para cambiar la contrasena
   const changePassword = async (currentPassword, newPassword) => {
     try {
-      console.log('🔐 [Frontend] Iniciando cambio de contraseña...');
+      console.log('[Frontend] Enviando solicitud de cambio de contrasena...');
       
       const token = await AsyncStorage.getItem('authToken');
       if (!token) {
-        console.log('❌ [Frontend] No se encontró token');
+        console.log('[Frontend] No se encontro token');
         throw new Error('No se encontró el token de autenticación');
       }
 
-      console.log('🔐 [Frontend] Token encontrado:', token.substring(0, 50) + '...');
+      console.log('[Frontend] Token encontrado:', token.substring(0, 50) + '...');
       
-      // Probemos primero con una solicitud simple para verificar conectividad
+      //Solicitud simple para verificar conectividad
       const testUrl = buildApiUrl(API_ENDPOINTS.CUSTOMERS_ME);
-      console.log('🔐 [Frontend] Probando conectividad con:', testUrl);
+      console.log('[Frontend] Probando conectividad con:', testUrl);
       
       try {
         const testResponse = await fetch(testUrl, {
@@ -260,15 +311,15 @@ export const AuthProvider = ({ children }) => {
             'Authorization': `Bearer ${token}`,
           },
         });
-        console.log('🔐 [Frontend] Test de conectividad:', testResponse.status);
+        console.log('[Frontend] Test de conectividad:', testResponse.status);
       } catch (testError) {
-        console.log('❌ [Frontend] Error de conectividad:', testError);
+        console.log('[Frontend] Error de conectividad:', testError);
         throw new Error('No se puede conectar al servidor. Verifica tu conexión.');
       }
 
       const changePasswordUrl = buildApiUrl(API_ENDPOINTS.PROFILE_CHANGE_PASSWORD);
-      console.log('🔐 [Frontend] Enviando solicitud a:', changePasswordUrl);
-      console.log('🔐 [Frontend] Datos enviados:', {
+      console.log('[Frontend] Enviando solicitud a:', changePasswordUrl);
+      console.log('[Frontend] Datos enviados:', {
         currentPassword: '***',
         newPassword: '***'
       });
@@ -285,22 +336,22 @@ export const AuthProvider = ({ children }) => {
         }),
       });
 
-      console.log('🔐 [Frontend] Respuesta del servidor:', response.status, response.statusText);
+      console.log('[Frontend] Respuesta del servidor:', response.status, response.statusText);
       
       const data = await response.json();
-      console.log('🔐 [Frontend] Datos de respuesta:', data);
+      console.log('[Frontend] Datos de respuesta:', data);
 
       if (!response.ok) {
-        console.log('❌ [Frontend] Error en respuesta:', data);
+        console.log('[Frontend] Error en respuesta:', data);
         throw new Error(data.message || 'Error al cambiar la contraseña');
       }
 
-      console.log('✅ [Frontend] Contraseña cambiada exitosamente');
+      console.log('[Frontend] Contrasena cambiada exitosamente');
       return { success: true, message: data.message || 'Contraseña actualizada correctamente' };
     } catch (error) {
-      console.error('❌ [Frontend] Error al cambiar la contraseña:', error);
+      console.error('[Frontend] Error al cambiar la contrasena:', error);
       
-      // Si es un error de red, devolver un mensaje más específico
+      // Si es un error de red, devolver un mensaje mas especifico
       if (error.message.includes('Network request failed') || error.message.includes('fetch')) {
         return { 
           success: false, 

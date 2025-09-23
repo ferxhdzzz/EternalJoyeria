@@ -347,7 +347,7 @@ const RegisterScreen = ({ navigation, route }) => {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >
-            {/* Círculos decorativos */}
+            {/* Elementos decorativos */}
             <View style={styles.decorativeCircle1} />
             <View style={styles.decorativeCircle2} />
             <View style={styles.decorativeCircle3} />
@@ -367,14 +367,14 @@ const RegisterScreen = ({ navigation, route }) => {
               contentInsetAdjustmentBehavior="automatic"
               automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
             >
-              {/* Botón de regreso con animación */}
+              {/* Boton de regreso */}
               <Animated.View style={[styles.backButtonContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
                 <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                   <Ionicons name="arrow-back" size={24} color="#c084fc" />
                 </TouchableOpacity>
               </Animated.View>
 
-              {/* Header con logo */}
+              {/* Encabezado con logo */}
               <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
                 <View style={styles.logoContainer}>
                   <Text style={styles.logoText}>Eternal Joyería</Text>
@@ -386,9 +386,9 @@ const RegisterScreen = ({ navigation, route }) => {
                 </Text>
               </Animated.View>
 
-              {/* Formulario */}
+              {/* Formulario de registro */}
               <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
-                {/* Campo Nombre */}
+                {/* Campo de nombre */}
                 <View style={styles.inputContainer}>
                   <Text style={styles.inputLabel}>Nombre</Text>
                   <View style={[styles.inputWrapper, firstNameError ? styles.inputError : null]}>
@@ -407,7 +407,7 @@ const RegisterScreen = ({ navigation, route }) => {
                   {firstNameError ? <Text style={styles.errorText}>{firstNameError}</Text> : null}
                 </View>
 
-                {/* Campo Apellido */}
+                {/* Campo de apellido */}
                 <View style={styles.inputContainer}>
                   <Text style={styles.inputLabel}>Apellido</Text>
                   <View style={[styles.inputWrapper, lastNameError ? styles.inputError : null]}>
@@ -426,7 +426,7 @@ const RegisterScreen = ({ navigation, route }) => {
                   {lastNameError ? <Text style={styles.errorText}>{lastNameError}</Text> : null}
                 </View>
 
-                {/* Campo Correo */}
+                {/* Campo de correo electronico */}
                 <View style={styles.inputContainer}>
                   <Text style={styles.inputLabel}>Correo Electrónico</Text>
                   <View style={[styles.inputWrapper, emailError ? styles.inputError : null]}>
@@ -446,7 +446,7 @@ const RegisterScreen = ({ navigation, route }) => {
                   {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
                 </View>
 
-                {/* Campo Teléfono */}
+                {/* Campo de telefono */}
                 <View style={styles.inputContainer}>
                   <Text style={styles.inputLabel}>Teléfono</Text>
                   <View style={[styles.inputWrapper, phoneError ? styles.inputError : null]}>
@@ -469,7 +469,7 @@ const RegisterScreen = ({ navigation, route }) => {
                   </Text>
                 </View>
 
-                {/* Campo Contraseña */}
+                {/* Campo de contrasena */}
                 <View style={styles.inputContainer}>
                   <Text style={styles.inputLabel}>Contraseña</Text>
                   <View style={[styles.inputWrapper, passwordError ? styles.inputError : null]}>
@@ -499,7 +499,7 @@ const RegisterScreen = ({ navigation, route }) => {
                   {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
                 </View>
 
-                {/* Botón de registro */}
+                {/* Boton de registro */}
                 <TouchableOpacity 
                   style={[
                     styles.registerButton, 
@@ -520,7 +520,7 @@ const RegisterScreen = ({ navigation, route }) => {
                   )}
                 </TouchableOpacity>
 
-                {/* Enlaces */}
+                {/* Enlaces de navegacion */}
                 <View style={styles.linksContainer}>
                   <TouchableOpacity 
                     style={styles.loginLink} 
@@ -538,7 +538,7 @@ const RegisterScreen = ({ navigation, route }) => {
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
 
-      {/* Alerta personalizada */}
+      {/* Componente de alerta */}
       <CustomAlert
         visible={alertConfig.visible}
         type={alertConfig.type}

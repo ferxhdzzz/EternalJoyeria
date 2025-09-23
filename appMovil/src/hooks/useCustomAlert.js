@@ -26,7 +26,7 @@ const useCustomAlert = () => {
     console.log('showAlert llamado con:', { type, title, message, buttons, autoClose });
     console.log('Estado actual de alertConfig:', alertConfig);
     
-    // Actualización directa sin setTimeout
+    // Actualizacion directa sin setTimeout
     const newConfig = {
       visible: true,
       type,
@@ -50,7 +50,7 @@ const useCustomAlert = () => {
     }, 0);
   }, []);
 
-  // Métodos de conveniencia
+  // Metodos de conveniencia
   const showSuccess = useCallback((title, message, options = {}) => {
     console.log('showSuccess llamado con:', { title, message, options });
     showAlert({
@@ -70,7 +70,7 @@ const useCustomAlert = () => {
       title,
       message,
       animationType: 'bounce',
-      // Si no se especifican botones, no agregar ninguno para usar el botón de cerrar por defecto
+      // Si no se especifican botones, usar boton de cerrar por defecto
       buttons: options.buttons || [],
       ...options,
     });
@@ -118,7 +118,7 @@ const useCustomAlert = () => {
     });
   }, [showAlert]);
 
-  // Alertas específicas para validaciones
+  // Alertas para validaciones
   const showValidationError = useCallback((errors) => {
     const errorMessages = Object.values(errors).filter(Boolean);
     const message = errorMessages.length > 1 
@@ -172,7 +172,7 @@ const useCustomAlert = () => {
             text: 'Ver mis pedidos',
             style: 'confirm',
             onPress: () => {
-              // Esta función será pasada desde el componente
+              // Esta funcion sera pasada desde el componente
             },
           },
         ],
@@ -181,7 +181,7 @@ const useCustomAlert = () => {
     );
   }, [showSuccess]);
 
-  // Alerta personalizada para cerrar sesión
+  // Alerta para cerrar sesion
   const showLogoutConfirm = useCallback((onConfirm, onCancel) => {
     showAlert({
       type: 'warning',
@@ -203,7 +203,7 @@ const useCustomAlert = () => {
     });
   }, [showAlert]);
 
-  // Alerta personalizada para agregar al carrito
+  // Alerta para agregar al carrito
   const showAddToCartSuccess = useCallback((productName, onViewCart, onContinueShopping) => {
     showAlert({
       type: 'success',
@@ -225,7 +225,7 @@ const useCustomAlert = () => {
     });
   }, [showAlert]);
 
-  // Alerta personalizada para reseñas
+  // Alerta para resenas
   const showReviewSuccess = useCallback(() => {
     showSuccess(
       '¡Reseña añadida!',
@@ -295,11 +295,6 @@ const useCustomAlert = () => {
       message: '¿De dónde quieres obtener la imagen?',
       buttons: [
         {
-          text: 'Cancelar',
-          style: 'cancel',
-          onPress: onCancel,
-        },
-        {
           text: 'Cámara',
           style: 'confirm',
           onPress: onCamera,
@@ -309,13 +304,18 @@ const useCustomAlert = () => {
           style: 'confirm',
           onPress: onGallery,
         },
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+          onPress: onCancel,
+        },
       ],
       autoClose: false,
       animationType: 'bounce',
     });
   }, [showAlert]);
 
-  // Alerta de inicio de sesión exitoso
+  // Alerta de inicio de sesion exitoso
   const showLoginSuccess = useCallback((userName = '') => {
     console.log('showLoginSuccess llamada con userName:', userName);
     const welcomeMessage = userName 
@@ -332,12 +332,38 @@ const useCustomAlert = () => {
         autoClose: true,
         autoCloseDelay: 2500, // 2.5 segundos
         animationType: 'bounce',
-        buttons: [], // Sin botones para que se cierre automáticamente
+        buttons: [], // Sin botones para que se cierre automaticamente
       }
     );
     
     console.log('showSuccess ejecutado');
   }, [showSuccess]);
+
+  // Alerta para stock insuficiente
+  const showStockError = useCallback((productName, availableStock, onViewCart, onContinueShopping) => {
+    const message = availableStock > 0 
+      ? `Solo hay ${availableStock} unidades disponibles de "${productName}".`
+      : `"${productName}" está agotado actualmente.`;
+    
+    showAlert({
+      type: 'warning',
+      title: 'Stock insuficiente',
+      message,
+      buttons: [
+        {
+          text: 'Seguir comprando',
+          style: 'cancel',
+          onPress: onContinueShopping,
+        },
+        ...(availableStock > 0 ? [{
+          text: 'Ver carrito',
+          style: 'confirm',
+          onPress: onViewCart,
+        }] : []),
+      ],
+      animationType: 'bounce',
+    });
+  }, [showAlert]);
 
   return {
     alertConfig,
@@ -359,6 +385,7 @@ const useCustomAlert = () => {
     showPermissionRequired,
     showImagePickerOptions,
     showLoginSuccess,
+    showStockError,
   };
 };
 
