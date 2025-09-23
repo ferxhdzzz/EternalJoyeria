@@ -47,11 +47,11 @@ let me = null;
 
 // 1) Cookie
 try { me = await fetchJSON(`${API}/login/me`, { useBearer: false }); } catch {}
-if (!me) { try { me = await fetchJSON(`${API}/customers/me`, { useBearer: false }); } catch {} }
+if (!me) { try { me = await fetchJSON(`${API}/customers/me`, { useBearer: false,  credentials: "include"}); } catch {} }
 
 // 2) Bearer fallback
-if (!me) { try { me = await fetchJSON(`${API}/login/me`, { useBearer: true }); } catch {} }
-if (!me) { try { me = await fetchJSON(`${API}/customers/me`, { useBearer: true }); } catch {} }
+if (!me) { try { me = await fetchJSON(`${API}/login/me`, { useBearer: true,  credentials: "include"}); } catch {} }
+if (!me) { try { me = await fetchJSON(`${API}/customers/me`, { useBearer: true,  credentials: "include" }); } catch {} }
 
 const u = normalizeUser(me);
 if (u) {
