@@ -11,9 +11,9 @@ const [user, setUser] = useState(null);
 const [loading, setLoading] = useState(true);
 const isPublicSession = !!user;
 
-const saveToken = (t) => { try { localStorage.setItem(TOKEN_KEY, t); } catch {} };
+/*const saveToken = (t) => { try { localStorage.setItem(TOKEN_KEY, t); } catch {} };
 const readToken = () => { try { return localStorage.getItem(TOKEN_KEY); } catch { return null; } };
-const clearToken = () => { try { localStorage.removeItem(TOKEN_KEY); } catch {} };
+const clearToken = () => { try { localStorage.removeItem(TOKEN_KEY); } catch {} };*/
 
 const normalizeUser = (data) => {
 if (!data) return null;
@@ -91,7 +91,7 @@ throw new Error((isJSON ? data?.message : data) || `HTTP ${res.status}`);
 }
 
 // guarda token (fallback Bearer si la cookie no viaja)
-if (isJSON && data?.token) saveToken(data.token);
+//if (isJSON && data?.token) saveToken(data.token);
 
 await hydrate();
 return data;
