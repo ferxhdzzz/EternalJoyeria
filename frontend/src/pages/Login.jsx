@@ -58,7 +58,7 @@ const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
-  const { login, loading } = useLogin();
+  const { login, loading } = useLogin(); // ✅ usa el nuevo login hook
   const navigate = useNavigate();
 
   const validate = () => {
@@ -79,6 +79,7 @@ const Login = () => {
     e.preventDefault();
     const newErrors = validate();
     setErrors(newErrors);
+
     if (Object.keys(newErrors).length > 0) {
       let mensaje = "";
       if (newErrors.email) mensaje += `${newErrors.email} <br>`;
@@ -96,6 +97,7 @@ const Login = () => {
 
     try {
       const res = await login({ email: form.email, password: form.password });
+
       if (res?.success) {
         Swal.fire({
           title: "¡Bienvenido/a de vuelta!",
@@ -104,7 +106,11 @@ const Login = () => {
           confirmButtonText: "¡Genial!",
           confirmButtonColor: "#ff69b4",
         }).then(() => {
+<<<<<<< HEAD
           navigate("/productos");
+=======
+          navigate("/productos"); // ✅ redirige al home o panel
+>>>>>>> 0a471517d9310fd2d942a5b76713f39887f7b476
         });
       } else {
         Swal.fire({

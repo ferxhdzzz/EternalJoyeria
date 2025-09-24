@@ -188,7 +188,7 @@ const SplashScreen = ({ onFinish }) => {
       ]).start(() => {
         onFinish();
       });
-    }, 5000); // 5 segundos de duración
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -217,12 +217,12 @@ const SplashScreen = ({ onFinish }) => {
   return (
     <Animated.View style={[styles.container, { opacity: backgroundOpacity }]}>
       <LinearGradient
-        colors={['#f8f9fa', '#e9ecef', '#dee2e6', '#ced4da']}
+        colors={['#fce4ec', '#f8bbd9', '#f48fb1', '#e91e63']}
         style={styles.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-        {/* Partículas flotantes animadas */}
+        {/* Particulas animadas */}
         <Animated.View
           style={[
             styles.particle,
@@ -254,7 +254,7 @@ const SplashScreen = ({ onFinish }) => {
           ]}
         />
 
-        {/* Logo animado con efectos mejorados */}
+        {/* Logo animado */}
         <Animated.View
           style={[
             styles.logoContainer,
@@ -267,7 +267,7 @@ const SplashScreen = ({ onFinish }) => {
             },
           ]}
         >
-          {/* Efecto de brillo/glow */}
+          {/* Efecto de brillo */}
           <Animated.View
             style={[
               styles.logoGlow,
@@ -288,7 +288,7 @@ const SplashScreen = ({ onFinish }) => {
           </View>
         </Animated.View>
 
-        {/* Texto de la marca con animaciones */}
+        {/* Texto de la marca */}
         <Animated.View
           style={[
             styles.brandContainer,
@@ -383,22 +383,22 @@ const styles = StyleSheet.create({
   brandName: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#ffffff',
     marginBottom: 15,
     textAlign: 'center',
     letterSpacing: 2,
-    textShadowColor: 'rgba(0, 0, 0, 0.1)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
+    textShadowColor: 'rgba(173, 20, 87, 0.8)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 4,
   },
   brandTagline: {
     fontSize: 20,
-    color: '#7f8c8d',
+    color: 'rgba(255, 255, 255, 0.9)',
     textAlign: 'center',
     fontStyle: 'italic',
     letterSpacing: 1,
-    textShadowColor: 'rgba(0, 0, 0, 0.05)',
-    textShadowOffset: { width: 0.5, height: 0.5 },
+    textShadowColor: 'rgba(173, 20, 87, 0.6)',
+    textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
 });

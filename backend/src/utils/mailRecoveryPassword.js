@@ -13,21 +13,22 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// ¿Quien lo envia?
+// Función para enviar correos
 const sendEmail = async (to, subject, text, html) => {
   try {
     const info = await transporter.sendMail({
-      from: config.smtp.user, // Usar el email de configuración
-      to, // Para quien
-      subject, // El asunto
-      text, // Texto plano (cambié de 'body' a 'text')
-      html, // HTML
+      from: `"Eternal Joyería" <${config.smtp.user}>`,
+      to,
+      subject,
+      text,
+      html,
     });
 
+    console.log('Mensaje enviado: %s', info.messageId);
     return info;
   } catch (error) {
-    console.log("error" + error);
-    throw error; // Re-lanzar el error para manejarlo en el controlador
+    console.error('Error al enviar el correo:', error);
+    throw error;
   }
 };
 
@@ -142,28 +143,42 @@ const HTMLRecoveryEmail = (code) => {
         }
         
         .code-container {
-            background: linear-gradient(135deg, #f472b6, #ec4899);
+            background: linear-gradient(135deg, #f472b6, #ec4899) !important;
             border-radius: 20px;
             padding: 32px 28px;
             box-shadow: 0 15px 30px -8px rgba(251, 113, 133, 0.4);
+            display: block !important;
+            width: 100% !important;
+            max-width: 300px !important;
+            margin: 0 auto !important;
+            text-align: center !important;
         }
         
         .code-label {
-            color: rgba(255, 255, 255, 0.9);
+            color: rgba(255, 255, 255, 0.9) !important;
             font-size: 12px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 14px;
+            display: block !important;
+            text-align: center !important;
         }
         
         .verification-code {
             font-size: 36px;
             font-weight: 700;
-            color: #ffffff;
+            color: #ffffff !important;
             font-family: 'Inter', monospace;
             letter-spacing: 5px;
             text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            background-color: transparent !important;
+            display: block !important;
+            width: 100% !important;
+            text-align: center !important;
+            line-height: 1.2 !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
         
         .timer-section {
@@ -245,16 +260,16 @@ const HTMLRecoveryEmail = (code) => {
             .main-title { font-size: 16px; }
             .content-section { padding: 20px 15px; }
             .welcome-message { padding: 16px; }
-            .code-container { padding: 20px 16px; }
-            .verification-code { font-size: 24px; letter-spacing: 3px; }
             .timer-section { padding: 16px; }
             .footer-section { padding: 16px; }
+            table[style*="max-width: 300px"] { max-width: 250px !important; }
+            div[style*="font-size: 36px"] { font-size: 24px !important; letter-spacing: 3px !important; }
         }
 
         @media (max-width: 360px) {
             .brand-logo { font-size: 20px; }
             .main-title { font-size: 15px; }
-            .verification-code { font-size: 22px; letter-spacing: 2px; }
+            div[style*="font-size: 36px"] { font-size: 22px !important; letter-spacing: 2px !important; }
         }
 
         /* Larger screen optimizations */
@@ -277,13 +292,13 @@ const HTMLRecoveryEmail = (code) => {
                 font-size: 18px;
             }
 
-            .verification-code {
-                font-size: 48px;
-                letter-spacing: 6px;
+            div[style*="font-size: 36px"] { 
+                font-size: 48px !important; 
+                letter-spacing: 6px !important; 
             }
 
-            .code-container {
-                padding: 48px 40px;
+            table[style*="padding: 32px 28px"] td {
+                padding: 48px 40px !important;
             }
 
             .welcome-message,
@@ -320,12 +335,24 @@ const HTMLRecoveryEmail = (code) => {
                     </div>
                 </div>
                 
-                <div class="code-section">
-                    <div class="code-container">
-                        <div class="code-label">Verification Code | Código de Verificación</div>
-                        <div class="verification-code" id="verification-code">${code}</div>
-                    </div>
-                </div>
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 35px 0;">
+                    <tr>
+                        <td align="center">
+                            <table cellpadding="0" cellspacing="0" border="0" style="background: linear-gradient(135deg, #f472b6, #ec4899); background-color: #ec4899; border-radius: 20px; max-width: 300px; width: 100%;">
+                                <tr>
+                                    <td style="padding: 32px 28px; text-align: center;">
+                                        <div style="color: rgba(255, 255, 255, 0.9); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; text-align: center;">
+                                            Verification Code | Código de Verificación
+                                        </div>
+                                        <div style="font-size: 36px; font-weight: 700; color: #ffffff; font-family: 'Courier New', Courier, monospace; letter-spacing: 5px; text-align: center; margin: 0; padding: 0; line-height: 1.2;">
+                                            ${code}
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
                 
                 <div class="timer-section">
                     <div class="timer-content">

@@ -47,6 +47,11 @@ async function syncCartItems(req, res) {
     const userId = req.userId;
     const { items = [], shippingCents = 0, taxCents = 0, discountCents = 0 } = req.body || {};
 
+    console.log('🛒 [syncCartItems] Iniciando sincronización...');
+    console.log('🛒 [syncCartItems] userId:', userId);
+    console.log('🛒 [syncCartItems] items recibidos:', JSON.stringify(items, null, 2));
+    console.log('🛒 [syncCartItems] shippingCents:', shippingCents, 'taxCents:', taxCents, 'discountCents:', discountCents);
+
     const cleaned = (Array.isArray(items) ? items : [])
       .filter((it) => isObjectId(it?.productId) && Number(it?.quantity) > 0)
       .map((it) => ({
@@ -54,6 +59,8 @@ async function syncCartItems(req, res) {
         quantity: Math.max(1, parseInt(it.quantity, 10)),
         variant: it?.variant || undefined,
       }));
+    
+    console.log('🧽 [syncCartItems] Items limpiados:', JSON.stringify(cleaned, null, 2));
 
     // Siempre trabajar sobre el mismo cart (idempotente)
     let order = await Order.findOneAndUpdate(
@@ -89,8 +96,12 @@ async function syncCartItems(req, res) {
 
     // Traer precios reales
     const ids = cleaned.map((i) => i.productId);
+    console.log('🔍 [syncCartItems] Buscando productos con IDs:', ids);
     const products = await Product.find({ _id: { $in: ids } }, "price finalPrice images name");
+    console.log('💰 [syncCartItems] Productos encontrados:', products.length);
+    console.log('💰 [syncCartItems] Productos:', products.map(p => ({ id: p._id, name: p.name, price: p.price, finalPrice: p.finalPrice })));
     const priceMap = new Map(products.map((p) => [String(p._id), toCents(p.finalPrice ?? p.price)]));
+    console.log('🗺 [syncCartItems] Mapa de precios:', Array.from(priceMap.entries()));
 
     let totalItemsCents = 0;
     const normalized = cleaned
@@ -107,6 +118,9 @@ async function syncCartItems(req, res) {
     const disc = nz(discountCents);
     const totalCents = Math.max(0, totalItemsCents + ship + tax - disc);
 
+    console.log('📦 [syncCartItems] Productos normalizados:', JSON.stringify(normalized, null, 2));
+    console.log('📊 [syncCartItems] Totales calculados:', { totalItemsCents, ship, tax, disc, totalCents });
+    
     order.products = normalized;
     order.shippingCents = ship;
     order.taxCents = tax;
@@ -114,15 +128,34 @@ async function syncCartItems(req, res) {
     order.totalCents = totalCents;
     order.total = totalCents / 100;
     order.currency = "USD";
+    
+    console.log('💾 [syncCartItems] Guardando orden...');
     await order.save();
+    console.log('✅ [syncCartItems] Orden guardada exitosamente');
 
     const out = await Order.findById(order._id)
       .populate("products.productId", "name images price finalPrice discountPercentage");
 
     return res.json(out);
   } catch (err) {
-    console.error("[orders] syncCartItems", err);
-    return res.status(500).json({ message: "Error sincronizando carrito" });
+    console.error("🛑 [orders] syncCartItems ERROR:", err);
+    console.error("🛑 [orders] Error stack:", err.stack);
+    console.error("🛑 [orders] Error name:", err.name);
+    console.error("🛑 [orders] Error message:", err.message);
+    
+    // Si es un error de validación de Mongoose, dar más detalles
+    if (err.name === 'ValidationError') {
+      console.error("🛑 [orders] Validation errors:", err.errors);
+      return res.status(400).json({ 
+        message: "Error de validación en carrito", 
+        details: Object.keys(err.errors).map(key => ({
+          field: key,
+          message: err.errors[key].message
+        }))
+      });
+    }
+    
+    return res.status(500).json({ message: "Error sincronizando carrito", error: err.message });
   }
 }
 

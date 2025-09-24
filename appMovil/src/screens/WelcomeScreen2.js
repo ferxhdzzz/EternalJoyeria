@@ -59,10 +59,10 @@ const WelcomeScreen2 = ({ onNext }) => {
       <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
         <View style={styles.imageSection}>
           <LinearGradient
-            colors={['#FFE4E1', '#FFF5F5']}
+            colors={['#f8bbd9', '#f48fb1', '#e91e63']}
             style={styles.gradientBackground}
             start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
+            end={{ x: 1, y: 1 }}
           >
             <Animated.View 
               style={[
@@ -96,10 +96,10 @@ const WelcomeScreen2 = ({ onNext }) => {
             showsVerticalScrollIndicator={false}
           >
             <Text style={styles.mainTitle}>
-              Luce la elegancia{'\n'}de la naturaleza
+              Joyas que cuentan{'\n'}tu historia
             </Text>
             <Text style={styles.description}>
-              Descubre nuestras mejores{'\n'}colecciones a los mejores precios y{'\n'}calidad excepcional.
+              Cada pieza es única, como tú.{'\n'}Encuentra la joya perfecta que{'\n'}refleje tu personalidad.
             </Text>
             <View style={styles.navigationDots}>
               <View style={styles.dot} />
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#333',
+    backgroundColor: '#e91e63',
   },
   bottomRow: {
     flexDirection: 'row',
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     paddingLeft: 30, // Padding solo a la izquierda para los puntos
   },
   startButton: {
-    backgroundColor: '#000',
+    backgroundColor: '#e91e63',
     paddingVertical: 16,
     paddingHorizontal: 36,
     borderTopLeftRadius: 35,

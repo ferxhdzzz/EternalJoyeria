@@ -7,7 +7,7 @@ const CategoryList = ({ categories }) => {
 
   const handleClick = (catId) => {
     // Esto te lleva a /categorias/:id
-    navigate(`/categorias/${catId}`);
+    navigate(`/categorias`);
   };
 
   return (

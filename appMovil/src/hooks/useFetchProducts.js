@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Alert } from "react-native";
+import { BACKEND_URL, API_ENDPOINTS, buildApiUrl } from '../config/api';
 
 const useFetchProducts = () => {
   // Estados para la lista de productos
@@ -7,17 +8,14 @@ const useFetchProducts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // URL del backend (misma que en AuthContext)
-  const BACKEND_URL = 'http://192.168.1.200:4000';
-
   const fetchProductos = async (categoryId = null) => {
     setLoading(true);
     setError(null);
     
     try {
       const url = categoryId && categoryId !== 'todos'
-        ? `${BACKEND_URL}/api/products/category/${categoryId}`
-        : `${BACKEND_URL}/api/products`;
+        ? `${buildApiUrl(API_ENDPOINTS.PRODUCTS_BY_CATEGORY)}/${categoryId}`
+        : buildApiUrl(API_ENDPOINTS.PRODUCTS);
       
       const response = await fetch(url, {
         credentials: 'include', // Importante para enviar cookies
