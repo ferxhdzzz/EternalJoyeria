@@ -11,9 +11,9 @@ router.post("/", upload.array("images"), productController.createProduct);
 router.put("/:id", upload.array("images"), productController.updateProduct);
 
 router.get("/", productController.getAllProducts);
+// Importante: declarar primero la ruta específica de categoría
+router.get("/category/:id", productController.getProductsByCategory);
 router.get("/:id", productController.getProductById);
 router.delete("/:id", productController.deleteProduct);
-
-router.get("/category/:id", productController.getProductsByCategory);
 
 export default router;

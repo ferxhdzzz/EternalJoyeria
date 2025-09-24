@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,9 +10,19 @@ import {
   SafeAreaView,
   Animated,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_ENDPOINTS, buildApiUrl } from '../config/api';
+import { useNavigation } from '@react-navigation/native';
+import CustomAlert from '../components/CustomAlert';
+import useCustomAlert from '../hooks/useCustomAlert';
 
 const { width, height } = Dimensions.get('window');
 
@@ -22,31 +32,37 @@ const ForgotPasswordScreen = ({ navigation }) => {
   const [isFormValid, setIsFormValid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Referencias para las animaciones de entrada
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(30)).current;
-  const formSlideAnim = useRef(new Animated.Value(50)).current;
+  // Hook para alertas personalizadas
+  const {
+    alertConfig,
+    hideAlert,
+    showValidationError,
+    showError,
+    showSuccess,
+    showInfo,
+  } = useCustomAlert();
 
-  React.useEffect(() => {
-    // Animación de entrada suave
-    Animated.parallel([
+  // Referencias para las animaciones de entrada - optimizadas
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const formSlideAnim = useRef(new Animated.Value(0)).current;
+  const [isAnimationComplete, setIsAnimationComplete] = useState(false);
+
+  useEffect(() => {
+    // Animación de entrada optimizada
+    const animation = Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 600,
+        duration: 300,
         useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 600,
-        useNativeDriver: true,
-      }),
-      Animated.timing(formSlideAnim, {
-        toValue: 0,
-        duration: 800,
-        delay: 200,
-        useNativeDriver: true,
-      }),
-    ]).start();
+      })
+    ]);
+    
+    const timer = setTimeout(() => {
+      animation.start(() => setIsAnimationComplete(true));
+    }, 50);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   // Validar email
@@ -79,7 +95,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
   };
 
   // Validar formulario cada vez que cambie el email
-  React.useEffect(() => {
+  useEffect(() => {
     if (email) {
       validateForm();
     }
@@ -90,25 +106,61 @@ const ForgotPasswordScreen = ({ navigation }) => {
     if (isFormValid) {
       setIsLoading(true);
       try {
-        // Aquí iría la llamada al backend para enviar el código
-        // Por ahora simulamos el envío
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        Alert.alert(
-          'Código enviado',
-          'Se ha enviado un código de verificación a tu correo electrónico',
-          [
-            {
-              text: 'Continuar',
-              onPress: () => navigation.navigate('VerifyCode', { email })
-            }
-          ]
+        const response = await fetch(buildApiUrl(API_ENDPOINTS.RECOVERY_REQUEST), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email.toLowerCase(),
+            userType: 'customer'
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Error al enviar el código de verificación');
+        }
+
+        // Guardar el token de recuperación si viene en la respuesta
+        if (data.recoveryToken) {
+          await AsyncStorage.setItem('recoveryToken', data.recoveryToken);
+        }
+
+        showSuccess(
+          '¡Código Enviado!',
+          'Hemos enviado un código de recuperación a tu correo electrónico. Revisa tu bandeja de entrada y carpeta de spam.',
+          {
+            autoClose: false,
+            buttons: [
+              {
+                text: 'Verificar Código',
+                style: 'confirm',
+                onPress: () => {
+                  navigation.navigate('VerifyCode', {
+                    email: email.trim(),
+                    isPasswordRecovery: true,
+                  });
+                },
+              },
+            ]
+          }
         );
       } catch (error) {
-        Alert.alert('Error', 'No se pudo enviar el código. Intenta de nuevo.');
+        console.error('Error al solicitar código:', error);
+        showError(
+          'Error al Enviar Código',
+          error.message || 'No se pudo enviar el código de recuperación. Verifica tu conexión e inténtalo nuevamente.'
+        );
       } finally {
         setIsLoading(false);
       }
+    } else {
+      const errors = {};
+      if (emailError) errors.email = emailError;
+      
+      showValidationError(errors);
     }
   };
 
@@ -132,84 +184,135 @@ const ForgotPasswordScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView 
-        contentContainerStyle={styles.scrollContainer}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
       >
-        {/* Botón de regreso con animación */}
-        <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Text style={styles.backButtonText}>← Volver</Text>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* Sección superior rosa con curva cóncava */}
-        <Animated.View style={[styles.topSection, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <LinearGradient
-            colors={['#FFFFFF', '#FFE7E7']}
-            style={styles.pinkGradient}
+            colors={['#fef7e7', '#fdf4e3', '#fcf1df']}
+            style={styles.background}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
           >
-            {/* Curva cóncava */}
-            <View style={styles.curveContainer}>
-              <View style={styles.curve} />
-            </View>
+            {/* Elementos decorativos */}
+            {isAnimationComplete && (
+              <>
+                <View style={styles.decorativeCircle1} />
+                <View style={styles.decorativeCircle2} />
+                <View style={styles.decorativeCircle3} />
+              </>
+            )}
             
-            {/* Texto de bienvenida */}
-            <View style={styles.welcomeTextContainer}>
-              <Text style={styles.welcomeTitle}>Recuperar contraseña</Text>
-              <Text style={styles.welcomeDescription}>
-                No te preocupes, te ayudaremos a{'\n'}
-                recuperar tu contraseña.{'\n'}
-                Ingresa tu correo electrónico{'\n'}
-                y te enviaremos un código de{'\n'}
-                verificación.
-              </Text>
-            </View>
+            <ScrollView
+              contentContainerStyle={styles.scrollContainer}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+              keyboardDismissMode="on-drag"
+              bounces={false}
+            >
+              {/* Boton de regreso */}
+              <Animated.View style={[styles.backButtonContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                  <Ionicons name="arrow-back" size={24} color="#d4af37" />
+                </TouchableOpacity>
+              </Animated.View>
+
+              {/* Encabezado con logo */}
+              <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+                <View style={styles.logoContainer}>
+                  <Text style={styles.logoText}>Eternal Joyería</Text>
+                  <View style={styles.logoUnderline} />
+                </View>
+                <Text style={styles.welcomeTitle}>Recuperar Contraseña</Text>
+                <Text style={styles.welcomeSubtitle}>
+                  No te preocupes, te ayudaremos a recuperar tu acceso
+                </Text>
+              </Animated.View>
+
+              {/* Formulario de recuperacion */}
+              <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
+                {/* Campo de correo electronico */}
+                <View style={styles.inputContainer}>
+                  <Text style={styles.inputLabel}>Correo Electrónico</Text>
+                  <View style={[styles.inputWrapper, emailError ? styles.inputError : null]}>
+                    <Ionicons name="mail-outline" size={20} color="#d4af37" style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder="correo@ejemplo.com"
+                      placeholderTextColor="#999"
+                      value={email}
+                      onChangeText={handleEmailChange}
+                      onBlur={() => validateEmail(email)}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      editable={!isLoading}
+                    />
+                  </View>
+                  {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+                </View>
+
+                {/* Informacion adicional */}
+                <View style={styles.infoContainer}>
+                  <Ionicons name="information-circle-outline" size={20} color="#d4af37" style={styles.infoIcon} />
+                  <Text style={styles.infoText}>
+                    Te enviaremos un código de verificación a tu correo electrónico para que puedas cambiar tu contraseña de forma segura.
+                  </Text>
+                </View>
+
+                {/* Boton de enviar codigo */}
+                <TouchableOpacity 
+                  style={[
+                    styles.sendCodeButton, 
+                    (!isFormValid || isLoading) ? styles.sendCodeButtonDisabled : null
+                  ]} 
+                  onPress={handleSendCode}
+                  disabled={!isFormValid || isLoading}
+                >
+                  {isLoading ? (
+                    <View style={styles.loadingContainer}>
+                      <ActivityIndicator color="#FFFFFF" size="small" />
+                      <Text style={[styles.sendCodeButtonText, { marginLeft: 10 }]}>
+                        Enviando código...
+                      </Text>
+                    </View>
+                  ) : (
+                    <Text style={styles.sendCodeButtonText}>Enviar Código</Text>
+                  )}
+                </TouchableOpacity>
+
+                {/* Enlaces de navegacion */}
+                <View style={styles.linksContainer}>
+                  <TouchableOpacity 
+                    style={styles.backToLoginLink} 
+                    onPress={() => navigation.goBack()}
+                    disabled={isLoading}
+                  >
+                    <Text style={styles.backToLoginText}>
+                      ¿Recordaste tu contraseña? <Text style={styles.backToLoginHighlight}>Iniciar sesión</Text>
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </Animated.View>
+            </ScrollView>
           </LinearGradient>
-        </Animated.View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
 
-        {/* Sección inferior blanca con animación del formulario */}
-        <Animated.View style={[styles.bottomSection, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
-          {/* Formulario */}
-          <View style={styles.formContainer}>
-            {/* Campo Email */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Correo electrónico</Text>
-              <TextInput
-                style={[styles.textInput, emailError ? styles.inputError : null]}
-                placeholder="correo@ejemplo.com"
-                placeholderTextColor="#666"
-                value={email}
-                onChangeText={handleEmailChange}
-                onBlur={() => validateEmail(email)}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                editable={!isLoading}
-              />
-              {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
-            </View>
-
-            {/* Información adicional */}
-            <View style={styles.infoContainer}>
-              <Text style={styles.infoText}>
-                Te enviaremos un código de verificación a tu correo electrónico para que puedas cambiar tu contraseña.
-              </Text>
-            </View>
-          </View>
-
-          {/* Botón de enviar código */}
-          <TouchableOpacity 
-            style={[styles.sendCodeButton, !isFormValid || isLoading ? styles.sendCodeButtonDisabled : null]} 
-            onPress={handleSendCode}
-            disabled={!isFormValid || isLoading}
-          >
-            <Text style={styles.sendCodeButtonText}>
-              {isLoading ? 'Enviando código...' : 'Enviar código'}
-            </Text>
-          </TouchableOpacity>
-        </Animated.View>
-      </ScrollView>
+      {/* Componente de alerta */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+        onClose={hideAlert}
+        autoClose={alertConfig.autoClose}
+        autoCloseDelay={alertConfig.autoCloseDelay}
+        showIcon={alertConfig.showIcon}
+        animationType={alertConfig.animationType}
+      />
     </SafeAreaView>
   );
 };
@@ -217,150 +320,228 @@ const ForgotPasswordScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#fef7e7',
+  },
+  background: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
   },
   scrollContainer: {
     flexGrow: 1,
+    justifyContent: 'center',
+    padding: 20,
+    paddingTop: 20,
+    paddingBottom: 40,
+    minHeight: '100%',
   },
-  backButton: {
+  backButtonContainer: {
     position: 'absolute',
-    top: 15,
+    top: 50,
     left: 20,
     zIndex: 10,
-    padding: 10,
   },
-  backButtonText: {
-    fontSize: 16,
-    color: '#2c3e50',
-    fontWeight: '600',
+  backButton: {
+    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 25,
+    shadowColor: '#d4af37',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  topSection: {
-    height: height * 0.4,
-    position: 'relative',
-  },
-  pinkGradient: {
-    flex: 1,
-    position: 'relative',
-  },
-  curveContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 60,
-  },
-  curve: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 60,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 60,
-    borderTopRightRadius: 60,
-  },
-  welcomeTextContainer: {
-    flex: 1,
-    justifyContent: 'center',
+  header: {
     alignItems: 'center',
-    paddingHorizontal: 40,
-    paddingBottom: 60,
+    marginBottom: 30,
+    zIndex: 2,
+    marginTop: Platform.OS === 'ios' ? 0 : 20,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  logoText: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: '#d4af37',
+    letterSpacing: 1,
+  },
+  logoUnderline: {
+    width: 60,
+    height: 3,
+    backgroundColor: '#b8860b',
+    marginTop: 5,
+    borderRadius: 2,
   },
   welcomeTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#2c3e50',
-    marginBottom: 20,
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#8b4513',
     textAlign: 'center',
+    marginBottom: 10,
   },
-  welcomeDescription: {
+  welcomeSubtitle: {
     fontSize: 16,
-    color: '#2c3e50',
+    color: '#a0522d',
     textAlign: 'center',
-    lineHeight: 24,
-  },
-  bottomSection: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 30,
-    paddingTop: 40,
-    paddingBottom: 100,
+    lineHeight: 22,
   },
   formContainer: {
-    flex: 1,
+    width: '100%',
+    maxWidth: 400,
+    marginVertical: 20,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 20,
+    padding: 25,
+    shadowColor: '#d4af37',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 8,
+    zIndex: 2,
   },
   inputContainer: {
-    marginBottom: 30,
+    marginBottom: 20,
   },
   inputLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#2c3e50',
-    marginBottom: 12,
+    color: '#8b4513',
+    marginBottom: 8,
+    marginLeft: 5,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: '#daa520',
+    paddingHorizontal: 15,
+    height: 56,
+    shadowColor: '#d4af37',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  inputIcon: {
+    marginRight: 10,
   },
   textInput: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    flex: 1,
+    paddingVertical: 12,
     fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    color: '#2c3e50',
+    color: '#1e293b',
+    paddingRight: 10,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
   inputError: {
-    borderColor: '#e74c3c',
-    borderWidth: 2,
+    borderColor: '#e53e3e',
+    backgroundColor: '#fed7d7',
   },
   errorText: {
-    color: '#e74c3c',
-    fontSize: 14,
-    marginTop: 8,
-    marginLeft: 4,
+    color: '#e53e3e',
+    fontSize: 13,
+    marginTop: 5,
+    marginLeft: 5,
   },
   infoContainer: {
-    backgroundColor: '#f8f9fa',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: '#fef9e7',
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#e9ecef',
+    borderColor: '#f4d03f',
+    marginBottom: 25,
+  },
+  infoIcon: {
+    marginRight: 10,
+    marginTop: 2,
   },
   infoText: {
+    flex: 1,
     fontSize: 14,
-    color: '#6c757d',
+    color: '#8b4513',
     lineHeight: 20,
-    textAlign: 'center',
-    fontStyle: 'italic',
   },
   sendCodeButton: {
-    backgroundColor: '#000000',
-    paddingVertical: 15,
-    paddingHorizontal: 45,
-    marginTop: 60,
-    alignSelf: 'center',
-    borderRadius: 50,
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
+    backgroundColor: '#d4af37',
+    paddingVertical: 16,
+    borderRadius: 25,
+    marginBottom: 20,
+    shadowColor: '#b8860b',
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowRadius: 12,
     elevation: 8,
-    width: 200,
-    height: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   sendCodeButtonDisabled: {
-    backgroundColor: '#bdc3c7',
+    backgroundColor: '#ddd',
     shadowOpacity: 0.1,
   },
   sendCodeButtonText: {
-    color: '#FFFFFF',
+    color: '#fff',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '700',
     textAlign: 'center',
+    letterSpacing: 0.5,
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  linksContainer: {
+    alignItems: 'center',
+    marginTop: 15,
+  },
+  backToLoginLink: {
+    paddingVertical: 10,
+  },
+  backToLoginText: {
+    fontSize: 14,
+    color: '#8b4513',
+    textAlign: 'center',
+  },
+  backToLoginHighlight: {
+    color: '#d4af37',
+    fontWeight: '600',
+  },
+  decorativeCircle1: {
+    position: 'absolute',
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+    top: -50,
+    right: -50,
+    zIndex: 0,
+  },
+  decorativeCircle2: {
+    position: 'absolute',
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    backgroundColor: 'rgba(184, 134, 11, 0.1)',
+    bottom: -100,
+    left: -100,
+    zIndex: 0,
+  },
+  decorativeCircle3: {
+    position: 'absolute',
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: 'rgba(139, 69, 19, 0.1)',
+    top: '30%',
+    right: -50,
+    zIndex: 0,
   },
 });
 

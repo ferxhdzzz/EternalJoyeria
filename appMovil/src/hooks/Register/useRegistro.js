@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BACKEND_URL, API_ENDPOINTS, buildApiUrl } from '../../config/api';
+import { validatePassword } from '../../utils/passwordValidation';
 
 /**
  * Custom hook useRegistro para React Native
@@ -18,7 +21,6 @@ const useRegistro = () => {
    * @param {Object} formData - Datos del formulario de registro
    * @param {string} formData.firstName - Nombre del cliente
    * @param {string} formData.lastName - Apellido del cliente
-   * @param {string} formData.username - Nombre de usuario del cliente
    * @param {string} formData.email - Email del cliente
    * @param {string} formData.password - Contraseña del cliente
    * @param {string} formData.phone - Teléfono del cliente
@@ -34,8 +36,7 @@ const useRegistro = () => {
     try {
       // Validaciones básicas del lado del cliente
       if (!formData.firstName?.trim() || !formData.lastName?.trim() || 
-          !formData.username?.trim() || !formData.email?.trim() || 
-          !formData.password || !formData.phone?.trim()) {
+          !formData.email?.trim() || !formData.password || !formData.phone?.trim()) {
         throw new Error('Todos los campos son obligatorios');
       }
 
@@ -45,14 +46,10 @@ const useRegistro = () => {
         throw new Error('Formato de email inválido');
       }
 
-      // Validación básica de contraseña
-      if (formData.password.length < 8) {
-        throw new Error('La contraseña debe tener al menos 8 caracteres');
-      }
-
-      // Validar que contenga carácter especial
-      if (!/[!@#$%^&*(),.?":{}|<>]/.test(formData.password)) {
-        throw new Error('La contraseña debe contener al menos un carácter especial');
+      // Validación completa de contraseña usando utilidad centralizada
+      const passwordValidation = validatePassword(formData.password);
+      if (!passwordValidation.isValid) {
+        throw new Error(passwordValidation.message);
       }
 
       // Validación del teléfono
@@ -68,7 +65,6 @@ const useRegistro = () => {
       // Mapear los datos del formulario al formato que espera el backend
       form.append('firstName', formData.firstName.trim());
       form.append('lastName', formData.lastName.trim());
-      form.append('username', formData.username.trim());
       // Normalizar email a minúsculas para consistencia
       form.append('email', formData.email.trim().toLowerCase());
       form.append('password', formData.password);
@@ -99,8 +95,8 @@ const useRegistro = () => {
         }
       }
 
-      // Realizar petición HTTP al endpoint de registro
-      const response = await fetch('http://localhost:4000/api/registerCustomers', {
+      // Hacer la petición al backend usando configuración centralizada
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.REGISTER), {
         method: 'POST',
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -108,12 +104,15 @@ const useRegistro = () => {
         body: form,
       });
 
-      // Parsear respuesta JSON del servidor
       const data = await response.json();
 
-      // Si la respuesta no es exitosa, lanzar error con el mensaje del servidor
       if (!response.ok) {
-        throw new Error(data.message || `Error ${response.status}: ${response.statusText}`);
+        throw new Error(data.message || 'Error al registrar el usuario');
+      }
+
+      // Guardar el token de verificación si viene en la respuesta
+      if (data.verificationToken) {
+        await AsyncStorage.setItem('verificationToken', data.verificationToken);
       }
 
       // Si llegamos aquí, el registro fue exitoso
@@ -158,8 +157,8 @@ const useRegistro = () => {
       const codeStr = verificationCode.toString().trim();
       const emailNormalized = email.trim().toLowerCase();
 
-      // Realizar petición al endpoint de verificación
-      const response = await fetch('http://localhost:4000/api/registerCustomers/verifyCodeEmail', {
+      // Realizar petición al endpoint de verificación usando configuración centralizada
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.VERIFY_EMAIL), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -219,8 +218,8 @@ const useRegistro = () => {
         throw new Error('Formato de email inválido');
       }
 
-      // Petición para generar y enviar nuevo código
-      const response = await fetch('http://localhost:4000/api/registerCustomers/resend-code', {
+      // Petición para generar y enviar nuevo código usando configuración centralizada
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.RESEND_CODE), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -274,12 +273,6 @@ const useRegistro = () => {
       errors.lastName = 'El apellido debe tener al menos 2 caracteres';
     }
 
-    // Validar usuario
-    if (!formData.username?.trim()) {
-      errors.username = 'El usuario es requerido';
-    } else if (formData.username.length < 3) {
-      errors.username = 'El usuario debe tener al menos 3 caracteres';
-    }
 
     // Validar email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -300,13 +293,14 @@ const useRegistro = () => {
       }
     }
 
-    // Validar contraseña
+    // Validar contraseña usando utilidad centralizada
     if (!formData.password) {
       errors.password = 'La contraseña es requerida';
-    } else if (formData.password.length < 8) {
-      errors.password = 'La contraseña debe tener al menos 8 caracteres';
-    } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(formData.password)) {
-      errors.password = 'La contraseña debe contener al menos un carácter especial';
+    } else {
+      const passwordValidation = validatePassword(formData.password);
+      if (!passwordValidation.isValid) {
+        errors.password = passwordValidation.message;
+      }
     }
 
     return errors;

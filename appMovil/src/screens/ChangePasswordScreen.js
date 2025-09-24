@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,28 +10,85 @@ import {
   SafeAreaView,
   Animated,
   Alert,
+  ActivityIndicator
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../context/AuthContext';
+import CustomAlert from '../components/CustomAlert';
+import useCustomAlert from '../hooks/useCustomAlert';
+import { validatePassword } from '../utils/passwordValidation';
 
 const { width, height } = Dimensions.get('window');
 
 const ChangePasswordScreen = ({ navigation, route }) => {
-  const { email, code } = route.params;
+  // Obtener función de cambio de contraseña del contexto
+  const { changePassword } = useAuth();
+  
+  // Hook para alertas personalizadas
+  const {
+    alertConfig,
+    hideAlert,
+    showValidationError,
+    showError,
+    showSuccess,
+  } = useCustomAlert();
+  
+  // Estados para los campos del formulario
+  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  
+  // Estados para mostrar/ocultar contraseñas
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  // Estados para mensajes de error
+  const [currentPasswordError, setCurrentPasswordError] = useState('');
   const [newPasswordError, setNewPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
+  
+  // Estados de validación y carga
   const [isFormValid, setIsFormValid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Datos del usuario
+  const { user } = route.params || {};
 
   // Referencias para las animaciones de entrada
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const formSlideAnim = useRef(new Animated.Value(50)).current;
+  
+  // Efecto para la animación de entrada
+  React.useEffect(() => {
+    const animateIn = () => {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    };
 
+    animateIn();
+
+    return () => {
+      // Limpieza de animaciones
+      fadeAnim.setValue(0);
+      slideAnim.setValue(30);
+      formSlideAnim.setValue(50);
+    };
+  }, []);
+
+  // Efecto para la animación de entrada
   React.useEffect(() => {
     // Animación de entrada suave
     Animated.parallel([
@@ -54,18 +111,39 @@ const ChangePasswordScreen = ({ navigation, route }) => {
     ]).start();
   }, []);
 
-  // Validar nueva contraseña
+  // Validar contraseña actual
+  const validateCurrentPassword = (password) => {
+    if (!password) {
+      setCurrentPasswordError('La contraseña actual es requerida');
+      return false;
+    } else {
+      setCurrentPasswordError('');
+      return true;
+    }
+  };
+
+  // Validar nueva contraseña usando utilidad centralizada
   const validateNewPassword = (password) => {
     if (!password) {
       setNewPasswordError('La nueva contraseña es requerida');
       return false;
-    } else if (password.length < 6) {
-      setNewPasswordError('La contraseña debe tener al menos 6 caracteres');
-      return false;
-    } else {
-      setNewPasswordError('');
-      return true;
     }
+    
+    // Usar validación centralizada
+    const validation = validatePassword(password);
+    if (!validation.isValid) {
+      setNewPasswordError(validation.message);
+      return false;
+    }
+    
+    // Verificar que sea diferente a la contraseña actual
+    if (password === currentPassword) {
+      setNewPasswordError('La nueva contraseña debe ser diferente a la actual');
+      return false;
+    }
+    
+    setNewPasswordError('');
+    return true;
   };
 
   // Validar confirmación de contraseña
@@ -84,9 +162,70 @@ const ChangePasswordScreen = ({ navigation, route }) => {
 
   // Validar formulario completo
   const validateForm = () => {
+    const isCurrentPasswordValid = validateCurrentPassword(currentPassword);
     const isNewPasswordValid = validateNewPassword(newPassword);
     const isConfirmPasswordValid = validateConfirmPassword(confirmPassword);
-    setIsFormValid(isNewPasswordValid && isConfirmPasswordValid);
+    setIsFormValid(isCurrentPasswordValid && isNewPasswordValid && isConfirmPasswordValid);
+  };
+
+  // Manejar cambio de contraseña
+  const handleChangePassword = async () => {
+    console.log('🔐 [Screen] Iniciando proceso de cambio de contraseña...');
+    
+    // Validar formulario
+    if (!validateCurrentPassword(currentPassword) || 
+        !validateNewPassword(newPassword) || 
+        !validateConfirmPassword(confirmPassword)) {
+      const errors = {};
+      if (currentPasswordError) errors.currentPassword = currentPasswordError;
+      if (newPasswordError) errors.newPassword = newPasswordError;
+      if (confirmPasswordError) errors.confirmPassword = confirmPasswordError;
+      
+      showValidationError(errors);
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      console.log('🔐 [Screen] Llamando a changePassword del contexto...');
+      
+      // Usar la función del contexto en lugar de fetch directo
+      const result = await changePassword(currentPassword.trim(), newPassword.trim());
+      
+      console.log('🔐 [Screen] Resultado del cambio:', result);
+      
+      if (result.success) {
+        // Limpiar campos después de éxito
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+        
+        // Mostrar mensaje de éxito
+        showSuccess(
+          '¡Contraseña Actualizada!',
+          result.message || 'Tu contraseña ha sido actualizada correctamente.',
+          {
+            autoClose: false,
+            buttons: [
+              {
+                text: 'Continuar',
+                style: 'confirm',
+                onPress: () => navigation.goBack()
+              }
+            ]
+          }
+        );
+      } else {
+        // Mostrar error
+        showError('Error al Cambiar Contraseña', result.error || 'Ocurrió un error al cambiar la contraseña');
+      }
+    } catch (error) {
+      console.error('❌ [Screen] Error inesperado:', error);
+      showError('Error Inesperado', 'Ocurrió un error inesperado al cambiar la contraseña');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Manejar cambios en las contraseñas
@@ -114,6 +253,10 @@ const ChangePasswordScreen = ({ navigation, route }) => {
     }
   }, [newPassword, confirmPassword]);
 
+  const toggleCurrentPasswordVisibility = () => {
+    setShowCurrentPassword(!showCurrentPassword);
+  };
+
   const toggleNewPasswordVisibility = () => {
     setShowNewPassword(!showNewPassword);
   };
@@ -122,337 +265,341 @@ const ChangePasswordScreen = ({ navigation, route }) => {
     setShowConfirmPassword(!showConfirmPassword);
   };
 
-  const handleChangePassword = async () => {
-    validateForm();
-    if (isFormValid) {
-      setIsLoading(true);
-      try {
-        // Aquí iría la llamada al backend para cambiar la contraseña
-        // Por ahora simulamos el cambio
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        Alert.alert(
-          '¡Contraseña cambiada!',
-          'Tu contraseña ha sido cambiada exitosamente. Ahora puedes iniciar sesión con tu nueva contraseña.',
-          [
-            {
-              text: 'Ir al login',
-              onPress: () => navigation.navigate('Login')
-            }
-          ]
-        );
-      } catch (error) {
-        Alert.alert('Error', 'No se pudo cambiar la contraseña. Intenta de nuevo.');
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
-
-  const handleBack = () => {
-    // Animación de salida antes de regresar
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: -30,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      navigation.goBack();
-    });
-  };
-
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView 
-        contentContainerStyle={styles.scrollContainer}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Botón de regreso con animación */}
-        <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Text style={styles.backButtonText}>← Volver</Text>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* Sección superior rosa con curva cóncava */}
-        <Animated.View style={[styles.topSection, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-          <LinearGradient
-            colors={['#FFFFFF', '#FFE7E7']}
-            style={styles.pinkGradient}
-          >
-            {/* Curva cóncava */}
-            <View style={styles.curveContainer}>
-              <View style={styles.curve} />
-            </View>
-            
-            {/* Texto de bienvenida */}
-            <View style={styles.welcomeTextContainer}>
-              <Text style={styles.welcomeTitle}>Nueva contraseña</Text>
-              <Text style={styles.welcomeDescription}>
-                Estás a un paso de{'\n'}
-                recuperar tu cuenta.{'\n'}
-                Crea una nueva contraseña{'\n'}
-                segura y fácil de recordar.
-              </Text>
-            </View>
-          </LinearGradient>
-        </Animated.View>
-
-        {/* Sección inferior blanca con animación del formulario */}
-        <Animated.View style={[styles.bottomSection, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
-          {/* Formulario */}
-          <View style={styles.formContainer}>
-            {/* Campo Nueva Contraseña */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Nueva contraseña</Text>
-              <View style={styles.passwordInputContainer}>
-                <TextInput
-                  style={[styles.passwordTextInput, newPasswordError ? styles.inputError : null]}
-                  placeholder="***********"
-                  placeholderTextColor="#666"
-                  value={newPassword}
-                  onChangeText={handleNewPasswordChange}
-                  onBlur={() => validateNewPassword(newPassword)}
-                  secureTextEntry={!showNewPassword}
-                  editable={!isLoading}
-                />
-                <TouchableOpacity 
-                  style={styles.eyeIconButton} 
-                  onPress={toggleNewPasswordVisibility}
-                  disabled={isLoading}
-                >
-                  <Ionicons 
-                    name={showNewPassword ? "eye-off" : "eye"} 
-                    size={24} 
-                    color="#666" 
-                  />
-                </TouchableOpacity>
-              </View>
-              {newPasswordError ? <Text style={styles.errorText}>{newPasswordError}</Text> : null}
-            </View>
-
-            {/* Campo Confirmar Contraseña */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Confirmar contraseña</Text>
-              <View style={styles.passwordInputContainer}>
-                <TextInput
-                  style={[styles.passwordTextInput, confirmPasswordError ? styles.inputError : null]}
-                  placeholder="***********"
-                  placeholderTextColor="#666"
-                  value={confirmPassword}
-                  onChangeText={handleConfirmPasswordChange}
-                  onBlur={() => validateConfirmPassword(confirmPassword)}
-                  secureTextEntry={!showConfirmPassword}
-                  editable={!isLoading}
-                />
-                <TouchableOpacity 
-                  style={styles.eyeIconButton} 
-                  onPress={toggleConfirmPasswordVisibility}
-                  disabled={isLoading}
-                >
-                  <Ionicons 
-                    name={showConfirmPassword ? "eye-off" : "eye"} 
-                    size={24} 
-                    color="#666" 
-                  />
-                </TouchableOpacity>
-              </View>
-              {confirmPasswordError ? <Text style={styles.errorText}>{confirmPasswordError}</Text> : null}
-            </View>
-
-            {/* Información adicional */}
-            <View style={styles.infoContainer}>
-              <Text style={styles.infoText}>
-                Asegúrate de que tu nueva contraseña sea segura y fácil de recordar. Debe tener al menos 6 caracteres.
-              </Text>
-            </View>
-          </View>
-
-          {/* Botón de cambiar contraseña */}
+    <LinearGradient
+      colors={['#ffeef3', '#fce4ec', '#f8bbd9']}
+      style={styles.container}
+    >
+      <SafeAreaView style={styles.safeArea}>
+        {/* Encabezado */}
+        <View style={styles.header}>
           <TouchableOpacity 
-            style={[styles.changePasswordButton, !isFormValid || isLoading ? styles.changePasswordButtonDisabled : null]} 
-            onPress={handleChangePassword}
-            disabled={!isFormValid || isLoading}
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
           >
-            <Text style={styles.changePasswordButtonText}>
-              {isLoading ? 'Cambiando contraseña...' : 'Cambiar contraseña'}
-            </Text>
+            <Ionicons name="arrow-back" size={24} color="#ad1457" />
           </TouchableOpacity>
-        </Animated.View>
-      </ScrollView>
-    </SafeAreaView>
+          <View style={styles.headerCenter}>
+            <Ionicons name="key" size={28} color="#e91e63" />
+            <Text style={styles.headerTitle}>Cambiar Contraseña</Text>
+          </View>
+          <View style={{ width: 45 }} />
+        </View>
+
+        <ScrollView 
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
+            <LinearGradient
+              colors={['rgba(255, 255, 255, 0.95)', 'rgba(252, 228, 236, 0.8)']}
+              style={styles.formGradient}
+            >
+              {/* Contrasena actual */}
+              <View style={styles.inputContainer}>
+                <View style={styles.labelContainer}>
+                  <Ionicons name="lock-closed" size={16} color="#e91e63" />
+                  <Text style={styles.label}>Contraseña Actual</Text>
+                </View>
+                <View style={styles.passwordInputContainer}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Ingresa tu contraseña actual"
+                    placeholderTextColor="#f06292"
+                    secureTextEntry={!showCurrentPassword}
+                    value={currentPassword}
+                    onChangeText={(text) => {
+                      setCurrentPassword(text);
+                      validateCurrentPassword(text);
+                    }}
+                    onBlur={() => validateCurrentPassword(currentPassword)}
+                    selectionColor="#e91e63"
+                  />
+                  <TouchableOpacity
+                    onPress={toggleCurrentPasswordVisibility}
+                    style={styles.toggleButton}
+                  >
+                    <Ionicons 
+                      name={showCurrentPassword ? 'eye-off' : 'eye'} 
+                      size={22} 
+                      color="#e91e63" 
+                    />
+                  </TouchableOpacity>
+                </View>
+                {currentPasswordError ? <Text style={styles.errorText}>{currentPasswordError}</Text> : null}
+              </View>
+
+              {/* Nueva contrasena */}
+              <View style={styles.inputContainer}>
+                <View style={styles.labelContainer}>
+                  <Ionicons name="lock-open" size={16} color="#e91e63" />
+                  <Text style={styles.label}>Nueva Contraseña</Text>
+                </View>
+                <View style={styles.passwordInputContainer}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Ingresa tu nueva contraseña"
+                    placeholderTextColor="#f06292"
+                    secureTextEntry={!showNewPassword}
+                    value={newPassword}
+                    onChangeText={(text) => {
+                      setNewPassword(text);
+                      validateNewPassword(text);
+                    }}
+                    onBlur={() => validateNewPassword(newPassword)}
+                    selectionColor="#e91e63"
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowNewPassword(!showNewPassword)}
+                    style={styles.toggleButton}
+                  >
+                    <Ionicons 
+                      name={showNewPassword ? 'eye-off' : 'eye'} 
+                      size={22} 
+                      color="#e91e63" 
+                    />
+                  </TouchableOpacity>
+                </View>
+                {newPasswordError ? <Text style={styles.errorText}>{newPasswordError}</Text> : null}
+              </View>
+
+              {/* Confirmar nueva contrasena */}
+              <View style={styles.inputContainer}>
+                <View style={styles.labelContainer}>
+                  <Ionicons name="checkmark-circle" size={16} color="#e91e63" />
+                  <Text style={styles.label}>Confirmar Nueva Contraseña</Text>
+                </View>
+                <View style={styles.passwordInputContainer}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Confirma tu nueva contraseña"
+                    placeholderTextColor="#f06292"
+                    secureTextEntry={!showConfirmPassword}
+                    value={confirmPassword}
+                    onChangeText={(text) => {
+                      setConfirmPassword(text);
+                      validateConfirmPassword(text);
+                    }}
+                    onBlur={() => validateConfirmPassword(confirmPassword)}
+                    selectionColor="#e91e63"
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                    style={styles.toggleButton}
+                  >
+                    <Ionicons 
+                      name={showConfirmPassword ? 'eye-off' : 'eye'} 
+                      size={22} 
+                      color="#e91e63" 
+                    />
+                  </TouchableOpacity>
+                </View>
+                {confirmPasswordError ? <Text style={styles.errorText}>{confirmPasswordError}</Text> : null}
+              </View>
+
+              {/* Boton de actualizar */}
+              <LinearGradient
+                colors={(!isFormValid || isLoading) ? ['#f8bbd9', '#f48fb1'] : ['#e91e63', '#ad1457']}
+                style={styles.submitButton}
+              >
+                <TouchableOpacity
+                  style={styles.submitTouchable}
+                  onPress={handleChangePassword}
+                  disabled={!isFormValid || isLoading}
+                  activeOpacity={0.8}
+                >
+                  {isLoading ? (
+                    <ActivityIndicator color="#FFFFFF" size="small" style={styles.loadingIcon} />
+                  ) : (
+                    <Ionicons name="key" size={20} color="#FFFFFF" style={styles.buttonIcon} />
+                  )}
+                  <Text style={styles.submitButtonText}>
+                    {isLoading ? 'Actualizando...' : 'Actualizar Contraseña'}
+                  </Text>
+                </TouchableOpacity>
+              </LinearGradient>
+
+              {/* Mensaje de ayuda */}
+              <View style={styles.helpContainer}>
+                <Ionicons name="information-circle" size={16} color="#f06292" />
+                <Text style={styles.helpText}>
+                  Debe contener: mayúscula, minúscula, número y carácter especial (!@#$%^&*-_+)
+                </Text>
+              </View>
+            </LinearGradient>
+          </Animated.View>
+        </ScrollView>
+      </SafeAreaView>
+
+      {/* Componente de alerta */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+        onClose={hideAlert}
+        autoClose={alertConfig.autoClose}
+        autoCloseDelay={alertConfig.autoCloseDelay}
+        showIcon={alertConfig.showIcon}
+        animationType={alertConfig.animationType}
+      />
+    </LinearGradient>
   );
 };
+
+export default ChangePasswordScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+  },
+  safeArea: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 50,
+    paddingBottom: 25,
+  },
+  headerCenter: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    marginLeft: 15,
+  },
+  backButton: {
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#e91e63',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#ad1457',
   },
   scrollContainer: {
     flexGrow: 1,
-  },
-  backButton: {
-    position: 'absolute',
-    top: 15,
-    left: 20,
-    zIndex: 10,
-    padding: 10,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: '#2c3e50',
-    fontWeight: '600',
-  },
-  topSection: {
-    height: height * 0.4,
-    position: 'relative',
-  },
-  pinkGradient: {
-    flex: 1,
-    position: 'relative',
-  },
-  curveContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 60,
-  },
-  curve: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 60,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 60,
-    borderTopRightRadius: 60,
-  },
-  welcomeTextContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-    paddingBottom: 60,
-  },
-  welcomeTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#2c3e50',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  welcomeDescription: {
-    fontSize: 16,
-    color: '#2c3e50',
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  bottomSection: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 30,
-    paddingTop: 40,
-    paddingBottom: 100,
+    padding: 20,
   },
   formContainer: {
-    flex: 1,
+    marginTop: 20,
+    borderRadius: 25,
+    overflow: 'hidden',
+    shadowColor: '#e91e63',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 10,
+  },
+  formGradient: {
+    padding: 30,
   },
   inputContainer: {
-    marginBottom: 30,
+    marginBottom: 25,
   },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2c3e50',
-    marginBottom: 12,
-  },
-  passwordInputContainer: {
-    position: 'relative',
+  labelContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
   },
-  passwordTextInput: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    paddingRight: 50,
+  label: {
     fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    color: '#2c3e50',
-    flex: 1,
+    color: '#ad1457',
+    fontWeight: '600',
   },
-  inputError: {
-    borderColor: '#e74c3c',
+  passwordInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 15,
+    paddingHorizontal: 15,
     borderWidth: 2,
+    borderColor: 'rgba(233, 30, 99, 0.2)',
+    shadowColor: '#e91e63',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    height: 55,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: '#ad1457',
+    fontWeight: '500',
+    height: '100%',
+    textAlignVertical: 'center',
+    paddingVertical: 0,
+  },
+  toggleButton: {
+    padding: 8,
   },
   errorText: {
-    color: '#e74c3c',
-    fontSize: 14,
+    color: '#e91e63',
+    fontSize: 12,
     marginTop: 8,
-    marginLeft: 4,
+    marginLeft: 5,
+    fontWeight: '500',
   },
-  eyeIconButton: {
-    position: 'absolute',
-    right: 15,
-    padding: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  infoContainer: {
-    backgroundColor: '#f8f9fa',
-    padding: 16,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e9ecef',
-  },
-  infoText: {
-    fontSize: 14,
-    color: '#6c757d',
-    lineHeight: 20,
-    textAlign: 'center',
-    fontStyle: 'italic',
-  },
-  changePasswordButton: {
-    backgroundColor: '#000000',
-    paddingVertical: 15,
-    paddingHorizontal: 45,
-    marginTop: 60,
-    alignSelf: 'center',
-    borderRadius: 50,
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
+  submitButton: {
+    borderRadius: 20,
+    marginTop: 30,
+    overflow: 'hidden',
+    shadowColor: '#e91e63',
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowRadius: 12,
     elevation: 8,
-    width: 200,
-    height: 60,
-    justifyContent: 'center',
+  },
+  submitTouchable: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 18,
+    paddingHorizontal: 30,
+    gap: 10,
   },
-  changePasswordButtonDisabled: {
-    backgroundColor: '#bdc3c7',
-    shadowOpacity: 0.1,
+  buttonIcon: {
+    marginRight: 5,
   },
-  changePasswordButtonText: {
+  loadingIcon: {
+    marginRight: 10,
+  },
+  submitButtonText: {
     color: '#FFFFFF',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    textAlign: 'center',
+    letterSpacing: 0.5,
+  },
+  helpContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 20,
+    backgroundColor: 'rgba(233, 30, 99, 0.1)',
+    padding: 15,
+    borderRadius: 12,
+  },
+  helpText: {
+    color: '#ad1457',
+    fontSize: 14,
+    fontWeight: '500',
   },
 });
-
-export default ChangePasswordScreen;

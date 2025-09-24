@@ -138,22 +138,38 @@ export const payment3ds = async (req, res) => {
         });
       }
 
+      // Actualizar el estado de la orden a pagado
       order.status = "pagado";
+      order.paymentStatus = "completed";
+      order.paymentDate = new Date();
       await order.save();
 
-      const sale = await Sale.create({
-        idOrder: order._id,
-        idCustomers: order.idCustomer,
-        address: onlyAddressLine(order, formData),
-      });
+      // Verificar si ya existe una venta para esta orden
+      let existingSale = await Sale.findOne({ idOrder: order._id });
+      
+      // Si no existe una venta, crearla
+      if (!existingSale) {
+        existingSale = await Sale.create({
+          idOrder: order._id,
+          idCustomers: order.idCustomer,
+          address: onlyAddressLine(order, formData),
+          total: order.total,
+          status: "completed",
+          paymentMethod: formData.paymentMethod || "credit_card",
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+      }
 
+      // Obtener la orden actualizada con toda la información
       const orderOut = await Order.findById(order._id)
         .populate("idCustomer", "firstName lastName email")
         .populate("products.productId", "name images price finalPrice discountPercentage");
 
       return res.json({
         estadoTransaccion: "APROBADA",
-        sale,
+        success: true,
+        sale: existingSale,
         order: orderOut,
         wompi: { mock: true },
       });
