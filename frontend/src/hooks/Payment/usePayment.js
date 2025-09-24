@@ -1,8 +1,36 @@
 // src/hooks/Payment/usePayment.js
 import { useRef, useState } from "react";
-import { apiFetch } from "../../lib/api";
 
 const OBJID = /^[a-f\d]{24}$/i;
+const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+
+// Helper interno para requests con manejo de errores uniforme
+async function request(path, { method = "GET", body, headers = {} } = {}) {
+  const url = `${API_URL}${String(path).startsWith("/") ? path : `/${path}`}`;
+
+  const res = await fetch(url, {
+    method,
+    headers: { "Content-Type": "application/json", ...headers },
+    credentials: "include",
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  const isJSON = res.headers.get("content-type")?.includes("application/json");
+  const parse = async () => (isJSON ? res.json() : res.text());
+
+  if (!res.ok) {
+    let msg = `HTTP ${res.status}`;
+    try {
+      const data = await parse();
+      msg = (data && (data.message || data.error)) || msg;
+    } catch {}
+    const err = new Error(msg);
+    err.status = res.status;
+    throw err;
+  }
+
+  return parse();
+}
 
 export default function usePayment() {
   const [step, setStep] = useState(1);
@@ -81,7 +109,7 @@ export default function usePayment() {
 
   // Obtiene o crea el carrito (status: cart) del usuario
   async function loadOrCreateCart() {
-    const o = await apiFetch("/orders/cart");
+    const o = await request("/orders/cart");
     setOrder(o);
     setOrderId(o?._id || null);
     return o;
@@ -108,7 +136,7 @@ export default function usePayment() {
       }));
 
     const exec = async () => {
-      const updated = await apiFetch("/orders/cart/items", {
+      const updated = await request("/orders/cart/items", {
         method: "PUT",
         body: { items: itemsPayload, shippingCents, taxCents, discountCents },
       });
@@ -137,7 +165,7 @@ export default function usePayment() {
         zip: formData.codigoPostal,
       },
     };
-    const updated = await apiFetch("/orders/cart/addresses", {
+    const updated = await request("/orders/cart/addresses", {
       method: "PUT",
       body: payload,
     });
@@ -149,7 +177,7 @@ export default function usePayment() {
   // Mueve la Order a pending_payment y devuelve referencia + orden
   async function goPending() {
     if (!orderId) throw new Error("No hay orderId");
-    const resp = await apiFetch(`/orders/${orderId}/pending`, { method: "POST" });
+    const resp = await request(`/orders/${orderId}/pending`, { method: "POST" });
     const pendingId = resp?.order?._id || orderId;
     setWompiReference(resp?.wompiReference || null);
     setLockedOrderId(pendingId);
@@ -159,7 +187,7 @@ export default function usePayment() {
 
   // Obtiene token de Wompi (mock o real)
   async function getWompiToken() {
-    const tk = await apiFetch("/wompi/token", { method: "POST" });
+    const tk = await request("/wompi/token", { method: "POST" });
     const token = tk?.access_token || null;
     setAccessToken(token);
     return token;
@@ -220,7 +248,7 @@ export default function usePayment() {
       referencia: idToPay,
     };
 
-    const out = await apiFetch("/wompi/payment3ds", {
+    const out = await request("/wompi/payment3ds", {
       method: "POST",
       body: { token: accessToken, formData: form, orderId: idToPay },
     });
