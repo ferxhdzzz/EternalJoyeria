@@ -17,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import CustomAlert from '../components/CustomAlert';
 import useCustomAlert from '../hooks/useCustomAlert';
+import { validatePassword } from '../utils/passwordValidation';
 
 const { width, height } = Dimensions.get('window');
 
@@ -121,24 +122,28 @@ const ChangePasswordScreen = ({ navigation, route }) => {
     }
   };
 
-  // Validar nueva contraseña (mínimo 8 caracteres y carácter especial)
+  // Validar nueva contraseña usando utilidad centralizada
   const validateNewPassword = (password) => {
     if (!password) {
       setNewPasswordError('La nueva contraseña es requerida');
       return false;
-    } else if (password.length < 8) {
-      setNewPasswordError('La contraseña debe tener al menos 8 caracteres');
+    }
+    
+    // Usar validación centralizada
+    const validation = validatePassword(password);
+    if (!validation.isValid) {
+      setNewPasswordError(validation.message);
       return false;
-    } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      setNewPasswordError('La contraseña debe contener al menos un carácter especial');
-      return false;
-    } else if (password === currentPassword) {
+    }
+    
+    // Verificar que sea diferente a la contraseña actual
+    if (password === currentPassword) {
       setNewPasswordError('La nueva contraseña debe ser diferente a la actual');
       return false;
-    } else {
-      setNewPasswordError('');
-      return true;
     }
+    
+    setNewPasswordError('');
+    return true;
   };
 
   // Validar confirmación de contraseña
@@ -419,7 +424,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
               <View style={styles.helpContainer}>
                 <Ionicons name="information-circle" size={16} color="#f06292" />
                 <Text style={styles.helpText}>
-                  La contraseña debe tener al menos 8 caracteres y un carácter especial
+                  Debe contener: mayúscula, minúscula, número y carácter especial (!@#$%^&*-_+)
                 </Text>
               </View>
             </LinearGradient>

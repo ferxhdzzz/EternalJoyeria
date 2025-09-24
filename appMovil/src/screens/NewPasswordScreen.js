@@ -22,6 +22,7 @@ import { API_ENDPOINTS, buildApiUrl } from '../config/api';
 import { useNavigation } from '@react-navigation/native';
 import CustomAlert from '../components/CustomAlert';
 import useCustomAlert from '../hooks/useCustomAlert';
+import { validatePassword } from '../utils/passwordValidation';
 
 const { width, height } = Dimensions.get('window');
 
@@ -77,18 +78,18 @@ const NewPasswordScreen = ({ route }) => {
   const validateForm = () => {
     let valid = true;
     
-    // Validar contraseña
+    // Validar contraseña usando utilidad centralizada
     if (!newPassword) {
       setPasswordError('La contraseña es requerida');
       valid = false;
-    } else if (newPassword.length < 8) {
-      setPasswordError('La contraseña debe tener al menos 8 caracteres');
-      valid = false;
-    } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(newPassword)) {
-      setPasswordError('La contraseña debe contener al menos un carácter especial');
-      valid = false;
     } else {
-      setPasswordError('');
+      const validation = validatePassword(newPassword);
+      if (!validation.isValid) {
+        setPasswordError(validation.message);
+        valid = false;
+      } else {
+        setPasswordError('');
+      }
     }
 
     // Validar confirmación de contraseña
@@ -305,7 +306,7 @@ const NewPasswordScreen = ({ route }) => {
                     <Text style={styles.errorText}>{confirmPasswordError}</Text>
                   ) : (
                     <Text style={styles.hintText}>
-                      La contraseña debe tener al menos 8 caracteres y un carácter especial
+                      Debe contener: mayúscula, minúscula, número y carácter especial (!@#$%^&*-_+)
                     </Text>
                   )}
                 </View>

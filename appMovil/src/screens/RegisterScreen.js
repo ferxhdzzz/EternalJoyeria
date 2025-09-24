@@ -21,6 +21,7 @@ import { Ionicons } from '@expo/vector-icons';
 import useRegistro from '../hooks/Register/useRegistro';
 import CustomAlert from '../components/CustomAlert';
 import useCustomAlert from '../hooks/useCustomAlert';
+import { validatePassword, getPasswordRequirements } from '../utils/passwordValidation';
 
 const { width, height } = Dimensions.get('window');
 
@@ -186,15 +187,10 @@ const RegisterScreen = ({ navigation, route }) => {
     handleFieldChange('phone', numericValue);
   };
 
-  const validatePassword = (password) => {
-    if (!password) {
-      setPasswordError('La contraseña es requerida');
-      return false;
-    } else if (password.length < 8) {
-      setPasswordError('La contraseña debe tener al menos 8 caracteres');
-      return false;
-    } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      setPasswordError('La contraseña debe contener al menos un carácter especial');
+  const validatePasswordField = (password) => {
+    const validation = validatePassword(password);
+    if (!validation.isValid) {
+      setPasswordError(validation.message);
       return false;
     } else {
       setPasswordError('');
@@ -208,7 +204,7 @@ const RegisterScreen = ({ navigation, route }) => {
     const isLastNameValid = validateLastName(lastName);
     const isEmailValid = validateEmail(email);
     const isPhoneValid = validatePhone(phone);
-    const isPasswordValid = validatePassword(password);
+    const isPasswordValid = validatePasswordField(password);
     
     const formIsValid = isFirstNameValid && 
       isLastNameValid && 
@@ -241,7 +237,7 @@ const RegisterScreen = ({ navigation, route }) => {
         break;
       case 'password':
         setPassword(value);
-        if (passwordError) validatePassword(value);
+        if (passwordError) validatePasswordField(value);
         break;
     }
   };
@@ -476,11 +472,11 @@ const RegisterScreen = ({ navigation, route }) => {
                     <Ionicons name="lock-closed-outline" size={20} color="#c084fc" style={styles.inputIcon} />
                     <TextInput
                       style={styles.textInput}
-                      placeholder="Mínimo 8 caracteres"
+                      placeholder="Tu contraseña"
                       placeholderTextColor="#999"
                       value={password}
                       onChangeText={(text) => handleFieldChange('password', text)}
-                      onBlur={() => validatePassword(password)}
+                      onBlur={() => validatePasswordField(password)}
                       secureTextEntry={!showPassword}
                       editable={!loading}
                     />
@@ -497,6 +493,9 @@ const RegisterScreen = ({ navigation, route }) => {
                     </TouchableOpacity>
                   </View>
                   {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+                  <Text style={styles.helperText}>
+                    Debe contener: número y carácter especial (!@#$%^&*-_+)
+                  </Text>
                 </View>
 
                 {/* Boton de registro */}

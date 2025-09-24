@@ -3,7 +3,7 @@
 // Esta configuración debe actualizarse según tu IP local actual
 
 // CAMBIAR SOLO ESTA IP PARA TODA LA APP
-export const BACKEND_URL = 'http://192.168.1.200:4000';
+export const BACKEND_URL = 'http://10.10.1.57:4000';
 
 // Configuración de endpoints
 export const API_ENDPOINTS = {

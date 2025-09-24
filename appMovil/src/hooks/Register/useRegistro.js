@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_URL, API_ENDPOINTS, buildApiUrl } from '../../config/api';
+import { validatePassword } from '../../utils/passwordValidation';
 
 /**
  * Custom hook useRegistro para React Native
@@ -45,14 +46,10 @@ const useRegistro = () => {
         throw new Error('Formato de email inválido');
       }
 
-      // Validación básica de contraseña
-      if (formData.password.length < 8) {
-        throw new Error('La contraseña debe tener al menos 8 caracteres');
-      }
-
-      // Validar que contenga carácter especial
-      if (!/[!@#$%^&*(),.?":{}|<>]/.test(formData.password)) {
-        throw new Error('La contraseña debe contener al menos un carácter especial');
+      // Validación completa de contraseña usando utilidad centralizada
+      const passwordValidation = validatePassword(formData.password);
+      if (!passwordValidation.isValid) {
+        throw new Error(passwordValidation.message);
       }
 
       // Validación del teléfono
@@ -296,13 +293,14 @@ const useRegistro = () => {
       }
     }
 
-    // Validar contraseña
+    // Validar contraseña usando utilidad centralizada
     if (!formData.password) {
       errors.password = 'La contraseña es requerida';
-    } else if (formData.password.length < 8) {
-      errors.password = 'La contraseña debe tener al menos 8 caracteres';
-    } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(formData.password)) {
-      errors.password = 'La contraseña debe contener al menos un carácter especial';
+    } else {
+      const passwordValidation = validatePassword(formData.password);
+      if (!passwordValidation.isValid) {
+        errors.password = passwordValidation.message;
+      }
     }
 
     return errors;

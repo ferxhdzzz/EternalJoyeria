@@ -26,7 +26,7 @@ export const CartProvider = ({ children }) => {
       setCartItems(prevItems => 
         prevItems.map(item => ({
           ...item,
-          // Corregir tallas en espanol
+          // Corregir tallas en español
           size: item.size === 'Unica' ? 'Talla única' : 
                 item.size === 'One Size' ? 'Talla única' : 
                 item.size === 'unique' ? 'Talla única' : 
