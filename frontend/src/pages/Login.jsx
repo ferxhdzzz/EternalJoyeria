@@ -106,11 +106,9 @@ const Login = () => {
           confirmButtonText: "¡Genial!",
           confirmButtonColor: "#ff69b4",
         }).then(() => {
-<<<<<<< HEAD
+
           navigate("/productos");
-=======
-          navigate("/productos"); // ✅ redirige al home o panel
->>>>>>> 0a471517d9310fd2d942a5b76713f39887f7b476
+
         });
       } else {
         Swal.fire({

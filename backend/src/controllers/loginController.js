@@ -72,14 +72,14 @@ loginController.login = async (req, res) => {
     userFound.lockUntil = null;
     await userFound.save();
 
-    // Generar token JWT con la información del usuario
+    // Generar token.jwt con la información del usuario
     const token = jsonwebtoken.sign(
       { 
         id: userFound._id,    // ID único del usuario
         userType             // Tipo: "admin" o "customer"
       },
-      config.JWT.secret,      // Clave secreta para firmar el token
-      { expiresIn: config.JWT.expiresIn }  // Tiempo de expiración
+      config.jwt.secret,      // Clave secreta para firmar el token
+      { expiresIn: config.jwt.expiresIn }  // Tiempo de expiración
     );
 
     // Guardar el token en una cookie HTTP-only (más seguro)
