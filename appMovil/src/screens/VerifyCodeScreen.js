@@ -24,9 +24,9 @@ import { useNavigation } from '@react-navigation/native';
 import { API_ENDPOINTS, buildApiUrl } from '../config/api';
 import CustomAlert from '../components/CustomAlert';
 import useCustomAlert from '../hooks/useCustomAlert';
-
+ 
 const { width, height } = Dimensions.get('window');
-
+ 
 const VerifyCodeScreen = ({ route }) => {
   const navigation = useNavigation();
   const { email, isPasswordRecovery = false } = route.params;
@@ -39,7 +39,7 @@ const VerifyCodeScreen = ({ route }) => {
   const [canResend, setCanResend] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState(null); // 'success' or 'error'
   const [isFormValid, setIsFormValid] = useState(false);
-  
+ 
   // Hook para alertas personalizadas
   const {
     alertConfig,
@@ -47,17 +47,17 @@ const VerifyCodeScreen = ({ route }) => {
     showSuccess,
     showError,
   } = useCustomAlert();
-  
+ 
   // Inicializar referencias de los inputs dinámicamente
   const inputRefs = useRef(
     new Array(codeLength).fill(null).map(() => React.createRef())
   ).current;
-
+ 
   // Referencias para las animaciones de entrada
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const formSlideAnim = useRef(new Animated.Value(50)).current;
-
+ 
   // Efecto para el contador de reenvío
   useEffect(() => {
     let timer;
@@ -68,7 +68,7 @@ const VerifyCodeScreen = ({ route }) => {
     }
     return () => clearTimeout(timer);
   }, [countdown, canResend]);
-
+ 
   // Efecto para animaciones de entrada
   useEffect(() => {
     // Animación de entrada suave
@@ -91,34 +91,33 @@ const VerifyCodeScreen = ({ route }) => {
       }),
     ]).start();
   }, []);
-
+ 
   // Verificar el código con string específico
   const verifyCodeWithString = async (codeString) => {
     console.log('Verificando código con string:', codeString, 'Longitud:', codeString.length);
-    
+   
     if (codeString.length !== codeLength) {
       setCodeError(`Por favor completa todos los campos del código`);
       setVerificationStatus('error');
       return false;
     }
-    
+   
     console.log('Validación exitosa, procediendo con verificación...');
-
+ 
     setIsLoading(true);
     setCodeError('');
-    
+   
     let response;
     try {
       if (isPasswordRecovery) {
         // Obtener el token de recuperación guardado
         const recoveryToken = await AsyncStorage.getItem('recoveryToken');
-        
+       
         if (!recoveryToken) {
           throw new Error('No se encontró el token de recuperación. Por favor, solicita un nuevo código.');
         }
-
+ 
         // Para recuperación de contraseña
-        response = await fetch('http://192.168.56.1.200:4000/api/recoveryPassword/verifyCode', {
         response = await fetch(buildApiUrl(API_ENDPOINTS.RECOVERY_VERIFY), {
           method: 'POST',
           headers: {
@@ -132,11 +131,11 @@ const VerifyCodeScreen = ({ route }) => {
       } else {
         // Obtener el token de verificación guardado
         const verificationToken = await AsyncStorage.getItem('verificationToken');
-        
+       
         if (!verificationToken) {
           throw new Error('No se encontró el token de verificación. Por favor, regístrese nuevamente.');
         }
-
+ 
         // Para verificación de email
         response = await fetch(buildApiUrl(API_ENDPOINTS.VERIFY_EMAIL), {
           method: 'POST',
@@ -149,10 +148,10 @@ const VerifyCodeScreen = ({ route }) => {
           })
         });
       }
-
+ 
       let data;
       const contentType = response.headers.get('content-type');
-      
+     
       if (contentType && contentType.includes('application/json')) {
         data = await response.json();
       } else {
@@ -160,7 +159,7 @@ const VerifyCodeScreen = ({ route }) => {
         console.error('Respuesta no es JSON:', text);
         throw new Error('Respuesta del servidor no válida');
       }
-      
+     
       if (!response.ok) {
         const errorMessage = data.message || 'Código incorrecto o expirado';
         setCodeError(errorMessage);
@@ -168,9 +167,9 @@ const VerifyCodeScreen = ({ route }) => {
         showError('Código Incorrecto', errorMessage);
         return false;
       }
-
+ 
       setVerificationStatus('success');
-      
+     
       // Navegar a la pantalla de nueva contraseña o login según corresponda
       if (isPasswordRecovery) {
         showSuccess(
@@ -183,8 +182,8 @@ const VerifyCodeScreen = ({ route }) => {
                 text: 'Continuar',
                 style: 'confirm',
                 onPress: () => {
-                  navigation.navigate('NewPassword', { 
-                    email, 
+                  navigation.navigate('NewPassword', {
+                    email,
                     code: codeString,
                     token: data.token
                   });
@@ -212,7 +211,7 @@ const VerifyCodeScreen = ({ route }) => {
           }
         );
       }
-      
+     
       return true;
     } catch (error) {
       console.error('Error al verificar el código:', error.message);
@@ -225,38 +224,38 @@ const VerifyCodeScreen = ({ route }) => {
       setIsLoading(false);
     }
   };
-
+ 
   // Verificar el código (versión original para botón manual)
   const verifyCode = async () => {
     const codeString = code.join('');
     return verifyCodeWithString(codeString);
   };
-
+ 
   // Manejar cambios en los inputs de código
   const handleCodeChange = (text, index) => {
     // Solo permitir dígitos
     const numericValue = text.replace(/[^0-9]/g, '');
-    
+   
     if (numericValue.length <= 1) {
       const newCode = [...code];
       newCode[index] = numericValue;
       setCode(newCode);
-      
+     
       // Enfocar el siguiente input si hay texto y no es el último
       if (numericValue && index < codeLength - 1) {
         setTimeout(() => {
           inputRefs[index + 1]?.current?.focus();
         }, 50); // Pequeño delay para asegurar que el estado se actualice
       }
-      
+     
       // Limpiar mensajes de error al escribir
       setVerificationStatus(null);
       setCodeError('');
-      
+     
       // Si se completaron todos los dígitos, verificar automáticamente después de un pequeño delay
       const filledCount = newCode.filter(digit => digit !== '' && digit.trim() !== '').length;
       console.log('Campos llenos:', filledCount, 'Código:', newCode);
-      
+     
       if (filledCount === codeLength) {
         setTimeout(() => {
           // Usar el newCode actualizado en lugar del state code
@@ -269,21 +268,21 @@ const VerifyCodeScreen = ({ route }) => {
       // Si pegan múltiples dígitos, distribuirlos en los campos
       const digits = numericValue.slice(0, codeLength).split('');
       const newCode = [...code];
-      
+     
       digits.forEach((digit, i) => {
         if (index + i < codeLength) {
           newCode[index + i] = digit;
         }
       });
-      
+     
       setCode(newCode);
-      
+     
       // Enfocar el siguiente campo disponible
       const nextIndex = Math.min(index + digits.length, codeLength - 1);
       setTimeout(() => {
         inputRefs[nextIndex]?.current?.focus();
       }, 50);
-      
+     
       // Verificar si se completó
       const filledCount = newCode.filter(digit => digit !== '' && digit.trim() !== '').length;
       if (filledCount === codeLength) {
@@ -294,7 +293,7 @@ const VerifyCodeScreen = ({ route }) => {
       }
     }
   };
-  
+ 
   // Manejar tecla borrar
   const handleKeyPress = (e, index) => {
     if (e.nativeEvent.key === 'Backspace' && !code[index] && index > 0) {
@@ -304,7 +303,7 @@ const VerifyCodeScreen = ({ route }) => {
       }, 50);
     }
   };
-
+ 
   // Validar formulario cada vez que cambie el código
   const validateForm = () => {
     const codeString = code.join('');
@@ -312,24 +311,24 @@ const VerifyCodeScreen = ({ route }) => {
     setIsFormValid(isValid);
     return isValid;
   };
-
+ 
   // Efecto para validar el formulario cuando cambia el código
   useEffect(() => {
     if (code) {
       validateForm();
     }
   }, [code]);
-
+ 
   // Reenviar código
   const handleResendCode = async () => {
     if (!canResend) return;
-    
+   
     setIsLoading(true);
     try {
-      const url = isPasswordRecovery 
+      const url = isPasswordRecovery
         ? buildApiUrl(API_ENDPOINTS.RECOVERY_REQUEST)
         : buildApiUrl(API_ENDPOINTS.RESEND_CODE);
-      
+     
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -341,19 +340,19 @@ const VerifyCodeScreen = ({ route }) => {
           ...(isPasswordRecovery ? {} : { isPasswordRecovery })
         })
       });
-      
+     
       const data = await response.json();
-      
+     
       if (!response.ok) {
         throw new Error(data.message || 'Error al reenviar el código');
       }
-      
+     
       // Reiniciar el contador
       setCountdown(60);
       setCanResend(false);
       setVerificationStatus(null);
       setCodeError('');
-      
+     
       // Iniciar el contador
       const timer = setInterval(() => {
         setCountdown(prevCountdown => {
@@ -365,16 +364,16 @@ const VerifyCodeScreen = ({ route }) => {
           return prevCountdown - 1;
         });
       }, 1000);
-      
+     
       // Limpiar campos
       setCode(['', '', '', '', '']);
       if (inputRefs[0]?.current) {
         inputRefs[0].current.focus();
       }
-      
+     
       // Mostrar mensaje de éxito
       setVerificationStatus('resend_success');
-      
+     
     } catch (error) {
       console.error('Error al reenviar el código:', error);
       setCodeError(error.message || 'Ocurrió un error al reenviar el código');
@@ -383,7 +382,7 @@ const VerifyCodeScreen = ({ route }) => {
       setIsLoading(false);
     }
   };
-  
+ 
   // Verificar el código
   const handleVerifyCode = async () => {
     if (code.join('').length !== codeLength) {
@@ -393,20 +392,20 @@ const VerifyCodeScreen = ({ route }) => {
     }
     await verifyCode();
   };
-  
+ 
   // Efecto para manejar el contador de reenvío
   useEffect(() => {
     if (countdown > 0 && !canResend) {
       const timer = setTimeout(() => {
         setCountdown(prev => prev - 1);
       }, 1000);
-      
+     
       return () => clearTimeout(timer);
     } else if (countdown === 0) {
       setCanResend(true);
     }
   }, [countdown, canResend]);
-
+ 
   const handleBack = () => {
     // Animación de salida antes de regresar
     Animated.parallel([
@@ -424,10 +423,10 @@ const VerifyCodeScreen = ({ route }) => {
       navigation.goBack();
     });
   };
-
+ 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
@@ -442,15 +441,15 @@ const VerifyCodeScreen = ({ route }) => {
             <View style={styles.decorativeCircle1} />
             <View style={styles.decorativeCircle2} />
             <View style={styles.decorativeCircle3} />
-            
-            <ScrollView 
+           
+            <ScrollView
               contentContainerStyle={styles.scrollContainer}
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
             >
               {/* Boton de regreso */}
               <Animated.View style={[styles.backButtonContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.backButton}
                   onPress={handleBack}
                   disabled={isLoading}
@@ -465,13 +464,13 @@ const VerifyCodeScreen = ({ route }) => {
                 </View>
                 <Text style={styles.title}>Verificar Código</Text>
                 <Text style={styles.subtitle}>
-                  {isPasswordRecovery 
+                  {isPasswordRecovery
                     ? 'Ingresa el código de verificación que enviamos a tu correo para restablecer tu contraseña'
                     : 'Ingresa el código de verificación que enviamos a tu correo para activar tu cuenta'
                   }
                 </Text>
               </Animated.View>
-
+ 
               <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
               <View style={styles.codeContainer}>
                 {Array.from({ length: codeLength }, (_, index) => (
@@ -483,7 +482,7 @@ const VerifyCodeScreen = ({ route }) => {
                       }
                     }}
                     style={[
-                      styles.codeInput, 
+                      styles.codeInput,
                       verificationStatus === 'error' && styles.codeInputError,
                       verificationStatus === 'success' && styles.codeInputSuccess
                     ]}
@@ -500,7 +499,7 @@ const VerifyCodeScreen = ({ route }) => {
                   />
                 ))}
               </View>
-
+ 
               {/* Mensajes de estado */}
               {verificationStatus === 'error' && codeError ? (
                 <Text style={styles.errorText}>{codeError}</Text>
@@ -511,7 +510,7 @@ const VerifyCodeScreen = ({ route }) => {
                   Ingresa el código de {codeLength} dígitos que enviamos a {email}
                 </Text>
               )}
-
+ 
               {/* Boton de verificacion */}
               <TouchableOpacity
                 style={[styles.button, isLoading && styles.buttonDisabled]}
@@ -527,7 +526,7 @@ const VerifyCodeScreen = ({ route }) => {
                   </Text>
                 )}
               </TouchableOpacity>
-
+ 
               <View style={styles.resendContainer}>
                 <Text style={styles.resendText}>
                   ¿No recibiste el código?{' '}
@@ -544,7 +543,7 @@ const VerifyCodeScreen = ({ route }) => {
           </LinearGradient>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
-      
+     
       {/* Componente de alerta */}
       <CustomAlert
         visible={alertConfig.visible}
@@ -561,7 +560,7 @@ const VerifyCodeScreen = ({ route }) => {
     </SafeAreaView>
   );
 };
-
+ 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -758,5 +757,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
 });
-
+ 
 export default VerifyCodeScreen;
+ 
