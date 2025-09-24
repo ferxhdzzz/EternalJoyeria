@@ -1,87 +1,153 @@
-/* src/styles/AddReviewModal.css */
+/* src/styles/shared/AddReviewModal.css */
 
-/* Estilos de tu modal de reseñas */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1050; /* Valor por debajo de SweetAlert */
+/* ====== Layout del formulario ====== */
+.review-form { display: grid; gap: 16px; }
+
+/* Grupos y labels */
+.form-group { display: grid; gap: 8px; }
+.form-label { font-weight: 600; }
+
+/* ====== Rating (estrellas) ====== */
+.rating-input { display: inline-flex; gap: 6px; }
+.star-btn {
+  border: none;
+  background: transparent;
+  padding: 2px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.08s ease;
 }
+.star-btn:hover { transform: translateY(-1px); }
 
-
-.modal-container {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    width: 90%;
-    max-width: 600px;
-    z-index: 1001; /* Ligeramente más alto que el overlay */
+/* ====== Comentario ====== */
+.form-textarea {
+  width: 100%;
+  min-height: 110px;
+  resize: vertical;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  outline: none;
 }
-
-/* * Estilo para SweetAlert:
- * Aumenta el z-index del contenedor de SweetAlert2
- * para que siempre esté por encima de todo.
- */
-.my-swal {
-    z-index: 10000 !important; /* Valor muy alto para sobresalir */
+.form-textarea:focus {
+  border-color: #f3a9bb;
+  box-shadow: 0 0 0 3px rgba(243,169,187,.25);
 }
+.form-textarea.error { border-color: #b91c1c; }
+.char-count { font-size: 12px; color: #6b7280; text-align: right; }
 
-/* Opcional: Si necesitas que el overlay de SweetAlert también esté encima */
-.swal2-container {
-    z-index: 99999 !important; /* Valor exageradamente alto */
-}
+/* ====== Input file oculto ====== */
+.file-input-hidden { display: none; }
 
-/* --- Nuevos Estilos para la previsualización de imágenes --- */
-
+/* ====== Grid de imágenes ====== */
 .image-preview-container {
-    display: flex; /* Habilita Flexbox para disposición horizontal */
-    flex-wrap: nowrap; /* Evita que las imágenes se salten a la siguiente línea */
-    gap: 10px; /* Espacio entre las imágenes */
-    overflow-x: auto; /* Permite desplazamiento horizontal si hay muchas imágenes */
-    padding: 10px 0; /* Espacio superior e inferior para evitar que el scrollbar se pegue */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 10px;
 }
-
 .image-preview {
-    position: relative;
-    width: 75px; /* Tamaño fijo para la miniatura */
-    height: 75px;
-    flex-shrink: 0; /* Evita que las imágenes se encojan */
-    border: 1px solid #ddd;
-    border-radius: 8px;
+  position: relative;
+  width: 100%;
+  padding-top: 100%; /* cuadrado */
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f9fafb;
+  box-shadow: inset 0 0 0 1px #f1f5f9;
 }
-
-.preview-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Recorta la imagen para que cubra el espacio sin distorsionarse */
-    border-radius: 8px;
+.image-preview .preview-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
-
+/* Botón “×” eliminar imagen */
 .remove-image-btn {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background-color: #e57373; /* Rojo para el botón de eliminar */
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    font-size: 14px;
-    padding: 0;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(0,0,0,.6);
+  color: #fff;
+  cursor: pointer;
+  line-height: 1;
 }
 
-.remove-image-btn:hover {
-    background-color: #ef5350;
+/* ====== Mensajes de error ====== */
+.error-message { color: #b91c1c; font-size: 13px; }
+
+/* ====== PALETA ====== */
+:root {
+  --rose: #d3a7b5; /* mismo tono del botón “Añadir al carrito” */
+}
+
+
+/* ====== Botones estilo página de producto ====== */
+/* Sólido tipo “Añadir al carrito” */
+.btn-rose-solid {
+  background: var(--rose);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;      /* antes 15px 30px */
+  font-size: 16px;         /* antes 18px */
+  cursor: pointer;
+  transition: background .2s ease, transform .05s ease;
+}
+.btn-rose-solid:hover { background: #c696a6; }
+.btn-rose-solid:active { transform: translateY(1px); }
+.btn-rose-solid:disabled { opacity: .6; cursor: not-allowed; }
+
+/* Outline tipo “Ver detalles completos” (mismo tamaño que el sólido) */
+.btn-rose-outline {
+  background: transparent;
+  color: var(--rose) !important;
+  border: 2px solid var(--rose);
+  border-radius: 8px;
+  padding: 10px 22px;      /* igual que sólido */
+  font-size: 16px;         /* igual que sólido */
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-rose-outline:hover { background: var(--rose); color: #fff !important; }
+.btn-rose-outline:disabled { opacity: .6; cursor: not-allowed; }
+
+/* Utilidades */
+.btn-block { width: 100%; }
+
+/* Footer: botones lado a lado y mismo ancho */
+.review-footer-actions {
+  display: flex;
+  gap: 12px;
+}
+.btn-equal { flex: 1 1 0; }             /* reparte 50/50 el espacio */
+/* ====== Overrides compactos para este modal ====== */
+
+/* Botones del footer: misma altura, más compactos */
+.review-footer-actions .btn-rose-solid,
+.review-footer-actions .btn-rose-outline {
+  padding: 8px 18px !important;   /* antes 10px 22px */
+  font-size: 15px !important;     /* antes 16px */
+  line-height: 1.1 !important;
+  border-radius: 8px;
+}
+
+/* Botón "Agregar fotos" (outline de ancho completo) también más compacto */
+.btn-rose-outline.btn-block {
+  padding: 10px 16px !important;  /* antes 15px 30px */
+  font-size: 15px !important;     /* antes 18px */
+  line-height: 1.1 !important;
+}
+
+/* Si aún los ves altos, baja un poquito el padding del footer del modal */
+.ej-modal__footer {
+  padding: 10px 16px 12px !important; /* antes 14px 20px 18px */
 }

@@ -95,8 +95,8 @@ const CategoryCard = ({ category, isHovered, onClick }) => {
       {category.status && (
         <div className={`category-badge ${category.status.toLowerCase()}`}>
           {category.status === 'new' && '¡Nuevo!'}
-          {category.status === 'popular' && '🔥 Popular'}
-          {category.status === 'sale' && '💥 Oferta'}
+          {category.status === 'popular' && 'Popular'}
+          {category.status === 'sale' && 'Oferta'}
         </div>
       )}
       

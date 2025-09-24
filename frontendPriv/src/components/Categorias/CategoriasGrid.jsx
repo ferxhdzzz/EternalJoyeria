@@ -1,78 +1,77 @@
-// src/components/Categorias/CategoriasGrid.jsx
-import React, { useState } from "react";
-import useDataCategorie from "../../hooks/Categorias/useDataCategorias";
+import React from "react";
+import Swal from "sweetalert2";
+import useDataCategorias from "../../hooks/Categorias/useDataCategorias";
 import "../../styles/Shared/buttons.css";
-import ConfirmacionModal from "../reseñas/modal/ConfirmacionModal"; // o ../resenas/...
+import "./CategoriasGrid.css";
 
-export default function CategoriasGrid({
-  categorias = [],
-  refreshCategories,
-  onEdit,
-}) {
-  const { deleteCategorieById } = useDataCategorie();
-  const [confirm, setConfirm] = useState({ open: false, id: null, name: "" });
+/**
+ * Props esperadas:
+ * - categorias: array de categorías (cada una con _id, name, description, image)
+ * - refreshCategories: función para recargar
+ * - onEdit: (cat) => void
+ */
+const CategoriasGrid = ({ categorias = [], refreshCategories, onEdit }) => {
+  const { deleteCategorieById } = useDataCategorias();
 
-  const abrirConfirm = (cat) =>
-    setConfirm({ open: true, id: cat._id || cat.id, name: cat.name || "" });
+  const onDelete = async (cat) => {
+    const { isConfirmed } = await Swal.fire({
+      title: "¿Eliminar categoría?",
+      text: `Se eliminará "${cat.name}". Esta acción no se puede deshacer.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#e57373",
+      cancelButtonColor: "#9e9e9e",
+      reverseButtons: true,
+    });
 
-  const cerrarConfirm = () => setConfirm({ open: false, id: null, name: "" });
+    if (!isConfirmed) return;
 
-  const eliminarCategoria = async () => {
-    try {
-      await deleteCategorieById(confirm.id);
+    const ok = await deleteCategorieById(cat._id);
+    if (ok) {
       await refreshCategories?.();
-    } catch (e) {
-      console.error(e);
-    } finally {
-      cerrarConfirm();
     }
   };
 
+  if (!categorias || categorias.length === 0) {
+    return <p style={{ opacity: 0.7 }}>No hay categorías aún.</p>;
+  }
+
   return (
-    <>
-      <div className="categorias-grid">
-        {categorias.map((cat) => (
-          <article key={cat._id || cat.id} className="categoria-card">
-            {cat.image && (
-              <div className="categoria-media">
-                <img src={cat.image} alt={cat.name} />
-              </div>
-            )}
+    <div className="categorias-grid">
+      {categorias.map((cat) => (
+        <article key={cat._id} className="categoria-card">
+          <div className="cat-thumb">
+            <img src={cat.image} alt={cat.name} />
+          </div>
 
-            <h3 className="categoria-title">{cat.name}</h3>
-            <p className="categoria-desc">{cat.description || "—"}</p>
+          <div className="cat-body">
+            <h4 className="cat-title">{cat.name}</h4>
+            <p className="cat-desc">{cat.description}</p>
+          </div>
 
-            <div className="categoria-actions">
-              <button
-                type="button"
-                className="ej-btn ej-approve ej-size-sm"
-                onClick={() => onEdit?.(cat)}
-              >
-                Editar
-              </button>
-              <button
-                type="button"
-                className="ej-btn ej-danger ej-size-sm"
-                onClick={() => abrirConfirm(cat)}
-              >
-                Eliminar
-              </button>
-            </div>
-          </article>
-        ))}
-      </div>
+          <div className="cat-actions">
+            <button
+              className="ej-btn ej-approve ej-size-sm ej-w-120"
+              onClick={() => onEdit?.(cat)}
+              title="Editar"
+            >
+              Editar
+            </button>
 
-      {confirm.open && (
-        <ConfirmacionModal
-          mensaje={
-            confirm.name
-              ? `¿Está seguro de eliminar la categoría “${confirm.name}”?`
-              : "¿Está seguro de eliminar esta categoría?"
-          }
-          onConfirmar={eliminarCategoria}
-          onCancelar={cerrarConfirm}
-        />
-      )}
-    </>
+            <button
+              className="ej-btn ej-danger ej-size-sm ej-w-120"
+              onClick={() => onDelete(cat)}
+              title="Eliminar"
+            >
+              Eliminar
+            </button>
+          </div>
+        </article>
+      ))}
+    </div>
   );
-}
+};
+
+export default CategoriasGrid;

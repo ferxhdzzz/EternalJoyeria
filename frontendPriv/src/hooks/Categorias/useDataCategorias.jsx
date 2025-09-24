@@ -1,11 +1,21 @@
+// frontendPriv/src/hooks/Categorias/useDataCategorias.js
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 
-const api = "http://localhost:4000/api/categories";
+// Construye la URL base con fallback
+const getApiBase = () => {
+  const raw = import.meta?.env?.VITE_API_URL;
+  const base =
+    raw && typeof raw === "string" && raw.trim().length > 0
+      ? raw.trim().replace(/\/+$/, "")
+      : "http://localhost:4000/api";
+  return `${base}/categories`;
+};
 
 const useDataCategorias = ({ reset, onSuccess } = {}) => {
   const [categories, setCategories] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const api = getApiBase();
 
   const getCategories = async () => {
     try {
@@ -28,6 +38,7 @@ const useDataCategorias = ({ reset, onSuccess } = {}) => {
 
   useEffect(() => {
     getCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const uploadImage = async (file) => {
@@ -83,9 +94,7 @@ const useDataCategorias = ({ reset, onSuccess } = {}) => {
       const response = await fetch(api, {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataForm),
       });
 
@@ -104,6 +113,33 @@ const useDataCategorias = ({ reset, onSuccess } = {}) => {
     }
   };
 
+  // 👇 NUEVO: eliminar categoría
+  const deleteCategorieById = async (id) => {
+    try {
+      const res = await fetch(`${api}/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        toast.error("No tienes permisos para eliminar categorías.");
+        return false;
+      }
+
+      if (!res.ok) {
+        const msg = (await res.json().catch(() => null))?.message || "Error al eliminar categoría";
+        throw new Error(msg);
+      }
+
+      toast.success("Categoría eliminada");
+      await getCategories();
+      return true;
+    } catch (error) {
+      toast.error(error.message || "Error al eliminar categoría");
+      return false;
+    }
+  };
+
   return {
     categories,
     uploading,
@@ -111,6 +147,7 @@ const useDataCategorias = ({ reset, onSuccess } = {}) => {
     uploadImage,
     editCategorieById,
     saveCategorieForm,
+    deleteCategorieById, // 👈 exportado
   };
 };
 

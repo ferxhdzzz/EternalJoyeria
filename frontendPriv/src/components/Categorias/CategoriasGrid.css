@@ -3,9 +3,63 @@
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 24px;
 }
+
 .categoria-card {
   background: #fff;
   border-radius: 20px;
   padding: 16px;
   box-shadow: 0 4px 18px rgba(0,0,0,.05);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cat-thumb {
+  width: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cat-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cat-body {
+  flex: 1;
+}
+
+.cat-title {
+  margin: 0 0 4px 0;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.cat-desc {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+  line-height: 1.3;
+}
+
+.cat-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.cat-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;   /* 👈 centrados */
+  margin-top: 8px;
+}
+.ej-w-120 {
+  width: 120px;
+  text-align: center;
 }
