@@ -3,7 +3,7 @@ Como vamos a validar si es cliente o administrador,
 entonces importo ambos modelos
 */
 import CustomersModel from "../models/Customers.js";
-import AdministratorsModel from "../models/administrators.js";
+import AdministratorsModel from "../models/Administrator.js";
 import bcryptjs from "bcryptjs";
 import jsonwebtoken from "jsonwebtoken";
 import { config } from "../config.js";
