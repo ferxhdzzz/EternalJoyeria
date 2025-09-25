@@ -5,11 +5,13 @@ import Swal from "sweetalert2";
 import "../../styles/shared/buttons.css";
 import "../../styles/shared/modal.css";
 import EJModal from "../../components/Ui/EJModal.jsx";
-import "./EditDataProduct.css"; // Mantén estilos internos (grid, inputs). Quita overlays/card si existían.
+import "./EditDataProduct.css"; // Mantén estilos
 
 const EditProduct = ({ productId, onClose, refreshProducts }) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // NOTA: añadimos campos para estado defectuoso/deteriorado
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -17,6 +19,11 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
     discountPercentage: "",
     stock: "",
     category_id: "",
+    // nuevos:
+    condition: "OK",                 // "OK" | "DEFECTUOSO" | "DETERIORADO"
+    defectNote: "",                  // texto opcional
+    isDefectiveOrDeteriorated: false,// redundante, para el backend (compatibilidad)
+    defectType: null,                // "defective" | "deteriorated" | null
   });
 
   // previewImages: { url: string, isNew: boolean, file?: File }
@@ -31,13 +38,27 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
         if (!res.ok) throw new Error("Error al cargar el producto");
         const data = await res.json();
 
+        // Derivamos estado a partir de campos si existen
+        let derivedCondition = "OK";
+        if (data.condition) {
+          const c = String(data.condition).toUpperCase();
+          if (c === "DEFECTUOSO" || c === "DETERIORADO") derivedCondition = c;
+        } else if (data.isDefectiveOrDeteriorated === true) {
+          derivedCondition = (data.defectType === "deteriorated") ? "DETERIORADO" : "DEFECTUOSO";
+        }
+
         setFormData({
           name: data.name || "",
           description: data.description || "",
-          price: data.price || "",
+          price: data.price ?? "",
           category_id: data.category_id?._id || "",
-          discountPercentage: data.discountPercentage || "",
-          stock: data.stock || "",
+          discountPercentage: data.discountPercentage ?? "",
+          stock: data.stock ?? "",
+          condition: derivedCondition,
+          defectNote: data.defectNote || "",
+          isDefectiveOrDeteriorated: !!data.isDefectiveOrDeteriorated,
+          defectType: data.defectType || (derivedCondition === "DETERIORADO" ? "deteriorated" :
+                                          derivedCondition === "DEFECTUOSO" ? "defective" : null),
         });
 
         const imagesData = (data.images || []).map((url) => ({ url, isNew: false }));
@@ -66,6 +87,37 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Si el cambio es de "condition", sincronizamos el resto de campos relacionados
+    if (name === "condition") {
+      const next = value;
+      if (next === "OK") {
+        setFormData((prev) => ({
+          ...prev,
+          condition: "OK",
+          isDefectiveOrDeteriorated: false,
+          defectType: null,
+          // mantenemos defectNote pero puedes vaciarla si prefieres:
+          // defectNote: "",
+        }));
+      } else if (next === "DEFECTUOSO") {
+        setFormData((prev) => ({
+          ...prev,
+          condition: "DEFECTUOSO",
+          isDefectiveOrDeteriorated: true,
+          defectType: "defective",
+        }));
+      } else if (next === "DETERIORADO") {
+        setFormData((prev) => ({
+          ...prev,
+          condition: "DETERIORADO",
+          isDefectiveOrDeteriorated: true,
+          defectType: "deteriorated",
+        }));
+      }
+      return;
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -139,11 +191,32 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
     setLoading(true);
     try {
       const form = new FormData();
-      Object.entries(formData).forEach(([k, v]) => form.append(k, v));
 
+      // Campos básicos
+      form.append("name", formData.name);
+      form.append("description", formData.description);
+      form.append("price", formData.price);
+      form.append("category_id", formData.category_id);
+      form.append("discountPercentage", formData.discountPercentage ?? "");
+      form.append("stock", formData.stock ?? "");
+
+      // Sincronía de estado: enviamos ambos por compatibilidad
+      form.append("condition", formData.condition);
+      const flagged = formData.condition !== "OK";
+      form.append("isDefectiveOrDeteriorated", flagged ? "true" : "false");
+      if (flagged) {
+        form.append(
+          "defectType",
+          formData.condition === "DETERIORADO" ? "deteriorated" : "defective"
+        );
+        if (formData.defectNote) form.append("defectNote", formData.defectNote);
+      }
+
+      // Imágenes existentes (urls)
       const existingImages = previewImages.filter((i) => !i.isNew).map((i) => i.url);
       form.append("existingImages", JSON.stringify(existingImages));
 
+      // Imágenes nuevas (archivos)
       previewImages
         .filter((i) => i.isNew && i.file)
         .forEach((i) => form.append("images", i.file));
@@ -245,6 +318,54 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
           onChange={handleChange}
           className="input-field"
         />
+
+        {/* ===================== Estado del producto ===================== */}
+        <label>Estado del producto</label>
+        <div style={{ width: "90%", display: "grid", gap: 8, marginTop: 6 }}>
+          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
+              <input
+                type="radio"
+                name="condition"
+                value="OK"
+                checked={formData.condition === "OK"}
+                onChange={handleChange}
+              />
+              OK
+            </label>
+            <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
+              <input
+                type="radio"
+                name="condition"
+                value="DEFECTUOSO"
+                checked={formData.condition === "DEFECTUOSO"}
+                onChange={handleChange}
+              />
+              DEFECTUOSO
+            </label>
+            <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
+              <input
+                type="radio"
+                name="condition"
+                value="DETERIORADO"
+                checked={formData.condition === "DETERIORADO"}
+                onChange={handleChange}
+              />
+              DETERIORADO
+            </label>
+          </div>
+
+          <label style={{ paddingLeft: 0, marginTop: 4 }}>Nota (opcional)</label>
+          <textarea
+            name="defectNote"
+            placeholder="Describe el defecto/deterioro (opcional)"
+            value={formData.defectNote}
+            onChange={handleChange}
+            className="input-field"
+            disabled={formData.condition === "OK"}
+          />
+        </div>
+        {/* ============================================================= */}
 
         <label>Imágenes actuales</label>
         <div className="edit-image-preview">

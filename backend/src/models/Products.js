@@ -1,4 +1,3 @@
-// backend/src/models/Product.js
 import { Schema, model } from "mongoose";
 
 /*
@@ -18,20 +17,19 @@ const productSchema = new Schema(
     name: {
       type: String,
       required: true,
-        minlength: 3,
-      
+      minlength: 3,
     },
 
     description: {
       type: String,
       required: true,
-        minlength: 5,
+      minlength: 5,
     },
 
     price: {
       type: Number,
       required: true,
-        minlength: 1,
+      minlength: 1,
     },
 
     images: {
@@ -70,10 +68,24 @@ const productSchema = new Schema(
       min: 1,
       max: 20,
     },
+
+    // ===== NUEVOS CAMPOS =====
+    isDefectiveOrDeteriorated: { type: Boolean, default: false },
+    defectType: {
+      type: String,
+      enum: [null, "defective", "deteriorated"],
+      default: null,
+    },
+    defectNote: { type: String, default: "" },
+    defectMarkedAt: { type: Date, default: null },
+    // =========================
   },
   {
     strict: false,
   }
 );
+
+// índice útil para filtros públicos
+productSchema.index({ isDefectiveOrDeteriorated: 1 });
 
 export default model("Products", productSchema, "products");

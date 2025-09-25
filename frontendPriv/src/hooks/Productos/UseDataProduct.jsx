@@ -7,16 +7,63 @@ export const useDataProduct = () => {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const fetchProducts = async () => {
+  // Helper: agrega pares al FormData respetando tipos y convenciones del backend
+  const appendDataToForm = (formData, data = {}) => {
+    Object.entries(data).forEach(([key, value]) => {
+      if (value === undefined || value === null) {
+        return; // no agregamos nulos/indefinidos
+      }
+
+      // Imágenes nuevas (archivos)
+      if (key === "images" && Array.isArray(value)) {
+        value.forEach((file) => {
+          // solo File/Blob
+          if (file && typeof file === "object" && ("name" in file || file instanceof Blob)) {
+            formData.append("images", file);
+          }
+        });
+        return;
+      }
+
+      // URLs de imágenes existentes que se conservan
+      if (key === "existingImages") {
+        // backend espera string JSON
+        const arr = Array.isArray(value) ? value : [];
+        formData.append("existingImages", JSON.stringify(arr));
+        return;
+      }
+
+      // measurements: si viene objeto lo serializamos
+      if (key === "measurements" && typeof value === "object" && !Array.isArray(value)) {
+        formData.append("measurements", JSON.stringify(value));
+        return;
+      }
+
+      // booleans a "true"/"false" porque el backend (multer) lo recibe como string
+      if (typeof value === "boolean") {
+        formData.append(key, value ? "true" : "false");
+        return;
+      }
+
+      // números/strings u otros casos simples
+      formData.append(key, value);
+    });
+  };
+
+  // Obtener productos (admin: ve todo; público: usar ?hideFlagged=true en su propio hook)
+  const fetchProducts = async (opts = {}) => {
     try {
-      const res = await fetch(API_URL, {
+      const { hideFlagged = false } = opts;
+      const url = hideFlagged ? `${API_URL}?hideFlagged=true` : API_URL;
+
+      const res = await fetch(url, {
         credentials: "include",
       });
 
       if (!res.ok) throw new Error("Error al obtener productos");
 
       const data = await res.json();
-      setProducts(data);
+      setProducts(Array.isArray(data) ? data : []);
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -54,17 +101,21 @@ export const useDataProduct = () => {
     }
   };
 
-  const updateProduct = async (id, updatedData) => {
+  /**
+   * Update flexible:
+   * - Soporta:
+   *   - images: File[]
+   *   - existingImages: string[] (URLs que se mantienen)
+   *   - isDefectiveOrDeteriorated: boolean
+   *   - defectType: "defective" | "deteriorated"
+   *   - defectNote: string
+   *   - measurements: { ... } (objeto -> JSON)
+   *   - otros campos (name, description, price, discountPercentage, stock, category_id)
+   */
+  const updateProduct = async (id, updatedData = {}) => {
     try {
       const formData = new FormData();
-
-      for (const key in updatedData) {
-        if (key === "images" && Array.isArray(updatedData.images)) {
-          updatedData.images.forEach((image) => formData.append("images", image));
-        } else {
-          formData.append(key, updatedData[key]);
-        }
-      }
+      appendDataToForm(formData, updatedData);
 
       const res = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
@@ -72,7 +123,10 @@ export const useDataProduct = () => {
         credentials: "include",
       });
 
-      if (!res.ok) throw new Error("Error al actualizar producto");
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(payload?.message || "Error al actualizar producto");
+      }
 
       Swal.fire({
         icon: "success",
@@ -92,17 +146,16 @@ export const useDataProduct = () => {
     }
   };
 
-  const createProduct = async (productData) => {
+  /**
+   * Crear producto:
+   * - Admite imágenes (images: File[])
+   * - measurements como objeto (se serializa)
+   * - opcionalmente puede incluir isDefectiveOrDeteriorated/defectType/defectNote
+   */
+  const createProduct = async (productData = {}) => {
     try {
       const formData = new FormData();
-
-      for (const key in productData) {
-        if (key === "images" && Array.isArray(productData.images)) {
-          productData.images.forEach((image) => formData.append("images", image));
-        } else {
-          formData.append(key, productData[key]);
-        }
-      }
+      appendDataToForm(formData, productData);
 
       const res = await fetch(API_URL, {
         method: "POST",
@@ -110,7 +163,10 @@ export const useDataProduct = () => {
         credentials: "include",
       });
 
-      if (!res.ok) throw new Error("Error al crear producto");
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(payload?.message || "Error al crear producto");
+      }
 
       Swal.fire({
         icon: "success",
@@ -130,8 +186,20 @@ export const useDataProduct = () => {
     }
   };
 
+  /**
+   * Atajo para marcar/actualizar estado defectuoso sin tocar el resto:
+   * toggleDefective(id, { flag: boolean, type?: "defective"|"deteriorated", note?: string })
+   */
+  const toggleDefective = async (id, { flag, type = "defective", note = "" } = {}) => {
+    return updateProduct(id, {
+      isDefectiveOrDeteriorated: !!flag,
+      defectType: flag ? type : undefined, // si se desactiva, backend lo limpia
+      defectNote: flag ? note : undefined,
+    });
+  };
+
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(); // admin: sin filtro, ve todo
   }, []);
 
   return {
@@ -142,5 +210,6 @@ export const useDataProduct = () => {
     updateProduct,
     deleteProduct,
     fetchProducts,
+    toggleDefective,
   };
 };
