@@ -253,5 +253,67 @@ salesController.getMySales = async (req, res) => {
   }
 };
 
+// Agregar este método al final de tu salesController.js (antes del export default)
 
+/**
+ * @description Obtiene las ventas agrupadas por mes para el gráfico
+ * @param {object} req - Objeto de solicitud de Express.
+ * @param {object} res - Objeto de respuesta de Express.
+ */
+salesController.getMonthlySales = async (req, res) => {
+  try {
+    const { year } = req.query; // Opcional: filtrar por año
+    const currentYear = year || new Date().getFullYear();
+
+    const sales = await Sale.find()
+      .populate({
+        path: "idOrder",
+        select: "total createdAt",
+      });
+
+    // Inicializar array con todos los meses en 0
+    const monthlyData = [
+      { mes: "Ene", ventas: 0 },
+      { mes: "Feb", ventas: 0 },
+      { mes: "Mar", ventas: 0 },
+      { mes: "Abr", ventas: 0 },
+      { mes: "May", ventas: 0 },
+      { mes: "Jun", ventas: 0 },
+      { mes: "Jul", ventas: 0 },
+      { mes: "Ago", ventas: 0 },
+      { mes: "Sep", ventas: 0 },
+      { mes: "Oct", ventas: 0 },
+      { mes: "Nov", ventas: 0 },
+      { mes: "Dic", ventas: 0 },
+    ];
+
+    // Procesar las ventas
+    sales.forEach(sale => {
+      if (!sale.idOrder) return;
+
+      const orderDate = new Date(sale.idOrder.createdAt);
+      const orderYear = orderDate.getFullYear();
+      
+      // Filtrar por año si se especifica
+      if (orderYear === parseInt(currentYear)) {
+        const monthIndex = orderDate.getMonth(); // 0-11
+        monthlyData[monthIndex].ventas += sale.idOrder.total || 0;
+      }
+    });
+
+    res.json({
+      success: true,
+      year: currentYear,
+      data: monthlyData
+    });
+
+  } catch (error) {
+    console.error("Error en getMonthlySales:", error);
+    res.status(500).json({ 
+      success: false,
+      message: "Error al obtener las ventas mensuales", 
+      error: error.message 
+    });
+  }
+};
 export default salesController;
