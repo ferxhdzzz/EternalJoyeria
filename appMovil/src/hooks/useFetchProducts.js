@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Alert } from "react-native";
+import { BACKEND_URL, API_ENDPOINTS, buildApiUrl } from '../config/api';
 
 const useFetchProducts = () => {
   // Estados para la lista de productos
@@ -7,15 +8,18 @@ const useFetchProducts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // URL del backend (misma que en AuthContext)
-  const BACKEND_URL = 'http://192.168.0.11:4000';
-
-  const fetchProductos = async () => {
+  const fetchProductos = async (categoryId = null) => {
     setLoading(true);
     setError(null);
     
     try {
-      const response = await fetch(`${BACKEND_URL}/api/products`);
+      const url = categoryId && categoryId !== 'todos'
+        ? `${buildApiUrl(API_ENDPOINTS.PRODUCTS_BY_CATEGORY)}/${categoryId}`
+        : buildApiUrl(API_ENDPOINTS.PRODUCTS);
+      
+      const response = await fetch(url, {
+        credentials: 'include', // Importante para enviar cookies
+      });
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -24,6 +28,7 @@ const useFetchProducts = () => {
       const data = await response.json();
       
       // El backend puede devolver directamente el array o dentro de un objeto
+      // API devuelve array directo
       let productsArray;
       if (Array.isArray(data)) {
         productsArray = data;
@@ -55,8 +60,8 @@ const useFetchProducts = () => {
   };
 
   // Función para refrescar productos
-  const refreshProductos = () => {
-    fetchProductos();
+  const refreshProductos = (categoryId = null) => {
+    fetchProductos(categoryId);
   };
 
   useEffect(() => {

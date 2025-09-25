@@ -5,6 +5,7 @@ import RegisterScreen from '../screens/RegisterScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import VerifyCodeScreen from '../screens/VerifyCodeScreen';
 import ChangePasswordScreen from '../screens/ChangePasswordScreen';
+import NewPasswordScreen from '../screens/NewPasswordScreen';
 
 const Stack = createStackNavigator();
 
@@ -36,6 +37,10 @@ const AuthNavigator = ({ onNavigateToProducts }) => {
       <Stack.Screen 
         name="ChangePassword" 
         component={ChangePasswordScreen}
+      />
+      <Stack.Screen 
+        name="NewPassword" 
+        component={NewPasswordScreen}
       />
     </Stack.Navigator>
   );

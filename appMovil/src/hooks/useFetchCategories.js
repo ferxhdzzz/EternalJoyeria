@@ -1,21 +1,22 @@
 import { useState, useEffect } from "react";
 import { Alert } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BACKEND_URL, API_ENDPOINTS, buildApiUrl } from '../config/api';
 
 const useFetchCategories = () => {
-  // Estados para la lista de categorías
+  // Estados para la lista de categorias
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // URL del backend (misma que en AuthContext)
-  const BACKEND_URL = 'http://192.168.0.11:4000';
 
   const fetchCategories = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      const response = await fetch(`${BACKEND_URL}/api/categories`);
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.CATEGORIES), {
+        credentials: 'include', // Importante para enviar cookies
+      });
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -24,7 +25,7 @@ const useFetchCategories = () => {
       const data = await response.json();
       
       if (data.categories) {
-        // Agregar categoría "Todos" al inicio
+        // Agregar categoria "Todos" al inicio
         const allCategories = [
           { _id: 'todos', name: 'Todos', description: 'Todos los productos' },
           ...data.categories
@@ -51,7 +52,7 @@ const useFetchCategories = () => {
     }
   };
 
-  // Función para refrescar categorías
+  // Funcion para refrescar categorias
   const refreshCategories = () => {
     fetchCategories();
   };

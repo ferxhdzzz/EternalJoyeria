@@ -56,24 +56,42 @@ recoveryPasswordController.requestCode = async (req, res) => {
       path: "/",
     });
 
- // enviar el código al correo del usuario
-    await sendEmail(email, "Código de recuperación", "Tu código es:", HTMLRecoveryEmail(code));
-    res.json({ message: "Correo de recuperación enviado correctamente." });
-
+    // Intentar enviar el correo
+    try {
+      await sendEmail(email, "Código de recuperación", "Tu código es:", HTMLRecoveryEmail(code));
+      return res.json({
+        success: true,
+        message: "Código de recuperación enviado correctamente.",
+        recoveryToken: token // Incluir token para app móvil
+      });
+    } catch (emailError) {
+      console.error("Error al enviar el correo:", emailError);
+      // Aún así respondemos con éxito pero indicamos que hubo un problema con el correo
+      return res.status(200).json({
+        success: true,
+        message: "El código se generó correctamente, pero hubo un problema al enviar el correo.",
+        recoveryToken: token // Incluir token para app móvil
+      });
+    }
   } catch (error) {
-    console.error("error en requestCode:", error);
-    res.status(500).json({ message: "error interno del servidor." });
+    console.error("Error en requestCode:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error interno del servidor al procesar la solicitud."
+    });
   }
 };
-
 
 // ---------- verificar código ----------
 recoveryPasswordController.verifyCode = async (req, res) => {
 
   const { code } = req.body;
   try {
-    // obtener token de la cookie
-    const token = req.cookies.tokenRecoveryCode;
+    // obtener token desde cookie (web) o Authorization header (móvil)
+    const token = req.cookies.tokenRecoveryCode || 
+                  (req.headers.authorization && req.headers.authorization.startsWith('Bearer ') 
+                    ? req.headers.authorization.substring(7) 
+                    : null);
 
     if (!token) return res.status(400).json({ message: "No se encontró token de recuperación." });
 
@@ -103,7 +121,10 @@ recoveryPasswordController.verifyCode = async (req, res) => {
       path: "/",
     });
 
-    res.json({ message: "código verificado correctamente." });
+    res.json({ 
+      message: "código verificado correctamente.",
+      token: newToken // Incluir token para app móvil
+    });
   } catch (error) {
     console.error("error en verifyCode:", error);
     res.status(400).json({ message: "token inválido o expirado." });
@@ -116,8 +137,11 @@ recoveryPasswordController.newPassword = async (req, res) => {
 
   const { newPassword } = req.body;
   try {
-    // obtener token de la cookie
-    const token = req.cookies.tokenRecoveryCode;
+    // obtener token desde cookie (web) o Authorization header (móvil)
+    const token = req.cookies.tokenRecoveryCode || 
+                  (req.headers.authorization && req.headers.authorization.startsWith('Bearer ') 
+                    ? req.headers.authorization.substring(7) 
+                    : null);
 
     if (!token) return res.status(400).json({ message: "No se encontró token de recuperación." });
 
