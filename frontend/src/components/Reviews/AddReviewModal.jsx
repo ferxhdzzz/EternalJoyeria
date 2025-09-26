@@ -84,7 +84,7 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName, productId }) =
       // Agregar archivos (File objects) al formData
       images.forEach((img) => formData.append("images", img));
 
-      const res = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/reviews", {
+      const res = await fetch("http://localhost:4000/api/reviews", {
         method: "POST",
         credentials: "include",
         body: formData,
