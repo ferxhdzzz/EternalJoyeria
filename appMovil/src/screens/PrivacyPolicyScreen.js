@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+// import { Ionicons } from '@expo/vector-icons'; // Eliminado - no se usan iconos
 
 const PrivacyPolicyScreen = ({ navigation }) => {
   return (
@@ -18,7 +18,7 @@ const PrivacyPolicyScreen = ({ navigation }) => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name="arrow-back" size={24} color="#000" />
+          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>Política de Privacidad</Text>
@@ -29,13 +29,11 @@ const PrivacyPolicyScreen = ({ navigation }) => {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.contentContainer}>
           <View style={styles.updateContainer}>
-            <Ionicons name="time" size={16} color="#000" />
             <Text style={styles.lastUpdated}>Última actualización: Diciembre 2024</Text>
           </View>
             
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Ionicons name="information-circle" size={20} color="#000" />
               <Text style={styles.sectionTitle}>1. Información que Recopilamos</Text>
             </View>
               <Text style={styles.sectionText}>
@@ -44,31 +42,25 @@ const PrivacyPolicyScreen = ({ navigation }) => {
               </Text>
               <View style={styles.bulletContainer}>
                 <View style={styles.bulletItem}>
-                  <Ionicons name="person" size={14} color="#000" />
-                  <Text style={styles.bulletPoint}>Nombre y apellidos</Text>
+                  <Text style={styles.bulletPoint}>• Nombre y apellidos</Text>
                 </View>
                 <View style={styles.bulletItem}>
-                  <Ionicons name="mail" size={14} color="#000" />
-                  <Text style={styles.bulletPoint}>Dirección de correo electrónico</Text>
+                  <Text style={styles.bulletPoint}>• Dirección de correo electrónico</Text>
                 </View>
                 <View style={styles.bulletItem}>
-                  <Ionicons name="call" size={14} color="#000" />
-                  <Text style={styles.bulletPoint}>Número de teléfono</Text>
+                  <Text style={styles.bulletPoint}>• Número de teléfono</Text>
                 </View>
                 <View style={styles.bulletItem}>
-                  <Ionicons name="location" size={14} color="#000" />
-                  <Text style={styles.bulletPoint}>Dirección de envío</Text>
+                  <Text style={styles.bulletPoint}>• Dirección de envío</Text>
                 </View>
                 <View style={styles.bulletItem}>
-                  <Ionicons name="card" size={14} color="#000" />
-                  <Text style={styles.bulletPoint}>Información de pago</Text>
+                  <Text style={styles.bulletPoint}>• Información de pago</Text>
                 </View>
               </View>
             </View>
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="settings" size={20} color="#000" />
                 <Text style={styles.sectionTitle}>2. Cómo Utilizamos tu Información</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -76,31 +68,25 @@ const PrivacyPolicyScreen = ({ navigation }) => {
               </Text>
               <View style={styles.bulletContainer}>
                 <View style={styles.bulletItem}>
-                  <Ionicons name="bag" size={14} color="#000" />
-                  <Text style={styles.bulletPoint}>Procesar y completar tus pedidos</Text>
+                  <Text style={styles.bulletPoint}>• Procesar y completar tus pedidos</Text>
                 </View>
                 <View style={styles.bulletItem}>
-                  <Ionicons name="chatbubble" size={14} color="#000" />
-                  <Text style={styles.bulletPoint}>Comunicarnos contigo sobre tu cuenta o pedidos</Text>
+                  <Text style={styles.bulletPoint}>• Comunicarnos contigo sobre tu cuenta o pedidos</Text>
                 </View>
                 <View style={styles.bulletItem}>
-                  <Ionicons name="megaphone" size={14} color="#000" />
-                  <Text style={styles.bulletPoint}>Enviar información sobre productos y promociones</Text>
+                  <Text style={styles.bulletPoint}>• Enviar información sobre productos y promociones</Text>
                 </View>
                 <View style={styles.bulletItem}>
-                  <Ionicons name="trending-up" size={14} color="#000" />
-                  <Text style={styles.bulletPoint}>Mejorar nuestros servicios y experiencia del usuario</Text>
+                  <Text style={styles.bulletPoint}>• Mejorar nuestros servicios y experiencia del usuario</Text>
                 </View>
                 <View style={styles.bulletItem}>
-                  <Ionicons name="document" size={14} color="#000" />
-                  <Text style={styles.bulletPoint}>Cumplir con obligaciones legales</Text>
+                  <Text style={styles.bulletPoint}>• Cumplir con obligaciones legales</Text>
                 </View>
               </View>
             </View>
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="share" size={20} color="#000" />
                 <Text style={styles.sectionTitle}>3. Compartir tu Información</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -109,23 +95,19 @@ const PrivacyPolicyScreen = ({ navigation }) => {
               </Text>
               <View style={styles.bulletContainer}>
                 <View style={styles.bulletItem}>
-                  <Ionicons name="business" size={14} color="#000" />
-                  <Text style={styles.bulletPoint}>Con proveedores de servicios que nos ayudan a operar</Text>
+                  <Text style={styles.bulletPoint}>• Con proveedores de servicios que nos ayudan a operar</Text>
                 </View>
                 <View style={styles.bulletItem}>
-                  <Ionicons name="hammer" size={14} color="#000" />
-                  <Text style={styles.bulletPoint}>Para cumplir con obligaciones legales</Text>
+                  <Text style={styles.bulletPoint}>• Para cumplir con obligaciones legales</Text>
                 </View>
                 <View style={styles.bulletItem}>
-                  <Ionicons name="checkmark-circle" size={14} color="#000" />
-                  <Text style={styles.bulletPoint}>Con tu consentimiento explícito</Text>
+                  <Text style={styles.bulletPoint}>• Con tu consentimiento explícito</Text>
                 </View>
               </View>
             </View>
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="shield" size={20} color="#000" />
                 <Text style={styles.sectionTitle}>4. Seguridad de Datos</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -137,7 +119,6 @@ const PrivacyPolicyScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="hand-right" size={20} color="#000" />
                 <Text style={styles.sectionTitle}>5. Tus Derechos</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -145,27 +126,22 @@ const PrivacyPolicyScreen = ({ navigation }) => {
               </Text>
               <View style={styles.bulletContainer}>
                 <View style={styles.bulletItem}>
-                  <Ionicons name="eye" size={14} color="#000" />
-                  <Text style={styles.bulletPoint}>Acceder a tu información personal</Text>
+                  <Text style={styles.bulletPoint}>• Acceder a tu información personal</Text>
                 </View>
                 <View style={styles.bulletItem}>
-                  <Ionicons name="create" size={14} color="#000" />
-                  <Text style={styles.bulletPoint}>Corregir información inexacta</Text>
+                  <Text style={styles.bulletPoint}>• Corregir información inexacta</Text>
                 </View>
                 <View style={styles.bulletItem}>
-                  <Ionicons name="trash" size={14} color="#000" />
-                  <Text style={styles.bulletPoint}>Solicitar la eliminación de tus datos</Text>
+                  <Text style={styles.bulletPoint}>• Solicitar la eliminación de tus datos</Text>
                 </View>
                 <View style={styles.bulletItem}>
-                  <Ionicons name="close-circle" size={14} color="#000" />
-                  <Text style={styles.bulletPoint}>Retirar tu consentimiento en cualquier momento</Text>
+                  <Text style={styles.bulletPoint}>• Retirar tu consentimiento en cualquier momento</Text>
                 </View>
               </View>
             </View>
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="analytics" size={20} color="#000" />
                 <Text style={styles.sectionTitle}>6. Cookies y Tecnologías Similares</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -176,7 +152,6 @@ const PrivacyPolicyScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="refresh" size={20} color="#000" />
                 <Text style={styles.sectionTitle}>7. Cambios en esta Política</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -188,7 +163,6 @@ const PrivacyPolicyScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="mail" size={20} color="#000" />
                 <Text style={styles.sectionTitle}>8. Contacto</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -196,25 +170,16 @@ const PrivacyPolicyScreen = ({ navigation }) => {
                 manejamos tu información personal, contáctanos en:
               </Text>
               <View style={styles.contactContainer}>
-                <View style={styles.contactItemSimple}>
-                  <Ionicons name="mail" size={16} color="#000" style={styles.emailIcon} />
-                  <Text 
-                    style={styles.emailTextSimple}
-                    ellipsizeMode="tail"
-                    numberOfLines={2}
-                  >
-                    privacidad@eternaljoyeria.com
-                  </Text>
+                <View style={styles.contactItem}>
+                  <Text style={styles.contactInfo}>privacidad@eternaljoyeria.com</Text>
                 </View>
                 <View style={styles.contactItem}>
-                  <Ionicons name="call" size={16} color="#000" />
                   <Text style={styles.contactInfo}>+503 1234-5678</Text>
                 </View>
               </View>
             </View>
 
-          {/* Espacio adicional */}
-          <View style={styles.extraSpace} />
+            <View style={styles.extraSpace} />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -252,6 +217,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  backButtonText: {
+    fontSize: 24,
+    color: '#000',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    lineHeight: 20,
   },
   headerTitle: {
     fontSize: 20,
@@ -295,14 +267,14 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16, // Reducido de 18 a 16 (1 nivel menos)
     fontWeight: 'bold',
     color: '#2d2d2d',
   },
   sectionText: {
-    fontSize: 16,
+    fontSize: 12, // Reducido de 14 a 12 (1 nivel menos)
     color: '#666',
-    lineHeight: 24,
+    lineHeight: 18, // Ajustado proporcionalmente
     marginBottom: 15,
   },
   bulletContainer: {
@@ -317,7 +289,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   bulletPoint: {
-    fontSize: 16,
+    fontSize: 12, // Reducido de 16 a 12 (2 niveles menos)
     color: '#2d2d2d',
     flex: 1,
   },

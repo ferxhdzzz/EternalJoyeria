@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+// import { Ionicons } from '@expo/vector-icons'; // Eliminado - no se usan iconos
 
 const TermsConditionsScreen = ({ navigation }) => {
   return (
@@ -18,7 +18,7 @@ const TermsConditionsScreen = ({ navigation }) => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name="arrow-back" size={24} color="#000" />
+          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>Términos y Condiciones</Text>
@@ -29,13 +29,11 @@ const TermsConditionsScreen = ({ navigation }) => {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.contentContainer}>
           <View style={styles.updateContainer}>
-            <Ionicons name="time" size={16} color="#000" />
             <Text style={styles.lastUpdated}>Última actualización: Diciembre 2024</Text>
           </View>
             
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Ionicons name="checkmark-circle" size={20} color="#000" />
               <Text style={styles.sectionTitle}>1. Aceptación de los Términos</Text>
             </View>
               <Text style={styles.sectionText}>
@@ -47,7 +45,6 @@ const TermsConditionsScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="diamond" size={20} color="#000" />
                 <Text style={styles.sectionTitle}>2. Descripción del Servicio</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -60,7 +57,6 @@ const TermsConditionsScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="people" size={20} color="#000" />
                 <Text style={styles.sectionTitle}>3. Cuenta de Usuario</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -72,7 +68,6 @@ const TermsConditionsScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="card" size={20} color="#000" />
                 <Text style={styles.sectionTitle}>4. Pagos y Precios</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -83,7 +78,6 @@ const TermsConditionsScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="shield" size={20} color="#000" />
                 <Text style={styles.sectionTitle}>5. Privacidad y Seguridad</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -94,7 +88,6 @@ const TermsConditionsScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="information-circle" size={20} color="#000" />
                 <Text style={styles.sectionTitle}>6. Política de Devoluciones</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -106,7 +99,6 @@ const TermsConditionsScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="construct" size={20} color="#000" />
                 <Text style={styles.sectionTitle}>7. Envío y Entrega</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -118,7 +110,6 @@ const TermsConditionsScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="library" size={20} color="#000" />
                 <Text style={styles.sectionTitle}>8. Propiedad Intelectual</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -130,7 +121,6 @@ const TermsConditionsScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="shield-checkmark" size={20} color="#000" />
                 <Text style={styles.sectionTitle}>9. Limitación de Responsabilidad</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -142,7 +132,6 @@ const TermsConditionsScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="create" size={20} color="#000" />
                 <Text style={styles.sectionTitle}>10. Modificaciones</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -154,7 +143,6 @@ const TermsConditionsScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="hammer" size={20} color="#000" />
                 <Text style={styles.sectionTitle}>11. Ley Aplicable</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -165,24 +153,16 @@ const TermsConditionsScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="mail" size={20} color="#000" />
                 <Text style={styles.sectionTitle}>12. Contacto</Text>
               </View>
               <Text style={styles.sectionText}>
                 Si tienes preguntas sobre estos términos y condiciones, contáctanos en:
               </Text>
               <View style={styles.contactContainer}>
-                <View style={styles.contactItemEmail}>
-                  <View style={styles.emailRow}>
-                    <Ionicons name="mail" size={16} color="#000" />
-                    <Text style={styles.emailLabel}>Correo:</Text>
-                  </View>
-                  <Text style={styles.emailText}>
-                    legal@eternaljoyeria.com
-                  </Text>
+                <View style={styles.contactItem}>
+                  <Text style={styles.contactInfo}>legal@eternaljoyeria.com</Text>
                 </View>
                 <View style={styles.contactItem}>
-                  <Ionicons name="call" size={16} color="#000" />
                   <Text style={styles.contactInfo}>+503 1234-5678</Text>
                 </View>
               </View>
@@ -228,6 +208,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  backButtonText: {
+    fontSize: 24,
+    color: '#000',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -270,14 +257,14 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16, // Reducido de 18 a 16 (1 nivel menos)
     fontWeight: 'bold',
     color: '#2d2d2d',
   },
   sectionText: {
-    fontSize: 16,
+    fontSize: 12, // Reducido de 14 a 12 (1 nivel menos)
     color: '#666',
-    lineHeight: 24,
+    lineHeight: 18, // Ajustado proporcionalmente
   },
   contactContainer: {
     marginTop: 15,

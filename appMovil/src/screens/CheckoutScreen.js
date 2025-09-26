@@ -383,7 +383,7 @@ const CheckoutScreen = ({ navigation }) => {
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color="#2C3E50" />
+            <Text style={styles.backButtonText}>←</Text>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Carrito vacío</Text>
           <View style={styles.placeholder} />
@@ -405,7 +405,7 @@ const CheckoutScreen = ({ navigation }) => {
       {/* Encabezado */}
       <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#000" />
+          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>Finalizar Compra</Text>
@@ -440,13 +440,11 @@ const CheckoutScreen = ({ navigation }) => {
         {step === 1 && (
           <Animated.View style={[styles.stepContainer, { opacity: fadeAnim }]}>
             <View style={styles.stepTitleContainer}>
-              <Ionicons name="location" size={24} color="#000" />
               <Text style={styles.stepTitle}>Datos de envío</Text>
             </View>
             
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="person" size={16} color="#000" />
                 <Text style={styles.inputLabel}>Nombre completo</Text>
               </View>
               <TextInput
@@ -461,7 +459,6 @@ const CheckoutScreen = ({ navigation }) => {
 
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="mail" size={16} color="#000" />
                 <Text style={styles.inputLabel}>Correo electrónico</Text>
               </View>
               <TextInput
@@ -478,7 +475,6 @@ const CheckoutScreen = ({ navigation }) => {
 
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="home" size={16} color="#000" />
                 <Text style={styles.inputLabel}>Dirección completa</Text>
               </View>
               <TextInput
@@ -496,7 +492,6 @@ const CheckoutScreen = ({ navigation }) => {
 
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="call" size={16} color="#000" />
                 <Text style={styles.inputLabel}>Teléfono</Text>
               </View>
               <TextInput
@@ -512,7 +507,6 @@ const CheckoutScreen = ({ navigation }) => {
 
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="business" size={16} color="#000" />
                 <Text style={styles.inputLabel}>Ciudad</Text>
               </View>
               <TextInput
@@ -531,14 +525,12 @@ const CheckoutScreen = ({ navigation }) => {
         {step === 2 && (
           <Animated.View style={[styles.stepContainer, { opacity: fadeAnim }]}>
             <View style={styles.stepTitleContainer}>
-              <Ionicons name="card" size={24} color="#000" />
               <Text style={styles.stepTitle}>Información de pago</Text>
             </View>
             
             {/* Informacion de modo prueba */}
             <View style={styles.testModeContainer}>
               <View style={styles.testModeHeader}>
-                <Ionicons name="information-circle" size={20} color="#4CAF50" />
                 <Text style={styles.testModeTitle}>Modo de Prueba Activo</Text>
               </View>
               <Text style={styles.testModeText}>
@@ -553,7 +545,6 @@ const CheckoutScreen = ({ navigation }) => {
             
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="person" size={16} color="#000" />
                 <Text style={styles.inputLabel}>Nombre en la tarjeta</Text>
               </View>
               <TextInput
@@ -568,7 +559,6 @@ const CheckoutScreen = ({ navigation }) => {
 
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="card" size={16} color="#000" />
                 <Text style={styles.inputLabel}>Número de tarjeta</Text>
               </View>
               <TextInput
@@ -586,7 +576,6 @@ const CheckoutScreen = ({ navigation }) => {
             <View style={styles.rowContainer}>
               <View style={styles.halfInputGroup}>
                 <View style={styles.inputLabelContainer}>
-                  <Ionicons name="calendar" size={16} color="#000" />
                   <Text style={styles.inputLabel}>Fecha de vencimiento</Text>
                 </View>
                 <TextInput
@@ -602,7 +591,6 @@ const CheckoutScreen = ({ navigation }) => {
               </View>
               <View style={styles.cvvInputGroup}>
                 <View style={styles.cvvLabelContainer}>
-                  <Ionicons name="shield-checkmark" size={16} color="#000" />
                   <Text style={styles.inputLabel}>CVV</Text>
                 </View>
                 <TextInput
@@ -625,7 +613,7 @@ const CheckoutScreen = ({ navigation }) => {
         {step === 3 && (
           <Animated.View style={[styles.stepContainer, styles.successContainer, { opacity: fadeAnim }]}>
             <View style={styles.successIcon}>
-              <Ionicons name="checkmark-circle" size={80} color="#000" />
+              <Text style={styles.successIconText}>✓</Text>
             </View>
             <Text style={styles.successTitle}>¡Pago exitoso!</Text>
             <Text style={styles.successMessage}>Tu transacción ha sido procesada correctamente</Text>
@@ -677,7 +665,6 @@ const CheckoutScreen = ({ navigation }) => {
             ) : (
               <>
                 <Text style={styles.primaryButtonText}>Siguiente</Text>
-                <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
               </>
             )}
           </TouchableOpacity>
@@ -686,7 +673,6 @@ const CheckoutScreen = ({ navigation }) => {
         {step === 2 && (
           <View style={styles.buttonRow}>
             <TouchableOpacity style={styles.secondaryButton} onPress={handlePreviousStep}>
-              <Ionicons name="arrow-back" size={20} color="#000" />
               <Text style={styles.secondaryButtonText}>Volver</Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -698,7 +684,6 @@ const CheckoutScreen = ({ navigation }) => {
                 <ActivityIndicator color="#FFFFFF" />
               ) : (
                 <>
-                  <Ionicons name="card" size={20} color="#FFFFFF" />
                   <Text style={styles.primaryButtonText}>Pagar ahora</Text>
                 </>
               )}
@@ -1061,6 +1046,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 50,
     padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  successIconText: {
+    fontSize: 80,
+    color: '#000',
+    fontWeight: 'bold',
+  },
+  backButtonText: {
+    fontSize: 24,
+    color: '#000',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    lineHeight: 20,
   },
   successTitle: {
     fontSize: 28,

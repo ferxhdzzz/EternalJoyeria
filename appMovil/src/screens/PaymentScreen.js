@@ -276,22 +276,19 @@ const PaymentScreen = ({ navigation, route }) => {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
-            <Ionicons name="arrow-back" size={24} color="#2C3E50" />
+            <Text style={styles.backButtonText}>←</Text>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Carrito vacío</Text>
           <View style={styles.placeholder} />
         </View>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <Text style={styles.emptyText}>No tienes productos para pagar.</Text>
-          <TouchableOpacity 
-            style={styles.paymentButton}
-            onPress={() => navigation.navigate('Home')}
-          >
-            <Text style={styles.paymentButtonText}>Ir a comprar</Text>
+          <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.navigate('Home')}>
+            <Text style={styles.primaryButtonText}>Ir a comprar</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -299,33 +296,23 @@ const PaymentScreen = ({ navigation, route }) => {
   }
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}
-    >
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <StatusBar style="dark" backgroundColor="#FFFFFF" />
       
       {/* Encabezado */}
-      <Animated.View 
-        style={[
-          styles.header,
-          {
-            opacity: fadeAnim,
-            transform: [{ translateY: slideAnim }],
-          }
-        ]}
-      >
-        <TouchableOpacity 
+      <Animated.View style={[
+        styles.header,
+        {
+          opacity: fadeAnim,
+          transform: [{ translateY: slideAnim }],
+        }
+      ]}>
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name="arrow-back" size={24} color="#000" />
+          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        
-        <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>Realizar compra</Text>
-        </View>
         
         <View style={styles.headerSpacer} />
       </Animated.View>
@@ -376,7 +363,6 @@ const PaymentScreen = ({ navigation, route }) => {
           ]}
         >
           <View style={styles.labelContainer}>
-            <Ionicons name="card" size={18} color="#000" />
             <Text style={styles.inputLabel}>Número de tarjeta</Text>
           </View>
           <View style={styles.cardNumberContainer}>
@@ -402,7 +388,7 @@ const PaymentScreen = ({ navigation, route }) => {
             </View>
             <View style={styles.cardIcons}>
               <TouchableOpacity style={styles.scanIcon}>
-                <Ionicons name="scan" size={18} color="#7F8C8D" />
+                <Text style={styles.scanIconText}>📷</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -422,7 +408,6 @@ const PaymentScreen = ({ navigation, route }) => {
           ]}
         >
           <View style={styles.labelContainer}>
-            <Ionicons name="person" size={18} color="#000" />
             <Text style={styles.inputLabel}>Nombre del titular</Text>
           </View>
           <View style={[
@@ -458,7 +443,6 @@ const PaymentScreen = ({ navigation, route }) => {
         >
           <View style={styles.halfInputGroup}>
             <View style={styles.labelContainer}>
-              <Ionicons name="calendar" size={18} color="#000" />
               <Text style={styles.inputLabel}>Fecha de expiración</Text>
             </View>
             <View style={[
@@ -488,7 +472,6 @@ const PaymentScreen = ({ navigation, route }) => {
           
           <View style={styles.cvvInputGroup}>
             <View style={styles.labelContainer}>
-              <Ionicons name="lock-closed" size={18} color="#000" />
               <Text style={styles.inputLabel}>CVV/CVC</Text>
             </View>
             <View style={[
@@ -744,6 +727,17 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 17,
     fontWeight: '600',
+  },
+  backButtonText: {
+    fontSize: 24,
+    color: '#000',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  scanIconText: {
+    fontSize: 18,
+    color: '#7F8C8D',
     letterSpacing: 0.5,
   },
   emptyText: {

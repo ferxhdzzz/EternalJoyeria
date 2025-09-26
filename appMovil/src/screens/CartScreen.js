@@ -131,7 +131,6 @@ const CartScreen = ({ navigation }) => {
       <StatusBar style="dark" />
       <View style={styles.cartHeader}>
         <View style={styles.headerContent}>
-          <Ionicons name="bag" size={24} color="#2d2d2d" />
           <Text style={styles.cartHeaderTitle}>Mi carrito</Text>
           <View style={styles.itemCount}>
             <Text style={styles.itemCountText}>{cartItems.length}</Text>
