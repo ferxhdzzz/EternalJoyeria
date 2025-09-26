@@ -162,49 +162,51 @@ const Profile = () => {
     else if (e.key === 'Escape') handleCancelEdit();
   };
 
-  const handleLogout = async () => {
-    const confirmResult = await Swal.fire({
-      title: "¿Cerrar sesión?",
-      text: "Se cerrará tu sesión actual",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#e75480",
-      cancelButtonColor: "#aaa",
-      confirmButtonText: "Sí, cerrar sesión",
-      cancelButtonText: "Cancelar"
-    });
+const handleLogout = async () => {
+  const confirmResult = await Swal.fire({
+    title: "¿Cerrar sesión?",
+    text: "Se cerrará tu sesión actual",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#e75480",
+    cancelButtonColor: "#aaa",
+    confirmButtonText: "Sí, cerrar sesión",
+    cancelButtonText: "Cancelar"
+  });
 
-    if (!confirmResult.isConfirmed) return;
+  if (!confirmResult.isConfirmed) return;
+
+  Swal.fire({
+    title: "Cerrando sesión...",
+    text: "Por favor espera",
+    allowOutsideClick: false,
+    didOpen: () => { Swal.showLoading(); }
+  });
+
+  try {
+    await logout(); // 👈 aquí usamos el contexto
 
     Swal.fire({
-      title: "Cerrando sesión...",
-      text: "Por favor espera",
-      allowOutsideClick: false,
-      didOpen: () => { Swal.showLoading(); }
+      title: "Sesión cerrada",
+      text: "Serás redirigido al inicio de sesión",
+      icon: "success",
+      timer: 1500,
+      showConfirmButton: false
     });
 
-    try {
-      const res = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/logout", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" }
-      });
-      if (!res.ok) throw new Error("Error al cerrar sesión");
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 1500);
+  } catch (error) {
+    console.error("Error cerrando sesión:", error);
+    Swal.fire({
+      title: "Error",
+      text: "No se pudo cerrar sesión. Intenta de nuevo.",
+      icon: "error"
+    });
+  }
+};
 
-      Swal.fire({
-        title: "Sesión cerrada",
-        text: "Serás redirigido al inicio de sesión",
-        icon: "success",
-        timer: 1500,
-        showConfirmButton: false
-      });
-
-      setTimeout(() => { window.location.href = "/productos"; }, 1500);
-    } catch (error) {
-      console.error("Error cerrando sesión:", error);
-      Swal.fire({ title: "Error", text: "No se pudo cerrar sesión. Intenta de nuevo.", icon: "error" });
-    }
-  };
 
   const copyAddressToClipboard = () => {
     const fullAddress = `${localUser.street}, ${localUser.city}, ${localUser.department}, ${localUser.zipCode}, ${localUser.country}`;
@@ -262,6 +264,7 @@ const Profile = () => {
                 padding: '4px 8px',
                 fontSize: '15px',
                 fontWeight: '600'
+                
               }}
               autoFocus
             />
@@ -401,7 +404,7 @@ const Profile = () => {
               </label>
             </div>
             <div className="profile-info-box">
-              {renderField('name', 'Tu nombre', `${localUser.firstName} ${localUser.lastName}`)}
+              {renderField('name', 'Tu nombre', `${localUser.firstName} `)}
               {renderField('email', 'Tu correo', localUser.email)}
               {renderField('phone', 'Tu telefono', localUser.phone)}
               {renderField('password', 'Tu contraseña', '••••••••', true)}
@@ -424,134 +427,69 @@ const Profile = () => {
               </div>
 
               <div style={{ marginTop: 20, paddingTop: 15, borderTop: '1px solid #f0f0f0' }}>
-                <h4 style={{ fontSize: 16, fontWeight: 600, color: '#333', marginBottom: 15 }}>Configuraciones</h4>
-
-                <div className="profile-settings-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                  <div className="profile-info-label" style={{ fontWeight: 500, fontSize: 14 }}>Notificaciones</div>
-                  <div className="checkbox-wrapper-5">
-                    <div className="check">
-                      <input
-                        type="checkbox"
-                        id="check-5"
-                        checked={notifications}
-                        onChange={() => setNotifications((n) => !n)}
-                      />
-                      <label htmlFor="check-5"></label>
-                    </div>
-                  </div>
-                </div>
+                <h4 style={{ fontSize: 16, fontWeight: 600, color: '#333', marginBottom: 15 }}>Historiales</h4>
 
                 <div className="profile-settings-row" style={{ marginBottom: 12 }}>
-                  <div className="profile-info-label" style={{ fontWeight: 500, fontSize: 14, cursor: 'pointer', color: '#666' }}
-                    onClick={() => window.open('/privacy', '_blank')}>
-                    Política de privacidad
-                  </div>
-                </div>
+  <button
+    className="order-history-btn"
+    style={{
+      background: '#F0EFFA',
+      color: '#222',
+      border: 'none',
+      borderRadius: 8,
+      padding: '8px 16px',
+      fontWeight: 600,
+      fontSize: 14,
+      cursor: 'pointer',
+      width: '100%',
+      transition: 'all 0.3s ease',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px'
+    }}
+    onMouseEnter={(e) => { e.target.style.background = '#eab5c5'; e.target.style.color = '#fff'; }}
+    onMouseLeave={(e) => { e.target.style.background = '#F0EFFA'; e.target.style.color = '#222'; }}
+    onClick={() => window.location.href = '/historial'}
+  >
+    <HistoryIcon size={16} color="currentColor" />
+    Historial de pedidos
+  </button>
+</div>
+
+<div className="profile-settings-row" style={{ marginBottom: 12 }}>
+  <button
+    className="order-history-btn"
+    style={{
+      background: '#F0EFFA',
+      color: '#222',
+      border: 'none',
+      borderRadius: 8,
+      padding: '8px 16px',
+      fontWeight: 600,
+      fontSize: 14,
+      cursor: 'pointer',
+      width: '100%',
+      transition: 'all 0.3s ease',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px'
+    }}
+    onMouseEnter={(e) => { e.target.style.background = '#eab5c5'; e.target.style.color = '#fff'; }}
+    onMouseLeave={(e) => { e.target.style.background = '#F0EFFA'; e.target.style.color = '#222'; }}
+    onClick={() => window.location.href = '/histReview'}
+  >
+    <HistoryIcon size={16} color="currentColor" />
+    Historial de reseñas
+  </button>
+</div>
+
+            
+
+
+               
                 <div className="profile-settings-row" style={{ marginBottom: 12 }}>
-                  <div className="profile-info-label" style={{ fontWeight: 500, fontSize: 14, cursor: 'pointer', color: '#666' }}
-                    onClick={() => window.open('/terms', '_blank')}>
-                    Términos y condiciones
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Card derecha */}
-          <div className="profile-card right" style={{ background: '#fff', borderRadius: '12px', boxShadow: '0 2px 12px #eab5c555', padding: '2.5rem 2rem', minWidth: 420, maxWidth: 520, minHeight: 420 }}>
-            <div className="profile-settings-box">
-              {renderField('language', 'Idioma', localUser.language)}
-              {renderField('currency', 'Moneda', localUser.currency)}
-
-              <div style={{ marginBottom: 20, paddingTop: 10, borderTop: '1px solid #f0f0f0' }}>
-                <h4 style={{ fontSize: 16, fontWeight: 600, color: '#333', marginBottom: 15 }}>Información de Dirección</h4>
-                {renderField('street', 'Calle y número', localUser.street)}
-                {renderField('city', 'Ciudad', localUser.city)}
-                {renderField('department', 'Departamento', localUser.department)}
-                {renderField('zipCode', 'Código postal', localUser.zipCode)}
-                {renderField('country', 'País', localUser.country)}
-
-                <button
-                  onClick={copyAddressToClipboard}
-                  style={{
-                    background: '#F0EFFA',
-                    color: '#222',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '8px 16px',
-                    fontWeight: 600,
-                    fontSize: 13,
-                    cursor: 'pointer',
-                    marginTop: 10,
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px'
-                  }}
-                >
-                  <CopyIcon size={14} color="#222" />
-                  Copiar dirección completa
-                </button>
-              </div>
-
-              <div className="profile-settings-row" style={{ marginBottom: 12 }}>
-                <button
-                  className="order-history-btn"
-                  style={{
-                    background: '#F0EFFA',
-                    color: '#222',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '8px 16px',
-                    fontWeight: 600,
-                    fontSize: 14,
-                    cursor: 'pointer',
-                    width: '100%',
-                    transition: 'all 0.3s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px'
-                  }}
-                  onMouseEnter={(e) => { e.target.style.background = '#eab5c5'; e.target.style.color = '#fff'; }}
-                  onMouseLeave={(e) => { e.target.style.background = '#F0EFFA'; e.target.style.color = '#222'; }}
-                  onClick={() => window.location.href = '/historial'}
-                >
-                  <HistoryIcon size={16} color="currentColor" />
-                  Historial de pedidos
-                </button>
-              </div>
-
-              <div className="profile-settings-row" style={{ marginBottom: 12 }}>
-                <button
-                  className="order-history-btn"
-                  style={{
-                    background: '#F0EFFA',
-                    color: '#222',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '8px 16px',
-                    fontWeight: 600,
-                    fontSize: 14,
-                    cursor: 'pointer',
-                    width: '100%',
-                    transition: 'all 0.3s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px'
-                  }}
-                  onMouseEnter={(e) => { e.target.style.background = '#eab5c5'; e.target.style.color = '#fff'; }}
-                  onMouseLeave={(e) => { e.target.style.background = '#F0EFFA'; e.target.style.color = '#222'; }}
-                  onClick={() => window.location.href = '/histReview'}
-                >
-                  <HistoryIcon size={16} color="currentColor" />
-                  Historial de reseñas
-                </button>
-              </div>
-
-              <div className="profile-settings-row" style={{ marginBottom: 12 }}>
                 <button
                   className="logout-btn"
                   style={{ background: 'none', color: '#e75480', border: 'none', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}
@@ -560,8 +498,11 @@ const Profile = () => {
                   Desconectarse
                 </button>
               </div>
+              </div>
             </div>
           </div>
+
+       
         </div>
       </div>
       <Footer />

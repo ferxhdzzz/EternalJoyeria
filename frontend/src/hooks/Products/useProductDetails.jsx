@@ -1,87 +1,60 @@
-import { useState, useEffect } from 'react';
-import { apiFetch } from '../../lib/api';
+// src/hooks/Products/useProductDetails.jsx
+import { useState, useEffect } from "react";
+
+const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, ""); 
+// Asegúrate de que VITE_API_URL termine con /api
 
 const useProductDetails = (productId) => {
   const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loading, setLoading]   = useState(true);
+  const [error, setError]       = useState(null);
 
-  useEffect(() => {
-    const fetchProductDetails = async () => {
-      // Si no hay productId, no hacer la petición
-      if (!productId) {
-        setLoading(false);
-        setError('ID de producto requerido');
-        return;
-      }
+  const fetchProductDetails = async () => {
+    if (!productId) {
+      setLoading(false);
+      setError("ID de producto requerido");
+      return;
+    }
 
-      try {
-        setLoading(true);
-        setError(null);
-        
-        console.log('Cargando detalles del producto:', productId);
-        
-        // Usar apiFetch para obtener el producto específico
-        const data = await apiFetch(`/products/${productId}`, { 
-          method: 'GET' 
-        });
-        
-        console.log('Detalles del producto cargados:', data);
-        setProduct(data);
-        
-      } catch (error) {
-        console.error('Error fetching product details:', error);
-        
-        // Manejar diferentes tipos de errores
-        let errorMessage = 'Error desconocido al cargar el producto';
-        
-        if (error?.status === 401) {
-          errorMessage = 'No autorizado - Inicia sesión para ver el producto';
-        } else if (error?.status === 403) {
-          errorMessage = 'Acceso denegado - No tienes permisos para ver este producto';
-        } else if (error?.status === 404) {
-          errorMessage = 'Producto no encontrado';
-        } else if (error?.status >= 500) {
-          errorMessage = 'Error del servidor - Intenta más tarde';
-        } else if (error?.message) {
-          errorMessage = error.message;
-        }
-        
-        setError(errorMessage);
-        setProduct(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProductDetails();
-  }, [productId]); // Se ejecuta cada vez que cambia el productId
-
-  // Función para refrescar el producto manualmente
-  const refetch = async () => {
-    if (!productId) return;
-    
-    setLoading(true);
-    setError(null);
-    
     try {
-      const data = await apiFetch(`/products/${productId}`, { method: 'GET' });
-      setProduct(data);
+      setLoading(true);
       setError(null);
-    } catch (error) {
-      console.error('Error refetching product details:', error);
-      setError(error?.message || 'Error al recargar el producto');
+
+      console.log("Cargando detalles del producto:", productId);
+
+      const res = await fetch(`${API_URL}/products/${productId}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) throw new Error("No autorizado - Inicia sesión para ver el producto");
+        if (res.status === 403) throw new Error("Acceso denegado - No tienes permisos");
+        if (res.status === 404) throw new Error("Producto no encontrado");
+        if (res.status >= 500) throw new Error("Error del servidor - Intenta más tarde");
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+      console.log("Detalles del producto cargados:", data);
+      setProduct(data);
+    } catch (err) {
+      console.error("Error fetching product details:", err);
+      setError(err.message || "Error al cargar el producto");
+      setProduct(null);
     } finally {
       setLoading(false);
     }
   };
 
-  return { 
-    product, 
-    loading, 
-    error,
-    refetch // Función adicional para recargar datos
-  };
+  useEffect(() => {
+    fetchProductDetails();
+  }, [productId]);
+
+  const refetch = () => fetchProductDetails();
+
+  return { product, loading, error, refetch };
 };
 
 export default useProductDetails;
