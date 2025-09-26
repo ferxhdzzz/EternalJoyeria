@@ -18,7 +18,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // URL del backend viene de la configuracion centralizada
 
   // Asegura que profilePicture sea una URL absoluta
   const normalizeProfileUrl = (url) => {

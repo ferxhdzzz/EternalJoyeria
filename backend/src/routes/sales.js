@@ -3,15 +3,20 @@ import salesController from "../controllers/salesController.js";
 
 const router = Router();
 
-// Rutas de uso general para la gestión de ventas
-router.post("/", salesController.createSale); // Crear una nueva venta
-router.get("/", salesController.getSales); // Obtener todas las ventas
-router.get("/:id", salesController.getSale); // Obtener una venta específica por su ID
-router.put("/:id", salesController.updateSale); // Actualizar una venta
-router.delete("/:id", salesController.deleteSale); // Eliminar una venta
+// CRÍTICO: Las rutas específicas DEBEN ir ANTES de las rutas con parámetros
 
-// Rutas especializadas
-router.get("/category", salesController.getSalesByCategory); // Obtener ventas agrupadas por categoría
-router.get("/by-customer/:id", salesController.getSalesByCustomer); // Obtener el historial de ventas por cliente
+// 1. Rutas especializadas PRIMERO (para evitar conflictos con /:id)
+router.get("/monthly", salesController.getMonthlySales); //  Esta DEBE ir PRIMERA
+router.get("/category", salesController.getSalesByCategory);
+router.get("/by-customer/:id", salesController.getSalesByCustomer);
+
+// 2. Rutas generales
+router.post("/", salesController.createSale);
+router.get("/", salesController.getSales);
+
+// 3. Rutas con parámetros AL FINAL (para que no capturen rutas específicas)
+router.get("/:id", salesController.getSale);
+router.put("/:id", salesController.updateSale);
+router.delete("/:id", salesController.deleteSale);
 
 export default router;

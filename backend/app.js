@@ -96,7 +96,7 @@ app.use("/api/reviews", reviewsRouter);
 // pública según la rama
 /* ===== Rutas protegidas ===== */
 app.use("/api/customers", validateAuthToken(["admin", "customer"]), customersRoutes);
-app.use("/api/categories", validateAuthToken(["admin", "customer"]), categoriesRouters);
+app.use("/api/categories", categoriesRouters);
 app.use("/api/admins", validateAuthToken(["admin"]), adminRoutes);
 //app.use("/api/reviews", validateAuthToken(["admin", "customer"]), reviewsRouter);
 app.use("/api/sales", validateAuthToken(["admin", "customer"]), salesRoutes);

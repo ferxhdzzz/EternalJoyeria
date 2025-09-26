@@ -52,7 +52,7 @@ const HistorialPage = () => {
       try {
         const userId = user.id;
         
-        const response = await fetch(`https://eternaljoyeria-cg5d.onrender.com/api/sales/by-customer/${userId}`, {
+        const response = await fetch(`http://localhost:4000/api/sales/by-customer/${userId}`, {
           credentials: 'include' 
         });
         

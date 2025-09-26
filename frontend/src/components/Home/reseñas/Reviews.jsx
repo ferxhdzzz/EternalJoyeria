@@ -9,7 +9,7 @@ const Reviews = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/reviews");
+        const response = await fetch("http://localhost:4000/api/reviews");
         
         if (!response.ok) {
           throw new Error('Error al cargar las reseñas');
