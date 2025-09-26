@@ -5,14 +5,14 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
-  Switch,
   ScrollView,
   Image,
   Alert,
   Platform,
+  SafeAreaView,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { StatusBar } from 'expo-status-bar';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../context/AuthContext';
 import CustomAlert from '../components/CustomAlert';
@@ -220,7 +220,7 @@ const ProfileScreen = ({ navigation, route }) => {
         try {
           await logout();
         } catch (error) {
-          showError('Error', 'Error al cerrar sesión');
+          showError('Error', 'Error al desconectarse');
         }
       },
       () => {
@@ -272,149 +272,133 @@ const ProfileScreen = ({ navigation, route }) => {
   };
 
   return (
-    <LinearGradient
-      colors={['#ff6ec7', '#ff9a9e', '#fecfef']}
-      style={styles.container}
-    >
-      {/* Encabezado */}
+    <SafeAreaView style={styles.container}>
+      <StatusBar style="dark" />
+      
+      {/* Header simple */}
       <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="arrow-back" size={24} color="#4a148c" />
-          </TouchableOpacity>
-          <View style={styles.headerCenter}>
-            <Text style={styles.headerTitle}>Mi Perfil</Text>
-          </View>
-          <View style={styles.headerSpacer} />
+        <TouchableOpacity 
+          style={styles.headerButton} 
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={22} color="#2d2d2d" />
+        </TouchableOpacity>
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerTitle}>Datos del perfil</Text>
         </View>
+        <View style={styles.headerSpacer} />
       </View>
 
-      <ScrollView style={styles.scrollView}>
-        {/* Seccion de foto de perfil */}
-        <View style={styles.profileSection}>
-          <TouchableOpacity onPress={pickImage} style={styles.avatarContainer}>
-            <LinearGradient
-              colors={['rgba(255, 255, 255, 0.9)', 'rgba(252, 228, 236, 0.8)']}
-              style={styles.avatarGradient}
-            >
-              <Image 
-                source={selectedImage || user?.profilePicture 
-                  ? { uri: selectedImage || user.profilePicture } 
-                  : require('../../assets/Usuarionuevo.jpg')
-                } 
-                style={styles.profilePicture} 
-                onError={(e) => console.log('Error loading image:', e.nativeEvent.error)} 
-              />
-              <LinearGradient
-                colors={['#e91e63', '#ad1457']}
-                style={styles.cameraIcon}
-              >
-                <Ionicons name="camera" size={22} color="#FFF" />
-              </LinearGradient>
-            </LinearGradient>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {/* Foto de perfil */}
+        <View style={styles.profileImageSection}>
+          <TouchableOpacity onPress={pickImage} style={styles.profileImageContainer}>
+            <Image 
+              source={selectedImage || user?.profilePicture 
+                ? { uri: selectedImage || user.profilePicture } 
+                : require('../../assets/Usuarionuevo.jpg')
+              } 
+              style={styles.profileImage} 
+              onError={(e) => console.log('Error loading image:', e.nativeEvent.error)} 
+            />
           </TouchableOpacity>
-          <Text style={styles.userName}>
-            {`${profileData.firstName} ${profileData.lastName}`.trim() || 'Usuario'}
-          </Text>
-          <Text style={styles.userEmail}>{profileData.email}</Text>
         </View>
 
-        {/* Seccion de informacion personal */}
-        <View style={styles.section}>
-          <LinearGradient
-            colors={['rgba(255, 255, 255, 0.95)', 'rgba(252, 228, 236, 0.8)']}
-            style={styles.sectionGradient}
-          >
-            <View style={styles.sectionHeader}>
-              <Ionicons name="person" size={20} color="#6a1b9a" />
-              <Text style={styles.sectionTitle}>Información Personal</Text>
+        {/* Campos de informacion */}
+        <View style={styles.fieldsContainer}>
+          {/* Tu nombre */}
+          <View style={styles.fieldRow}>
+            <View style={styles.fieldContent}>
+              <Text style={styles.fieldLabel}>Tu nombre</Text>
+              <Text style={styles.fieldValue}>
+                {`${profileData.firstName} ${profileData.lastName}`.trim() || 'Nombre completo'}
+              </Text>
             </View>
-          
-          {renderEditableField('Nombres', 'firstName', 'Ingresa tu nombre')}
-          {renderEditableField('Apellidos', 'lastName', 'Ingresa tus apellidos')}
-          {renderEditableField('Correo electrónico', 'email', 'correo@ejemplo.com')}
-          {renderEditableField('Teléfono', 'phone', 'Ingresa tu teléfono')}
-          
             <TouchableOpacity 
-              style={styles.menuItem}
+              style={styles.editIcon}
+              onPress={() => handleEditField('firstName')}
+            >
+              <Ionicons name="pencil-outline" size={18} color="#666" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Tu correo */}
+          <View style={styles.fieldRow}>
+            <View style={styles.fieldContent}>
+              <Text style={styles.fieldLabel}>Tu correo</Text>
+              <Text style={styles.fieldValue}>
+                {profileData.email || 'correo@ejemplo.com'}
+              </Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.editIcon}
+              onPress={() => handleEditField('email')}
+            >
+              <Ionicons name="pencil-outline" size={18} color="#666" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Tu telefono */}
+          <View style={styles.fieldRow}>
+            <View style={styles.fieldContent}>
+              <Text style={styles.fieldLabel}>Tu teléfono</Text>
+              <Text style={styles.fieldValue}>
+                {profileData.phone || 'Número de teléfono'}
+              </Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.editIcon}
+              onPress={() => handleEditField('phone')}
+            >
+              <Ionicons name="pencil-outline" size={18} color="#666" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Tu contraseña */}
+          <View style={styles.fieldRow}>
+            <View style={styles.fieldContent}>
+              <Text style={styles.fieldLabel}>Tu contraseña</Text>
+              <Text style={styles.fieldValue}>••••••••••</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.editIcon}
               onPress={() => navigation.navigate('ChangePassword')}
             >
-              <View style={styles.menuItemLeft}>
-                <LinearGradient
-                  colors={['#e91e63', '#ad1457']}
-                  style={styles.menuIcon}
-                >
-                  <Ionicons name="key" size={20} color="#FFF" />
-                </LinearGradient>
-                <Text style={styles.menuItemText}>Cambiar contraseña</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#8e24aa" />
+              <Ionicons name="pencil-outline" size={18} color="#666" />
             </TouchableOpacity>
-          </LinearGradient>
-        </View>
-        
-        {/* Seccion de ayuda y soporte */}
-        <View style={styles.section}>
-          <LinearGradient
-            colors={['rgba(255, 255, 255, 0.95)', 'rgba(252, 228, 236, 0.8)']}
-            style={styles.sectionGradient}
+          </View>
+
+          {/* Politica de privacidad */}
+          <TouchableOpacity 
+            style={styles.fieldRow}
+            onPress={() => navigation.navigate('PrivacyPolicy')}
           >
-            <View style={styles.sectionHeader}>
-              <Ionicons name="help-circle" size={20} color="#6a1b9a" />
-              <Text style={styles.sectionTitle}>Ayuda y Soporte</Text>
+            <View style={styles.fieldContent}>
+              <Text style={styles.fieldLabel}>Política de privacidad</Text>
             </View>
-            
-            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('TermsConditions')}>
-              <View style={styles.menuItemLeft}>
-                <LinearGradient
-                  colors={['#6366f1', '#4f46e5']}
-                  style={styles.menuIcon}
-                >
-                  <Ionicons name="document-text" size={20} color="#FFF" />
-                </LinearGradient>
-                <Text style={styles.menuItemText}>Términos y condiciones</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#8e24aa" />
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('PrivacyPolicy')}>
-              <View style={styles.menuItemLeft}>
-                <LinearGradient
-                  colors={['#10b981', '#059669']}
-                  style={styles.menuIcon}
-                >
-                  <Ionicons name="shield-checkmark" size={20} color="#FFF" />
-                </LinearGradient>
-                <Text style={styles.menuItemText}>Política de privacidad</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#8e24aa" />
-            </TouchableOpacity>
-          </LinearGradient>
-        </View>
-        
-        {/* Seccion de cerrar sesion */}
-        <LinearGradient
-          colors={['#ef4444', '#dc2626']}
-          style={styles.logoutButton}
-        >
-          <TouchableOpacity
-            style={styles.logoutTouchable}
+          </TouchableOpacity>
+
+          {/* Terminos y condiciones */}
+          <TouchableOpacity 
+            style={styles.fieldRow}
+            onPress={() => navigation.navigate('TermsConditions')}
+          >
+            <View style={styles.fieldContent}>
+              <Text style={styles.fieldLabel}>Términos y condiciones</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* Desconectarse */}
+          <TouchableOpacity 
+            style={styles.logoutRow}
             onPress={handleLogout}
           >
-            <Ionicons name="log-out" size={22} color="#FFF" />
-            <Text style={styles.logoutText}>Cerrar sesión</Text>
+            <Text style={styles.logoutText}>Desconectarse</Text>
           </TouchableOpacity>
-        </LinearGradient>
-        
-        <View style={styles.versionContainer}>
-          <Text style={styles.versionText}>Versión 1.0.0</Text>
         </View>
       </ScrollView>
-      
-      {/* Componente de alerta */}
+
+      {/* Alerta personalizada */}
       <CustomAlert
         visible={alertConfig.visible}
         type={alertConfig.type}
@@ -422,281 +406,128 @@ const ProfileScreen = ({ navigation, route }) => {
         message={alertConfig.message}
         buttons={alertConfig.buttons}
         onClose={hideAlert}
-        autoClose={alertConfig.autoClose}
-        autoCloseDelay={alertConfig.autoCloseDelay}
-        showIcon={alertConfig.showIcon}
-        animationType={alertConfig.animationType}
       />
-    </LinearGradient>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
     paddingTop: 50,
-    paddingBottom: 25,
-    backgroundColor: 'transparent',
+    paddingBottom: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e9ecef',
+  },
+  headerButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#f8f9fa',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   headerCenter: {
     flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
   },
   headerSpacer: {
-    width: 45,
-  },
-  headerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-  },
-  backButton: {
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#6a1b9a',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    width: 44,
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#4a148c',
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#2d2d2d',
   },
   scrollView: {
     flex: 1,
     paddingHorizontal: 16,
   },
-  profileSection: {
+  // Foto de perfil
+  profileImageSection: {
     alignItems: 'center',
-    marginBottom: 30,
+    paddingVertical: 32,
   },
-  avatarContainer: {
-    position: 'relative',
-    marginBottom: 20,
-  },
-  avatarGradient: {
-    borderRadius: 80,
-    padding: 8,
-    shadowColor: '#e91e63',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 15,
-    elevation: 10,
-  },
-  profilePicture: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    borderWidth: 3,
-    borderColor: '#fff',
-  },
-  cameraIcon: {
-    position: 'absolute',
-    right: 5,
-    bottom: 5,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 3,
-    borderColor: '#FFF',
-    shadowColor: '#e91e63',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  userName: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#4a148c',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  userEmail: {
-    fontSize: 16,
-    color: '#6a1b9a',
-    textAlign: 'center',
-    marginBottom: 12,
-    fontWeight: '500',
-  },
-  userBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(233, 30, 99, 0.1)',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(233, 30, 99, 0.3)',
-  },
-  badgeText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#e91e63',
-  },
-  section: {
-    marginBottom: 20,
-    borderRadius: 20,
+  profileImageContainer: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
     overflow: 'hidden',
-    shadowColor: '#6a1b9a',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 8,
+    backgroundColor: '#f8f9fa',
+    borderWidth: 4,
+    borderColor: '#f48fb1',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  sectionGradient: {
-    padding: 25,
+  profileImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 75,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#4a148c',
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(171, 71, 188, 0.1)',
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    paddingHorizontal: 15,
-    marginVertical: 5,
+  // Campos de informacion
+  fieldsContainer: {
+    backgroundColor: '#fff',
     borderRadius: 12,
-  },
-  menuItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  menuIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 15,
+    paddingVertical: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
-  menuItemText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#4a148c',
-    flex: 1,
-  },
-  logoutButton: {
-    borderRadius: 20,
-    marginTop: 10,
-    marginBottom: 25,
-    marginHorizontal: 20,
-    overflow: 'hidden',
-    shadowColor: '#ef4444',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 8,
-  },
-  logoutTouchable: {
+  fieldRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 18,
-    gap: 10,
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f3f4',
   },
-  logoutText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFF',
-    letterSpacing: 0.5,
-  },
-  versionContainer: {
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  versionText: {
-    fontSize: 12,
-    color: '#8e24aa',
-    fontWeight: '500',
-  },
-  fieldContainer: {
-    marginBottom: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    padding: 15,
-    borderRadius: 12,
-    marginVertical: 5,
+  fieldContent: {
+    flex: 1,
   },
   fieldLabel: {
     fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  fieldValue: {
+    fontSize: 16,
+    color: '#2d2d2d',
     fontWeight: '600',
-    color: '#6a1b9a',
-    marginBottom: 8,
   },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: 'rgba(171, 71, 188, 0.3)',
-    paddingBottom: 10,
-  },
-  inputField: {
-    flex: 1,
-    fontSize: 16,
-    color: '#4a148c',
-    paddingVertical: 10,
-    paddingRight: 12,
-    fontWeight: '500',
-  },
-  editButton: {
+  editIcon: {
     padding: 8,
-    backgroundColor: 'rgba(233, 30, 99, 0.1)',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(233, 30, 99, 0.3)',
   },
-  selectionContainer: {
+  logoutRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderBottomWidth: 0,
   },
-  selectionText: {
-    fontSize: 15,
-    fontFamily: 'Poppins-Regular',
-    color: '#2D2D2D',
-  },
-  readonlyText: {
+  logoutText: {
     fontSize: 16,
-    color: '#4a148c',
-    paddingVertical: 10,
-    flex: 1,
-    fontWeight: '500',
+    color: '#ff4757',
+    fontWeight: '600',
   },
 });
 

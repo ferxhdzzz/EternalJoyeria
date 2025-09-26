@@ -64,7 +64,7 @@ const WelcomeScreen3 = ({ onNext }) => {
       <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
         <View style={styles.imageSection}>
           <LinearGradient
-            colors={['#e91e63', '#ad1457', '#880e4f']}
+            colors={['rgba(211, 162, 148, 0.37)', 'rgba(211, 162, 148, 0.37)', 'rgba(211, 162, 148, 0.37)']}
             style={styles.gradientBackground}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     paddingLeft: 30, // Padding solo a la izquierda para los puntos
   },
   startButton: {
-    backgroundColor: '#e91e63',
+    backgroundColor: '#000000',
     paddingVertical: 16,
     paddingHorizontal: 36,
     borderTopLeftRadius: 35,

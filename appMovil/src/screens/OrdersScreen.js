@@ -11,7 +11,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_URL, API_ENDPOINTS, buildApiUrl } from '../config/api';
 import { useAuth } from '../context/AuthContext';
@@ -51,11 +51,23 @@ const OrdersScreen = ({ navigation }) => {
         const data = await response.json();
         console.log('✅ [OrdersScreen] Datos recibidos:', data.length, 'pedidos');
         
-        // Filtrar pedidos pagados y ordenar por fecha
-        const paidOrders = data.filter(order => order.status === 'pagado')
+        // Log detallado de cada pedido para debug
+        if (Array.isArray(data)) {
+          data.forEach((order, index) => {
+            console.log(`[OrdersScreen] Pedido ${index + 1}:`, {
+              id: order._id?.slice(-6),
+              status: order.status,
+              total: order.total,
+              createdAt: order.createdAt,
+              products: order.products?.length || 0
+            });
+          });
+        }
+        
+        // Mostrar TODOS los pedidos y ordenar por fecha (desc)
+        const sorted = (Array.isArray(data) ? data : [])
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        console.log('📦 [OrdersScreen] Pedidos pagados:', paidOrders.length);
-        setOrders(paidOrders);
+        setOrders(sorted);
       } else {
         const errorText = await response.text();
         console.error('❌ [OrdersScreen] Error:', response.status, errorText);
@@ -97,29 +109,26 @@ const OrdersScreen = ({ navigation }) => {
   };
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case 'pagado':
-        return '#4CAF50';
-      case 'pending_payment':
-        return '#FF9800';
-      case 'no pagado':
-        return '#F44336';
-      default:
-        return '#9E9E9E';
-    }
+    if (!status) return '#9CA3AF';
+    
+    const s = String(status).toLowerCase().trim();
+    console.log('[OrdersScreen] Estado del pedido:', status);
+    
+    // Solo 3 estados básicos
+    if (s === 'pagado') return '#16a34a';      // Verde
+    if (s === 'pendiente') return '#f59e0b';   // Amarillo  
+    if (s === 'no pagado') return '#ef4444';   // Rojo
+    
+    // Si no coincide con ninguno, usar gris
+    return '#9CA3AF';
   };
 
   const getStatusText = (status) => {
-    switch (status) {
-      case 'pagado':
-        return 'Pagado';
-      case 'pending_payment':
-        return 'Pendiente';
-      case 'no pagado':
-        return 'No pagado';
-      default:
-        return status;
-    }
+    if (!status) return 'Desconocido';
+    
+    // Mostrar exactamente lo que viene del backend
+    console.log('[OrdersScreen] Mostrando estado:', status);
+    return String(status);
   };
 
   const renderOrderItem = ({ item }) => (
@@ -127,18 +136,15 @@ const OrdersScreen = ({ navigation }) => {
       style={styles.orderCard}
       onPress={() => navigation.navigate('OrderDetail', { orderId: item._id })}
     >
-      <LinearGradient
-        colors={['rgba(255, 255, 255, 0.95)', 'rgba(240, 230, 255, 0.8)']}
-        style={styles.orderGradient}
-      >
+      <View style={styles.orderCardInner}>
         <View style={styles.orderHeader}>
           <View style={styles.orderInfo}>
             <View style={styles.orderNumberContainer}>
-              <Ionicons name="diamond" size={16} color="#e91e63" />
+              <Ionicons name="document-text" size={16} color="#6b7280" />
               <Text style={styles.orderNumber}>#{item._id.slice(-6).toUpperCase()}</Text>
             </View>
             <View style={styles.dateContainer}>
-              <Ionicons name="time" size={14} color="#8e24aa" />
+              <Ionicons name="time" size={14} color="#6b7280" />
               <Text style={styles.orderDate}>{formatDate(item.createdAt)}</Text>
             </View>
           </View>
@@ -154,18 +160,17 @@ const OrdersScreen = ({ navigation }) => {
               <View key={index} style={styles.productItem}>
                 <View style={styles.productImageContainer}>
                   <Image
-                    source={{ uri: product.productId?.images?.[0] }}
+                    source={product.productId?.images?.[0] ? { uri: product.productId.images[0] } : require('../../assets/Productos/peinetarosa.png')}
                     style={styles.productImage}
                     defaultSource={require('../../assets/Productos/peinetarosa.png')}
                   />
-                  <View style={styles.imageOverlay} />
                 </View>
                 <View style={styles.productInfo}>
                   <Text style={styles.productName} numberOfLines={1}>
                     {product.productId?.name || 'Producto'}
                   </Text>
                   <View style={styles.quantityContainer}>
-                    <Ionicons name="cube" size={12} color="#8e24aa" />
+                    <Ionicons name="cube" size={12} color="#6b7280" />
                     <Text style={styles.productQuantity}>Cantidad: {product.quantity}</Text>
                   </View>
                 </View>
@@ -173,117 +178,94 @@ const OrdersScreen = ({ navigation }) => {
             ))}
             {item.products.length > 2 && (
               <View style={styles.moreProductsContainer}>
-                <Ionicons name="ellipsis-horizontal" size={16} color="#e91e63" />
+                <Ionicons name="ellipsis-horizontal" size={16} color="#6b7280" />
                 <Text style={styles.moreProducts}>
                   +{item.products.length - 2} productos más
                 </Text>
               </View>
             )}
           </View>
+        </View>
 
-          <View style={styles.orderFooter}>
-            <View style={styles.totalContainer}>
-              <Ionicons name="calculator" size={16} color="#4a148c" />
-              <Text style={styles.totalLabel}>Total:</Text>
-            </View>
-            <View style={styles.priceContainer}>
-              <Text style={styles.orderPrice}>${(item.total || 0).toFixed(2)}</Text>
-            </View>
+        <View style={styles.orderFooter}>
+          <View style={styles.totalContainer}>
+            <Ionicons name="calculator" size={16} color="#6b7280" />
+            <Text style={styles.totalLabel}>Total:</Text>
+            <Text style={styles.totalAmount}>${(item.total || 0).toFixed(2)}</Text>
           </View>
         </View>
 
         <View style={styles.viewDetailButton}>
-          <Ionicons name="eye" size={16} color="#e91e63" />
+          <Ionicons name="eye" size={16} color="#111827" />
           <Text style={styles.viewDetailText}>Ver detalles</Text>
-          <Ionicons name="chevron-forward" size={16} color="#e91e63" />
+          <Ionicons name="chevron-forward" size={16} color="#111827" />
         </View>
-      </LinearGradient>
+      </View>
     </TouchableOpacity>
   );
 
   const EmptyState = () => (
-    <View style={styles.emptyContainer}>
+    <View style={styles.emptyContainer}> 
+      <View style={styles.emptyHeader}><Text style={styles.headerTitle}>Mis Pedidos</Text></View>
       <View style={styles.emptyContent}>
-        <Ionicons name="diamond-outline" size={80} color="#8e24aa" />
+        <Ionicons name="receipt-outline" size={80} color="#6b7280" />
         <Text style={styles.emptyTitle}>No tienes pedidos aún</Text>
-        <Text style={styles.emptySubtitle}>Realiza tu primera compra de joyas exclusivas</Text>
-        <LinearGradient
-          colors={['#e91e63', '#ad1457']}
-          style={styles.startShoppingButton}
-        >
-          <TouchableOpacity 
-            style={styles.startShoppingTouchable}
-            onPress={() => navigation.navigate('Inicio')}
-          >
-            <Ionicons name="bag-add" size={20} color="#fff" />
-            <Text style={styles.startShoppingText}>Comenzar a comprar</Text>
-          </TouchableOpacity>
-        </LinearGradient>
+        <Text style={styles.emptySubtitle}>Realiza tu primera compra</Text>
+        <TouchableOpacity style={styles.startShoppingCta} onPress={() => navigation.navigate('Home')}>
+          <Text style={styles.startShoppingCtaText}>Comenzar a comprar</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 
   if (loading) {
     return (
-      <LinearGradient
-        colors={['#f8bbd9', '#e1bee7', '#ce93d8']}
-        style={styles.loadingContainer}
-      >
+      <View style={[styles.loadingContainer, { backgroundColor: 'rgba(255, 221, 221, 0.37)' }]}>
+        <StatusBar style="dark" />
         <View style={styles.loadingContent}>
-          <Ionicons name="diamond-outline" size={60} color="#4a148c" />
-          <ActivityIndicator size="large" color="#6a1b9a" style={{ marginTop: 20 }} />
-          <Text style={styles.loadingText}>Cargando tus pedidos...</Text>
+          <ActivityIndicator size="large" color="#999" />
+          <Text style={[styles.loadingText, { color: '#6b7280' }]}>Cargando tus pedidos...</Text>
         </View>
-      </LinearGradient>
+      </View>
     );
   }
 
   return (
-    <LinearGradient
-      colors={['#f8bbd9', '#e1bee7', '#ce93d8']}
-      style={styles.container}
-    >
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <Ionicons name="receipt" size={32} color="#4a148c" />
-          <Text style={styles.headerTitle}>Mis Pedidos</Text>
-        </View>
-        <Text style={styles.headerSubtitle}>
-          {user?.firstName}, aquí están tus compras exclusivas
-        </Text>
+    <View style={styles.container}>
+      <StatusBar style="dark" />
+      <View style={styles.headerBar}>
+        <Text style={styles.headerTitle}>Mis Pedidos</Text>
       </View>
 
-      {orders.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <FlatList
-          data={orders}
-          renderItem={renderOrderItem}
-          keyExtractor={(item) => item._id}
-          contentContainerStyle={styles.listContainer}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={['#E8B4CB']}
-              tintColor="#E8B4CB"
-            />
-          }
-        />
-      )}
-    </LinearGradient>
+      <FlatList
+        data={orders}
+        keyExtractor={(item) => item._id}
+        renderItem={renderOrderItem}
+        contentContainerStyle={orders.length === 0 ? styles.emptyListContainer : styles.listContainer}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#000']}
+            tintColor="#000"
+          />
+        }
+        showsVerticalScrollIndicator={false}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
   },
   loadingContent: {
     alignItems: 'center',
@@ -291,54 +273,49 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: '#4a148c',
+    color: '#111827',
     fontWeight: '500',
   },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 25,
-  },
-  headerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    marginBottom: 10,
+  headerBar: {
+    paddingTop: 56,
+    paddingBottom: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#4a148c',
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: '#6a1b9a',
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#111827',
     textAlign: 'center',
-    fontWeight: '500',
   },
   listContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  emptyListContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
   },
   orderCard: {
     marginBottom: 16,
-    borderRadius: 20,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     overflow: 'hidden',
-    shadowColor: '#6a1b9a',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 8,
   },
-  orderGradient: {
-    padding: 20,
+  orderCardInner: {
+    padding: 16,
   },
   orderHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   orderInfo: {
     flex: 1,
@@ -347,82 +324,68 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginBottom: 6,
+    marginBottom: 4,
+  },
+  orderNumber: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
   },
   dateContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
   },
-  orderNumber: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#4a148c',
-  },
   orderDate: {
     fontSize: 12,
-    color: '#8e24aa',
-    fontWeight: '500',
+    color: '#6b7280',
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
   statusText: {
-    color: '#FFFFFF',
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: '#fff',
   },
   orderContent: {
-    marginBottom: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#f3f4f6',
+    paddingTop: 12,
   },
   productsList: {
-    marginBottom: 16,
+    marginBottom: 12,
   },
   productItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    padding: 12,
-    borderRadius: 12,
+    marginBottom: 8,
   },
   productImageContainer: {
-    position: 'relative',
-    marginRight: 12,
-  },
-  imageOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    width: 60,
+    height: 60,
     borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#ab47bc',
+    overflow: 'hidden',
+    marginRight: 12,
+    backgroundColor: '#f9fafb',
   },
   productImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 8,
+    width: '100%',
+    height: '100%',
   },
   productInfo: {
     flex: 1,
   },
   productName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#4a148c',
-    marginBottom: 4,
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#111827',
+    marginBottom: 2,
   },
   quantityContainer: {
     flexDirection: 'row',
@@ -431,114 +394,115 @@ const styles = StyleSheet.create({
   },
   productQuantity: {
     fontSize: 12,
-    color: '#8e24aa',
-    fontWeight: '500',
-  },
-  moreProductsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(233, 30, 99, 0.1)',
-    padding: 8,
-    borderRadius: 8,
-    marginTop: 8,
+    color: '#6b7280',
   },
   moreProducts: {
-    fontSize: 14,
-    color: '#e91e63',
-    fontWeight: '600',
+    fontSize: 12,
+    color: '#6b7280',
+    fontStyle: 'italic',
+    marginTop: 4,
   },
   orderFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(171, 71, 188, 0.2)',
-    marginTop: 8,
+    borderTopColor: '#f3f4f6',
+    paddingVertical: 16,
+    marginTop: 12,
   },
   totalContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-  },
-  priceContainer: {
-    backgroundColor: 'rgba(233, 30, 99, 0.1)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
+    justifyContent: 'center',
+    gap: 8,
   },
   totalLabel: {
     fontSize: 16,
-    color: '#4a148c',
+    color: '#6b7280',
+    fontWeight: '500',
+  },
+  totalAmount: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  viewButton: {
+    backgroundColor: '#000',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  viewButtonText: {
+    color: '#fff',
+    fontSize: 12,
     fontWeight: '600',
+  },
+  moreProductsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 4,
+  },
+  priceContainer: {
+    alignItems: 'flex-end',
   },
   orderPrice: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#e91e63',
+    fontWeight: '700',
+    color: '#111827',
   },
   viewDetailButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#f9fafb',
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(171, 71, 188, 0.2)',
-    marginTop: 16,
-    gap: 8,
+    borderTopColor: '#f3f4f6',
   },
   viewDetailText: {
-    fontSize: 16,
-    color: '#e91e63',
-    fontWeight: '600',
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#111827',
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
+  },
+  emptyHeader: {
+    paddingTop: 56,
+    paddingBottom: 12,
     alignItems: 'center',
-    paddingHorizontal: 40,
   },
   emptyContent: {
     alignItems: 'center',
+    paddingTop: 80,
+    paddingHorizontal: 32,
   },
   emptyTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#4a148c',
-    marginTop: 24,
-    marginBottom: 12,
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#111827',
+    marginTop: 16,
+    marginBottom: 8,
     textAlign: 'center',
   },
   emptySubtitle: {
-    fontSize: 16,
-    color: '#6a1b9a',
+    fontSize: 14,
+    color: '#6b7280',
     textAlign: 'center',
-    marginBottom: 32,
+    marginBottom: 24,
     fontWeight: '500',
   },
-  startShoppingButton: {
-    borderRadius: 25,
-    overflow: 'hidden',
-    shadowColor: '#e91e63',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 8,
+  startShoppingCta: {
+    backgroundColor: '#000',
+    borderRadius: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
   },
-  startShoppingTouchable: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    gap: 10,
-  },
-  startShoppingText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-    letterSpacing: 0.5,
+  startShoppingCtaText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 

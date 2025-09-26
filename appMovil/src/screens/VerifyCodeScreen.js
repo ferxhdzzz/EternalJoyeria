@@ -5,19 +5,16 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   Animated,
   Dimensions,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Image,
   SafeAreaView,
   TouchableWithoutFeedback,
   Keyboard,
   ActivityIndicator,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
@@ -431,47 +428,39 @@ const VerifyCodeScreen = ({ route }) => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <LinearGradient
-            colors={['#fef7f7', '#fce7e7', '#f9a8d4']}
-            style={styles.background}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
-            {/* Elementos decorativos */}
-            <View style={styles.decorativeCircle1} />
-            <View style={styles.decorativeCircle2} />
-            <View style={styles.decorativeCircle3} />
-           
-            <ScrollView
-              contentContainerStyle={styles.scrollContainer}
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
-            >
-              {/* Boton de regreso */}
-              <Animated.View style={[styles.backButtonContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-                <TouchableOpacity
-                  style={styles.backButton}
-                  onPress={handleBack}
-                  disabled={isLoading}
-                >
-                  <Ionicons name="arrow-back" size={24} color="#ec4899" />
-                </TouchableOpacity>
-              </Animated.View>
-              <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-                <View style={styles.logoContainer}>
-                  <Text style={styles.brandName}>Eternal Joyería</Text>
-                  <View style={styles.logoAccent} />
-                </View>
-                <Text style={styles.title}>Verificar Código</Text>
-                <Text style={styles.subtitle}>
-                  {isPasswordRecovery
-                    ? 'Ingresa el código de verificación que enviamos a tu correo para restablecer tu contraseña'
-                    : 'Ingresa el código de verificación que enviamos a tu correo para activar tu cuenta'
-                  }
-                </Text>
-              </Animated.View>
+            {/* Boton de regreso */}
+            <Animated.View style={[styles.backButtonContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={handleBack}
+                disabled={isLoading}
+              >
+                <Ionicons name="arrow-back" size={24} color="#000" />
+              </TouchableOpacity>
+            </Animated.View>
  
-              <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
+            {/* Header con logo y titulo */}
+            <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+              <View style={styles.logoContainer}>
+                <Text style={styles.brandName}>Eternal Joyería</Text>
+                <View style={styles.logoAccent} />
+              </View>
+              <Text style={styles.title}>Verificar Código</Text>
+              <Text style={styles.subtitle}>
+                {isPasswordRecovery
+                  ? 'Ingresa el código de verificación que enviamos a tu correo para restablecer tu contraseña'
+                  : 'Ingresa el código de verificación que enviamos a tu correo para activar tu cuenta'
+                }
+              </Text>
+            </Animated.View>
+ 
+            {/* Formulario de codigo */}
+            <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
               <View style={styles.codeContainer}>
                 {Array.from({ length: codeLength }, (_, index) => (
                   <TextInput
@@ -527,6 +516,7 @@ const VerifyCodeScreen = ({ route }) => {
                 )}
               </TouchableOpacity>
  
+              {/* Seccion de reenvio */}
               <View style={styles.resendContainer}>
                 <Text style={styles.resendText}>
                   ¿No recibiste el código?{' '}
@@ -538,9 +528,8 @@ const VerifyCodeScreen = ({ route }) => {
                   </Text>
                 </Text>
               </View>
-              </Animated.View>
-            </ScrollView>
-          </LinearGradient>
+            </Animated.View>
+          </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
      
@@ -564,10 +553,7 @@ const VerifyCodeScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fef7f7',
-  },
-  background: {
-    flex: 1,
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
   },
   scrollContainer: {
     flexGrow: 1,
@@ -582,55 +568,58 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   backButton: {
-    padding: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 25,
-    shadowColor: '#ec4899',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    width: 45,
+    height: 45,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 30,
   },
   brandName: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '700',
-    color: '#ec4899',
-    fontFamily: 'System',
+    color: '#f48fb1',
     letterSpacing: 1,
-    textShadow: '0 2px 4px rgba(236, 72, 153, 0.3)',
   },
   logoAccent: {
-    width: 60,
+    width: 50,
     height: 3,
-    backgroundColor: '#f472b6',
+    backgroundColor: '#f48fb1',
     borderRadius: 2,
     marginTop: 8,
   },
   header: {
     marginBottom: 40,
     alignItems: 'center',
-    paddingTop: 60,
+    paddingTop: 80,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#ec4899',
-    marginBottom: 10,
+    color: '#2d2d2d',
+    marginBottom: 15,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: '#be185d',
+    color: '#666',
     textAlign: 'center',
     paddingHorizontal: 20,
     lineHeight: 22,
   },
   formContainer: {
     width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   codeContainer: {
     flexDirection: 'row',
@@ -640,71 +629,52 @@ const styles = StyleSheet.create({
   codeInput: {
     width: 50,
     height: 60,
-    borderWidth: 2,
-    borderColor: '#f9a8d4',
-    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderRadius: 8,
     textAlign: 'center',
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#ec4899',
+    color: '#2d2d2d',
     backgroundColor: '#fff',
-    shadowColor: '#f472b6',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  codeInputFocused: {
-    borderColor: '#ec4899',
-    backgroundColor: '#fef7f7',
-    shadowOpacity: 0.2,
   },
   codeInputError: {
-    borderColor: '#e11d48',
+    borderColor: '#f44336',
     backgroundColor: '#fef2f2',
   },
   codeInputSuccess: {
-    borderColor: '#10b981',
+    borderColor: '#4caf50',
     backgroundColor: '#f0fdf4',
   },
   errorText: {
-    color: '#e74c3c',
+    color: '#f44336',
     fontSize: 14,
     marginBottom: 15,
     textAlign: 'center',
-    fontFamily: 'Poppins-Medium',
   },
   successText: {
-    color: '#2ecc71',
+    color: '#4caf50',
     fontSize: 14,
     marginBottom: 15,
     textAlign: 'center',
-    fontFamily: 'Poppins-Medium',
   },
   hintText: {
-    color: '#7f8c8d',
+    color: '#666',
     fontSize: 14,
     marginBottom: 25,
     textAlign: 'center',
-    fontFamily: 'Poppins-Regular',
     lineHeight: 20,
   },
   button: {
-    backgroundColor: '#ec4899',
+    backgroundColor: '#000',
     paddingVertical: 15,
     paddingHorizontal: 30,
-    borderRadius: 25,
+    borderRadius: 8,
     alignItems: 'center',
     marginTop: 20,
-    shadowColor: '#ec4899',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
   },
   buttonDisabled: {
-    backgroundColor: '#f9a8d4',
-    shadowOpacity: 0.1,
+    backgroundColor: '#ccc',
   },
   buttonText: {
     color: '#fff',
@@ -713,50 +683,19 @@ const styles = StyleSheet.create({
   },
   resendContainer: {
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 20,
   },
   resendText: {
-    color: '#7f8c8d',
+    color: '#666',
     fontSize: 14,
   },
   resendLink: {
-    color: '#ec4899',
+    color: '#f48fb1',
     fontWeight: 'bold',
   },
   resendLinkDisabled: {
-    color: '#f9a8d4',
-  },
-  decorativeCircle1: {
-    position: 'absolute',
-    top: 100,
-    right: -50,
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: 'rgba(244, 114, 182, 0.1)',
-    zIndex: 1,
-  },
-  decorativeCircle2: {
-    position: 'absolute',
-    bottom: 200,
-    left: -30,
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(236, 72, 153, 0.15)',
-    zIndex: 1,
-  },
-  decorativeCircle3: {
-    position: 'absolute',
-    top: 300,
-    left: 30,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(249, 168, 212, 0.2)',
-    zIndex: 1,
+    color: '#ccc',
   },
 });
  
 export default VerifyCodeScreen;
- 
