@@ -32,7 +32,7 @@ loginController.login = async (req, res) => {
 
     // Si no encontramos el usuario en ninguna tabla
     if (!userFound) {
-      return res.json({ message: "User not found" });
+      return res.status(401).json({ message: "User not found" });
     }
 
     // SISTEMA DE BLOQUEO POR INTENTOS FALLIDOS 
@@ -61,13 +61,12 @@ loginController.login = async (req, res) => {
 
       // Guardar el nuevo número de intentos y mostrar intentos restantes
       await userFound.save();
-      return res.json({
-        message: `Invalid password. Remaining attempts: ${MAX_ATTEMPTS - userFound.loginAttempts}`
+      return res.status(401).json({
+        message: `Credenciales inválidas ${MAX_ATTEMPTS - userFound.loginAttempts} intentos restantes`
       });
     }
 
     //  CONTRASEÑA CORRECTA 
-    // Resetear contador de intentos y tiempo de bloqueo
     userFound.loginAttempts = 0;
     userFound.lockUntil = null;
     await userFound.save();
@@ -78,7 +77,7 @@ loginController.login = async (req, res) => {
         id: userFound._id,    // ID único del usuario
         userType             // Tipo: "admin" o "customer"
       },
-      config.jwt.secret,      // Clave secreta para firmar el token
+      config.jwt.jwtSecret,      // Clave secreta para firmar el token
       { expiresIn: config.jwt.expiresIn }  // Tiempo de expiración
     );
 
@@ -87,7 +86,8 @@ loginController.login = async (req, res) => {
       httpOnly: true,                    // Solo accesible desde el servidor
       maxAge: 24 * 60 * 60 * 1000,      // 24 horas en milisegundos
       path: '/',                         // Disponible en todas las rutas
-      sameSite: 'lax'                   // Protección CSRF
+      sameSite: 'lax',                  // Protección CSRF
+      secure: false                      // false para desarrollo local (HTTP)
     });
 
     // Respuesta exitosa

@@ -20,6 +20,7 @@ import HistorialPage from './pages/Historial';
 import ProductDetail from './pages/ProductDetail';
 import CheckoutPage from './pages/CheckoutPage';
 import { CartProvider } from './context/CartContext';
+import { AuthProvider } from './context/AuthContext';
 import Contact from './pages/ContactUs';
 import DetailProduct from './pages/DetailProduct';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -58,10 +59,11 @@ function App() {
   }, []);
 
   return (
-    <CartProvider>
-      <Router>
-        <ScrollToTop />
-        <Routes>
+    <AuthProvider>
+      <CartProvider>
+        <Router>
+          <ScrollToTop />
+          <Routes>
           <Route path="/" element={<Home />} />
           
           {/* Flujo recuperación */}
@@ -137,8 +139,9 @@ function App() {
           {/* Ruta para manejar páginas no encontradas */}
           <Route path="*" element={<Error404 />} />
         </Routes>
-      </Router>
-    </CartProvider>
+        </Router>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 
