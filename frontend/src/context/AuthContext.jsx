@@ -38,11 +38,13 @@ export const AuthProvider = ({ children }) => {
       // Respuesta 200 OK - debe ser login exitoso
       if (isJSON && data.message === "login successful") {
         // Login exitoso - la cookie ya fue guardada por el servidor
+        console.log("Login exitoso, actualizando estado del usuario");
         setUser({ email });
         return { success: true, message: "Login exitoso" };
       }
 
       // Fallback para respuesta 200 exitosa sin mensaje específico
+      console.log("Login exitoso (fallback), actualizando estado del usuario");
       setUser({ email });
       return { success: true, message: "Login exitoso" };
 

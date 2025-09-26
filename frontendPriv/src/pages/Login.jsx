@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { useAdminAuth } from "../context/AdminAuthContext";
 
 import Logo from "../components/registro/logo/Logo";
 import Button from "../components/registro/button/Button";
@@ -52,6 +53,7 @@ export default function Login() {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { updateAuthStatus } = useAdminAuth();
 
   const onSubmit = async (data) => {
     console.log("Form submitted:", data);
@@ -77,11 +79,25 @@ export default function Login() {
         return;
       }
 
-      Swal.fire({
-        icon: "success",
-        title: "¡Bienvenido/a de vuelta!",
-        text: "Has iniciado sesión exitosamente.",
-      }).then(() => navigate("/dashboard"));
+      // Actualizar el estado de autenticación después del login exitoso
+      const isAuthUpdated = await updateAuthStatus();
+      
+      if (isAuthUpdated) {
+        Swal.fire({
+          icon: "success",
+          title: "¡Bienvenido/a de vuelta!",
+          text: "Has iniciado sesión exitosamente.",
+        }).then(() => {
+          console.log("Redirigiendo a /dashboard...");
+          navigate("/dashboard");
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error de autenticación",
+          text: "No se pudo verificar el estado de administrador.",
+        });
+      }
     } catch (error) {
       console.error(error);
       Swal.fire({
@@ -142,7 +158,7 @@ export default function Login() {
         <Button type="submit" text="Ingresar →" />
       </form>
 
-      <style jsx>{`
+      <style>{`
         /* Estilos para los inputs rosados mejorados */
         .pink-input-container {
           margin-bottom: 20px;

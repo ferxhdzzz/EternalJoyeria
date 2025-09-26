@@ -97,6 +97,7 @@ const Login = () => {
 
     try {
       const res = await login({ email: form.email, password: form.password });
+      console.log("Resultado del login:", res);
 
       if (res?.success) {
         Swal.fire({
@@ -107,8 +108,9 @@ const Login = () => {
           confirmButtonColor: "#ff69b4",
         }).then(() => {
           // Pequeña pausa para asegurar que el contexto se actualice
+          console.log("Redirigiendo a /perfil...");
           setTimeout(() => {
-            navigate("/productos");
+            navigate("/perfil");
           }, 100);
         });
       } else {

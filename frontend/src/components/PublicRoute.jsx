@@ -1,8 +1,8 @@
-// src/components/PublicRoute.jsx
+// src/components/PrivateRoute.jsx
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-const PublicRoute = ({ children }) => {
+const PrivateRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) return <div>Cargando...</div>; 
@@ -11,4 +11,4 @@ const PublicRoute = ({ children }) => {
   return children;
 };
 
-export default PublicRoute;
+export default PrivateRoute;

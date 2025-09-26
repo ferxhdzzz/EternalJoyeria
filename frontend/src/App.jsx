@@ -43,7 +43,8 @@ import CategoryProducts from './pages/CategoryProducts';
 import Error404 from './pages/Error404';
 
 
-import PublicRoute from './components/PublicRoute';
+import PrivateRoute from './components/PublicRoute';
+import AuthDebug from './components/AuthDebug';
 
 import './App.css';
 
@@ -63,6 +64,7 @@ function App() {
       <CartProvider>
         <Router>
           <ScrollToTop />
+          <AuthDebug />
           <Routes>
           <Route path="/" element={<Home />} />
           
@@ -94,30 +96,37 @@ function App() {
           <Route path="/product/:id" element={<ProductDetail />} />
 
           {/* Protegidas */}
-          <Route path="/perfil" element={<Profiles />} />
+          <Route 
+            path="/perfil" 
+            element={
+              <PrivateRoute>
+                <Profiles />
+              </PrivateRoute>
+            } 
+          />
           <Route
             path="/historial"
             element={
-              <PublicRoute>
+              <PrivateRoute>
                 <HistorialPage />
-              </PublicRoute>
+              </PrivateRoute>
             }
           />
           <Route
             path="/checkout"
             element={
-              <PublicRoute>
+              <PrivateRoute>
                 <CheckoutPage />
-              </PublicRoute>
+              </PrivateRoute>
             }
           />
 
    <Route
             path="/histReview"
             element={
-              <PublicRoute>
+              <PrivateRoute>
                 <HistorialReviews />
-              </PublicRoute>
+              </PrivateRoute>
             }
           />
 
