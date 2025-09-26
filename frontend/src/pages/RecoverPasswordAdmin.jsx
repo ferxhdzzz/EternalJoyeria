@@ -37,7 +37,7 @@ const RecoverPasswordAdmin = () => {
     if (Object.keys(newErrors).length === 0) {
       try {
         const response = await fetch(
-          "https://eternaljoyeria-cg5d.onrender.com/api/recoveryPassword/admin",
+          "http://localhost:4000/api/recoveryPassword/admin",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

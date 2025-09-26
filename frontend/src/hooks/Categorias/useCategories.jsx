@@ -13,7 +13,7 @@ const useCategories = () => {
       console.log('Cargando categorías desde API...');
       
       // Reemplaza apiFetch por fetch directamente
-      const res = await fetch('https://eternaljoyeria-cg5d.onrender.com/api/categories', {
+      const res = await fetch('http://localhost:4000/api/categories', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ const useCategories = () => {
     setError(null);
 
     try {
-      const res = await fetch('https://eternaljoyeria-cg5d.onrender.com/api/categories', {
+      const res = await fetch('http://localhost:4000/api/categories', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

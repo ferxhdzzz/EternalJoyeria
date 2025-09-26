@@ -1,7 +1,7 @@
 import React from "react";
 import { createContext, useContext, useState, useEffect } from "react";
 
-const SERVER_URL = "https://eternaljoyeria-cg5d.onrender.com/api";
+const SERVER_URL = "http://localhost:4000/api";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
