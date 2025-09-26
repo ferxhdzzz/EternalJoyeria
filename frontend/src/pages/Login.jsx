@@ -106,9 +106,10 @@ const Login = () => {
           confirmButtonText: "¡Genial!",
           confirmButtonColor: "#ff69b4",
         }).then(() => {
-
-          navigate("/productos");
-
+          // Pequeña pausa para asegurar que el contexto se actualice
+          setTimeout(() => {
+            navigate("/productos");
+          }, 100);
         });
       } else {
         Swal.fire({
@@ -171,7 +172,7 @@ const Login = () => {
         <Label textBefore="¿No tienes cuenta?" linkText="Regístrate" to="/registro" />
       </form>
 
-      <style jsx>{`
+      <style>{`
         /* Estilos para los inputs rosados mejorados */
         .pink-input-container {
           margin-bottom: 20px;

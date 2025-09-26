@@ -1,7 +1,7 @@
 import React from "react";
 import { createContext, useContext, useState, useEffect } from "react";
 
-const SERVER_URL = "http://localhost:4000/api";
+const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -21,41 +21,28 @@ export const AuthProvider = ({ children }) => {
       const isJSON = response.headers.get("content-type")?.includes("application/json");
       const data = isJSON ? await response.json() : await response.text();
 
-      // Manejar errores HTTP (403 = cuenta bloqueada, 500 = server error)
+      // Manejar errores HTTP
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error(isJSON && data.message ? data.message : "Credenciales inválidas");
+        }
         if (response.status === 403) {
-          throw new Error(isJSON && data.message ? data.message : "Account temporarily locked");
+          throw new Error(isJSON && data.message ? data.message : "Cuenta temporalmente bloqueada");
         }
         if (response.status === 500) {
-          throw new Error(isJSON && data.message ? data.message : "Server error");
+          throw new Error(isJSON && data.message ? data.message : "Error del servidor");
         }
-        throw new Error(isJSON && data.message ? data.message : `HTTP ${response.status}`);
+        throw new Error(isJSON && data.message ? data.message : `Error HTTP ${response.status}`);
       }
 
-      // Respuesta 200 OK - verificar el contenido del mensaje
-      if (isJSON && data.message) {
-        // Casos de error con status 200
-        if (data.message === "User not found") {
-          throw new Error("Usuario no encontrado");
-        }
-        
-        if (data.message.includes("Invalid password")) {
-          throw new Error(data.message); // Incluye "Remaining attempts: X"
-        }
-        
-        // Caso de éxito
-        if (data.message === "login successful") {
-          // Login exitoso - la cookie ya fue guardada por el servidor
-          // Como tu controlador no devuelve datos del usuario, guardamos lo básico
-          setUser({ email });
-          return { success: true, message: "Login exitoso" };
-        }
-        
-        // Cualquier otro mensaje, tratarlo como error
-        throw new Error(data.message);
+      // Respuesta 200 OK - debe ser login exitoso
+      if (isJSON && data.message === "login successful") {
+        // Login exitoso - la cookie ya fue guardada por el servidor
+        setUser({ email });
+        return { success: true, message: "Login exitoso" };
       }
 
-      // Fallback si no hay mensaje
+      // Fallback para respuesta 200 exitosa sin mensaje específico
       setUser({ email });
       return { success: true, message: "Login exitoso" };
 
@@ -84,11 +71,20 @@ export const AuthProvider = ({ children }) => {
   const checkAuthStatus = async () => {
     setLoading(true);
     try {
-      // Como no tienes ruta /me o similar, no podemos verificar la sesión automáticamente
-      // Por ahora solo seteamos loading a false
-      // Idealmente necesitarías una ruta GET /auth/verify para verificar el token
-      
-      // El usuario solo se setea después del login exitoso
+      // Intentar hacer una petición a una ruta protegida para verificar si hay sesión activa
+      const response = await fetch(`${SERVER_URL}/customers/me`, {
+        method: "GET",
+        credentials: "include", // Incluir cookies
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        // Si la petición es exitosa, significa que hay una sesión válida
+        setUser({ email: userData.email || "user@example.com" });
+      } else {
+        // No hay sesión válida
+        setUser(null);
+      }
     } catch (error) {
       console.error("Auth check error:", error);
       setUser(null);

@@ -167,7 +167,9 @@ registerCustomersController.registerClient = async (req, res) => {
     }
 
     // ===== ENVIAR EMAIL DE VERIFICACIÓN =====
+    console.log("ANTEEEEESSending verification email to:", newClient.email);
     try {
+      console.log("ADENTROding verification email to:", newClient.email);
       await sendMail(
         newClient.email,
         "Your verification code",

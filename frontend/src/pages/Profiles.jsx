@@ -115,7 +115,12 @@ const Profile = () => {
 
   const handleEditClick = (field) => {
     setEditingField(field);
-    setTempValue(localUser[field]);
+    if (field === 'name') {
+      // Para el campo nombre, mostrar firstName + lastName
+      setTempValue(`${localUser.firstName} ${localUser.lastName}`.trim());
+    } else {
+      setTempValue(localUser[field]);
+    }
   };
 
   const handleSaveEdit = async (field) => {
@@ -136,7 +141,17 @@ const Profile = () => {
         console.log('📝 Enviando actualización al backend:', updateData);
         const result = await updateProfile(updateData);
         if (result.success) {
-          setLocalUser(prev => ({ ...prev, [field]: tempValue }));
+          // Si es el campo 'name', actualizar firstName y lastName por separado
+          if (field === 'name') {
+            const nameParts = tempValue.split(' ');
+            setLocalUser(prev => ({ 
+              ...prev, 
+              firstName: nameParts[0] || '',
+              lastName: nameParts.slice(1).join(' ') || ''
+            }));
+          } else {
+            setLocalUser(prev => ({ ...prev, [field]: tempValue }));
+          }
           showMessage('Perfil actualizado correctamente!');
         } else {
           showMessage('Error al actualizar: ' + result.error);
@@ -404,7 +419,7 @@ const handleLogout = async () => {
               </label>
             </div>
             <div className="profile-info-box">
-              {renderField('name', 'Tu nombre', `${localUser.firstName} `)}
+              {renderField('name', 'Tu nombre', `${localUser.firstName} ${localUser.lastName}`.trim())}
               {renderField('email', 'Tu correo', localUser.email)}
               {renderField('phone', 'Tu telefono', localUser.phone)}
               {renderField('password', 'Tu contraseña', '••••••••', true)}
