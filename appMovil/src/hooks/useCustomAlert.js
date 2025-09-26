@@ -181,12 +181,12 @@ const useCustomAlert = () => {
     );
   }, [showSuccess]);
 
-  // Alerta para cerrar sesion
+  // Alerta para desconectarse
   const showLogoutConfirm = useCallback((onConfirm, onCancel) => {
     showAlert({
       type: 'warning',
-      title: 'Cerrar sesión',
-      message: '¿Estás seguro de que quieres cerrar tu sesión?',
+      title: 'Desconectarse',
+      message: '¿Estás seguro de que quieres desconectarte?',
       buttons: [
         {
           text: 'Cancelar',
@@ -194,7 +194,7 @@ const useCustomAlert = () => {
           onPress: onCancel,
         },
         {
-          text: 'Cerrar sesión',
+          text: 'Desconectarse',
           style: 'confirm',
           onPress: onConfirm,
         },

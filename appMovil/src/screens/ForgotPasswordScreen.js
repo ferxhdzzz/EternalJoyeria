@@ -187,49 +187,32 @@ const ForgotPasswordScreen = ({ navigation }) => {
       <KeyboardAvoidingView 
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <LinearGradient
-            colors={['#fef7e7', '#fdf4e3', '#fcf1df']}
-            style={styles.background}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
-            {/* Elementos decorativos */}
-            {isAnimationComplete && (
-              <>
-                <View style={styles.decorativeCircle1} />
-                <View style={styles.decorativeCircle2} />
-                <View style={styles.decorativeCircle3} />
-              </>
-            )}
+          <View style={styles.background}>
+            {/* Header limpio */}
+            <View style={styles.header}>
+              <View style={styles.headerContent}>
+                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                  <Ionicons name="arrow-back" size={24} color="#000000" />
+                </TouchableOpacity>
+                <View style={styles.headerCenter}>
+                  <Text style={styles.headerTitle}>Recuperar Contraseña</Text>
+                </View>
+                <View style={styles.headerSpacer} />
+              </View>
+            </View>
             
             <ScrollView
               contentContainerStyle={styles.scrollContainer}
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
-              keyboardDismissMode="on-drag"
-              bounces={false}
             >
-              {/* Boton de regreso */}
-              <Animated.View style={[styles.backButtonContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                  <Ionicons name="arrow-back" size={24} color="#d4af37" />
-                </TouchableOpacity>
-              </Animated.View>
-
-              {/* Encabezado con logo */}
-              <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-                <View style={styles.logoContainer}>
-                  <Text style={styles.logoText}>Eternal Joyería</Text>
-                  <View style={styles.logoUnderline} />
-                </View>
-                <Text style={styles.welcomeTitle}>Recuperar Contraseña</Text>
-                <Text style={styles.welcomeSubtitle}>
-                  No te preocupes, te ayudaremos a recuperar tu acceso
+              {/* Contenido principal */}
+              <View style={styles.contentContainer}>
+                <Text style={styles.subtitle}>
+                  Ingresa tu correo electrónico para recibir un código de recuperación
                 </Text>
-              </Animated.View>
 
               {/* Formulario de recuperacion */}
               <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
@@ -237,7 +220,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
                 <View style={styles.inputContainer}>
                   <Text style={styles.inputLabel}>Correo Electrónico</Text>
                   <View style={[styles.inputWrapper, emailError ? styles.inputError : null]}>
-                    <Ionicons name="mail-outline" size={20} color="#d4af37" style={styles.inputIcon} />
+                    <Ionicons name="mail-outline" size={20} color="#000000" style={styles.inputIcon} />
                     <TextInput
                       style={styles.textInput}
                       placeholder="correo@ejemplo.com"
@@ -255,7 +238,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
 
                 {/* Informacion adicional */}
                 <View style={styles.infoContainer}>
-                  <Ionicons name="information-circle-outline" size={20} color="#d4af37" style={styles.infoIcon} />
+                  <Ionicons name="information-circle-outline" size={20} color="#000000" style={styles.infoIcon} />
                   <Text style={styles.infoText}>
                     Te enviaremos un código de verificación a tu correo electrónico para que puedas cambiar tu contraseña de forma segura.
                   </Text>
@@ -295,8 +278,9 @@ const ForgotPasswordScreen = ({ navigation }) => {
                   </TouchableOpacity>
                 </View>
               </Animated.View>
+              </View>
             </ScrollView>
-          </LinearGradient>
+          </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
 
@@ -320,7 +304,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fef7e7',
+    backgroundColor: 'rgba(255, 221, 221, 0.37)', // Fondo rosa pastel con 37% opacidad
   },
   background: {
     flex: 1,
@@ -330,33 +314,57 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: 'center',
     padding: 20,
-    paddingTop: 20,
-    paddingBottom: 40,
-    minHeight: '100%',
-  },
-  backButtonContainer: {
-    position: 'absolute',
-    top: 50,
-    left: 20,
-    zIndex: 10,
   },
   backButton: {
     padding: 12,
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: 25,
-    shadowColor: '#d4af37',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 5,
   },
   header: {
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  headerContent: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 30,
-    zIndex: 2,
-    marginTop: Platform.OS === 'ios' ? 0 : 20,
+    justifyContent: 'space-between',
+  },
+  headerCenter: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000000', // Texto negro
+  },
+  headerSpacer: {
+    width: 45,
+  },
+  contentContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 20,
+    marginTop: 20,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#000000', // Texto negro
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 22,
   },
   logoContainer: {
     alignItems: 'center',
@@ -365,26 +373,26 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 30,
     fontWeight: 'bold',
-    color: '#d4af37',
+    color: '#000000',
     letterSpacing: 1,
   },
   logoUnderline: {
     width: 60,
     height: 3,
-    backgroundColor: '#b8860b',
+    backgroundColor: '#FFB6C1', // Rosa pastel
     marginTop: 5,
     borderRadius: 2,
   },
   welcomeTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#8b4513',
+    color: '#000000',
     textAlign: 'center',
     marginBottom: 10,
   },
   welcomeSubtitle: {
     fontSize: 16,
-    color: '#a0522d',
+    color: '#000000',
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -396,7 +404,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 20,
     padding: 25,
-    shadowColor: '#d4af37',
+    shadowColor: '#FFB6C1',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
     shadowRadius: 20,
@@ -409,7 +417,7 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#8b4513',
+    color: '#000000', // Texto negro
     marginBottom: 8,
     marginLeft: 5,
   },
@@ -419,10 +427,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 15,
     borderWidth: 2,
-    borderColor: '#daa520',
+    borderColor: '#FFB6C1', // Contorno rosa pastel
     paddingHorizontal: 15,
     height: 56,
-    shadowColor: '#d4af37',
+    shadowColor: '#FFB6C1',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -435,7 +443,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#1e293b',
+    color: '#000000', // Texto negro
     paddingRight: 10,
     includeFontPadding: false,
     textAlignVertical: 'center',
@@ -453,11 +461,11 @@ const styles = StyleSheet.create({
   infoContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: '#fef9e7',
+    backgroundColor: '#FFB6C1', // Fondo rosa pastel
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#f4d03f',
+    borderColor: '#FFB6C1', // Contorno rosa pastel
     marginBottom: 25,
   },
   infoIcon: {
@@ -467,15 +475,15 @@ const styles = StyleSheet.create({
   infoText: {
     flex: 1,
     fontSize: 14,
-    color: '#8b4513',
+    color: '#000000', // Texto negro
     lineHeight: 20,
   },
   sendCodeButton: {
-    backgroundColor: '#d4af37',
+    backgroundColor: '#000000', // Fondo negro
     paddingVertical: 16,
     borderRadius: 25,
     marginBottom: 20,
-    shadowColor: '#b8860b',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
@@ -486,7 +494,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
   },
   sendCodeButtonText: {
-    color: '#fff',
+    color: '#FFFFFF', // Texto blanco
     fontSize: 18,
     fontWeight: '700',
     textAlign: 'center',
@@ -506,11 +514,11 @@ const styles = StyleSheet.create({
   },
   backToLoginText: {
     fontSize: 14,
-    color: '#8b4513',
+    color: '#000000', // Texto negro
     textAlign: 'center',
   },
   backToLoginHighlight: {
-    color: '#d4af37',
+    color: '#000000', // Texto negro
     fontWeight: '600',
   },
   decorativeCircle1: {
@@ -518,7 +526,7 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     borderRadius: 100,
-    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+    backgroundColor: 'rgba(255, 182, 193, 0.1)', // Rosa pastel
     top: -50,
     right: -50,
     zIndex: 0,
@@ -528,7 +536,7 @@ const styles = StyleSheet.create({
     width: 300,
     height: 300,
     borderRadius: 150,
-    backgroundColor: 'rgba(184, 134, 11, 0.1)',
+    backgroundColor: 'rgba(255, 182, 193, 0.1)', // Rosa pastel
     bottom: -100,
     left: -100,
     zIndex: 0,
@@ -538,7 +546,7 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     borderRadius: 75,
-    backgroundColor: 'rgba(139, 69, 19, 0.1)',
+    backgroundColor: 'rgba(255, 182, 193, 0.1)', // Rosa pastel
     top: '30%',
     right: -50,
     zIndex: 0,

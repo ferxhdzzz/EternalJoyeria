@@ -10,14 +10,16 @@ import {
   Dimensions,
   Animated,
   SafeAreaView,
-  StatusBar,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
 import useFetchProducts from '../hooks/useFetchProducts';
 import useFetchCategories from '../hooks/useFetchCategories';
+import Card from '../components/Card';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS, SHADOWS } from '../constants/colors';
 
 const { width } = Dimensions.get('window');
 
@@ -103,99 +105,95 @@ const ProductScreen = ({ route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#8b4513" />
+      <StatusBar style="dark" backgroundColor={COLORS.background} />
       
-      <LinearGradient
-        colors={['#fce4ec', '#f8bbd9', '#f48fb1']}
-        style={styles.background}
-      >
-        {/* Elementos decorativos */}
-        {isAnimationComplete && (
-          <>
-            <View style={styles.decorativeCircle1} />
-            <View style={styles.decorativeCircle2} />
-            <View style={styles.decorativeCircle3} />
-          </>
-        )}
-
+      <View style={styles.background}>
         {/* Encabezado */}
         <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-          <View style={styles.logoContainer}>
+          {/* Logo y subtexto arriba */}
+          <View style={styles.logoSection}>
             <Text style={styles.logoText}>Eternal Joyería</Text>
-            <View style={styles.logoUnderline} />
+            <Text style={styles.logoSubtext}>Luce la elegancia de la naturaleza</Text>
           </View>
           
-          <View style={styles.profileSection}>
-            <View style={styles.profileImageContainer}>
-              <Image
-                source={(user?.profilePicture || user?.profileImage)
-                  ? { uri: user.profilePicture || user.profileImage }
-                  : require('../../assets/Usuarionuevo.jpg')}
-                style={styles.profileImage}
-              />
-              <View style={styles.profileBorder} />
-            </View>
-            <View style={styles.welcomeText}>
-              <Text style={styles.welcomeLabel}>Bienvenido/a</Text>
-              <Text style={styles.userName}>{user?.name || user?.firstName || user?.email?.split('@')[0] || 'Usuario'}</Text>
+          {/* Saludo y foto de perfil abajo */}
+          <View style={styles.welcomeSection}>
+            <Image
+              source={(user?.profilePicture || user?.profileImage)
+                ? { uri: user.profilePicture || user.profileImage }
+                : require('../../assets/Usuarionuevo.jpg')}
+              style={styles.profileImage}
+            />
+            <View style={styles.welcomeTextContainer}>
+              <Text style={styles.welcomeText}>
+                Bienvenido/a
+              </Text>
+              <Text style={styles.userName}>
+                {user?.firstName || user?.name || 'Usuario'} {user?.lastName || ''}
+              </Text>
             </View>
           </View>
         </Animated.View>
 
-        {/* Seccion de categorias */}
+        {/* Sección de categorías */}
         <Animated.View style={[styles.categoriesSection, { opacity: fadeAnim }]}>
-          <View style={styles.categoriesHeader}>
-            <Ionicons name="diamond-outline" size={20} color="#4a148c" />
-            <Text style={styles.categoriesTitle}>Categorías</Text>
-          </View>
+          <Text style={styles.categoriesTitle}>Categorías</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.categoriesContainer}
           >
-            {(categories?.length ? categories : [{ _id: 'todos', name: 'Todas' }]).map((cat) => {
-              const id = cat._id || cat.id;
-              const name = cat.name || 'Categoría';
-              const active = (selectedCategory || 'todos') === id;
-              return (
-                <TouchableOpacity
-                  key={id}
-                  style={[styles.categoryButton, active && styles.categoryButtonActive]}
-                  onPress={() => setSelectedCategory(id)}
-                  disabled={loadingCategories}
-                >
-                  <Ionicons 
-                    name="diamond-outline" 
-                    size={16} 
-                    color={active ? '#fff' : '#4a148c'} 
-                    style={styles.categoryIcon}
-                  />
-                  <Text style={[styles.categoryButtonText, active && styles.categoryButtonTextActive]}>
-                    {name}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
+            {(() => {
+              // Crear array de categorías sin duplicar 'todos'
+              const allCategories = [{ _id: 'todos', name: 'Todo tipo de accesorios' }];
+              
+              // Agregar categorías del backend que no sean 'todos'
+              if (categories && categories.length > 0) {
+                categories.forEach(cat => {
+                  const catId = cat._id || cat.id;
+                  if (catId !== 'todos') {
+                    allCategories.push(cat);
+                  }
+                });
+              }
+              
+              return allCategories.map((cat, index) => {
+                const id = cat._id || cat.id;
+                const name = cat.name || 'Categoría';
+                const active = (selectedCategory || 'todos') === id;
+                return (
+                  <TouchableOpacity
+                    key={`category-${id}-${index}`} // Key única con índice
+                    style={[styles.categoryButton, active && styles.categoryButtonActive]}
+                    onPress={() => setSelectedCategory(id)}
+                    disabled={loadingCategories}
+                  >
+                    <Text style={[styles.categoryButtonText, active && styles.categoryButtonTextActive]}>
+                      {name}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              });
+            })()}
           </ScrollView>
         </Animated.View>
 
-        {/* Seccion de productos */}
+        {/* Sección de productos */}
         <Animated.View style={[styles.productsSection, { opacity: fadeAnim }]}>
           <ScrollView
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={onRefresh}
-                colors={['#FFE7E7']}
-                tintColor="#FFE7E7"
+                colors={[COLORS.primary]}
+                tintColor={COLORS.primary}
               />
             }
             showsVerticalScrollIndicator={false}
           >
             {loadingProducts ? (
               <View style={styles.loadingContainer}>
-                <Ionicons name="diamond-outline" size={60} color="#FFE7E7" />
-                <Text style={styles.loadingText}>Cargando joyas exclusivas...</Text>
+                <Text style={styles.loadingText}>Cargando productos...</Text>
               </View>
             ) : filteredProducts?.length ? (
               <View style={styles.grid}>
@@ -206,85 +204,65 @@ const ProductScreen = ({ route }) => {
                   const isOutOfStock = prod.stock === 0;
                   
                   return (
-                    <TouchableOpacity
+                    <Card
                       key={prod._id || prod.id}
-                      style={styles.card}
-                      activeOpacity={0.9}
-                      onPress={() => navigation.navigate('ProductDetail', { productId: prod._id || prod.id })}
+                      style={styles.productCard}
+                      padding="none"
+                      shadow="medium"
                     >
-                      <View style={styles.cardImageContainer}>
-                        <Image
-                          source={imageUrl ? { uri: imageUrl } : require('../../assets/icon.png')}
-                          style={styles.cardImage}
-                        />
-                        
-                        {/* Gradiente de imagen */}
-                        <LinearGradient
-                          colors={['transparent', 'rgba(232, 180, 203, 0.1)', 'rgba(232, 180, 203, 0.2)']}
-                          style={styles.imageGradient}
-                        />
-                        
-                        {/* Indicador de descuento */}
-                        {hasDiscount && (
-                          <View style={styles.discountBadge}>
-                            <Ionicons name="pricetag" size={10} color="#fff" />
-                            <Text style={styles.discountText}>-{prod.discountPercentage}%</Text>
-                          </View>
-                        )}
-                        
-                        {/* Indicador de stock */}
-                        {isOutOfStock && (
-                          <View style={styles.outOfStockBadge}>
-                            <Text style={styles.outOfStockText}>AGOTADO</Text>
-                          </View>
-                        )}
-                      </View>
-                      
-                      <LinearGradient
-                        colors={['rgba(255, 255, 255, 0.95)', 'rgba(254, 247, 231, 0.95)']}
-                        style={styles.cardInfo}
+                      <TouchableOpacity
+                        activeOpacity={0.9}
+                        onPress={() => navigation.navigate('ProductDetail', { productId: prod._id || prod.id })}
                       >
-                        <Text numberOfLines={2} style={styles.cardTitle}>{prod.name || prod.title}</Text>
-                        
-                        <View style={styles.cardPriceContainer}>
-                          {hasDiscount ? (
-                            <>
-                              <Text style={styles.originalPrice}>${Number(prod.price || 0).toFixed(2)}</Text>
-                              <Text style={styles.cardPrice}>${Number(priceValue || 0).toFixed(2)}</Text>
-                            </>
-                          ) : (
-                            <Text style={styles.cardPrice}>${Number(priceValue || 0).toFixed(2)}</Text>
+                        <View style={styles.cardImageContainer}>
+                          <Image
+                            source={imageUrl ? { uri: imageUrl } : require('../../assets/icon.png')}
+                            style={styles.cardImage}
+                          />
+                          
+                          {/* Indicador de descuento */}
+                          {hasDiscount && (
+                            <View style={styles.discountBadge}>
+                              <Text style={styles.discountText}>-{prod.discountPercentage}%</Text>
+                            </View>
+                          )}
+                          
+                          {/* Indicador de stock */}
+                          {isOutOfStock && (
+                            <View style={styles.outOfStockBadge}>
+                              <Text style={styles.outOfStockText}>AGOTADO</Text>
+                            </View>
                           )}
                         </View>
                         
-                        {/* Estado de stock */}
-                        <View style={styles.stockIndicatorContainer}>
-                          <View style={[
-                            styles.stockIndicator,
-                            { backgroundColor: isOutOfStock ? '#e74c3c' : prod.stock <= 3 ? '#f39c12' : '#27ae60' }
-                          ]} />
-                          <Text style={[
-                            styles.stockText,
-                            { color: isOutOfStock ? '#e74c3c' : prod.stock <= 3 ? '#f39c12' : '#27ae60' }
-                          ]}>
-                            {isOutOfStock ? 'Agotado' : prod.stock <= 3 ? `Solo ${prod.stock}` : 'Disponible'}
-                          </Text>
+                        <View style={styles.cardInfo}>
+                          <Text numberOfLines={2} style={styles.cardTitle}>{prod.name || prod.title}</Text>
+                          
+                          <View style={styles.cardPriceContainer}>
+                            {hasDiscount ? (
+                              <>
+                                <Text style={styles.originalPrice}>${Number(prod.price || 0).toFixed(2)}</Text>
+                                <Text style={styles.cardPrice}>${Number(priceValue || 0).toFixed(2)}</Text>
+                              </>
+                            ) : (
+                              <Text style={styles.cardPrice}>${Number(priceValue || 0).toFixed(2)}</Text>
+                            )}
+                          </View>
                         </View>
-                      </LinearGradient>
-                    </TouchableOpacity>
+                      </TouchableOpacity>
+                    </Card>
                   );
                 })}
               </View>
             ) : (
               <View style={styles.noProductsContainer}>
-                <Ionicons name="diamond-outline" size={60} color="#FFE7E7" />
-                <Text style={styles.noProductsText}>No hay joyas disponibles</Text>
-                <Text style={styles.debugText}>Explora nuestras otras colecciones</Text>
+                <Text style={styles.noProductsText}>No hay productos disponibles</Text>
+                <Text style={styles.noProductsSubtext}>Explora nuestras otras colecciones</Text>
               </View>
             )}
           </ScrollView>
         </Animated.View>
-      </LinearGradient>
+      </View>
     </SafeAreaView>
   );
 };
@@ -292,316 +270,202 @@ const ProductScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fce4ec',
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
   },
   background: {
     flex: 1,
-    width: '100%',
-    height: '100%',
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
   },
   header: {
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    paddingTop: 40,
-    zIndex: 2,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.xxl,
+    paddingBottom: SPACING.xl,
   },
-  logoContainer: {
+  logoSection: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: SPACING.xl,
   },
   logoText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#8e24aa',
-    letterSpacing: 1.5,
-    textShadowColor: 'rgba(142, 36, 170, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    fontSize: FONT_SIZES.title,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.xs,
   },
-  logoUnderline: {
-    width: 80,
-    height: 3,
-    backgroundColor: '#ab47bc',
-    marginTop: 8,
-    borderRadius: 2,
+  logoSubtext: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textSecondary,
+    fontWeight: '400',
+    textAlign: 'center',
   },
-  profileSection: {
+  welcomeSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderRadius: 25,
-    shadowColor: '#FFE7E7',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
-    marginTop: 10,
-  },
-  profileImageContainer: {
-    position: 'relative',
-    marginRight: 15,
+    paddingHorizontal: SPACING.md,
   },
   profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-  },
-  profileBorder: {
-    position: 'absolute',
-    top: -2,
-    left: -2,
-    width: 54,
-    height: 54,
-    borderRadius: 27,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     borderWidth: 2,
-    borderColor: '#FFE7E7',
+    borderColor: COLORS.borderLight,
+    marginRight: SPACING.md,
   },
-  welcomeText: {
+  welcomeTextContainer: {
     flex: 1,
   },
-  welcomeLabel: {
-    fontSize: 14,
-    color: '#B8869B',
-    marginBottom: 2,
-    fontStyle: 'italic',
+  welcomeText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textSecondary,
+    fontWeight: '400',
   },
   userName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FF9999',
-  },
-  categoriesSection: {
-    paddingHorizontal: 20,
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  categoriesHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-    gap: 8,
-  },
-  categoriesTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#FF9999',
-  },
-  categoriesContainer: {
-    paddingRight: 20,
-  },
-  categoryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    marginRight: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(232, 180, 203, 0.3)',
-    gap: 6,
-  },
-  categoryButtonActive: {
-    backgroundColor: '#e91e63',
-    borderColor: '#ad1457',
-    shadowColor: '#e91e63',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  categoryIcon: {
-    marginRight: 4,
-  },
-  categoryButtonText: {
-    fontSize: 14,
-    color: '#FF9999',
+    fontSize: FONT_SIZES.lg,
+    color: COLORS.textPrimary,
     fontWeight: '600',
   },
+  categoriesSection: {
+    paddingTop: SPACING.md,
+    paddingBottom: SPACING.lg,
+    paddingHorizontal: SPACING.lg,
+  },
+  categoriesTitle: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.md,
+  },
+  categoriesContainer: {
+    paddingRight: SPACING.xl,
+  },
+  categoryButton: {
+    backgroundColor: COLORS.backgroundSecondary,
+    borderRadius: BORDER_RADIUS.lg,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    marginRight: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.borderLight,
+  },
+  categoryButtonActive: {
+    backgroundColor: '#f8bbd9',
+    borderColor: '#f8bbd9',
+  },
+  categoryButtonText: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.textSecondary,
+    fontWeight: '500',
+  },
   categoryButtonTextActive: {
-    color: '#fff',
+    color: '#000000',
+    fontWeight: '600',
   },
   productsSection: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: SPACING.lg,
   },
   loadingContainer: {
     alignItems: 'center',
-    marginTop: 60,
-    paddingVertical: 40,
+    justifyContent: 'center',
+    paddingVertical: SPACING.xxl * 2,
   },
   loadingText: {
-    fontSize: 16,
-    color: '#FF9999',
-    marginTop: 20,
+    fontSize: FONT_SIZES.md,
+    color: COLORS.textSecondary,
     fontWeight: '500',
   },
   noProductsContainer: {
     alignItems: 'center',
-    marginTop: 60,
-    paddingVertical: 40,
+    justifyContent: 'center',
+    paddingVertical: SPACING.xxl * 2,
   },
   noProductsText: {
-    fontSize: 20,
-    color: '#FF9999',
-    marginTop: 20,
+    fontSize: FONT_SIZES.lg,
+    color: COLORS.textPrimary,
+    fontWeight: '600',
     textAlign: 'center',
-    fontWeight: 'bold',
+    marginBottom: SPACING.sm,
   },
-  debugText: {
-    fontSize: 14,
-    color: '#B8869B',
-    marginTop: 10,
+  noProductsSubtext: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textSecondary,
     textAlign: 'center',
-    fontStyle: 'italic',
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    paddingBottom: 20,
+    paddingBottom: SPACING.xl,
   },
-  card: {
-    width: (width - 40 - 12) / 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 20,
-    marginBottom: 16,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(232, 180, 203, 0.2)',
-    shadowColor: '#FFE7E7',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
+  productCard: {
+    width: (width - SPACING.lg * 2 - SPACING.md) / 2,
+    marginBottom: SPACING.lg,
   },
   cardImageContainer: {
     position: 'relative',
-    backgroundColor: '#fef7e7',
+    backgroundColor: COLORS.backgroundSecondary,
+    borderTopLeftRadius: BORDER_RADIUS.lg,
+    borderTopRightRadius: BORDER_RADIUS.lg,
+    overflow: 'hidden',
   },
   cardImage: {
     width: '100%',
-    height: 140,
-    backgroundColor: '#fef7e7',
-  },
-  imageGradient: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: '40%',
+    height: 160,
+    backgroundColor: COLORS.backgroundSecondary,
   },
   discountBadge: {
     position: 'absolute',
-    top: 8,
-    left: 0,
-    backgroundColor: '#E8B4CB',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderTopRightRadius: 12,
-    borderBottomRightRadius: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    zIndex: 3,
+    top: SPACING.sm,
+    left: SPACING.sm,
+    backgroundColor: COLORS.error,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs,
+    borderRadius: BORDER_RADIUS.sm,
   },
   discountText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: 'bold',
+    color: COLORS.background,
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '600',
   },
   outOfStockBadge: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: 'rgba(231, 76, 60, 0.9)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    zIndex: 3,
+    top: SPACING.sm,
+    right: SPACING.sm,
+    backgroundColor: COLORS.error,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs,
+    borderRadius: BORDER_RADIUS.sm,
   },
   outOfStockText: {
-    color: '#fff',
-    fontSize: 9,
-    fontWeight: 'bold',
+    color: COLORS.background,
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '600',
     textTransform: 'uppercase',
   },
   cardInfo: {
-    padding: 12,
+    padding: SPACING.md,
   },
   cardTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#FF9999',
-    marginBottom: 6,
-    lineHeight: 18,
-    minHeight: 36,
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.sm,
+    lineHeight: 20,
+    minHeight: 40,
   },
   cardPriceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
-    gap: 6,
+    gap: SPACING.sm,
   },
   originalPrice: {
-    fontSize: 12,
-    color: '#999',
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.textMuted,
     textDecorationLine: 'line-through',
   },
   cardPrice: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#E8B4CB',
-    textShadowColor: 'rgba(232, 180, 203, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  stockIndicatorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  stockIndicator: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  stockText: {
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  decorativeCircle1: {
-    position: 'absolute',
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: 'rgba(232, 180, 203, 0.08)',
-    top: -50,
-    right: -50,
-    zIndex: 0,
-  },
-  decorativeCircle2: {
-    position: 'absolute',
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    backgroundColor: 'rgba(212, 165, 194, 0.06)',
-    bottom: -100,
-    left: -100,
-    zIndex: 0,
-  },
-  decorativeCircle3: {
-    position: 'absolute',
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    backgroundColor: 'rgba(160, 117, 138, 0.08)',
-    top: '40%',
-    right: -30,
-    zIndex: 0,
+    fontSize: FONT_SIZES.md,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
   },
 });
 

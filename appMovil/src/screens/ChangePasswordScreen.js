@@ -12,13 +12,11 @@ import {
   Alert,
   ActivityIndicator
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import CustomAlert from '../components/CustomAlert';
 import useCustomAlert from '../hooks/useCustomAlert';
 import { validatePassword } from '../utils/passwordValidation';
-
 const { width, height } = Dimensions.get('window');
 
 const ChangePasswordScreen = ({ navigation, route }) => {
@@ -266,47 +264,38 @@ const ChangePasswordScreen = ({ navigation, route }) => {
   };
 
   return (
-    <LinearGradient
-      colors={['#ffeef3', '#fce4ec', '#f8bbd9']}
-      style={styles.container}
-    >
-      <SafeAreaView style={styles.safeArea}>
-        {/* Encabezado */}
-        <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="arrow-back" size={24} color="#ad1457" />
-          </TouchableOpacity>
-          <View style={styles.headerCenter}>
-            <Ionicons name="key" size={28} color="#e91e63" />
-            <Text style={styles.headerTitle}>Cambiar Contraseña</Text>
-          </View>
-          <View style={{ width: 45 }} />
-        </View>
-
-        <ScrollView 
-          contentContainerStyle={styles.scrollContainer}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+    <SafeAreaView style={styles.container}>
+      {/* Encabezado */}
+      <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
         >
-          <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
-            <LinearGradient
-              colors={['rgba(255, 255, 255, 0.95)', 'rgba(252, 228, 236, 0.8)']}
-              style={styles.formGradient}
-            >
+          <Ionicons name="arrow-back" size={24} color="#000" />
+        </TouchableOpacity>
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerTitle}>Cambiar Contraseña</Text>
+        </View>
+        <View style={styles.headerSpacer} />
+      </View>
+
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
               {/* Contrasena actual */}
               <View style={styles.inputContainer}>
                 <View style={styles.labelContainer}>
-                  <Ionicons name="lock-closed" size={16} color="#e91e63" />
+                  <Ionicons name="lock-closed" size={16} color="#000" />
                   <Text style={styles.label}>Contraseña Actual</Text>
                 </View>
                 <View style={styles.passwordInputContainer}>
                   <TextInput
                     style={styles.input}
                     placeholder="Ingresa tu contraseña actual"
-                    placeholderTextColor="#f06292"
+                    placeholderTextColor="#999"
                     secureTextEntry={!showCurrentPassword}
                     value={currentPassword}
                     onChangeText={(text) => {
@@ -314,7 +303,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
                       validateCurrentPassword(text);
                     }}
                     onBlur={() => validateCurrentPassword(currentPassword)}
-                    selectionColor="#e91e63"
+                    selectionColor="#000"
                   />
                   <TouchableOpacity
                     onPress={toggleCurrentPasswordVisibility}
@@ -323,7 +312,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
                     <Ionicons 
                       name={showCurrentPassword ? 'eye-off' : 'eye'} 
                       size={22} 
-                      color="#e91e63" 
+                      color="#000" 
                     />
                   </TouchableOpacity>
                 </View>
@@ -333,14 +322,14 @@ const ChangePasswordScreen = ({ navigation, route }) => {
               {/* Nueva contrasena */}
               <View style={styles.inputContainer}>
                 <View style={styles.labelContainer}>
-                  <Ionicons name="lock-open" size={16} color="#e91e63" />
+                  <Ionicons name="lock-open" size={16} color="#000" />
                   <Text style={styles.label}>Nueva Contraseña</Text>
                 </View>
                 <View style={styles.passwordInputContainer}>
                   <TextInput
                     style={styles.input}
                     placeholder="Ingresa tu nueva contraseña"
-                    placeholderTextColor="#f06292"
+                    placeholderTextColor="#999"
                     secureTextEntry={!showNewPassword}
                     value={newPassword}
                     onChangeText={(text) => {
@@ -348,7 +337,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
                       validateNewPassword(text);
                     }}
                     onBlur={() => validateNewPassword(newPassword)}
-                    selectionColor="#e91e63"
+                    selectionColor="#000"
                   />
                   <TouchableOpacity
                     onPress={() => setShowNewPassword(!showNewPassword)}
@@ -357,7 +346,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
                     <Ionicons 
                       name={showNewPassword ? 'eye-off' : 'eye'} 
                       size={22} 
-                      color="#e91e63" 
+                      color="#000" 
                     />
                   </TouchableOpacity>
                 </View>
@@ -367,14 +356,14 @@ const ChangePasswordScreen = ({ navigation, route }) => {
               {/* Confirmar nueva contrasena */}
               <View style={styles.inputContainer}>
                 <View style={styles.labelContainer}>
-                  <Ionicons name="checkmark-circle" size={16} color="#e91e63" />
+                  <Ionicons name="checkmark-circle" size={16} color="#000" />
                   <Text style={styles.label}>Confirmar Nueva Contraseña</Text>
                 </View>
                 <View style={styles.passwordInputContainer}>
                   <TextInput
                     style={styles.input}
                     placeholder="Confirma tu nueva contraseña"
-                    placeholderTextColor="#f06292"
+                    placeholderTextColor="#999"
                     secureTextEntry={!showConfirmPassword}
                     value={confirmPassword}
                     onChangeText={(text) => {
@@ -382,7 +371,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
                       validateConfirmPassword(text);
                     }}
                     onBlur={() => validateConfirmPassword(confirmPassword)}
-                    selectionColor="#e91e63"
+                    selectionColor="#000"
                   />
                   <TouchableOpacity
                     onPress={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -391,7 +380,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
                     <Ionicons 
                       name={showConfirmPassword ? 'eye-off' : 'eye'} 
                       size={22} 
-                      color="#e91e63" 
+                      color="#000" 
                     />
                   </TouchableOpacity>
                 </View>
@@ -399,16 +388,12 @@ const ChangePasswordScreen = ({ navigation, route }) => {
               </View>
 
               {/* Boton de actualizar */}
-              <LinearGradient
-                colors={(!isFormValid || isLoading) ? ['#f8bbd9', '#f48fb1'] : ['#e91e63', '#ad1457']}
-                style={styles.submitButton}
+              <TouchableOpacity
+                style={[styles.submitButton, (!isFormValid || isLoading) && styles.submitButtonDisabled]}
+                onPress={handleChangePassword}
+                disabled={!isFormValid || isLoading}
+                activeOpacity={0.8}
               >
-                <TouchableOpacity
-                  style={styles.submitTouchable}
-                  onPress={handleChangePassword}
-                  disabled={!isFormValid || isLoading}
-                  activeOpacity={0.8}
-                >
                   {isLoading ? (
                     <ActivityIndicator color="#FFFFFF" size="small" style={styles.loadingIcon} />
                   ) : (
@@ -418,19 +403,16 @@ const ChangePasswordScreen = ({ navigation, route }) => {
                     {isLoading ? 'Actualizando...' : 'Actualizar Contraseña'}
                   </Text>
                 </TouchableOpacity>
-              </LinearGradient>
 
               {/* Mensaje de ayuda */}
               <View style={styles.helpContainer}>
-                <Ionicons name="information-circle" size={16} color="#f06292" />
+                <Ionicons name="information-circle" size={16} color="#000" />
                 <Text style={styles.helpText}>
-                  Debe contener: mayúscula, minúscula, número y carácter especial (!@#$%^&*-_+)
+                  Debe contener: minimo 8 caracteres, número y carácter especial (!@#$%^&*-_+)
                 </Text>
               </View>
-            </LinearGradient>
-          </Animated.View>
-        </ScrollView>
-      </SafeAreaView>
+        </Animated.View>
+      </ScrollView>
 
       {/* Componente de alerta */}
       <CustomAlert
@@ -445,7 +427,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
         showIcon={alertConfig.showIcon}
         animationType={alertConfig.animationType}
       />
-    </LinearGradient>
+    </SafeAreaView>
   );
 };
 
@@ -454,9 +436,7 @@ export default ChangePasswordScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  safeArea: {
-    flex: 1,
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
   },
   header: {
     flexDirection: 'row',
@@ -464,50 +444,43 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingTop: 50,
-    paddingBottom: 25,
+    paddingBottom: 20,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
   },
   headerCenter: {
     flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
-    marginLeft: 15,
+  },
+  headerSpacer: {
+    width: 45,
   },
   backButton: {
     width: 45,
     height: 45,
     borderRadius: 22.5,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: '#f5f5f5',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#e91e63',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
   },
   headerTitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#ad1457',
+    color: '#2d2d2d',
   },
   scrollContainer: {
     flexGrow: 1,
     padding: 20,
   },
   formContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 20,
     marginTop: 20,
-    borderRadius: 25,
-    overflow: 'hidden',
-    shadowColor: '#e91e63',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 15,
-    elevation: 10,
-  },
-  formGradient: {
-    padding: 30,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   inputContainer: {
     marginBottom: 25,
@@ -520,60 +493,57 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: '#ad1457',
+    color: '#2d2d2d',
     fontWeight: '600',
   },
   passwordInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 15,
+    backgroundColor: '#fff',
+    borderRadius: 8,
     paddingHorizontal: 15,
-    borderWidth: 2,
-    borderColor: 'rgba(233, 30, 99, 0.2)',
-    shadowColor: '#e91e63',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    height: 55,
+    paddingVertical: 20,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   input: {
     flex: 1,
-    fontSize: 16,
-    color: '#ad1457',
-    fontWeight: '500',
-    height: '100%',
-    textAlignVertical: 'center',
+    fontSize: 15,
+    color: '#2d2d2d',
+    fontWeight: 'normal',
     paddingVertical: 0,
+    paddingHorizontal: 0,
+    includeFontPadding: false,
+    multiline: false,
+    numberOfLines: 1,
   },
   toggleButton: {
     padding: 8,
+    marginLeft: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   errorText: {
-    color: '#e91e63',
+    color: '#f44336',
     fontSize: 12,
     marginTop: 8,
     marginLeft: 5,
     fontWeight: '500',
   },
   submitButton: {
-    borderRadius: 20,
+    backgroundColor: '#000',
+    borderRadius: 8,
     marginTop: 30,
-    overflow: 'hidden',
-    shadowColor: '#e91e63',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  submitTouchable: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 18,
+    paddingVertical: 16,
     paddingHorizontal: 30,
     gap: 10,
+  },
+  submitButtonDisabled: {
+    backgroundColor: '#999',
+    opacity: 0.7,
   },
   buttonIcon: {
     marginRight: 5,
@@ -593,12 +563,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     marginTop: 20,
-    backgroundColor: 'rgba(233, 30, 99, 0.1)',
+    backgroundColor: '#f5f5f5',
     padding: 15,
-    borderRadius: 12,
+    borderRadius: 8,
   },
   helpText: {
-    color: '#ad1457',
+    color: '#666',
     fontSize: 14,
     fontWeight: '500',
   },

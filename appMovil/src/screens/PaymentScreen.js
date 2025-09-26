@@ -9,12 +9,12 @@ import {
   ScrollView,
   Alert,
   Animated,
-  StatusBar,
   KeyboardAvoidingView,
   Platform,
   Keyboard,
   SafeAreaView,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCart } from '../context/CartContext';
@@ -251,7 +251,7 @@ const PaymentScreen = ({ navigation, route }) => {
             onPress: () => {
               clearCart();
               limpiarFormulario();
-              navigation.navigate('Inicio');
+              navigation.navigate('Home');
             },
           }
         ]
@@ -269,7 +269,7 @@ const PaymentScreen = ({ navigation, route }) => {
   const handleNewTransaction = () => {
     clearCart();
     limpiarFormulario();
-    navigation.navigate('Inicio');
+    navigation.navigate('Home');
   };
 
   if (cartItems.length === 0) {
@@ -289,7 +289,7 @@ const PaymentScreen = ({ navigation, route }) => {
           <Text style={styles.emptyText}>No tienes productos para pagar.</Text>
           <TouchableOpacity 
             style={styles.paymentButton}
-            onPress={() => navigation.navigate('Inicio')}
+            onPress={() => navigation.navigate('Home')}
           >
             <Text style={styles.paymentButtonText}>Ir a comprar</Text>
           </TouchableOpacity>
@@ -304,7 +304,7 @@ const PaymentScreen = ({ navigation, route }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}
     >
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar style="dark" backgroundColor="#FFFFFF" />
       
       {/* Encabezado */}
       <Animated.View 
@@ -320,15 +320,14 @@ const PaymentScreen = ({ navigation, route }) => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name="arrow-back" size={24} color="#2C3E50" />
+          <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         
-        <View style={styles.titleContainer}>
+        <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>Realizar compra</Text>
-          <View style={styles.titleUnderline} />
         </View>
         
-        <View style={styles.placeholder} />
+        <View style={styles.headerSpacer} />
       </Animated.View>
 
       {/* Resumen de pago */}
@@ -347,7 +346,7 @@ const PaymentScreen = ({ navigation, route }) => {
             <Text style={styles.summaryAmount}>${total.toFixed(2)}</Text>
           </View>
           <View style={styles.summaryIcon}>
-            <Ionicons name="card" size={28} color="#E8B4B8" />
+            <Ionicons name="card" size={28} color="#000" />
           </View>
         </View>
       </Animated.View>
@@ -377,7 +376,7 @@ const PaymentScreen = ({ navigation, route }) => {
           ]}
         >
           <View style={styles.labelContainer}>
-            <Ionicons name="card" size={18} color="#7F8C8D" style={styles.labelIcon} />
+            <Ionicons name="card" size={18} color="#000" />
             <Text style={styles.inputLabel}>Número de tarjeta</Text>
           </View>
           <View style={styles.cardNumberContainer}>
@@ -423,7 +422,7 @@ const PaymentScreen = ({ navigation, route }) => {
           ]}
         >
           <View style={styles.labelContainer}>
-            <Ionicons name="person" size={18} color="#7F8C8D" style={styles.labelIcon} />
+            <Ionicons name="person" size={18} color="#000" />
             <Text style={styles.inputLabel}>Nombre del titular</Text>
           </View>
           <View style={[
@@ -459,7 +458,7 @@ const PaymentScreen = ({ navigation, route }) => {
         >
           <View style={styles.halfInputGroup}>
             <View style={styles.labelContainer}>
-              <Ionicons name="calendar" size={18} color="#7F8C8D" style={styles.labelIcon} />
+              <Ionicons name="calendar" size={18} color="#000" />
               <Text style={styles.inputLabel}>Fecha de expiración</Text>
             </View>
             <View style={[
@@ -489,7 +488,7 @@ const PaymentScreen = ({ navigation, route }) => {
           
           <View style={styles.cvvInputGroup}>
             <View style={styles.labelContainer}>
-              <Ionicons name="lock-closed" size={18} color="#7F8C8D" style={styles.labelIcon} />
+              <Ionicons name="lock-closed" size={18} color="#000" />
               <Text style={styles.inputLabel}>CVV/CVC</Text>
             </View>
             <View style={[
@@ -554,7 +553,7 @@ const PaymentScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
   },
   header: {
     flexDirection: 'row',
@@ -563,35 +562,30 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingHorizontal: 20,
     paddingBottom: 20,
+    backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#F8F9FA',
+    borderBottomColor: '#e0e0e0',
   },
   backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#F8F9FA',
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  titleContainer: {
+  headerCenter: {
+    flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerSpacer: {
+    width: 45,
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: '600',
-    color: '#2C3E50',
-    letterSpacing: 0.5,
-  },
-  titleUnderline: {
-    width: 40,
-    height: 2,
-    backgroundColor: '#E8B4B8',
-    borderRadius: 1,
-    marginTop: 8,
-  },
-  placeholder: {
-    width: 44,
+    fontWeight: 'bold',
+    color: '#2d2d2d',
   },
   paymentSummary: {
     marginHorizontal: 20,
@@ -604,10 +598,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 24,
     paddingVertical: 20,
-    backgroundColor: '#F8F9FA',
-    borderRadius: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E9ECEF',
+    borderColor: '#e0e0e0',
   },
   summaryContent: {
     flex: 1,
@@ -621,18 +615,17 @@ const styles = StyleSheet.create({
   summaryAmount: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#2C3E50',
-    letterSpacing: 0.5,
+    color: '#2d2d2d',
   },
   summaryIcon: {
     width: 56,
     height: 56,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
     borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#E9ECEF',
+    borderColor: '#e0e0e0',
   },
   formContainer: {
     flex: 1,
@@ -648,29 +641,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 12,
-  },
-  labelIcon: {
-    marginRight: 10,
+    gap: 8,
   },
   inputLabel: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#495057',
-    letterSpacing: 0.3,
+    color: '#2d2d2d',
   },
   inputContainer: {
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: '#E9ECEF',
-    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    backgroundColor: '#fff',
     overflow: 'hidden',
   },
   inputError: {
-    borderColor: '#E74C3C',
-    borderWidth: 2,
+    borderColor: '#f44336',
+    borderWidth: 1,
   },
   errorText: {
-    color: '#E74C3C',
+    color: '#f44336',
     fontSize: 12,
     marginTop: 8,
     marginLeft: 10,
@@ -684,7 +674,7 @@ const styles = StyleSheet.create({
     height: 52,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: '#2C3E50',
+    color: '#2d2d2d',
     marginRight: 16,
     fontWeight: '500',
   },
@@ -695,18 +685,18 @@ const styles = StyleSheet.create({
   scanIcon: {
     width: 36,
     height: 36,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#E9ECEF',
+    borderColor: '#e0e0e0',
   },
   textInput: {
     height: 52,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: '#2C3E50',
+    color: '#2d2d2d',
     fontWeight: '500',
   },
   rowContainer: {
@@ -727,7 +717,7 @@ const styles = StyleSheet.create({
     height: 52,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: '#2C3E50',
+    color: '#2d2d2d',
     fontWeight: '500',
   },
   buttonContainer: {
@@ -735,21 +725,16 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
   paymentButton: {
-    backgroundColor: '#2C3E50',
+    backgroundColor: '#000',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 18,
+    paddingVertical: 16,
     paddingHorizontal: 32,
-    borderRadius: 12,
-    elevation: 4,
-    shadowColor: '#2C3E50',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    borderRadius: 8,
   },
   paymentButtonDisabled: {
-    backgroundColor: '#A0A0A0',
+    backgroundColor: '#999',
     opacity: 0.7,
   },
   buttonIcon: {

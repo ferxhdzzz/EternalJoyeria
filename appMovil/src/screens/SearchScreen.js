@@ -6,12 +6,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  StatusBar,
   FlatList,
   Animated,
   Dimensions,
   ActivityIndicator,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import useProducts from '../hooks/useProducts';
@@ -101,7 +101,7 @@ const SearchScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#8b4513" />
+      <StatusBar style="light" backgroundColor="#8b4513" />
       
       <LinearGradient
         colors={['#fef7e7', '#fdf4e3', '#fcf1df']}
