@@ -383,7 +383,7 @@ const CheckoutScreen = ({ navigation }) => {
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-            <Text style={styles.backButtonText}>←</Text>
+            <Ionicons name="arrow-back" size={24} color="#000" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Carrito vacío</Text>
           <View style={styles.placeholder} />
@@ -405,7 +405,7 @@ const CheckoutScreen = ({ navigation }) => {
       {/* Encabezado */}
       <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>←</Text>
+          <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>Finalizar Compra</Text>
@@ -1053,18 +1053,12 @@ const styles = StyleSheet.create({
     fontSize: 80,
     color: '#000',
     fontWeight: 'bold',
-  },
-  backButtonText: {
-    fontSize: 24,
-    color: '#000',
-    fontWeight: 'bold',
     textAlign: 'center',
     lineHeight: 20,
   },
   successTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#2d2d2d',
     marginBottom: 10,
   },
   successMessage: {

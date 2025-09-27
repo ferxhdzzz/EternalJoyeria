@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
-// import { Ionicons } from '@expo/vector-icons'; // Eliminado - no se usan iconos
+import { Ionicons } from '@expo/vector-icons';
 
 const TermsConditionsScreen = ({ navigation }) => {
   return (
@@ -18,7 +18,7 @@ const TermsConditionsScreen = ({ navigation }) => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backButtonText}>←</Text>
+          <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>Términos y Condiciones</Text>
@@ -208,17 +208,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  backButtonText: {
-    fontSize: 24,
-    color: '#000',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#2d2d2d',
   },
   content: {
     flex: 1,

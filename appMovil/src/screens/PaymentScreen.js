@@ -280,7 +280,7 @@ const PaymentScreen = ({ navigation, route }) => {
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
-            <Text style={styles.backButtonText}>←</Text>
+            <Ionicons name="arrow-back" size={24} color="#000" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Carrito vacío</Text>
           <View style={styles.placeholder} />
@@ -311,7 +311,7 @@ const PaymentScreen = ({ navigation, route }) => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backButtonText}>←</Text>
+          <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         
         <View style={styles.headerSpacer} />
@@ -727,18 +727,12 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 17,
     fontWeight: '600',
-  },
-  backButtonText: {
-    fontSize: 24,
-    color: '#000',
-    fontWeight: 'bold',
     textAlign: 'center',
     lineHeight: 20,
   },
   scanIconText: {
     fontSize: 18,
     color: '#7F8C8D',
-    letterSpacing: 0.5,
   },
   emptyText: {
     fontSize: 16,

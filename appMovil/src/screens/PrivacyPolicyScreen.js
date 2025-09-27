@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
-// import { Ionicons } from '@expo/vector-icons'; // Eliminado - no se usan iconos
+import { Ionicons } from '@expo/vector-icons';
 
 const PrivacyPolicyScreen = ({ navigation }) => {
   return (
@@ -18,7 +18,7 @@ const PrivacyPolicyScreen = ({ navigation }) => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backButtonText}>←</Text>
+          <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>Política de Privacidad</Text>
@@ -217,13 +217,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  backButtonText: {
-    fontSize: 24,
-    color: '#000',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    lineHeight: 20,
   },
   headerTitle: {
     fontSize: 20,

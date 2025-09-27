@@ -32,7 +32,10 @@ loginController.login = async (req, res) => {
 
     // Si no encontramos el usuario en ninguna tabla
     if (!userFound) {
-      return res.json({ message: "User not found" });
+      return res.status(401).json({ 
+        success: false, 
+        message: "Usuario no encontrado" 
+      });
     }
 
     // SISTEMA DE BLOQUEO POR INTENTOS FALLIDOS 
@@ -40,7 +43,8 @@ loginController.login = async (req, res) => {
     if (userFound.lockUntil && userFound.lockUntil > Date.now()) {
       const minutosRestantes = Math.ceil((userFound.lockUntil - Date.now()) / 60000);
       return res.status(403).json({
-        message: `Account locked. Try again in ${minutosRestantes} minutes`
+        success: false,
+        message: `Cuenta bloqueada. Intenta nuevamente en ${minutosRestantes} minutos`
       });
     }
 
@@ -55,14 +59,16 @@ loginController.login = async (req, res) => {
         userFound.lockUntil = Date.now() + LOCK_TIME;
         await userFound.save();
         return res.status(403).json({
-          message: `Account locked for ${LOCK_TIME / 60000} minutes`
+          success: false,
+          message: `Cuenta bloqueada por ${LOCK_TIME / 60000} minutos`
         });
       }
 
       // Guardar el nuevo número de intentos y mostrar intentos restantes
       await userFound.save();
-      return res.json({
-        message: `Invalid password. Remaining attempts: ${MAX_ATTEMPTS - userFound.loginAttempts}`
+      return res.status(401).json({
+        success: false,
+        message: `Contraseña incorrecta. Intentos restantes: ${MAX_ATTEMPTS - userFound.loginAttempts}`
       });
     }
 
@@ -84,19 +90,33 @@ loginController.login = async (req, res) => {
 
     // Guardar el token en una cookie HTTP-only (más seguro)
     res.cookie("authToken", token, {
-      httpOnly: true,                    // Solo accesible desde el servidor
-      maxAge: 24 * 60 * 60 * 1000,      // 24 horas en milisegundos
       path: '/',                         // Disponible en todas las rutas
       sameSite: 'lax'                   // Protección CSRF
     });
 
-    // Respuesta exitosa
-    res.json({ message: "login successful" });
+    // Respuesta exitosa con formato esperado por el frontend
+    res.json({ 
+      success: true,
+      message: "Login successful",
+      token: token,
+      user: {
+        id: userFound._id,
+        email: userFound.email,
+        firstName: userFound.firstName || '',
+        lastName: userFound.lastName || '',
+        phone: userFound.phone || '',
+        profilePicture: userFound.profilePicture || ''
+      },
+      userType: userType
+    });
 
   } catch (error) {
     // Manejo de errores del servidor
     console.log(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ 
+      success: false, 
+      message: "Error del servidor" 
+    });
   }
 };
 
