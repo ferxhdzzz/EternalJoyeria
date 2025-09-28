@@ -113,7 +113,7 @@ const WelcomeScreen3 = ({ onNext }) => {
             </View>
           </ScrollView>
           <TouchableOpacity 
-            style={[styles.startButton, { bottom: Math.max(12, insets.bottom + 8) }]} 
+            style={styles.startButton} 
             onPress={handleStart}
             activeOpacity={0.8}
           >
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   },
   mainTitle: {
     fontSize: 32, // Aumentado de 28 a 32 para letra más grande
-    fontWeight: '800',
+    fontWeight: 'bold', // Cambiado de '800' a 'bold' para consistencia
     color: '#333',
     textAlign: 'center',
     marginTop: 20, // Reducido de 30 a 20 para mover el texto más arriba
@@ -201,6 +201,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: -20, // Mover los puntos más arriba
+    marginLeft: 30, // Mover los puntos hacia la derecha
   },
   dot: {
     width: 8,
@@ -231,20 +232,12 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 0,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
     minWidth: 140,
     marginRight: 0,
-    marginLeft: 'auto',
+    marginLeft: 0,
     position: 'absolute',
-    right: 16,
-    bottom: 16,
+    right: 0,
+    bottom: 0,
   },
   startButtonText: { 
     color: '#fff', 

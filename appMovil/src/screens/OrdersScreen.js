@@ -49,23 +49,41 @@ const OrdersScreen = ({ navigation }) => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ [OrdersScreen] Datos recibidos:', data.length, 'pedidos');
+        console.log('✅ [OrdersScreen] Datos recibidos:', data.length, 'registros');
         
-        // Log detallado de cada pedido para debug
-        if (Array.isArray(data)) {
-          data.forEach((order, index) => {
-            console.log(`[OrdersScreen] Pedido ${index + 1}:`, {
-              id: order._id?.slice(-6),
-              status: order.status,
-              total: order.total,
-              createdAt: order.createdAt,
-              products: order.products?.length || 0
-            });
+        // Filtrar solo pedidos completados/pagados (no carritos temporales)
+        const completedOrders = Array.isArray(data) ? data.filter(order => {
+          // Solo mostrar pedidos que NO sean carritos temporales
+          const isCompletedOrder = order.status && 
+            order.status !== 'cart' && 
+            order.status !== 'draft' && 
+            order.status !== 'pending_payment' &&
+            order.paymentStatus !== 'pending';
+          
+          console.log(`[OrdersScreen] Orden ${order._id?.slice(-6)}:`, {
+            status: order.status,
+            paymentStatus: order.paymentStatus,
+            isCompleted: isCompletedOrder
           });
-        }
+          
+          return isCompletedOrder;
+        }) : [];
         
-        // Mostrar TODOS los pedidos y ordenar por fecha (desc)
-        const sorted = (Array.isArray(data) ? data : [])
+        console.log('🔍 [OrdersScreen] Pedidos completados:', completedOrders.length);
+        
+        // Log detallado de cada pedido completado para debug
+        completedOrders.forEach((order, index) => {
+          console.log(`[OrdersScreen] Pedido completado ${index + 1}:`, {
+            id: order._id?.slice(-6),
+            status: order.status,
+            total: order.total,
+            createdAt: order.createdAt,
+            products: order.products?.length || 0
+          });
+        });
+        
+        // Mostrar solo pedidos completados y ordenar por fecha (desc)
+        const sorted = completedOrders
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setOrders(sorted);
       } else {
@@ -230,6 +248,26 @@ const OrdersScreen = ({ navigation }) => {
     );
   }
 
+  // Componente para estado vacío
+  const renderEmptyState = () => (
+    <View style={styles.emptyStateContainer}>
+      <View style={styles.emptyIconContainer}>
+        <Ionicons name="bag-outline" size={80} color="#d1d5db" />
+      </View>
+      <Text style={styles.emptyTitle}>No tienes pedidos aún</Text>
+      <Text style={styles.emptySubtitle}>
+        Cuando realices tu primera compra,{'\n'}tus pedidos aparecerán aquí
+      </Text>
+      <TouchableOpacity 
+        style={styles.shopButton}
+        onPress={() => navigation.navigate('Home')}
+      >
+        <Ionicons name="storefront" size={20} color="#fff" />
+        <Text style={styles.shopButtonText}>Comenzar a Comprar</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
@@ -241,6 +279,7 @@ const OrdersScreen = ({ navigation }) => {
         data={orders}
         keyExtractor={(item) => item._id}
         renderItem={renderOrderItem}
+        ListEmptyComponent={!loading ? renderEmptyState : null}
         contentContainerStyle={orders.length === 0 ? styles.emptyListContainer : styles.listContainer}
         refreshControl={
           <RefreshControl
@@ -299,6 +338,53 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 32,
+  },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+    paddingVertical: 60,
+  },
+  emptyIconContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#f9fafb',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+    borderWidth: 2,
+    borderColor: '#e5e7eb',
+    borderStyle: 'dashed',
+  },
+  emptyTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#2d2d2d',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 32,
+  },
+  shopButton: {
+    backgroundColor: '#000',
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  shopButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
   orderCard: {
     marginBottom: 16,
