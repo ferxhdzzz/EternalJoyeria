@@ -22,7 +22,7 @@ const EditSale = ({ saleId, onClose, onSave }) => {
   useEffect(() => {
     async function fetchSale() {
       try {
-        const res = await fetch(`http://localhost:4000/api/sales/${saleId}`, {
+        const res = await fetch(`https://eternaljoyeria-cg5d.onrender.com/api/sales/${saleId}`, {
           credentials: "include", // INCLUYE COOKIES PARA AUTENTICACIÓN
         });
         if (!res.ok) throw new Error("Error al cargar la venta");
@@ -53,7 +53,7 @@ const EditSale = ({ saleId, onClose, onSave }) => {
     setSubmitting(true);
 
     try {
-      const response = await fetch(`http://localhost:4000/api/sales/${saleId}`, {
+      const response = await fetch(`https://eternaljoyeria-cg5d.onrender.com/api/sales/${saleId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

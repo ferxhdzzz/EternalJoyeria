@@ -8,7 +8,7 @@ const usePerfilAdmin = () => {
   useEffect(() => {
     const obtenerAdmin = async () => {
       try {
-        const res = await fetch("http://localhost:4000/api/admins/me", {
+        const res = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/admins/me", {
           method: "GET",
           credentials: "include", // para enviar cookies de sesión
         });

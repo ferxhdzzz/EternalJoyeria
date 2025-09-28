@@ -10,7 +10,7 @@ export const AdminAuthProvider = ({ children }) => {
   const verifyAdmin = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:4000/api/admins/me", {
+      const res = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/admins/me", {
         method: "GET",
         credentials: "include",
       });

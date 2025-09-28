@@ -18,9 +18,9 @@ const Dashboard = () => {
     const fetchDashboardData = async () => {
       try {
         const [customersRes, productsRes, salesRes] = await Promise.all([
-          fetch("http://localhost:4000/api/customers", { credentials: "include" }),
-          fetch("http://localhost:4000/api/products", { credentials: "include" }),
-          fetch("http://localhost:4000/api/sales", { credentials: "include" }),
+          fetch("https://eternaljoyeria-cg5d.onrender.com/api/customers", { credentials: "include" }),
+          fetch("https://eternaljoyeria-cg5d.onrender.com/api/products", { credentials: "include" }),
+          fetch("https://eternaljoyeria-cg5d.onrender.com/api/sales", { credentials: "include" }),
         ]);
 
         const customersData = await customersRes.json();

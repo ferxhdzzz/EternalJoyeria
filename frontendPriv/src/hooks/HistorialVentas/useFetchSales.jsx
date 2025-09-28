@@ -20,7 +20,7 @@ const useFetchSales = () => {
       console.log("Haciendo fetch a sales...");
 
       // PETICIÓN GET A LA API DE VENTAS CON COOKIES INCLUIDAS
-      const response = await fetch("http://localhost:4000/api/sales", {
+      const response = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/sales", {
         signal: controller.signal,  // Permite abortar la petición
         credentials: "include",     // Incluye cookies de sesión
       });
@@ -52,7 +52,7 @@ const useFetchSales = () => {
   // FUNCIÓN PARA OBTENER UNA VENTA POR SU ID
   const getSaleById = async (id) => {
     try {
-      const response = await fetch(`http://localhost:4000/api/sales/${id}`, {
+      const response = await fetch(`https://eternaljoyeria-cg5d.onrender.com/api/sales/${id}`, {
         credentials: "include", // Incluye cookies de sesión
       });
 
