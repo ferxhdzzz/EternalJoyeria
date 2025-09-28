@@ -26,36 +26,39 @@ const app = express();
 
 // Configuración CORS
 const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:5174",
-  "http://localhost:19006",
-  "https://eternal-joyeria.vercel.app",
-  /^http:\/\/192\.168\.1\.\d{1,3}(?::\d+)?$/,
-  /^http:\/\/192\.168\.137\.\d{1,3}(?::\d+)?$/,
-  /^http:\/\/10\.0\.2\.2(?::\d+)?$/,
-  /^http:\/\/10\.0\.3\.2(?::\d+)?$/,
-  /^http:\/\/localhost(?::\d+)?$/,
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:19006",
+  "https://eternal-joyeria.vercel.app", // <-- Dominio principal de Vercel
+  /^https:\/\/[a-zA-Z0-9-]+\.vercel\.app$/, // <-- Permite subdominios y previews de Vercel
+  /^http:\/\/192\.168\.1\.\d{1,3}(?::\d+)?$/,
+  /^http:\/\/192\.168\.137\.\d{1,3}(?::\d+)?$/,
+  /^http:\/\/10\.0\.2\.2(?::\d+)?$/,
+  /^http:\/\/10\.0\.3\.2(?::\d+)?$/,
+  /^http:\/\/localhost(?::\d+)?$/,
 ];
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.some(o => typeof o === "string" ? origin === o : o.test(origin))) {
-      callback(null, true);
-    } else {
-      console.log("Origen no permitido por CORS:", origin);
-      callback(new Error("No permitido por CORS"));
-    }
-  },
-  credentials: true, // ✅ permitir cookies
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  exposedHeaders: ["Content-Range", "X-Content-Range"],
-  optionsSuccessStatus: 204,
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    
+    // Comprobar si el origen coincide con un string exacto o una expresión regular
+    if (allowedOrigins.some(o => typeof o === "string" ? origin === o : o.test(origin))) {
+      callback(null, true);
+    } else {
+      console.log("Origen no permitido por CORS:", origin);
+      callback(new Error("No permitido por CORS"));
+    }
+  },
+  credentials: true, // ✅ CRÍTICO: Permite que las cookies viajen
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  exposedHeaders: ["Content-Range", "X-Content-Range"],
+  optionsSuccessStatus: 204,
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+app.options("*", cors(corsOptions)); // Manejo de pre-flight requests para CORS
 
 // Swagger
 const swaggerDocument = JSON.parse(fs.readFileSync(path.resolve("./Docs.json"), "utf-8"));
