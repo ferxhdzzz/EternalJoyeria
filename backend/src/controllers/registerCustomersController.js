@@ -8,9 +8,8 @@ import { v2 as cloudinary } from "cloudinary"; // servicio para subir y gestiona
 import clientsModel from "../models/Customers.js"; // modelo mongoose de clientes
 import { config } from "../config.js"; // configuración global del proyecto
 
-// *** CAMBIO: Importamos la nueva función de Brevo para VERIFICACIÓN ***
+// Importamos la nueva función de Brevo para VERIFICACIÓN
 import mailVerifyBrevo from "../utils/BrevoMailVerify.js"; 
-// *** La línea original era: import { sendMail, HTMLEmailVerification } from "../utils/mailVerify.js";
 
 // Importación de la función de Brevo para BIENVENIDA (ya la habíamos cambiado)
 import welcomeEmail from "../utils/BrevoWelcomeEmail.js";
@@ -172,12 +171,11 @@ registerCustomersController.registerClient = async (req, res) => {
     // ===== ENVIAR EMAIL DE VERIFICACIÓN (¡USANDO BREVO!) =====
     console.log("Sending verification email to:", newClient.email);
     try {
-      // *** CAMBIO CLAVE: Usamos la nueva función de Brevo ***
+      // Usamos la función de Brevo
       await mailVerifyBrevo(
         newClient.email,
         verificationCode
       );
-      // *** La línea original era: await sendMail(newClient.email, "Your verification code", `Your verification code is ${verificationCode}`, HTMLEmailVerification(verificationCode));
       
     } catch (emailError) {
       console.error("Error sending verification email (Brevo):", emailError);
@@ -278,7 +276,7 @@ registerCustomersController.verifyCodeEmail = async (req, res) => {
     const { email, verificationCode: storedCode, expiresAt, userId } = decoded;
 
     // Log para debugging (solo en desarrollo)
-    if (process.env.NODE_ENV !== "production") {
+    if (process.env.NODE_ENV !== "production") { // *** CORRECCIÓN: Usar NODE_ENV ***
       console.log("VERIFICATION ATTEMPT:", {
         email,
         providedCode: codeStr,
@@ -320,7 +318,7 @@ registerCustomersController.verifyCodeEmail = async (req, res) => {
 
 
     // Log para debugging (solo en desarrollo)
-    if (process.env.nodeEnv !== "production") {
+    if (process.env.NODE_ENV !== "production") { // *** CORRECCIÓN: Usar NODE_ENV ***
       console.log("CLIENT UPDATE RESULT:", client ? {
         id: client._id,
         email: client.email,
@@ -350,7 +348,7 @@ registerCustomersController.verifyCodeEmail = async (req, res) => {
         client.firstName
       );
 
-      if (process.env.nodeEnv !== "production") {
+      if (process.env.NODE_ENV !== "production") { // *** CORRECCIÓN: Usar NODE_ENV ***
         console.log("Welcome email sent successfully to:", client.email);
       }
     } catch (emailError) {
@@ -440,18 +438,17 @@ registerCustomersController.resendVerificationCode = async (req, res) => {
     );
 
     // Log para debugging (solo en desarrollo)
-    if (process.env.nodeEnv !== "production") {
+    if (process.env.NODE_ENV !== "production") { // *** CORRECCIÓN: Usar NODE_ENV ***
       console.log("New verification code generated (resend):", verificationCode);
     }
 
     // ===== ENVIAR NUEVO EMAIL DE VERIFICACIÓN (¡USANDO BREVO!) =====
     try {
-      // *** CAMBIO CLAVE: Usamos la nueva función de Brevo ***
+      // Usamos la nueva función de Brevo
       await mailVerifyBrevo(
         client.email,
         verificationCode
       );
-      // *** La línea original era: await sendMail(client.email, "Your new verification code", `Your new verification code is ${verificationCode}`, HTMLEmailVerification(verificationCode));
       
     } catch (emailError) {
       console.error("Error sending resend verification email (Brevo):", emailError);
@@ -463,7 +460,7 @@ registerCustomersController.resendVerificationCode = async (req, res) => {
     // ===== ACTUALIZAR COOKIE CON NUEVO TOKEN =====
     res.cookie("verificationToken", tokenCode, {
       httpOnly: true,
-      secure: process.env.nodeEnv === "production",
+      secure: process.env.NODE_ENV === "production", // *** CORRECCIÓN: Usar NODE_ENV ***
       maxAge: 2 * 60 * 60 * 1000, // 2 horas
       sameSite: "lax",
       path: "/",
