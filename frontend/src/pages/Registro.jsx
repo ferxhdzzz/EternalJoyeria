@@ -1,7 +1,5 @@
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-// Importación de SweetAlert2
-import Swal from 'sweetalert2'; 
 import useRegistro from "../hooks/Registro/useRegistro";
 import Input from "../components/registro/inpungroup/InputGroup";
 import Button from "../components/registro/button/Button";
@@ -143,7 +141,6 @@ const Registro = () => {
         nextStep();
       } else {
         console.error("Error en el registro:", result.error);
-        // El error del hook se mostrará automáticamente
       }
     } else {
       // Para los demás pasos, solo avanzar
@@ -187,12 +184,12 @@ const Registro = () => {
     input.click();
   }, [handleFileUpload]);
 
-  // FUNCIÓN MODIFICADA: Manejar verificación de código con SweetAlert
+  // NUEVA FUNCIÓN: Manejar verificación de código
   const handleVerifyCode = useCallback(async (e) => {
     e.preventDefault();
     
-    if (!verificationCode.trim() || verificationCode.length !== 6) {
-      setValidationErrors({ verificationCode: 'Por favor ingresa el código completo de 6 dígitos' });
+    if (!verificationCode.trim()) {
+      setValidationErrors({ verificationCode: 'Por favor ingresa el código de verificación' });
       return;
     }
 
@@ -204,35 +201,14 @@ const Registro = () => {
       const result = await verifyEmailCode(verificationCode);
       
       if (result.success) {
+        // CORRECCIÓN PRINCIPAL: Solo navegar si la verificación es exitosa
         console.log('Código verificado correctamente');
-        
-        // SweetAlert de Éxito
-        await Swal.fire({
-          title: '¡Registro Exitoso!',
-          text: 'Tu cuenta ha sido verificada y registrada correctamente. Ya puedes iniciar sesión.',
-          icon: 'success',
-          confirmButtonText: 'Continuar a Iniciar Sesión',
-          confirmButtonColor: '#F9A5C0' // Color del botón personalizado
-        });
-        
-        // Navegar a /login después de que el usuario cierre la alerta
         navigate("/login");
       } else {
         console.error('Error en verificación:', result.error);
-        
-        // SweetAlert de Error
-        Swal.fire({
-          title: 'Error de Verificación',
-          text: result.error || 'El código ingresado es incorrecto o ha expirado. Por favor, inténtalo de nuevo.',
-          icon: 'error',
-          confirmButtonText: 'Aceptar',
-          confirmButtonColor: '#CE91A5'
-        });
-        setValidationErrors({ verificationCode: result.error || 'Código incorrecto.' });
       }
     } catch (err) {
-      console.error("Error general en verificación:", err);
-      setValidationErrors({ verificationCode: 'Ocurrió un error inesperado al verificar el código.' });
+      setValidationErrors({ verificationCode: 'Error al verificar el código' });
     }
   }, [verificationCode, verifyEmailCode, clearError, navigate]);
 
@@ -254,6 +230,19 @@ const Registro = () => {
     }
   }, [formData.email, resendVerificationCode, clearError]);
 
+  // NUEVA FUNCIÓN: Manejar cambio en código de verificación
+  const handleCodeChange = useCallback((e) => {
+    const value = e.target.value.replace(/\D/g, ''); // Solo números
+    if (value.length <= 6) {
+      setVerificationCode(value);
+      // Limpiar errores cuando el usuario empieza a escribir
+      if (validationErrors.verificationCode) {
+        setValidationErrors({});
+      }
+      if (error) clearError();
+    }
+  }, [validationErrors.verificationCode, error, clearError]);
+
   // Función para manejar cambios en campos individuales
   const handleCodeInputChange = useCallback((e, index) => {
     const value = e.target.value.replace(/\D/g, ''); // Solo números
@@ -267,8 +256,7 @@ const Registro = () => {
       
       // Auto-focus al siguiente campo
       if (value && index < 5) {
-        const inputId = `code-input-${index + 1}`;
-        const nextInput = document.getElementById(inputId);
+        const nextInput = e.target.parentNode.children[index + 1];
         if (nextInput) nextInput.focus();
       }
       
@@ -283,8 +271,7 @@ const Registro = () => {
   // Función para manejar teclas especiales
   const handleCodeKeyDown = useCallback((e, index) => {
     if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
-      const inputId = `code-input-${index - 1}`;
-      const prevInput = document.getElementById(inputId);
+      const prevInput = e.target.parentNode.children[index - 1];
       if (prevInput) prevInput.focus();
     }
   }, [verificationCode]);
@@ -447,7 +434,6 @@ const Registro = () => {
               {[0, 1, 2, 3, 4, 5].map((index) => (
                 <input
                   key={index}
-                  id={`code-input-${index}`} // ID para el foco automático
                   type="text"
                   maxLength="1"
                   value={verificationCode[index] || ''}
@@ -517,8 +503,7 @@ const Registro = () => {
               <Button
                 type="submit"
                 text={loading ? "Verificando..." : "Verificar y Completar →"}
-                // Habilitado solo si tiene 6 dígitos y no está cargando
-                disabled={loading || verificationCode.length !== 6} 
+                disabled={loading || !verificationCode.trim()}
               />
             </div>
 
@@ -537,8 +522,7 @@ const Registro = () => {
   return (
     <>
       <BackArrow onClick={handlePrevStep} />
-      {/* El Stepper solo debe mostrarse si la navegación es secuencial y no en el paso final */}
-      {currentStep < 4 && <Stepper currentStep={currentStep} />} 
+      <Stepper currentStep={currentStep} />
       <div className="registro-content">
         {renderStep()}
       </div>
