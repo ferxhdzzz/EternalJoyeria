@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
-import "../../Styles/EditSales.css";
+import "../../styles/EditSales.css";
 
 // COMPONENTE PRINCIPAL QUE RECIBE LAS PROPS
 const EditSale = ({ saleId, onClose, onSave }) => {
