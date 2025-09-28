@@ -1,9 +1,19 @@
-/backend/.env
-/backend/.public
-/backend/.uploads
-
-* .uploads
-* .env 
-* .public 
-.env*.local
+# Variables de entorno
 .env
+.env.local
+.env*.local
+
+# Archivos de subida
+uploads/
+.uploads
+
+# Archivos públicos generados
+public/
+.public
+
+# Dependencias
+node_modules/
+
+# Logs
+*.log
+logs/

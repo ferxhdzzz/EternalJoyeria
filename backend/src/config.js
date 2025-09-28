@@ -12,7 +12,7 @@ export const config = {
   },
 
   jwt: {
-    secret: process.env.jwtSecret,
+    jwtSecret: process.env.jwtSecret,
     expiresIn: process.env.expiresIn || "7d" // Cambiado de 2h a 7d (7 días)
   },
 

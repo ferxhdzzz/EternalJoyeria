@@ -157,7 +157,7 @@ registerCustomersController.registerClient = async (req, res) => {
         expiresAt,
         userId: newClient._id // Incluir ID del usuario para mayor seguridad
       },
-      config.jwt.secret,
+      config.jwt.jwtSecret,
       { expiresIn: config.jwt.expiresIn }
     );
 
@@ -252,7 +252,7 @@ registerCustomersController.verifyCodeEmail = async (req, res) => {
     // ===== VERIFICAR Y DECODIFICAR TOKEN JWT =====
     let decoded;
     try {
-      decoded = jsonwebtoken.verify(token, config.jwt.secret);
+      decoded = jsonwebtoken.verify(token, config.jwt.jwtSecret);
     } catch (jwtError) {
       // Limpiar cookie inválida
       res.clearCookie("verificationToken");
@@ -434,7 +434,7 @@ registerCustomersController.resendVerificationCode = async (req, res) => {
         expiresAt,
         userId: client._id // Incluir ID para consistencia
       },
-      config.jwt.secret,
+      config.jwt.jwtSecret,
       { expiresIn: config.jwt.expiresIn }
     );
 

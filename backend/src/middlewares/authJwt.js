@@ -18,7 +18,7 @@ export const verifyToken = (req, res, next) => {
 
   try {
     // Verificar y decodificar el token
-    const decoded = jwt.verify(tokenValue, config.jwt.secret);
+    const decoded = jwt.verify(tokenValue, config.jwt.jwtSecret);
     
     // Adjuntar información del usuario al request para usar en las rutas
     req.userId = decoded.id;

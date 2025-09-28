@@ -44,7 +44,7 @@ recoveryPasswordController.requestCode = async (req, res) => {
     // crear token con email, código y tipo de usuario, expira en 20 minutos
     const token = jsonwebtoken.sign(
       { email, code, userType, verified: false },
-      config.jwt.secret,
+      config.jwt.jwtSecret,
       { expiresIn: "20m" }
     );
 
@@ -95,7 +95,7 @@ recoveryPasswordController.verifyCode = async (req, res) => {
 
     if (!token) return res.status(400).json({ message: "No se encontró token de recuperación." });
 
-    const decoded = jsonwebtoken.verify(token, config.jwt.secret);
+    const decoded = jsonwebtoken.verify(token, config.jwt.jwtSecret);
 
     if (decoded.code !== code) {
       return res.status(400).json({ message: "código incorrecto." });
@@ -109,7 +109,7 @@ recoveryPasswordController.verifyCode = async (req, res) => {
 
     const newToken = jsonwebtoken.sign(
       { ...rest, verified: true },
-      config.jwt.secret,
+      config.jwt.jwtSecret,
       { expiresIn: "20m" }
     );
 
@@ -145,7 +145,7 @@ recoveryPasswordController.newPassword = async (req, res) => {
 
     if (!token) return res.status(400).json({ message: "No se encontró token de recuperación." });
 
-    const decoded = jsonwebtoken.verify(token, config.jwt.secret);
+    const decoded = jsonwebtoken.verify(token, config.jwt.jwtSecret);
 
     if (!decoded.verified) {
       return res.status(400).json({ message: "el código no está verificado." });
