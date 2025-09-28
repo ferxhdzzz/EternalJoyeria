@@ -22,7 +22,7 @@ const CategoryProducts = () => {
   // Obtener productos por categoría desde la API
   const fetchProducts = async () => {
     try {
-      const res = await axios.get(`http://localhost:4000/api/products/category/${id}`);
+      const res = await axios.get(`https://eternaljoyeria-cg5d.onrender.com/api/products/category/${id}`);
       setProducts(res.data);
       setLoading(false);
     } catch (error) {

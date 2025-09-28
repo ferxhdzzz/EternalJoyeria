@@ -33,7 +33,7 @@ const HistReviews = () => {
         setError(null);
 
         const response = await fetch(
-          `http://localhost:4000/api/reviews/user/${userId}`,
+          `https://eternaljoyeria-cg5d.onrender.com/api/reviews/user/${userId}`,
           {
             method: 'GET',
             credentials: 'include', // 👈 MUY IMPORTANTE para enviar la cookie al backend

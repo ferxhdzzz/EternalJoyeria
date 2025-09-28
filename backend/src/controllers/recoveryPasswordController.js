@@ -1,3 +1,5 @@
+// Archivo: recoveryPasswordController.js
+
 // importación de librerías necesarias
 import jsonwebtoken from "jsonwebtoken"; // para generar y verificar tokens
 import bcryptjs from "bcryptjs"; // para encriptar y comparar contraseñas
@@ -7,9 +9,9 @@ import clientsModel from "../models/Customers.js";
 import adminModel from "../models/Administrator.js";
 
 
-// importación de funciones para envío de correos y plantilla html
+// *** CAMBIO: Nueva importación de la función de Brevo para recuperación ***
+import RecoveryPassword from "../utils/BrevoRecoveryPasswordEmail.js";
 
-import { sendEmail, HTMLRecoveryEmail } from "../utils/mailRecoveryPassword.js";
 
 // importación de configuración general del proyecto
 import { config } from "../config.js";
@@ -58,14 +60,16 @@ recoveryPasswordController.requestCode = async (req, res) => {
 
     // Intentar enviar el correo
     try {
-      await sendEmail(email, "Código de recuperación", "Tu código es:", HTMLRecoveryEmail(code));
+      // *** CAMBIO CLAVE: Llamada a la nueva función de Brevo ***
+      await RecoveryPassword(email, code);
+      
       return res.json({
         success: true,
         message: "Código de recuperación enviado correctamente.",
         recoveryToken: token // Incluir token para app móvil
       });
     } catch (emailError) {
-      console.error("Error al enviar el correo:", emailError);
+      console.error("Error al enviar el correo (Brevo):", emailError);
       // Aún así respondemos con éxito pero indicamos que hubo un problema con el correo
       return res.status(200).json({
         success: true,
@@ -89,13 +93,22 @@ recoveryPasswordController.verifyCode = async (req, res) => {
   try {
     // obtener token desde cookie (web) o Authorization header (móvil)
     const token = req.cookies.tokenRecoveryCode || 
-                  (req.headers.authorization && req.headers.authorization.startsWith('Bearer ') 
+                 (req.headers.authorization && req.headers.authorization.startsWith('Bearer ') 
                     ? req.headers.authorization.substring(7) 
                     : null);
 
     if (!token) return res.status(400).json({ message: "No se encontró token de recuperación." });
 
-    const decoded = jsonwebtoken.verify(token, config.jwt.secret);
+    let decoded;
+    try {
+        decoded = jsonwebtoken.verify(token, config.jwt.jwtSecret);
+    } catch (jwtError) {
+        // Limpiar cookie si el token es inválido o expiró (aunque el catch principal ya lo hace, es más seguro)
+        res.clearCookie("tokenRecoveryCode");
+        return res.status(400).json({ message: "token inválido o expirado." });
+    }
+    
+
 
     if (decoded.code !== code) {
       return res.status(400).json({ message: "código incorrecto." });
@@ -127,6 +140,8 @@ recoveryPasswordController.verifyCode = async (req, res) => {
     });
   } catch (error) {
     console.error("error en verifyCode:", error);
+    // En caso de error general (incluyendo token expirado), limpiar la cookie
+    res.clearCookie("tokenRecoveryCode");
     res.status(400).json({ message: "token inválido o expirado." });
   }
 };
@@ -139,13 +154,22 @@ recoveryPasswordController.newPassword = async (req, res) => {
   try {
     // obtener token desde cookie (web) o Authorization header (móvil)
     const token = req.cookies.tokenRecoveryCode || 
-                  (req.headers.authorization && req.headers.authorization.startsWith('Bearer ') 
+                 (req.headers.authorization && req.headers.authorization.startsWith('Bearer ') 
                     ? req.headers.authorization.substring(7) 
                     : null);
 
     if (!token) return res.status(400).json({ message: "No se encontró token de recuperación." });
 
-    const decoded = jsonwebtoken.verify(token, config.jwt.secret);
+    let decoded;
+    try {
+        decoded = jsonwebtoken.verify(token, config.jwt.jwtSecret);
+    } catch (jwtError) {
+        // Limpiar cookie si el token es inválido o expiró
+        res.clearCookie("tokenRecoveryCode");
+        return res.status(400).json({ message: "token inválido o expirado." });
+    }
+
+
 
     if (!decoded.verified) {
       return res.status(400).json({ message: "el código no está verificado." });
@@ -188,10 +212,11 @@ recoveryPasswordController.newPassword = async (req, res) => {
     res.json({ message: "contraseña actualizada correctamente." });
   } catch (error) {
     console.error("error en newPassword:", error);
+    // En caso de error general, limpiar la cookie
+    res.clearCookie("tokenRecoveryCode");
     res.status(400).json({ message: "token inválido o expirado." });
   }
 };
 
 // exportar el controlador
 export default recoveryPasswordController;
-
