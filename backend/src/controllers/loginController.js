@@ -64,9 +64,11 @@ loginController.login = async (req, res) => {
       { expiresIn: config.jwt.expiresIn }
     );
 
-    // Determinar si es un entorno seguro (HTTPS). Usamos 'true' si NODE_ENV es 'production'
-    // o si el protocolo de la solicitud es HTTPS. Esto es para entornos cloud.
-    const isSecure = process.env.NODE_ENV === "production" || req.protocol === 'https';
+    // MODIFICACIÓN CLAVE: Verificamos 'production' O el protocolo de la petición.
+    // También se añade una comprobación directa del encabezado de proxy.
+    const isSecure = process.env.NODE_ENV === "production" || 
+                     req.protocol === 'https' ||
+                     req.headers['x-forwarded-proto'] === 'https'; // Agregado para robustez
 
     // Guardar cookie JWT (cross-site/producción HTTPS)
     res.cookie("authToken", token, {
