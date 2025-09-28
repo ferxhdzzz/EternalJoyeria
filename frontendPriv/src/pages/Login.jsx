@@ -453,7 +453,7 @@ export default function Login() {
           }
 
           .recover-card.improved-form {
-            background: linear-gradient(145deg, rgba(30, 20, 25, 0.95), rgba(20, 15, 20, 0.9));
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
             border: 1px solid rgba(244, 114, 182, 0.2);
             box-shadow: 0 8px 32px rgba(236, 72, 153, 0.1);
           }
@@ -468,7 +468,7 @@ export default function Login() {
 
           .pink-input.error {
             border-color: #f87171;
-            background: linear-gradient(145deg, rgba(60, 30, 30, 0.9), rgba(70, 35, 35, 0.8));
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
           }
 
           .pink-error-message {
