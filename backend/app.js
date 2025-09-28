@@ -24,6 +24,10 @@ import { validateAuthToken } from "./src/middlewares/validateAuthToken.js";
 
 const app = express();
 
+// ** 🚀 FIX CRÍTICO para Render/Vercel (Proxy Inverso) **
+// Esto asegura que req.protocol sea 'https' en producción, activando 'Secure' en la cookie.
+app.set('trust proxy', 1);
+
 // Configuración CORS
 const allowedOrigins = [
   "http://localhost:5173",
