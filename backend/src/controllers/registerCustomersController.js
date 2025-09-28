@@ -416,8 +416,19 @@ registerCustomersController.resendVerificationCode = async (req, res) => {
 
     // Verificar que el cliente existe y no está verificado
     if (!client) {
+      // Intentar buscar el cliente si ya está verificado para dar un mensaje más preciso
+      const verifiedClient = await clientsModel.findOne({ email: emailNormalized, isVerified: true });
+      
+      if (verifiedClient) {
+        // Si el cliente existe y está verificado, usar 409 Conflict
+        return res.status(409).json({
+          message: "Client is already verified. Please log in."
+        });
+      }
+      
+      // Si el cliente no existe en absoluto (o está en otro estado inesperado), 404
       return res.status(404).json({
-        message: "Client not found or already verified."
+        message: "Client not found."
       });
     }
 
