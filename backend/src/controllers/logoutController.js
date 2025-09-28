@@ -1,17 +1,18 @@
 const logoutController = {};
 
 logoutController.logout = async (req, res) => {
-  // Limpiar las cookies, con esto, se borra el token.
-  // CRÍTICO: Debes especificar los mismos parámetros (especialmente 'path')
-  // que usaste cuando creaste la cookie para que el navegador la elimine.
+  // Para eliminar la cookie, DEBES pasar exactamente los mismos parámetros 
+  // (path, secure, sameSite, etc.) que se usaron para CREARLA.
+  // En entornos de producción con HTTPS y dominios separados, estas flags son esenciales:
   res.clearCookie("authToken", {
-    path: "/", // Asegura que se borre la cookie establecida en la ruta raíz
-    // Si usaste secure: true y sameSite: "none" al crearla, DEBES incluirlos aquí
-    // secure: true, 
-    // sameSite: "None",
+    path: "/", // Asegura que coincida con la ruta raíz
+    secure: true, // Debe ser true si la conexión es HTTPS (como en Render)
+    sameSite: "None", // Necesario para cookies cross-site con secure: true
   });
 
-  return res.json({ message: "Session closed successfully" });
+  console.log("✅ Cookie 'authToken' enviada para eliminación con parámetros secure/samesite.");
+  return res.json({ message: "Session closed successfully. Cookie cleared." });
 };
 
 export default logoutController;
+
