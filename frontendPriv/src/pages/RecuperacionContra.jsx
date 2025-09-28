@@ -366,13 +366,13 @@ const RecuperacionContra = () => {
           .pink-input {
             background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
             border-color: #f472b6;
-            color: #fdf2f8;
+            color: #000000ff;
           }
 
           .pink-input:focus {
             border-color: #ec4899;
             background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), hsla(0, 0%, 100%, 0.90));
-            box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.2);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
           }
 
           .pink-label {
@@ -411,7 +411,7 @@ const RecuperacionContra = () => {
 
           .pink-input.error {
             border-color: #f87171;
-            background: linear-gradient(145deg, rgba(60, 30, 30, 0.9), rgba(70, 35, 35, 0.8));
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
           }
 
           .pink-error-message {
