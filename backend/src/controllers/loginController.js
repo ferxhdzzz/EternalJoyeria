@@ -64,11 +64,15 @@ loginController.login = async (req, res) => {
       { expiresIn: config.jwt.expiresIn }
     );
 
-    // Guardar cookie JWT (producción HTTPS)
+    // Determinar si es un entorno seguro (HTTPS). Usamos 'true' si NODE_ENV es 'production'
+    // o si el protocolo de la solicitud es HTTPS. Esto es para entornos cloud.
+    const isSecure = process.env.NODE_ENV === "production" || req.protocol === 'https';
+
+    // Guardar cookie JWT (cross-site/producción HTTPS)
     res.cookie("authToken", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      secure: isSecure, // Usamos la variable determinada
+      sameSite: "none", // Necesario para cross-site
       path: "/",
       maxAge: 24 * 60 * 60 * 1000, // 1 día
     });
