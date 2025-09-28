@@ -26,48 +26,42 @@ const app = express();
 
 // Configuración CORS
 const allowedOrigins = [
- "http://localhost:5173",
- "http://localhost:5174",
- "http://localhost:19006",
- "https://eternal-joyeria.vercel.app",
- /^http:\/\/192\.168\.1\.\d{1,3}(?::\d+)?$/,
- /^http:\/\/192\.168\.137\.\d{1,3}(?::\d+)?$/,
- /^http:\/\/10\.0\.2\.2(?::\d+)?$/,
- /^http:\/\/10\.0\.3\.2(?::\d+)?$/,
- /^http:\/\/localhost(?::\d+)?$/,
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:19006",
+  "https://eternal-joyeria.vercel.app",
+  /^http:\/\/192\.168\.1\.\d{1,3}(?::\d+)?$/,
+  /^http:\/\/192\.168\.137\.\d{1,3}(?::\d+)?$/,
+  /^http:\/\/10\.0\.2\.2(?::\d+)?$/,
+  /^http:\/\/10\.0\.3\.2(?::\d+)?$/,
+  /^http:\/\/localhost(?::\d+)?$/,
 ];
 
 const corsOptions = {
- origin: function (origin, callback) {
-   if (!origin) return callback(null, true);
-   if (
-     allowedOrigins.some(o =>
-       typeof o === "string" ? origin === o : o.test(origin)
-     )
-   ) {
-     callback(null, true);
-   } else {
-     console.log("Origen no permitido por CORS:", origin);
-     callback(new Error("No permitido por CORS"));
-   }
- },
- credentials: true,
- allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
- methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
- exposedHeaders: ["Content-Range", "X-Content-Range"],
- optionsSuccessStatus: 204,
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.some(o => typeof o === "string" ? origin === o : o.test(origin))) {
+      callback(null, true);
+    } else {
+      console.log("Origen no permitido por CORS:", origin);
+      callback(new Error("No permitido por CORS"));
+    }
+  },
+  credentials: true, // ✅ permitir cookies
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  exposedHeaders: ["Content-Range", "X-Content-Range"],
+  optionsSuccessStatus: 204,
 };
 
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
 // Swagger
-const swaggerDocument = JSON.parse(
- fs.readFileSync(path.resolve("./Docs.json"), "utf-8")
-);
+const swaggerDocument = JSON.parse(fs.readFileSync(path.resolve("./Docs.json"), "utf-8"));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Middleware para JSON y cookies
+// Middleware JSON y cookies
 app.use(express.json());
 app.use(cookieParser());
 
@@ -80,12 +74,8 @@ app.use("/api/contactus", contactusRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/reviews", reviewsRouter);
 
-// ===== Rutas protegidas =====
-app.use(
- "/api/customers",
- validateAuthToken(["admin", "customer"]),
- customersRoutes
-);
+// ===== Rutas protegidas (JWT) =====
+app.use("/api/customers", validateAuthToken(["admin", "customer"]), customersRoutes);
 app.use("/api/categories", categoriesRouters);
 app.use("/api/admins", validateAuthToken(["admin"]), adminRoutes);
 app.use("/api/sales", validateAuthToken(["admin", "customer"]), salesRoutes);

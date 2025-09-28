@@ -65,7 +65,7 @@ loginController.login = async (req, res) => {
       { expiresIn: config.jwt.expiresIn }
     );
 
-    // Guardar cookie JWT (para producción HTTPS)
+    // Guardar cookie JWT (producción HTTPS)
     res.cookie("authToken", token, {
       httpOnly: true,
       secure: true,      // obligatorio en Render/Vercel
@@ -77,7 +77,7 @@ loginController.login = async (req, res) => {
     res.json({
       success: true,
       message: "Login successful",
-      token: token,
+      token,
       user: {
         id: userFound._id,
         email: userFound.email,
