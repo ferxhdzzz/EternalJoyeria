@@ -87,7 +87,7 @@ loginController.login = async (req, res) => {
         id: userFound._id,    // ID único del usuario
         userType             // Tipo: "admin" o "customer"
       },
-      config.jwt.jwtSecret,      // Clave secreta para firmar el token
+      config.jwt.secret,      // Clave secreta para firmar el token
       { expiresIn: config.jwt.expiresIn }  // Tiempo de expiración
     );
 

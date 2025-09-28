@@ -101,7 +101,7 @@ recoveryPasswordController.verifyCode = async (req, res) => {
 
     let decoded;
     try {
-        decoded = jsonwebtoken.verify(token, config.jwt.jwtSecret);
+        decoded = jsonwebtoken.verify(token, config.jwt.secret);
     } catch (jwtError) {
         // Limpiar cookie si el token es inválido o expiró (aunque el catch principal ya lo hace, es más seguro)
         res.clearCookie("tokenRecoveryCode");
@@ -162,7 +162,7 @@ recoveryPasswordController.newPassword = async (req, res) => {
 
     let decoded;
     try {
-        decoded = jsonwebtoken.verify(token, config.jwt.jwtSecret);
+        decoded = jsonwebtoken.verify(token, config.jwt.secret);
     } catch (jwtError) {
         // Limpiar cookie si el token es inválido o expiró
         res.clearCookie("tokenRecoveryCode");
