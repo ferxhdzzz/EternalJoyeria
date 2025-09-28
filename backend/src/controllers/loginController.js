@@ -32,10 +32,12 @@ loginController.login = async (req, res) => {
 
     // Si no encontramos el usuario en ninguna tabla
     if (!userFound) {
+
       return res.status(401).json({ 
         success: false, 
         message: "Usuario no encontrado" 
       });
+
     }
 
     // SISTEMA DE BLOQUEO POR INTENTOS FALLIDOS 
@@ -67,13 +69,14 @@ loginController.login = async (req, res) => {
       // Guardar el nuevo número de intentos y mostrar intentos restantes
       await userFound.save();
       return res.status(401).json({
+
         success: false,
         message: `Contraseña incorrecta. Intentos restantes: ${MAX_ATTEMPTS - userFound.loginAttempts}`
+
       });
     }
 
     //  CONTRASEÑA CORRECTA 
-    // Resetear contador de intentos y tiempo de bloqueo
     userFound.loginAttempts = 0;
     userFound.lockUntil = null;
     await userFound.save();
@@ -84,14 +87,15 @@ loginController.login = async (req, res) => {
         id: userFound._id,    // ID único del usuario
         userType             // Tipo: "admin" o "customer"
       },
-      config.jwt.secret,      // Clave secreta para firmar el token
+      config.jwt.jwtSecret,      // Clave secreta para firmar el token
       { expiresIn: config.jwt.expiresIn }  // Tiempo de expiración
     );
 
     // Guardar el token en una cookie HTTP-only (más seguro)
     res.cookie("authToken", token, {
       path: '/',                         // Disponible en todas las rutas
-      sameSite: 'lax'                   // Protección CSRF
+      sameSite: 'lax',                  // Protección CSRF
+      secure: false                      // false para desarrollo local (HTTP)
     });
 
     // Respuesta exitosa con formato esperado por el frontend

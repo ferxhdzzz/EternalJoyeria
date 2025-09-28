@@ -1,10 +1,10 @@
 import React from "react";
 import { Navigate } from "react-router-dom"; // Para redirigir a rutas protegidas
-import useAdminAuth from "../hooks/AdminAuth/AdminAuth.jsx"; // Hook personalizado para estado de autenticación
+import { useAdminAuth } from "../context/AdminAuthContext"; // Hook del contexto de autenticación
 
 // Componente que protege rutas, solo permite acceso si el usuario está autenticado
 export default function ProtectedRoute({ children }) {
-  // Extraemos estado de autenticación y carga del hook personalizado
+  // Extraemos estado de autenticación y carga del contexto
   const { isAuth, loading } = useAdminAuth();
 
   // Mientras se carga el estado de autenticación, mostramos mensaje de carga

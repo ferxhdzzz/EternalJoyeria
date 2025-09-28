@@ -20,6 +20,7 @@ import HistorialPage from './pages/Historial';
 import ProductDetail from './pages/ProductDetail';
 import CheckoutPage from './pages/CheckoutPage';
 import { CartProvider } from './context/CartContext';
+import { AuthProvider } from './context/AuthContext';
 import Contact from './pages/ContactUs';
 import DetailProduct from './pages/DetailProduct';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -42,7 +43,8 @@ import CategoryProducts from './pages/CategoryProducts';
 import Error404 from './pages/Error404';
 
 
-import PublicRoute from './components/PublicRoute';
+import PrivateRoute from './components/PublicRoute';
+import AuthDebug from './components/AuthDebug';
 
 import './App.css';
 
@@ -58,10 +60,12 @@ function App() {
   }, []);
 
   return (
-    <CartProvider>
-      <Router>
-        <ScrollToTop />
-        <Routes>
+    <AuthProvider>
+      <CartProvider>
+        <Router>
+          <ScrollToTop />
+          <AuthDebug />
+          <Routes>
           <Route path="/" element={<Home />} />
           
           {/* Flujo recuperación */}
@@ -92,30 +96,37 @@ function App() {
           <Route path="/product/:id" element={<ProductDetail />} />
 
           {/* Protegidas */}
-          <Route path="/perfil" element={<Profiles />} />
+          <Route 
+            path="/perfil" 
+            element={
+              <PrivateRoute>
+                <Profiles />
+              </PrivateRoute>
+            } 
+          />
           <Route
             path="/historial"
             element={
-              <PublicRoute>
+              <PrivateRoute>
                 <HistorialPage />
-              </PublicRoute>
+              </PrivateRoute>
             }
           />
           <Route
             path="/checkout"
             element={
-              <PublicRoute>
+              <PrivateRoute>
                 <CheckoutPage />
-              </PublicRoute>
+              </PrivateRoute>
             }
           />
 
    <Route
             path="/histReview"
             element={
-              <PublicRoute>
+              <PrivateRoute>
                 <HistorialReviews />
-              </PublicRoute>
+              </PrivateRoute>
             }
           />
 
@@ -137,8 +148,9 @@ function App() {
           {/* Ruta para manejar páginas no encontradas */}
           <Route path="*" element={<Error404 />} />
         </Routes>
-      </Router>
-    </CartProvider>
+        </Router>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 

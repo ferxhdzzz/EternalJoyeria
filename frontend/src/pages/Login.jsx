@@ -97,6 +97,7 @@ const Login = () => {
 
     try {
       const res = await login({ email: form.email, password: form.password });
+      console.log("Resultado del login:", res);
 
       if (res?.success) {
         Swal.fire({
@@ -106,9 +107,11 @@ const Login = () => {
           confirmButtonText: "¡Genial!",
           confirmButtonColor: "#ff69b4",
         }).then(() => {
-
-          navigate("/productos");
-
+          // Pequeña pausa para asegurar que el contexto se actualice
+          console.log("Redirigiendo a /perfil...");
+          setTimeout(() => {
+            navigate("/perfil");
+          }, 100);
         });
       } else {
         Swal.fire({
@@ -171,7 +174,7 @@ const Login = () => {
         <Label textBefore="¿No tienes cuenta?" linkText="Regístrate" to="/registro" />
       </form>
 
-      <style jsx>{`
+      <style>{`
         /* Estilos para los inputs rosados mejorados */
         .pink-input-container {
           margin-bottom: 20px;

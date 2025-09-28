@@ -10,7 +10,7 @@ import Button from "../components/registro/button/Button";
 import BackArrow from "../components/registro/backarrow/BackArrow";
 import "../styles/Recuperacion.css";
 
-const hasSpecial = (s) => /[!@#$%^&*(),.?":{}|<>_\-\[\]\\;/+=~`]/.test(s);
+const hasSpecial = (s) => /[!@#$%^&*(),.?":{}|<>]/.test(s);
 
 export default function CambiarCont() {
   const navigate = useNavigate();
@@ -54,7 +54,16 @@ export default function CambiarCont() {
       return;
     }
 
+    console.log("Contraseña a enviar:", password);
+    console.log("Longitud:", password.length);
+    console.log("Tiene carácter especial:", hasSpecial(password));
+
     const res = await resetPassword(password);
+    
+    console.log("Respuesta completa de resetPassword:", res);
+    console.log("res.ok:", res.ok);
+    console.log("res.status:", res.status);
+    console.log("res.message:", res.message);
 
     if (res.ok) {
       Swal.fire({
