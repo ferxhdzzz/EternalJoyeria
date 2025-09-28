@@ -1,15 +1,16 @@
+// middlewares/auth.js
 import jwt from "jsonwebtoken";
 import { config } from "../config.js";
 
 export const validateAuthToken = (allowedUserTypes = []) => {
   return (req, res, next) => {
     try {
-      const { authToken } = req.cookies;
-      if (!authToken) {
+      const token = req.cookies.authToken; // 👈 JWT desde cookie
+      if (!token) {
         return res.status(401).json({ message: "Token no proporcionado" });
       }
 
-      const decoded = jwt.verify(authToken, config.jwt.secret);
+      const decoded = jwt.verify(token, config.jwt.secret);
       req.userId = decoded.id;
       req.userType = decoded.userType;
 
