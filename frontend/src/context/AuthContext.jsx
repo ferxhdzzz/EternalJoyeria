@@ -36,16 +36,18 @@ export const AuthProvider = ({ children }) => {
       }
 
       // Respuesta 200 OK - debe ser login exitoso
+      // Nota: El endpoint /login usualmente no devuelve el perfil completo, solo un mensaje.
+      // Nos basaremos en el posterior checkAuthStatus para obtener el perfil completo.
       if (isJSON && data.message === "login successful") {
-        // Login exitoso - la cookie ya fue guardada por el servidor
-        console.log("Login exitoso, actualizando estado del usuario");
-        setUser({ email });
+        console.log("Login exitoso. Forzando re-chequeo de estado para obtener ID...");
+        // Tras un login exitoso, forzamos un chequeo de estado
+        await checkAuthStatus();
         return { success: true, message: "Login exitoso" };
       }
 
-      // Fallback para respuesta 200 exitosa sin mensaje específico
-      console.log("Login exitoso (fallback), actualizando estado del usuario");
-      setUser({ email });
+      // Fallback
+      console.log("Login exitoso (fallback). Forzando re-chequeo de estado para obtener ID...");
+      await checkAuthStatus();
       return { success: true, message: "Login exitoso" };
 
     } catch (error) {
@@ -63,18 +65,18 @@ export const AuthProvider = ({ children }) => {
         credentials: "include", // Para enviar la cookie al servidor
       });
 
-      if (response.ok) {
-        console.log("Servidor confirmó cierre de sesión (cookie borrada).");
-      } else {
-        console.warn("Servidor devolvió error al cerrar sesión, pero borraremos el estado local.", response.status);
-      }
-      
+      if (response.ok) {
+        console.log("Servidor confirmó cierre de sesión (cookie borrada).");
+      } else {
+        console.warn("Servidor devolvió error al cerrar sesión, pero borraremos el estado local.", response.status);
+      }
+      
     } catch (error) {
       console.error("Logout error (falla de red o servidor):", error);
     } finally {
       // Limpiar estado local independientemente de si el request falló
       setUser(null);
-      console.log("Estado de usuario local limpio.");
+      console.log("Estado de usuario local limpio.");
     }
   };
 
@@ -90,17 +92,18 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         const userData = await response.json();
-        // Si la petición es exitosa, significa que hay una sesión válida
+        // CRÍTICO: GUARDAR LA PROPIEDAD _ID (O ID) DEL USUARIO
         setUser({ 
-            email: userData.email || "user@example.com", 
-            firstName: userData.firstName, // Incluir otros datos del perfil
-            lastName: userData.lastName
-        });
-        console.log("Sesión activa recuperada.");
+            _id: userData._id || userData.id, // <-- GUARDAMOS EL ID AQUI
+            email: userData.email || "user@example.com", 
+            firstName: userData.firstName, 
+            lastName: userData.lastName
+        });
+        console.log("Sesión activa recuperada. ID del usuario:", userData._id || userData.id);
       } else {
         // No hay sesión válida
         setUser(null);
-        console.log("No hay sesión activa.");
+        console.log("No hay sesión activa.");
       }
     } catch (error) {
       console.error("Auth check error:", error);
