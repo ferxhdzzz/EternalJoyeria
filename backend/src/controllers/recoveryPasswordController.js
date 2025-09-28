@@ -46,7 +46,7 @@ recoveryPasswordController.requestCode = async (req, res) => {
     // crear token con email, código y tipo de usuario, expira en 20 minutos
     const token = jsonwebtoken.sign(
       { email, code, userType, verified: false },
-      config.jwt.jwtSecret,
+      config.jwt.secret,
       { expiresIn: "20m" }
     );
 
@@ -109,6 +109,7 @@ recoveryPasswordController.verifyCode = async (req, res) => {
     }
     
 
+
     if (decoded.code !== code) {
       return res.status(400).json({ message: "código incorrecto." });
     }
@@ -121,7 +122,7 @@ recoveryPasswordController.verifyCode = async (req, res) => {
 
     const newToken = jsonwebtoken.sign(
       { ...rest, verified: true },
-      config.jwt.jwtSecret,
+      config.jwt.secret,
       { expiresIn: "20m" }
     );
 
@@ -167,6 +168,7 @@ recoveryPasswordController.newPassword = async (req, res) => {
         res.clearCookie("tokenRecoveryCode");
         return res.status(400).json({ message: "token inválido o expirado." });
     }
+
 
 
     if (!decoded.verified) {

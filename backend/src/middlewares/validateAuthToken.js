@@ -22,7 +22,7 @@ export const validateAuthToken = (allowedUserTypes = []) => {
       console.log('🔐 Token encontrado, verificando...');
 
       // 3. Verificar y decodificar el token
-      const decoded = jwt.verify(authToken, config.jwt.jwtSecret);
+      const decoded = jwt.verify(authToken, config.jwt.secret);
       console.log('✅ Token verificado correctamente:', {
         id: decoded.id,
         email: decoded.email,

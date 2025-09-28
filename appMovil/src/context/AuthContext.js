@@ -122,7 +122,12 @@ export const AuthProvider = ({ children }) => {
   // Funcion de login que se conecta al backend
   const login = async (email, password) => {
     try {
-      const response = await fetch(buildApiUrl(API_ENDPOINTS.LOGIN), {
+      const loginUrl = buildApiUrl(API_ENDPOINTS.LOGIN);
+      console.log('🔐 [AuthContext] Iniciando login...');
+      console.log('📧 Email:', email);
+      console.log('🌐 URL de login:', loginUrl);
+      
+      const response = await fetch(loginUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -130,7 +135,10 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ email, password }),
       });
 
+      console.log('📡 [AuthContext] Respuesta recibida:', response.status);
+      
       const data = await response.json();
+      console.log('📄 [AuthContext] Datos de respuesta:', data);
 
       if (response.ok && data.success) {
         // Guardar token
@@ -173,7 +181,15 @@ export const AuthProvider = ({ children }) => {
         return { success: false, error: data.message || 'Credenciales inválidas' };
       }
     } catch (error) {
-      console.log('Error en login:', error);
+      console.error('❌ [AuthContext] Error en login:', error);
+      console.error('❌ [AuthContext] Tipo de error:', error.name);
+      console.error('❌ [AuthContext] Mensaje:', error.message);
+      
+      // Verificar si es un error de red
+      if (error.message.includes('Network request failed') || error.message.includes('fetch')) {
+        return { success: false, error: 'No se puede conectar al servidor. Verifica tu conexión a internet y que el backend esté funcionando.' };
+      }
+      
       return { success: false, error: 'Error de conexión al servidor' };
     }
   };
