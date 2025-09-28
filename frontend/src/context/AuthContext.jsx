@@ -1,7 +1,7 @@
 import React from "react";
 import { createContext, useContext, useState, useEffect } from "react";
 
-const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+const SERVER_URL = import.meta.env.VITE_API_URL || "https://eternaljoyeria-cg5d.onrender.com/api";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {

@@ -436,26 +436,26 @@ const Login = () => {
         /* Dark mode support con tema rosado */
         @media (prefers-color-scheme: dark) {
           .pink-input {
-            background: linear-gradient(145deg, rgba(45, 25, 35, 0.9), rgba(55, 30, 40, 0.8));
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
             border-color: #f472b6;
             color: #fdf2f8;
           }
 
           .pink-input:focus {
             border-color: #ec4899;
-            background: linear-gradient(145deg, rgba(55, 30, 40, 0.95), rgba(45, 25, 35, 0.9));
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), hsla(0, 0%, 100%, 0.90));
             box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.2);
           }
 
           .pink-label {
             color: #f472b6;
-            background: linear-gradient(145deg, rgba(45, 25, 35, 0.9), rgba(55, 30, 40, 0.8));
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
           }
 
           .pink-input:focus + .pink-label,
           .pink-input:not(:placeholder-shown) + .pink-label {
             color: #ec4899;
-            background: linear-gradient(145deg, rgba(55, 30, 40, 0.95), rgba(45, 25, 35, 0.9));
+            background: linear-gradient(145deg, rgba(243, 243, 243, 0.95), rgba(255, 255, 255, 0.9));
           }
 
           .pink-password-toggle {
@@ -468,7 +468,7 @@ const Login = () => {
           }
 
           .recover-card.improved-form {
-            background: linear-gradient(145deg, rgba(30, 20, 25, 0.95), rgba(20, 15, 20, 0.9));
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
             border: 1px solid rgba(244, 114, 182, 0.2);
             box-shadow: 0 8px 32px rgba(236, 72, 153, 0.1);
           }

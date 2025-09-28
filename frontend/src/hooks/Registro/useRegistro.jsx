@@ -81,7 +81,7 @@ const useRegistro = () => {
       }
 
       // Realizar petición HTTP al endpoint de registro
-      const response = await fetch('http://localhost:4000/api/registerCustomers', {
+      const response = await fetch('https://eternaljoyeria-cg5d.onrender.com/api/registerCustomers', {
         method: 'POST',
         credentials: 'include', // Importante: incluir cookies para que el token se guarde
         body: form, // Enviar FormData (NO agregar Content-Type, el navegador lo hace automáticamente)
@@ -133,7 +133,7 @@ const useRegistro = () => {
       const codeStr = verificationCode.toString().trim();
 
       // Realizar petición al endpoint de verificación
-      const response = await fetch('http://localhost:4000/api/registerCustomers/verifyCodeEmail', {
+      const response = await fetch('https://eternaljoyeria-cg5d.onrender.com/api/registerCustomers/verifyCodeEmail', {
         method: 'POST',
         credentials: 'include', // Incluir cookies (necesario para el token de verificación)
         headers: {
@@ -195,7 +195,7 @@ const useRegistro = () => {
       }
 
       // Petición para generar y enviar nuevo código
-      const response = await fetch('http://localhost:4000/api/registerCustomers/resend-code', {
+      const response = await fetch('https://eternaljoyeria-cg5d.onrender.com/api/registerCustomers/resend-code', {
         method: 'POST',
         credentials: 'include', // Mantener cookies para actualizar el token
         headers: {
