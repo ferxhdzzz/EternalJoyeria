@@ -1,3 +1,4 @@
+/* Card */
 .profile-card {
   padding: 1em 2em 4em 2em;
   background-color: white;
@@ -8,6 +9,7 @@
   overflow: hidden;
 }
 
+/* Foto de perfil */
 .preview-circle {
   width: 120px;
   height: 120px;
@@ -42,15 +44,18 @@
   align-items: center;
 }
 
-.info-input {
+/* Input invisible */
+.info-input,
+.floating-input {
   flex-grow: 1;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  border: 2px solid white !important; /* invisible */
+  border-radius: 25px;
   padding: 0.5rem;
   margin-right: 1rem;
   background-color: #fff;
   color: #555;
   font-size: 1rem;
+  outline: none;
 }
 
 .overlay {
@@ -76,16 +81,6 @@
   text-align: center;
 }
 
-.floating-input {
-  background-color: white;
-  color: #000;
-  width: 75%;
-  padding: 12px;
-  margin: 15px 0;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-}
-
 .button-group {
   display: flex;
   justify-content: space-between;
@@ -105,7 +100,16 @@
   color: #555;
 }
 
-.cc {
-  background-color: #fca5a5 !important; /* Botón cancelar rosado */
+/* Botones morados pastel */
+.purple-btn {
+  background-color: #d8b4fe !important;
   color: white !important;
+  border-radius: 25px !important;
+  padding: 8px 20px !important;
+  border: none !important;
+  transition: background 0.3s ease;
+}
+
+.purple-btn:hover {
+  background-color: #c084fc !important;
 }
