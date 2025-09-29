@@ -171,6 +171,8 @@ const ProfileCard = () => {
               <h3>Actualizar Foto</h3>
               {nuevaFoto && <img src={URL.createObjectURL(nuevaFoto)} alt="preview" className="preview-img" />}
               <input type="file" accept="image/*" onChange={handleFileChange} />
+              <br />
+              <br />
               <div className="button-group">
                 <Button text="Guardar" className="purple-btn" onClick={handleImageSubmit} />
                 <Button text="Cancelar" className="purple-btn" onClick={() => { setEditingField(null); setNuevaFoto(null); }} />

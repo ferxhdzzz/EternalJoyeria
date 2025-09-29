@@ -103,7 +103,7 @@
 /* Botones morados pastel */
 .purple-btn {
   background-color: #F0EFFA !important;
-  color: white !important;
+  color: rgb(0, 0, 0) !important;
   border-radius: 25px !important;
   padding: 8px 20px !important;
   border: none !important;
