@@ -1,73 +1,61 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+// IMPORTACIÓN DE HOOKS DE REACT
+import { useEffect, useState } from "react";
 
-const AdminAuthContext = createContext();
+// URL base de la API
+const API_BASE_URL = "https://eternaljoyeria-cg5d.onrender.com/api";
 
-export const AdminAuthProvider = ({ children }) => {
-  const [isAuth, setIsAuth] = useState(false);
-  const [loading, setLoading] = useState(true);
+// DEFINICIÓN DEL HOOK PERSONALIZADO PARA VERIFICAR AUTENTICACIÓN DE ADMINISTRADOR
+export default function useAdminAuth() {
+  // ESTADO QUE INDICA SI EL USUARIO ESTÁ AUTENTICADO COMO ADMINISTRADOR
+  const [isAuth, setIsAuth] = useState(false);
 
-  // Función para verificar si el usuario es admin
-  const verifyAdmin = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/admins/me", {
-        method: "GET",
-        credentials: "include",
-      });
+  // ESTADO QUE INDICA SI LA VERIFICACIÓN ESTÁ EN CURSO
+  const [loading, setLoading] = useState(true);
+  
+  // ESTADO PARA ALMACENAR LOS DATOS DEL USUARIO (opcional, pero útil)
+  const [userData, setUserData] = useState(null);
 
-      if (res.ok) {
-        const data = await res.json();
-        console.log("Admin verification result:", data);
-        setIsAuth(true);
-        return true;
-      } else {
-        console.log("Admin verification failed:", res.status);
-        setIsAuth(false);
-        return false;
-      }
-    } catch (error) {
-      console.error("Admin verification error:", error);
-      setIsAuth(false);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
+  // EFFECTO PARA EJECUTAR LA VERIFICACIÓN AL MONTAR EL COMPONENTE
+  useEffect(() => {
+    // FUNCIÓN ASÍNCRONA QUE CONSULTA AL BACKEND SI EL USUARIO ES ADMIN
+    const verifyAdmin = async () => {
+      try {
+        // SOLICITUD AL BACKEND para verificar y obtener datos del administrador
+        const res = await fetch(`${API_BASE_URL}/admins/me`, {
+          method: "GET",
+          credentials: "include", // CRUCIAL para enviar la cookie 'authToken' a Render/Vercel
+        });
 
-  // Función para actualizar el estado de autenticación después del login
-  const updateAuthStatus = async () => {
-    return await verifyAdmin();
-  };
+        if (!res.ok) {
+          // Esto cubre 401 (token inválido/expirado) y el 500 (error en el servidor)
+          console.error(`Admin verification failed: ${res.status} ${res.statusText}`);
+          setIsAuth(false);
+          setUserData(null);
+          return;
+        }
 
-  // Función para logout
-  const logout = () => {
-    setIsAuth(false);
-  };
+        // RESPUESTA DEL SERVIDOR con información del administrador
+        const data = await res.json();
 
-  // Verificar autenticación al cargar la app
-  useEffect(() => {
-    verifyAdmin();
-  }, []);
+        // Actualizar estados
+        setIsAuth(true); 
+        setUserData(data.user); // Guardar los datos del usuario devueltos por adminController.js
+        
+      } catch (error) {
+        // Si hay error de conexión
+        console.error("Error de conexión al verificar admin:", error);
+        setIsAuth(false);
+        setUserData(null);
+      } finally {
+        // FINALIZA LA CARGA
+        setLoading(false);
+      }
+    };
 
-  return (
-    <AdminAuthContext.Provider
-      value={{
-        isAuth,
-        loading,
-        updateAuthStatus,
-        logout,
-        verifyAdmin
-      }}
-    >
-      {children}
-    </AdminAuthContext.Provider>
-  );
-};
+    // LLAMADO A LA FUNCIÓN DE VERIFICACIÓN
+    verifyAdmin();
+  }, []);
 
-export const useAdminAuth = () => {
-  const context = useContext(AdminAuthContext);
-  if (!context) {
-    throw new Error("useAdminAuth must be used within AdminAuthProvider");
-  }
-  return context;
-};
+  // RETORNO DE LOS ESTADOS PARA QUE PUEDAN SER USADOS EN COMPONENTES
+  return { isAuth, loading, userData };
+}
