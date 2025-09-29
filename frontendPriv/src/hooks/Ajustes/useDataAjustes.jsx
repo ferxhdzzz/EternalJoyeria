@@ -1,3 +1,5 @@
+// Archivo: src/hooks/Ajustes/useDataAjustes.js
+
 // IMPORTA LOS HOOKS Y LIBRERÍA DE TOAST
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -41,41 +43,28 @@ const useDataAjustes = () => {
     try {
       let options;
 
-      // SI SE PROPORCIONA UN ARCHIVO, USAR FORMDATA
-      if (data.file) {
-        const formData = new FormData();
+      // ❌ ELIMINAMOS LA LÓGICA DE FORMDATA AQUÍ ❌
+      // Razón: Tu componente ProfileCard siempre llama a updateAdmin con JSON,
+      // ya sea solo con name/email O con name/email/profilePicture (la URL ya subida).
+      // El bloque 'if (data.file)' no se usa correctamente en tu flujo.
+      // Simplificamos para que siempre envíe JSON, que es lo que espera el backend
+      // cuando se envía un perfil que no es un registro inicial.
 
-        // VALIDAR CAMPOS OBLIGATORIOS
-        if (!data.name || !data.email) {
-          throw new Error("El nombre y el correo son obligatorios");
-        }
-
-        formData.append("name", data.name);
-        formData.append("email", data.email);
-        if (data.password) formData.append("password", data.password);
-        formData.append("profilePicture", data.file);
-
-        console.log("ENVIANDO FORMDATA CON:", [...formData.entries()]);
-
-        options = {
-          method: "PUT",
-          credentials: "include",
-          body: formData,
-        };
-      } else {
-        // EN CASO CONTRARIO, ENVIAR JSON NORMAL
-        options = {
-          method: "PUT",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: data.name,
-            email: data.email,
-            password: data.password,
-            profilePicture: data.profilePicture,
-          }),
-        };
-      }
+      // ENVIAR JSON NORMAL
+      options = {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          password: data.password, // Puede ser undefined
+          profilePicture: data.profilePicture, // Puede ser undefined o la URL
+        }),
+      };
+      // Note: Si el backend espera un campo 'file' o un comportamiento diferente
+      // cuando no se envía la foto, deberás ajustar el 'body' aquí.
+      // Pero para Name/Email y ProfilePicture (URL), el JSON es el método más limpio.
 
       // ENVIAR LA SOLICITUD AL SERVIDOR
       const response = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/admins/me", options);
@@ -88,8 +77,7 @@ const useDataAjustes = () => {
       // MOSTRAR TOAST DE ÉXITO
       toast.success("Perfil actualizado correctamente");
 
-      // *** CORRECCIÓN CLAVE AQUÍ: Usamos result.user para consistencia ***
-      // Asumimos que la respuesta PUT también anida los datos en 'user'.
+      // Corregido: Usamos result.user para consistencia
       localStorage.setItem("adminName", result.user.name);
       localStorage.setItem("adminImage", result.user.profilePicture);
 

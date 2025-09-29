@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { NavLink } from "react-router-dom";
-import usePerfilAdmin from "../../hooks/Ajustes/useFetchAjustes"; // Asumo que el hook tiene la función refetchAdmin
+// Asumo que usePerfilAdmin ahora exporta 'refetchAdmin'
+import usePerfilAdmin from "../../hooks/Ajustes/useFetchAjustes"; 
 import useDataAjustes from "../../hooks/Ajustes/useDataAjustes"; 
 import Label from "./Label"; 
 import Button from "./Button";
@@ -38,7 +39,7 @@ const ProfileCard = () => {
       };
       const updatedAdmin = await updateAdmin(updatedData);
       if (updatedAdmin) {
-        // 3. ¡CORRECCIÓN CLAVE! Recargar los datos después de una actualización exitosa
+        // 3. ¡CORRECCIÓN CLAVE! Recargar los datos después de la actualización de nombre/correo
         refetchAdmin();
         setEditingField(null);
       }
@@ -84,7 +85,6 @@ const ProfileCard = () => {
 
   return (
     <>
-      {/* ... (El resto de tu JSX es el mismo) */}
       <form className="profile-card" onSubmit={handleSubmit(onSubmit)}>
         <div className="profile-header">
           {imagenPreview && (
@@ -100,9 +100,7 @@ const ProfileCard = () => {
               <input
                 {...register("nombre", { required: "El nombre es obligatorio" })}
                 className="info-input"
-                // No es necesario que esté deshabilitado si lo editas en el modal,
-                // pero lo dejo como lo tenías por la lógica del modal.
-                disabled 
+                disabled
               />
               <Button text="Editar" onClick={() => handleEdit("nombre")} />
             </div>
