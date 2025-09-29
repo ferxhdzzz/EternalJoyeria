@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { NavLink } from "react-router-dom";
 // Se eliminó la importación de 'sweetalert2'
-import usePerfilAdmin from "../../hooks/Ajustes/usePerfilAdmin"; 
+import usePerfilAdmin from "../../hooks/Ajustes/useFetchAjustes"; 
 import useDataAjustes from "../../hooks/Ajustes/useDataAjustes"; 
 import Label from "./Label"; 
 import Button from "./Button";
