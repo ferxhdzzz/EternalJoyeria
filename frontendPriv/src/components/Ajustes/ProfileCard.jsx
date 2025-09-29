@@ -18,6 +18,17 @@ const ProfileCard = () => {
   const [imagenPreview, setImagenPreview] = useState(null);
   const [editingField, setEditingField] = useState(null); // "nombre" | "correo" | "foto"
   const [nuevaFoto, setNuevaFoto] = useState(null);
+  // Estado para la notificación de éxito
+  const [successMessage, setSuccessMessage] = useState(null);
+
+  // Función para manejar la visualización del mensaje de éxito
+  const handleSuccess = (message) => {
+    setSuccessMessage(message);
+    // Ocultar el mensaje después de 3 segundos
+    setTimeout(() => {
+      setSuccessMessage(null);
+    }, 3000);
+  };
 
   useEffect(() => {
     // Este useEffect se dispara cuando 'admin' cambia (al cargar o después de un refetch exitoso)
@@ -57,6 +68,7 @@ const ProfileCard = () => {
         // Recargar los datos para que el useEffect actualice la vista principal
         refetchAdmin();
         setEditingField(null); // Cerrar modal
+        handleSuccess("¡Perfil actualizado correctamente!"); // 🟢 ÉXITO
       }
     } catch (e) {
       console.error("Error al actualizar:", e);
@@ -81,6 +93,7 @@ const ProfileCard = () => {
           setEditingField(null);
           setNuevaFoto(null);
           setImagenPreview(imageUrl);
+          handleSuccess("¡Foto de perfil actualizada correctamente!"); // 🟢 ÉXITO
         }
       }
     } catch (e) {
@@ -101,6 +114,27 @@ const ProfileCard = () => {
 
   return (
     <>
+      {/* Notificación de éxito flotante */}
+      {successMessage && (
+        <div 
+          className="success-toast"
+          style={{
+            position: 'fixed', 
+            top: '20px', 
+            right: '20px', 
+            backgroundColor: '#4CAF50', 
+            color: 'white', 
+            padding: '15px 20px', 
+            borderRadius: '8px', 
+            zIndex: 1000,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+            transition: 'opacity 0.3s ease-out'
+          }}
+        >
+          {successMessage}
+        </div>
+      )}
+      
       {/* El formulario principal ya no es necesario para la submission de nombre/correo */}
       <div className="profile-card">
         <div className="profile-header">
