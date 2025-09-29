@@ -421,7 +421,7 @@ export default function Login() {
           .pink-input {
             background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
             border-color: #f472b6;
-            color: #fdf2f8;
+            color: #000000ff;
           }
 
           .pink-input:focus {
