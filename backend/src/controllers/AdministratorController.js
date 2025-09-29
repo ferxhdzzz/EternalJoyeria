@@ -119,7 +119,8 @@ adminController.updateCurrentAdmin = async (req, res) => {
       return res.status(401).json({ success: false, message: "No autenticado" });
     }
 
-    const { name, email, password } = req.body;
+    // 🟢 CLAVE: Extraemos todos los datos posibles del cuerpo (JSON)
+    const { name, email, password, profilePicture } = req.body;
     let updateData = {};
 
     // Validar y asignar nombre si se envía
@@ -148,7 +149,7 @@ adminController.updateCurrentAdmin = async (req, res) => {
       updateData.password = hashedPassword;
     }
 
-    // Manejo de foto de perfil
+    // Manejo de foto de perfil: Prioridad 1: Archivo subido (req.file)
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: "profiles",
@@ -159,8 +160,17 @@ adminController.updateCurrentAdmin = async (req, res) => {
         ],
       });
       updateData.profilePicture = result.secure_url;
-    } else if (req.body.profilePicture) {
-      updateData.profilePicture = req.body.profilePicture;
+    } 
+    // 🟢 CLAVE: Prioridad 2: URL de la foto enviada en el JSON (desde el hook)
+    else if (profilePicture !== undefined) { 
+      updateData.profilePicture = profilePicture;
+    }
+    // Si req.file es undefined Y profilePicture es undefined, no se toca la foto.
+
+
+    // 🛑 DETECCIÓN DE UPDATE VACÍO 🛑
+    if (Object.keys(updateData).length === 0) {
+        return res.status(400).json({ success: false, message: "No se proporcionaron datos para actualizar." });
     }
 
     console.log("Actualizando admin:", adminId);
@@ -173,7 +183,8 @@ adminController.updateCurrentAdmin = async (req, res) => {
       return res.status(404).json({ success: false, message: "Administrador no encontrado" });
     }
 
-    res.status(200).json({ success: true, message: "Perfil actualizado", admin: updatedAdmin });
+    // 🟢 CORRECCIÓN DE RESPUESTA: Usar 'user' para consistencia con GET
+    res.status(200).json({ success: true, message: "Perfil actualizado", user: updatedAdmin }); 
   } catch (error) {
     console.error("Error al actualizar perfil admin:", error);
     res.status(500).json({ success: false, message: "Error al actualizar perfil del administrador" });
