@@ -1,4 +1,4 @@
-// Archivo: src/hooks/Ajustes/useDataAjustes.js (Última corrección)
+// Archivo: src/hooks/Ajustes/useDataAjustes.js (Confirmado como correcto)
 
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -35,33 +35,32 @@ const useDataAjustes = () => {
   };
 
   // FUNCIÓN PARA ACTUALIZAR DATOS DEL ADMINISTRADOR
+  // Envía los datos como JSON, incluyendo profilePicture si se proporciona.
   const updateAdmin = async (data) => {
     try {
-        // 🟢 CORRECCIÓN CLAVE: Creamos el objeto solo con los campos que vamos a enviar.
-        // Esto evita enviar 'password: undefined' u otros campos vacíos que podrían
-        // confundir al backend.
-        const requestBody = {
-            name: data.name,
-            email: data.email,
-        };
-        
-        // Solo incluimos la foto si existe en los datos (cuando se actualiza la foto)
-        if (data.profilePicture) {
-            requestBody.profilePicture = data.profilePicture;
-        }
-        // Nota: El campo 'password' se puede omitir ya que se maneja por separado.
+        // Creamos el objeto solo con los campos que vamos a enviar.
+        const requestBody = {
+            name: data.name,
+            email: data.email,
+        };
+        
+        // Solo incluimos la foto si existe en los datos (cuando se actualiza la foto)
+        if (data.profilePicture) {
+            requestBody.profilePicture = data.profilePicture;
+        }
+        // Nota: El campo 'password' se puede omitir ya que se maneja por separado.
 
         const options = {
           method: "PUT",
           credentials: "include",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json" }, // Importante para enviar JSON
           body: JSON.stringify(requestBody), 
         };
 
       // ENVIAR LA SOLICITUD AL SERVIDOR
       const response = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/admins/me", options);
       const result = await response.json();
-      
+      
       if (!response.ok) {
         throw new Error(result.message || "Error al actualizar perfil");
       }
