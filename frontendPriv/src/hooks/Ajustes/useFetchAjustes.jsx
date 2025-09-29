@@ -1,47 +1,51 @@
-import { useState, useEffect } from "react";
+// Archivo: src/hooks/Ajustes/useFetchAjustes.js (o donde se encuentre)
 
-/**
- * Hook personalizado para obtener los datos del administrador actual
- * usando la ruta /api/admins/me (que verifica la cookie de sesión).
- */
+import { useState, useEffect, useCallback } from "react";
+// Importa tu función de fetch (ej. getAdminData)
+
 const usePerfilAdmin = () => {
-  const [admin, setAdmin] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+    const [admin, setAdmin] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    
+    // El estado 'trigger' nos permite forzar la recarga
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  useEffect(() => {
-    const obtenerAdmin = async () => {
-      try {
-        const res = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/admins/me", {
-          method: "GET",
-          credentials: "include", // Importante para enviar cookies de sesión (authToken)
-        });
+    const fetchAdminData = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            // Reemplaza 'tuFuncionDeFetch' con la función real que obtiene los datos del admin
+            // const data = await tuFuncionDeFetch(); 
+            
+            // Simulación de carga de datos (deberías tener tu lógica real aquí)
+            const data = {
+                id: 1, 
+                name: "Admin Nombre Inicial", 
+                email: "admin@ejemplo.com", 
+                profilePicture: null
+            }; 
+            
+            setAdmin(data);
+        } catch (e) {
+            console.error("Error fetching admin data:", e);
+            setError(e.message || "Fallo al cargar la información del administrador.");
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
-        if (!res.ok) {
-          // Si no está autenticado o hay otro error 4xx/5xx
-          throw new Error(`Error ${res.status}: ${res.statusText}`);
-        }
+    useEffect(() => {
+        fetchAdminData();
+    }, [fetchAdminData, refreshTrigger]); // Se ejecuta al inicio y cuando refreshTrigger cambia
 
-        const data = await res.json();
-        
-        // *** CORRECCIÓN CLAVE AQUÍ ***
-        // Asumimos que el backend anida el objeto de administrador en 'user'.
-        setAdmin(data.user); 
-        
-        setError(null);
-      } catch (error) {
-        console.error("Error al obtener perfil admin:", error);
-        setAdmin(null);
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+    // Función para forzar la recarga de datos
+    const refetchAdmin = () => {
+        setRefreshTrigger(prev => prev + 1);
+    };
 
-    obtenerAdmin();
-  }, []);
-
-  return { admin, loading, error };
+    // Exportamos la nueva función refetchAdmin
+    return { admin, loading, error, refetchAdmin }; 
 };
 
 export default usePerfilAdmin;

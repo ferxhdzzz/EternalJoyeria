@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { NavLink } from "react-router-dom";
-import usePerfilAdmin from "../../hooks/Ajustes/useFetchAjustes"; 
+import usePerfilAdmin from "../../hooks/Ajustes/useFetchAjustes"; // Asumo que el hook tiene la función refetchAdmin
 import useDataAjustes from "../../hooks/Ajustes/useDataAjustes"; 
 import Label from "./Label"; 
 import Button from "./Button";
 import "./ProfileCard.css";
 
 const ProfileCard = () => {
-  const { admin, loading, error } = usePerfilAdmin();
+  // 1. Extraemos 'refetchAdmin' del hook
+  const { admin, loading, error, refetchAdmin } = usePerfilAdmin();
   const { updateAdmin, uploadImage } = useDataAjustes();
   const { register, handleSubmit, reset, formState: { errors }, getValues } = useForm();
 
@@ -17,6 +18,7 @@ const ProfileCard = () => {
   const [nuevaFoto, setNuevaFoto] = useState(null);
 
   useEffect(() => {
+    // 2. Este useEffect se dispara cuando 'admin' cambia (al cargar o después de un refetch)
     if (admin) {
       reset({
         nombre: admin.name || "",
@@ -24,7 +26,7 @@ const ProfileCard = () => {
       });
       setImagenPreview(admin.profilePicture || null);
     }
-  }, [admin, reset]);
+  }, [admin, reset]); // Dependencia clave: 'admin'
 
   const handleEdit = (field) => setEditingField(field);
 
@@ -36,6 +38,8 @@ const ProfileCard = () => {
       };
       const updatedAdmin = await updateAdmin(updatedData);
       if (updatedAdmin) {
+        // 3. ¡CORRECCIÓN CLAVE! Recargar los datos después de una actualización exitosa
+        refetchAdmin();
         setEditingField(null);
       }
     } catch (e) {
@@ -55,6 +59,8 @@ const ProfileCard = () => {
           profilePicture: imageUrl,
         });
         if (updatedAdmin) {
+          // 4. Recargar los datos también al actualizar la foto
+          refetchAdmin(); 
           setEditingField(null);
           setNuevaFoto(null);
           setImagenPreview(imageUrl);
@@ -78,6 +84,7 @@ const ProfileCard = () => {
 
   return (
     <>
+      {/* ... (El resto de tu JSX es el mismo) */}
       <form className="profile-card" onSubmit={handleSubmit(onSubmit)}>
         <div className="profile-header">
           {imagenPreview && (
@@ -93,7 +100,9 @@ const ProfileCard = () => {
               <input
                 {...register("nombre", { required: "El nombre es obligatorio" })}
                 className="info-input"
-                disabled
+                // No es necesario que esté deshabilitado si lo editas en el modal,
+                // pero lo dejo como lo tenías por la lógica del modal.
+                disabled 
               />
               <Button text="Editar" onClick={() => handleEdit("nombre")} />
             </div>
