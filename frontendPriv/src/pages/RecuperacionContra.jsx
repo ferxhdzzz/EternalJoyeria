@@ -155,7 +155,7 @@ const RecuperacionContra = () => {
         }
 
         .pink-input::placeholder {
-          color: #d1a3a3;
+          color: #000000ff;
         }
 
         .pink-label {
