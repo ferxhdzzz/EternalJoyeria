@@ -9,9 +9,10 @@ import Button from "./Button";
 import "./ProfileCard.css";
 
 const ProfileCard = () => {
-  // 1. Extraemos 'refetchAdmin' del hook (AHORA ESTÁ DISPONIBLE EN usePerfilAdmin.js)
+  // Extraemos 'refetchAdmin' del hook
   const { admin, loading, error, refetchAdmin } = usePerfilAdmin();
   const { updateAdmin, uploadImage } = useDataAjustes();
+  // Usamos 'nombre' y 'correo' para los campos del formulario
   const { register, handleSubmit, reset, formState: { errors }, getValues } = useForm();
 
   const [imagenPreview, setImagenPreview] = useState(null);
@@ -19,7 +20,7 @@ const ProfileCard = () => {
   const [nuevaFoto, setNuevaFoto] = useState(null);
 
   useEffect(() => {
-    // 2. Este useEffect se dispara cuando 'admin' cambia (al cargar o después de un refetch)
+    // Este useEffect se dispara cuando 'admin' cambia (al cargar o después de un refetch exitoso)
     if (admin) {
       reset({
         nombre: admin.name || "",
@@ -31,17 +32,31 @@ const ProfileCard = () => {
 
   const handleEdit = (field) => setEditingField(field);
 
+  // Esta función ahora se llama EXCLUSIVAMENTE desde el formulario del MODAL
   const onSubmit = async (data) => {
+    // Determinar qué campo se está guardando
+    const fieldToSave = editingField;
+    
+    if (!fieldToSave || fieldToSave === "foto") return;
+
     try {
-      const updatedData = {
-        name: data.nombre,
-        email: data.correo,
-      };
+      const updatedData = {};
+      if (fieldToSave === "nombre") {
+        updatedData.name = data.nombre;
+        // Aseguramos que el correo mantenga el valor actual del estado (por si acaso)
+        updatedData.email = getValues("correo"); 
+      } else if (fieldToSave === "correo") {
+        updatedData.email = data.correo;
+        // Aseguramos que el nombre mantenga el valor actual del estado
+        updatedData.name = getValues("nombre"); 
+      }
+      
       const updatedAdmin = await updateAdmin(updatedData);
+      
       if (updatedAdmin) {
-        // 3. ¡Recargar los datos después de la actualización de nombre/correo para actualizar la UI!
+        // Recargar los datos para que el useEffect actualice la vista principal
         refetchAdmin();
-        setEditingField(null);
+        setEditingField(null); // Cerrar modal
       }
     } catch (e) {
       console.error("Error al actualizar:", e);
@@ -54,14 +69,14 @@ const ProfileCard = () => {
       const imageUrl = await uploadImage(nuevaFoto);
       if (imageUrl) {
         const valores = getValues();
-        // Usamos updateAdmin enviando la URL de Cloudinary para que el backend la procese.
+        // Enviamos la nueva URL de la imagen junto con el nombre/correo actualizados.
         const updatedAdmin = await updateAdmin({
           name: valores.nombre,
           email: valores.correo,
           profilePicture: imageUrl,
         });
         if (updatedAdmin) {
-          // 4. Recargar los datos también al actualizar la foto
+          // Recargar los datos para que el hook de fetch tenga la nueva URL
           refetchAdmin(); 
           setEditingField(null);
           setNuevaFoto(null);
@@ -86,7 +101,8 @@ const ProfileCard = () => {
 
   return (
     <>
-      <form className="profile-card" onSubmit={handleSubmit(onSubmit)}>
+      {/* El formulario principal ya no es necesario para la submission de nombre/correo */}
+      <div className="profile-card">
         <div className="profile-header">
           {imagenPreview && (
             <div className="preview-circle" style={{ backgroundImage: `url(${imagenPreview})` }} />
@@ -99,36 +115,24 @@ const ProfileCard = () => {
             <Label text="Nombre" />
             <div className="info-row">
               <input
-                {...register("nombre", { required: "El nombre es obligatorio" })}
+                {...register("nombre")}
                 className="info-input"
-                disabled={editingField !== "nombre"} // Habilita solo si se está editando
+                disabled={true} // Siempre deshabilitado para mostrar
+                readOnly // Añadir readOnly para mejor accesibilidad/claridad
               />
-              <Button 
-                text={editingField === "nombre" ? "Guardar" : "Editar"} 
-                onClick={() => editingField !== "nombre" ? handleEdit("nombre") : handleSubmit(onSubmit)()} 
-                type={editingField === "nombre" ? "submit" : "button"}
-              />
+              <Button text="Editar" onClick={() => handleEdit("nombre")} />
             </div>
             {errors.nombre && <p className="error-texto">{errors.nombre.message}</p>}
 
             <Label text="Correo" />
             <div className="info-row">
               <input
-                {...register("correo", {
-                  required: "El correo es obligatorio",
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: "Formato de correo inválido",
-                  },
-                })}
+                {...register("correo")}
                 className="info-input"
-                disabled={editingField !== "correo"} // Habilita solo si se está editando
+                disabled={true} // Siempre deshabilitado para mostrar
+                readOnly
               />
-              <Button 
-                text={editingField === "correo" ? "Guardar" : "Editar"} 
-                onClick={() => editingField !== "correo" ? handleEdit("correo") : handleSubmit(onSubmit)()} 
-                type={editingField === "correo" ? "submit" : "button"}
-              />
+              <Button text="Editar" onClick={() => handleEdit("correo")} />
             </div>
             {errors.correo && <p className="error-texto">{errors.correo.message}</p>}
 
@@ -155,6 +159,7 @@ const ProfileCard = () => {
           <div className="overlay">
             <div className="overlay-content">
               <h3>Editar {editingField === "nombre" ? "Nombre" : "Correo"}</h3>
+              {/* Usamos un nuevo formulario independiente para el modal */}
               <form onSubmit={handleSubmit(onSubmit)}>
                 <input
                   {...register(editingField, {
@@ -173,7 +178,8 @@ const ProfileCard = () => {
                 {errors[editingField] && <p className="error-texto">{errors[editingField].message}</p>}
                 <div className="button-group">
                   <Button text="Guardar" type="submit" className="purple-btn" />
-                  <Button text="Cancelar" className="purple-btn" onClick={() => setEditingField(null)} />
+                  {/* Al cancelar, limpiamos los errores y cerramos */}
+                  <Button text="Cancelar" className="purple-btn" onClick={() => { setEditingField(null); reset(); }} />
                 </div>
               </form>
             </div>
@@ -196,7 +202,7 @@ const ProfileCard = () => {
             </div>
           </div>
         )}
-      </form>
+      </div>
     </>
   );
 };
