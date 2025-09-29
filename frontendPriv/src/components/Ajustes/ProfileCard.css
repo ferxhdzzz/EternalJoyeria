@@ -102,7 +102,7 @@
 
 /* Botones morados pastel */
 .purple-btn {
-  background-color: #d8b4fe !important;
+  background-color: #F0EFFA !important;
   color: white !important;
   border-radius: 25px !important;
   padding: 8px 20px !important;
@@ -111,5 +111,5 @@
 }
 
 .purple-btn:hover {
-  background-color: #c084fc !important;
+  background-color: #F0EFFA !important;
 }
