@@ -76,7 +76,7 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName, productId }) =
 
     try {
       const formData = new FormData();
-      formData.append("id_customer", user.id);
+      formData.append("id_customer", user._id);
       formData.append("id_product", productId);
       formData.append("rank", rating);
       formData.append("comment", comment);
