@@ -379,51 +379,52 @@ const ProductDetail = () => {
     );
   }
  
-  // Lógica de añadir al carrito y manejo de cantidad (se mantienen sin cambios)
-  const handleAddToCart = () => {
-    if (quantity === 0 || product.stock === 0) {
-      Swal.fire({
-        title: 'Sin stock disponible',
-        text: 'Este producto no tiene stock o la cantidad seleccionada es 0.',
-        icon: 'error',
-        confirmButtonText: 'Entendido',
-        confirmButtonColor: '#D1A6B4',
-      });
-      return;
-    }
- 
-    if (quantity > product.stock) {
-      Swal.fire({
-        title: 'Stock insuficiente',
-        text: `Solo quedan ${product.stock} unidad(es) de este producto.`,
-        icon: 'warning',
-        confirmButtonText: 'Ok',
-        confirmButtonColor: '#D1A6B4',
-      });
-      return;
-    }
- 
-    const productToAdd = {
-      id: product._id,
-      name: product.name,
-      price: product.finalPrice || product.price,
-      // Usamos la primera imagen para el carrito por convención
-      image: product.images && product.images.length > 0 ? product.images[0] : product.img,
-      size: selectedSize,
-      quantity: quantity
-    };
-   
-    addToCart(productToAdd);
-    Swal.fire({
-      title: '¡Añadido al carrito!',
-      text: `${product.name} ahora está en tu carrito.`,
-      icon: 'success',
-      confirmButtonText: 'Genial',
-      confirmButtonColor: '#D1A6B4',
-      timer: 2500,
-      timerProgressBar: true,
-    });
-  };
+   // Lógica de añadir al carrito y manejo de cantidad
+  const handleAddToCart = () => {
+    if (quantity === 0 || product.stock === 0) {
+      Swal.fire({
+        title: 'Sin stock disponible',
+        text: 'Este producto no tiene stock o la cantidad seleccionada es 0.',
+        icon: 'error',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#D1A6B4',
+      });
+      return;
+    }
+ 
+    if (quantity > product.stock) {
+      Swal.fire({
+        title: 'Stock insuficiente',
+        text: `Solo quedan ${product.stock} unidad(es) de este producto.`,
+        icon: 'warning',
+        confirmButtonText: 'Ok',
+        confirmButtonColor: '#D1A6B4',
+      });
+      return;
+    }
+ 
+    const productToAdd = {
+      id: product._id,
+      name: product.name,
+      price: product.finalPrice || product.price,
+      // Usamos la primera imagen para el carrito por convención
+      image: product.images && product.images.length > 0 ? product.images[0] : product.img,
+      size: selectedSize,
+      quantity: quantity,
+      stock: product.stock // <<<< LA LÍNEA QUE FALTABA
+    };
+   
+    addToCart(productToAdd);
+    Swal.fire({
+      title: '¡Añadido al carrito!',
+      text: `${product.name} ahora está en tu carrito.`,
+      icon: 'success',
+      confirmButtonText: 'Genial',
+      confirmButtonColor: '#D1A6B4',
+      timer: 2500,
+      timerProgressBar: true,
+    });
+  };
  
   const handleIncreaseQuantity = () => {
     if (quantity < product.stock) {
