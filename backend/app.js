@@ -35,8 +35,8 @@ const allowedOrigins = [
   "http://localhost:19006",
   "https://eternal-joyeria.vercel.app",
  "https://eternal-joyeria-priv.vercel.app",
- "https://eternal-joyeria-delta.vercel.app",
- "https://eternal-joyeria-priv-gules.vercel.app",// <-- Dominio principal de Vercel
+ "https://eternal-joyeria-priv-olive.vercel.app",
+ "https://eternal-joyeria-sigma.vercel.app",// <-- Dominio principal de Vercel
   /^https:\/\/[a-zA-Z0-9-]+\.vercel\.app$/, // <-- Permite subdominios y previews de Vercel
   /^http:\/\/192\.168\.1\.\d{1,3}(?::\d+)?$/,
   /^http:\/\/192\.168\.137\.\d{1,3}(?::\d+)?$/,
