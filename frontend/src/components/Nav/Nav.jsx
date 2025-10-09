@@ -186,7 +186,8 @@ const Nav = ({ cartOpen = false }) => {
                             <User size={22} />
                         </Link>
                     )}
-                    
+                    <br />
+                    <br />
                     <Link to="/carrito" className="nav-icon nav-cart-icon" aria-label="Carrito de Compras">
                         <CartIcon size={22} />
                         {totalCount > 0 && (
