@@ -1,67 +1,53 @@
-/* Estilos para el título del Dashboard */
-.historial-title-admin {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #4b1717; /* Color principal de tu marca */
-    margin-bottom: 20px;
-    padding-left: 10px;
+/* Fijar el sidebar */
+.sidebar-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 240px; /* ajustable */
+  height: 100vh;
+  background-color: #FFF3F2; /* o el color de tu sidebar */
+  z-index: 1000;
 }
 
-/* -------------------------------------- */
-/* Estilos del Filtro (similar a TablaResenas.css) */
-/* -------------------------------------- */
-.filter-controls-admin {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 30px;
-    padding-left: 10px; /* Alineación */
+/* Layout principal */
+.page-layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background-color: #FFF3F2;
+  overflow: hidden;
 }
 
-.filter-controls-admin label {
-    font-weight: 600;
-    color: #333;
-    font-size: 0.9rem;
+/* Main content (deja espacio a la izquierda para el sidebar fijo) */
+.main-area {
+  margin-left: 240px; /* igual al ancho del sidebar */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
-.product-filter-select-admin {
-    padding: 10px 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 1rem;
-    cursor: pointer;
-    min-width: 300px;
-    background-color: #f9f9f9;
+/* Área de contenido con scroll */
+.content-area {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+  background-color: #ffe4e1;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc #f5f5f5;
 }
 
-/* -------------------------------------- */
-/* Contenedor de las Tarjetas de Reseña */
-/* -------------------------------------- */
-.reviews-list-admin {
-    display: flex;
-    flex-direction: column;
-    gap: 20px; /* Espacio entre las tarjetas */
-    padding: 0 10px;
+/* Scrollbar WebKit */
+.content-area::-webkit-scrollbar {
+  width: 10px;
 }
 
-/* Estilo para el estado vacío */
-.empty-state-admin {
-    padding: 40px;
-    text-align: center;
-    color: #777;
-    font-size: 1.1rem;
-    background: #f9f9f9;
-    border-radius: 12px;
-    margin: 20px;
+.content-area::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 10px;
 }
 
-/* -------------------------------------- */
-/* Ajuste de estilo en AdminReviewItem */
-/* -------------------------------------- */
-/* Estilo para el nombre del cliente en el Admin */
-.customer-name-admin {
-    font-size: 0.85rem;
-    color: #666;
-    margin: 0 0 5px 0;
-    font-family: 'DM Sans', sans-serif;
+.content-area::-webkit-scrollbar-track {
+  background-color: #f5f5f5;
 }
