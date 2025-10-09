@@ -1,6 +1,36 @@
+/* --- ResenaRow.css --- */
+
 .resena-row td {
   padding: 14px 10px;
   font-size: 14px;
   text-align: left;
   border-bottom: 1px solid #eee;
-}
+  }
+  
+  /* NUEVOS ESTILOS PARA LA CELDA DE IMÁGENES */
+  .resena-images-cell {
+    vertical-align: middle; 
+  }
+  
+  .resena-images-container {
+    display: flex;
+    gap: 5px; /* Espacio entre las imágenes */
+    align-items: center;
+  }
+  
+  .resena-thumbnail {
+    width: 40px; 
+    height: 40px; 
+    object-fit: cover; 
+    border-radius: 4px; 
+    border: 1px solid #eee;
+  }
+  
+  .image-count {
+      font-size: 12px;
+      font-weight: bold;
+      color: #666;
+      background-color: #f0f0f0;
+      padding: 2px 5px;
+      border-radius: 4px;
+  }

@@ -38,36 +38,39 @@ const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
 
   return (
     <div className="tabla-resenas-wrapper">
-    <div className="tabla-resenas-container">
-  <h2>{titulo}</h2>
-  <div className="tabla-scroll-wrapper">
-    <table className="tabla-resenas">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Calificación</th>
-          <th>Comentario</th>
-          <th>Compra</th>
-        </tr>
-      </thead>
-      <tbody>
-        {reviews.length > 0 ? (
-          reviews.map((review) => (
-            <ResenaRow
-              key={review._id}
-              {...review}
-              onClick={() => handleEliminarClick(review)}
-            />
-          ))
-        ) : (
-          <tr>
-            <td colSpan="4">No hay reseñas disponibles.</td>
-          </tr>
-        )}
-      </tbody>
-    </table>
-  </div>
-</div>
+      <div className="tabla-resenas-container">
+        <h2>{titulo}</h2>
+        <div className="tabla-scroll-wrapper">
+          <table className="tabla-resenas">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Calificación</th>
+                <th>Comentario</th>
+                <th>Imágenes</th> {/* <-- NUEVA COLUMNA */}
+                <th>Compra</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {reviews.length > 0 ? (
+                reviews.map((review) => (
+                  <ResenaRow
+                    key={review._id}
+                    {...review}
+                    onClick={() => handleEliminarClick(review)}
+                  />
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6">No hay reseñas disponibles.</td>{" "}
+                  {/* <-- colSpan corregido a 6 */}
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {resenaSeleccionada && (
         <ConfirmacionModal
