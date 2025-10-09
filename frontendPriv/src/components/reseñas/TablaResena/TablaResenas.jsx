@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ResenaRow from "../row/ResenaRow";
-import ConfirmacionModal from "../../modal/ConfirmacionModal"; // Asumo la ruta
+import ConfirmacionModal from "../modal/ConfirmacionModal"; // Asumo la ruta
 import Swal from "sweetalert2";
 import "./TablaResenas.css";
 
