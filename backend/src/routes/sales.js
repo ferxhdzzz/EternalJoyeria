@@ -9,6 +9,7 @@ const router = Router();
 router.get("/monthly", salesController.getMonthlySales); //  Esta DEBE ir PRIMERA
 router.get("/category", salesController.getSalesByCategory);
 router.get("/by-customer/:id", salesController.getSalesByCustomer);
+router.get("/check-purchase/:customerId/:productId", salesController.checkProductPurchase);
 
 // 2. Rutas generales
 router.post("/", salesController.createSale);

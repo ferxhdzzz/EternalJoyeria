@@ -130,11 +130,35 @@ function App() {
             }
           />
 
+           <Route
+            path="/carrito"
+            element={
+              <PrivateRoute>
+                <CartPage />
+              </PrivateRoute>
+            }
+          />
 
-          {/* Carrito / otros */}
-          <Route path="/carrito" element={<CartPage />} />
+    <Route
+            path="/cart"
+            element={
+              <PrivateRoute>
+                <CartPage />
+              </PrivateRoute>
+            }
+          />
+              <Route
+            path="/shop"
+            element={
+              <PrivateRoute>
+                <CartPage />
+              </PrivateRoute>
+            }
+          />
+          {/* Carrito / otros 
+      
           <Route path="/cart" element={<CartPage />} />
-          <Route path="/shop" element={<CartPage />} />
+          <Route path="/shop" element={<CartPage />} />*/}
 
           <Route path="/contactanos" element={<Contact />} />
           <Route path="/detalle-producto/:id" element={<ProductDetail />} />
