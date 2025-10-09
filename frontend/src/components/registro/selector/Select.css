@@ -11,41 +11,62 @@
   font-size: 14px;
   margin-bottom: 10px;
   color: black;
+  min-width: 120px; /* Ancho mínimo consistente con otros labels */
+  display: inline-block;
+  font-family: 'DM Sans', Arial, sans-serif; /* Tipografía consistente */
 }
 
 .phone-input-container {
   display: flex;
   align-items: center;
   background-color: white;
-  border: 2px solid black;
-  border-radius: 20px;
-  overflow: hidden;
-  transition: border-color 0.3s ease;
+  border: 1px solid #e0e0e0; /* Borde más delgado y gris más claro */
+  border-radius: 8px; /* Menos redondeado */
+  transition: border-color 0.3s cubic-bezier(.4,2,.6,1);
+  box-shadow: none; /* Sin sombra */
+  width: 100%;
+  min-height: 48px; /* Altura consistente con otros inputs */
+  box-sizing: border-box; /* Incluir border en el tamaño total */
 }
 
 .phone-input-container:focus-within {
-  border-color: #ff69b4; /* Igual que tus otros inputs */
+  border-color: #ff69b4;
+  box-shadow: none; /* Sin sombra en focus */
 }
 
 .country-select {
   border: none;
-  padding: 10px 12px;
-  background-color: white;
-  font-size: 14px;
+  padding: 10px 14px; /* Mismo padding que otros inputs */
+  background-color: #f8f9fa; /* Fondo gris muy claro para distinguirlo */
+  font-size: 16px; /* Mismo tamaño que otros inputs */
   outline: none;
-  color: black;
+  color: #666; /* Color más suave */
   height: 100%;
   cursor: pointer;
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-weight: 500;
+  border-right: 1px solid #e0e0e0;
+  min-width: 80px; /* Ancho mínimo para el selector */
+  border-radius: 0; /* Sin border radius para que se vea integrado */
+  transition: background-color 0.2s ease, color 0.2s ease; /* Transición suave */
+}
+
+.country-select:hover {
+  background-color: #e9ecef; /* Fondo más oscuro al hacer hover */
+  color: #333; /* Color más oscuro al hacer hover */
 }
 
 .phone-input {
   flex: 1;
   border: none;
-  padding: 10px 14px;
-  font-size: 16px;
+  padding: 10px 14px; /* Mismo padding que otros inputs */
+  font-size: 16px; /* Mismo tamaño que otros inputs */
   outline: none;
-  background-color: white;
+  background-color: transparent; /* Transparente para que se vea integrado */
   color: black;
+  font-family: 'DM Sans', Arial, sans-serif;
+  box-sizing: border-box;
+  border-radius: 0; /* Sin border radius para que se vea integrado */
 }
 
 /* Responsive Design */
@@ -58,20 +79,21 @@
   .input-label {
     font-size: 13px;
     margin-bottom: 8px;
+    min-width: 100px; /* Ajuste para pantallas medianas */
   }
   
   .phone-input-container {
-    border-radius: 15px;
+    border-radius: 6px; /* Menos redondeado en responsive */
   }
   
   .country-select {
-    padding: 8px 10px;
-    font-size: 13px;
+    padding: 8px 12px; /* Mismo padding que otros inputs en responsive */
+    font-size: 15px; /* Mismo tamaño que otros inputs en responsive */
   }
   
   .phone-input {
-    padding: 8px 12px;
-    font-size: 15px;
+    padding: 8px 12px; /* Mismo padding que otros inputs en responsive */
+    font-size: 15px; /* Mismo tamaño que otros inputs en responsive */
   }
 }
 
@@ -84,19 +106,20 @@
   .input-label {
     font-size: 12px;
     margin-bottom: 6px;
+    min-width: 80px; /* Ajuste para pantallas pequeñas */
   }
   
   .phone-input-container {
-    border-radius: 12px;
+    border-radius: 5px; /* Menos redondeado en responsive */
   }
   
   .country-select {
-    padding: 6px 8px;
-    font-size: 12px;
+    padding: 6px 10px; /* Mismo padding que otros inputs en responsive */
+    font-size: 14px; /* Mismo tamaño que otros inputs en responsive */
   }
   
   .phone-input {
-    padding: 6px 10px;
-    font-size: 14px;
+    padding: 6px 10px; /* Mismo padding que otros inputs en responsive */
+    font-size: 14px; /* Mismo tamaño que otros inputs en responsive */
   }
 }

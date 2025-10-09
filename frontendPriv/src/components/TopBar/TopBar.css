@@ -51,7 +51,9 @@
 }
 
 .icon-button:hover {
-  background-color: #e8b5cd;
+  background-color: #d47a9a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 122, 154, 0.3);
 }
 
 .profile {

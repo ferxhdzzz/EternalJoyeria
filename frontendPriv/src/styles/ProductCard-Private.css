@@ -110,7 +110,9 @@
 }
 
 .arrow-button:hover {
-  color: #e57399;
+  color: #d47a9a;
+  transform: translateY(-1px);
+  text-shadow: 0 4px 12px rgba(212, 122, 154, 0.3);
 }
 
 .product-grid-private {

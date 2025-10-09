@@ -282,7 +282,6 @@ const Registro = () => {
         return (
           <form onSubmit={handleNext} noValidate>
             <h2 className="recover-title">Información Personal</h2>
-            <p>Comencemos con tus datos básicos.</p>
 
             <Input 
               label="Nombre" 
@@ -305,7 +304,7 @@ const Registro = () => {
             <div className="button-container">
               <Button 
                 type="submit" 
-                text={loading ? "Cargando..." : "Siguiente →"} 
+                text={loading ? "Cargando..." : "Siguiente"} 
                 disabled={loading}
               />
             </div>
@@ -318,7 +317,6 @@ const Registro = () => {
         return (
           <form onSubmit={handleNext} noValidate>
             <h2 className="recover-title">Detalles de la Cuenta</h2>
-            <p>Asegura tu cuenta y elige cómo podemos contactarte.</p>
 
             <Input 
               label="Correo" 
@@ -366,13 +364,13 @@ const Registro = () => {
             <div className="navigation-buttons">
               <Button 
                 type="button"
-                text="← Atrás" 
+                text="Atrás" 
                 onClick={handlePrevStep} 
                 disabled={loading} 
               />
               <Button 
                 type="submit"
-                text={loading ? "Registrando..." : "Siguiente →"} 
+                text={loading ? "Registrando..." : "Siguiente"} 
                 disabled={loading}
               />
             </div>
@@ -384,35 +382,23 @@ const Registro = () => {
           <div className="foto-paso">
             <Logo />
             <h2 className="recover-title">Foto de Perfil</h2>
-            <h4>Paso 3</h4>
 
             <PerfilFoto 
               src={formData.profilePhoto ? URL.createObjectURL(formData.profilePhoto) : "/gigi.png"} 
-              size={140} 
+              size={140}
+              onImageSelect={handleImageUpload}
             />
             
-            <div className="botones-contenedor">
-              <BotonPerfil 
-                text="Tomar Foto" 
-                color="#CE91A5" 
-                onClick={handleTakePhoto} 
-              />
-              <BotonPerfil 
-                text="Subir imagen" 
-                color="#F9A5C0" 
-                onClick={handleImageUpload} 
-              />
-            </div>
 
             <div className="navigation-buttons">
               <Button 
                 type="button"
-                text="← Atrás" 
+                text="Atrás" 
                 onClick={handlePrevStep} 
               />
               <Button 
                 type="button"
-                text="Siguiente →" 
+                text="Siguiente" 
                 onClick={nextStep} 
               />
             </div>
@@ -496,13 +482,13 @@ const Registro = () => {
             <div className="navigation-buttons">
               <Button
                 type="button"
-                text="← Atrás"
+                text="Atrás"
                 onClick={handlePrevStep}
                 disabled={loading}
               />
               <Button
                 type="submit"
-                text={loading ? "Verificando..." : "Verificar y Completar →"}
+                text={loading ? "Verificando..." : "Verificar y Completar"}
                 disabled={loading || !verificationCode.trim()}
               />
             </div>

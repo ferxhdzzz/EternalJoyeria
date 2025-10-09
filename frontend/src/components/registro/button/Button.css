@@ -1,27 +1,29 @@
 .custom-button {
   background-color: #d47a9a; /* Mismo rosa que el stepper */
   color: white;
-  padding: 12px 24px;
+  padding: 12px 24px; /* Aumentado de 8px 16px */
   border: none;
-  border-radius: 25px; /* Bordes más redondeados */
+  border-radius: 20px;
   cursor: pointer;
-  font-size: 16px; /* Texto ligeramente más grande */
+  font-size: 16px; /* Aumentado de 14px */
   font-weight: bold;
   margin-top: 1.5rem;
   display: inline-block; /* Cambiado para mejor control */
-  min-width: 150px; /* Ancho mínimo para consistencia */
+  min-width: 150px; /* Aumentado de 120px */
+  height: 48px; /* Altura fija para consistencia */
   text-align: center;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition: background-color 0.3s ease; /* Solo transición de color */
+  box-sizing: border-box; /* Incluir padding en el tamaño total */
 }
 
 .custom-button:hover {
   background-color: #c065a8; /* Un rosa un poco más oscuro al pasar el mouse */
-  transform: translateY(-2px); /* Efecto de elevación */
+  /* Sin transform para mantener el mismo tamaño */
 }
 
 .custom-button:active {
-  transform: scale(0.96) translateY(1px);
-  box-shadow: 0 2px 8px 0 rgba(212,122,154,0.15);
+  background-color: #b55a9a; /* Color más oscuro al presionar */
+  /* Sin transform para mantener el mismo tamaño */
 }
 
 .custom-button:focus {
@@ -32,18 +34,20 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .custom-button {
-    padding: 10px 20px;
-    font-size: 14px;
-    min-width: 120px;
+    padding: 10px 20px; /* Ajustado proporcionalmente */
+    font-size: 14px; /* Ajustado proporcionalmente */
+    min-width: 130px; /* Ajustado proporcionalmente */
+    height: 44px; /* Altura ligeramente menor para pantallas medianas */
     margin-top: 1rem;
   }
 }
 
 @media (max-width: 480px) {
   .custom-button {
-    padding: 8px 16px;
-    font-size: 13px;
-    min-width: 100px;
+    padding: 8px 16px; /* Ajustado proporcionalmente */
+    font-size: 13px; /* Ajustado proporcionalmente */
+    min-width: 110px; /* Ajustado proporcionalmente */
+    height: 40px; /* Altura menor para pantallas pequeñas */
     margin-top: 0.8rem;
     width: 100%; /* Full width on very small screens */
   }
