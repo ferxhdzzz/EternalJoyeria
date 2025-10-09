@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaTrash } from 'react-icons/fa';
 import Swal from 'sweetalert2';
-import './Review.css'; // Usamos los mismos estilos
+import './Reviews.css'; // Usamos los mismos estilos
 
 const AdminReviewItem = ({ review, onDelete }) => {
   // Función para formatear la fecha

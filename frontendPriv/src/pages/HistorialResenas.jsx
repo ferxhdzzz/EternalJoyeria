@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 // Importamos el componente de Tarjeta de Reseña (AdminReviewItem)
-import AdminReviewItem from "../components/reseñas/AdminReviewItem"; 
+import AdminReviewItem from "../components/reseñas/TablaResena/AdminReviewItem"; 
 import Nav from "../components/Sidebar/Sidebar";
 import TopBar from "../components/TopBar/TopBar";
 import "../styles/ResenasHist.css";
