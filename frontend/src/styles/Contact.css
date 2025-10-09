@@ -283,8 +283,31 @@
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
+  /* (Opcional) Agrega overflow: hidden aquí para un recorte perfecto si el iframe no lo tiene */
+  overflow: hidden; 
 }
 
+/* **ESTILOS CLAVE PARA EL MAPA** */
+.contact-map iframe {
+  /* Para que el mapa incrustado tome todo el ancho del contenedor */
+  display: block; 
+  width: 100%;
+  height: 450px; /* Asegura la altura si no está en línea */
+  
+  /* PROPIEDADES DE REDONDEO */
+  border-radius: 20px; /* Usa un valor consistente con tu diseño */
+  border: none; /* Elimina cualquier borde predeterminado del iframe */
+  
+  /* NECESARIO para que el mapa interno (iframe) respete el border-radius en algunos navegadores */
+  overflow: hidden; 
+  
+  /* Opcional: Agrega una sombra similar al .map-container si quieres que destaque */
+  box-shadow: 0 8px 30px rgba(0,0,0,0.1); 
+}
+
+
+/* El .map-container parece ser un estilo para un contenedor que ya no usas para el mapa,
+   pero lo dejo aquí por si lo usas en otra parte. */
 .map-container {
   background: white;
   border-radius: 20px;
@@ -293,7 +316,6 @@
   border: 1px solid rgba(185, 74, 108, 0.1);
   text-align: center;
 }
-
 .map-title {
   font-size: 2rem;
   font-weight: 700;
