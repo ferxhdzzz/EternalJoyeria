@@ -3,34 +3,19 @@ import { useEffect, useState } from "react";
 
 const api = "https://eternaljoyeria-cg5d.onrender.com/api/reviews";
 
-const useFetchResenas = () => {
+const useFecthReviews = () => {
   const [reviews, setReviews] = useState([]);
-  const [products, setProducts] = useState([]); 
 
   const getReviews = async () => {
     try {
       const response = await fetch(api, {
-        credentials: "include", 
+        credentials: "include", // ← incluye cookies de sesión
       });
       if (!response.ok) {
         throw new Error("Error fetching Reviews");
       }
       const data = await response.json();
       setReviews(data);
-      
-      // Extraer productos únicos para el filtro
-      const uniqueProducts = data.reduce((acc, review) => {
-          // Si tiene id_product y name, y no está ya en la lista
-          if (review.id_product && review.id_product.name && !acc.some(p => p._id === review.id_product._id)) {
-              acc.push({
-                  _id: review.id_product._id,
-                  name: review.id_product.name
-              });
-          }
-          return acc;
-      }, [{ _id: "all", name: "Todos los productos" }]); // Opción por defecto
-      setProducts(uniqueProducts);
-
     } catch (error) {
       console.error("error fetching Reviews", error);
       toast.error("error fetching Reviews");
@@ -40,7 +25,7 @@ const useFetchResenas = () => {
   const getReviewById = async (id) => {
     try {
       const response = await fetch(`${api}/${id}`, {
-        credentials: "include",
+        credentials: "include", // ← también aquí
       });
       if (!response.ok) {
         console.log("Failed to fetch review");
@@ -62,8 +47,7 @@ const useFetchResenas = () => {
     reviews,
     getReviewById,
     getReviews,
-    products // Devolvemos la lista de productos
   };
 };
 
-export default useFetchResenas;
+export default useFecthReviews;
