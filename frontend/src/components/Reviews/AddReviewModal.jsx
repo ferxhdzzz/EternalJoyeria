@@ -1,9 +1,9 @@
-// src/components/AddReviewModal.js (Archivo Corregido)
+// src/components/AddReviewModal.js
 
 import React, { useState } from 'react';
 import Swal from 'sweetalert2';
 import { useAuth } from '../../context/AuthContext';
-import { usePurchaseVerification } from '../../hooks/usePurchaseVerification'; // <<<< 1. Importar el nuevo hook
+import { usePurchaseVerification } from '../../hooks/usePurchaseVerification';
 import '../../styles/AddReviewModal.css';
 
 const AddReviewModal = ({ isOpen, onClose, onSubmit, productName, productId }) => {
@@ -13,7 +13,7 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName, productId }) =
   const [errors, setErrors] = useState({});
   const [images, setImages] = useState([]);
   const { user } = useAuth();
-  const { hasUserPurchasedProduct } = usePurchaseVerification(); // <<<< 2. Usar el hook de verificación
+  const { hasUserPurchasedProduct } = usePurchaseVerification();
 
   const handleClose = () => {
     setRating(0);
@@ -49,7 +49,6 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName, productId }) =
       return;
     }
     
-    // Aseguramos que solo guardamos el objeto File y que la previsualización se maneje correctamente
     setImages(prevImages => {
       const newImages = [...prevImages, ...files.slice(0, 5 - prevImages.length)];
       return newImages;
@@ -58,6 +57,17 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName, productId }) =
 
   const removeImage = (index) => setImages(prev => prev.filter((_, i) => i !== index));
   
+  const handleRatingChange = (newRating) => {
+    setRating(newRating);
+    if (errors.rating) setErrors(prev => ({ ...prev, rating: '' }));
+  };
+
+  const handleCommentChange = (e) => {
+    setComment(e.target.value);
+    if (errors.comment) setErrors(prev => ({ ...prev, comment: '' }));
+  };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -80,21 +90,23 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName, productId }) =
     setIsSubmitting(true);
 
     try {
-      // <<<< 3. VALIDACIÓN CRUCIAL DE COMPRA ANTES DE ENVIAR
+      // 1. VALIDACIÓN CRUCIAL DE COMPRA ANTES DE ENVIAR
       const hasPurchased = await hasUserPurchasedProduct(productId);
         
       if (!hasPurchased) {
         Swal.fire({
-          title: '¡Espera un momento! 🧐',
+          title: '¡Espera un momento! ',
           text: `Parece que aún no has comprado ${productName}. Solo los clientes verificados pueden dejar una reseña.`,
           icon: 'info',
           confirmButtonText: 'Entendido',
           confirmButtonColor: '#D1A6B4'
         });
-        setIsSubmitting(false); // Detenemos la carga y salimos
+        
+        setIsSubmitting(false); 
+        handleClose(); // ✨ Corregido: Cierra el modal al fallar la verificación
         return;
       }
-      // <<<< FIN DE VALIDACIÓN DE COMPRA
+      // FIN DE VALIDACIÓN DE COMPRA
 
       const formData = new FormData();
       formData.append("id_customer", user._id);
@@ -141,16 +153,6 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName, productId }) =
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleRatingChange = (newRating) => {
-    setRating(newRating);
-    if (errors.rating) setErrors(prev => ({ ...prev, rating: '' }));
-  };
-
-  const handleCommentChange = (e) => {
-    setComment(e.target.value);
-    if (errors.comment) setErrors(prev => ({ ...prev, comment: '' }));
   };
 
   if (!isOpen) return null;
@@ -247,6 +249,7 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName, productId }) =
               <button type="submit" className="btn-submit" disabled={isSubmitting || rating === 0 || !comment.trim()}>
                 {isSubmitting ? 'Enviando...' : 'Publicar reseña'}
               </button>
+              
             </div>
           </form>
         </div>
