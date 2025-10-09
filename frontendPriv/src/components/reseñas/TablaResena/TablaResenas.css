@@ -1,61 +1,131 @@
+/* src/components/reseñas/TablaResena/TablaResenas.css */
+
+/*
+* ----------------------------------------
+* Contenedor Principal y Scroll
+* ----------------------------------------
+*/
+
+/* Contenedor que da el fondo blanco y sombra */
 .tabla-resenas-container {
-  background-color: #fff;
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  width: 90%;
-  margin: auto;
-  box-sizing: border-box;
-
-  /* Agrega scroll vertical cuando la tabla es alta */
-  max-height: 70vh;  /* ajusta según prefieras */
-  overflow-y: auto;
-  overflow-x: hidden; /* ocultar horizontal por defecto */
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    width: 100%; /* Ocupa todo el ancho del content-area */
+    box-sizing: border-box;
+    
+    /* Agrega scroll vertical cuando la tabla es alta */
+    max-height: 70vh; 
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
-/* Scroll horizontal en pantallas menores o iguales a 676px */
-@media (max-width: 983px) {
-  .tabla-resenas-container {
+/* Estilos del título dentro del contenedor */
+.tabla-resenas-container h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+/*
+* ----------------------------------------
+* Estilos del Filtro de Productos
+* ----------------------------------------
+*/
+
+.filter-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    /* Alinea con el padding de 30px del contenedor */
+    padding: 0 30px; 
+}
+
+.filter-controls label {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.product-filter-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px; 
+    font-size: 1rem;
+    cursor: pointer;
+    min-width: 250px;
+    background-color: #f9f9f9;
+}
+
+
+/*
+* ----------------------------------------
+* Tabla y Encabezados
+* ----------------------------------------
+*/
+.tabla-scroll-wrapper {
+    /* Contenedor para manejar el scroll horizontal de la tabla */
     overflow-x: auto;
-    overflow-y: auto; /* mantener scroll vertical */
-    width: 100%;
-    padding-left: 2;
-    padding-right: 0;
-    margin: 0; /* quita el centrado automático */
-    max-width: 50vw; /* permite que ocupe todo el ancho disponible */
-    max-height: 70vh;
-    display: block;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .tabla-resenas {
-    min-width: 900px; /* para que no se corte nada */
-  }
-}
-/* Scrollbar vertical y horizontal igual que compras */
-.tabla-resenas-container::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
 }
 
-.tabla-resenas-container::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 10px;
-}
-
-.tabla-resenas-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* Tabla */
 .tabla-resenas {
-  width: 100%;
-  border-collapse: collapse;
+    width: 100%;
+    /* Asegura que la tabla no se colapse al ser responsive */
+    min-width: 800px; 
+    border-collapse: collapse;
 }
 
 .tabla-resenas th {
-  text-align: left;
-  font-size: 13px;
-  color: #888;
-  padding-bottom: 10px;
+    text-align: left;
+    font-size: 13px;
+    color: #888;
+    padding: 0 10px 10px 10px; 
+    border-bottom: 2px solid #f0f0f0;
+    text-transform: uppercase;
+}
+
+/*
+* ----------------------------------------
+* Responsividad (Dashboard)
+* ----------------------------------------
+*/
+@media (max-width: 1024px) {
+    .tabla-resenas-container {
+        /* Reducimos el padding en pantallas más pequeñas */
+        padding: 15px;
+    }
+    
+    .tabla-resenas {
+        /* Forzamos un ancho mínimo para que el scroll horizontal funcione */
+        min-width: 900px; 
+    }
+
+    .filter-controls {
+        /* Alinea el filtro con el nuevo padding del contenedor */
+        padding: 0;
+    }
+}
+
+
+/*
+* ----------------------------------------
+* Estilos del Scrollbar
+* ----------------------------------------
+*/
+/* Scrollbar vertical y horizontal */
+.tabla-resenas-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.tabla-resenas-container::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+.tabla-resenas-container::-webkit-scrollbar-track {
+    background: transparent;
 }

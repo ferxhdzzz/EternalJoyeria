@@ -1,36 +1,40 @@
-/* --- ResenaRow.css --- */
+/* src/components/reseñas/row/ResenaRow.css */
 
 .resena-row td {
-  padding: 14px 10px;
-  font-size: 14px;
-  text-align: left;
-  border-bottom: 1px solid #eee;
-  }
-  
-  /* NUEVOS ESTILOS PARA LA CELDA DE IMÁGENES */
-  .resena-images-cell {
+    padding: 14px 10px;
+    font-size: 14px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+/* ESTILOS PARA LA CELDA DE IMÁGENES */
+.resena-images-cell {
+    /* Asegura que el contenido (imágenes) esté centrado verticalmente */
     vertical-align: middle; 
-  }
-  
-  .resena-images-container {
+}
+
+.resena-images-container {
+    /* Muestra las imágenes en fila */
     display: flex;
-    gap: 5px; /* Espacio entre las imágenes */
+    gap: 5px; 
     align-items: center;
-  }
-  
-  .resena-thumbnail {
+}
+
+.resena-thumbnail {
+    /* Estilo de la miniatura */
     width: 40px; 
     height: 40px; 
     object-fit: cover; 
     border-radius: 4px; 
     border: 1px solid #eee;
-  }
-  
-  .image-count {
-      font-size: 12px;
-      font-weight: bold;
-      color: #666;
-      background-color: #f0f0f0;
-      padding: 2px 5px;
-      border-radius: 4px;
-  }
+}
+
+.image-count {
+    /* Estilo para el contador +X imágenes */
+    font-size: 12px;
+    font-weight: bold;
+    color: #666;
+    background-color: #f0f0f0;
+    padding: 2px 5px;
+    border-radius: 4px;
+}

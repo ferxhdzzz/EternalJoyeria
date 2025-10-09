@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ResenaRow from "../row/ResenaRow";
-import ConfirmacionModal from "../modal/ConfirmacionModal";
+import ConfirmacionModal from "../../modal/ConfirmacionModal"; // Asumo la ruta
 import Swal from "sweetalert2";
 import "./TablaResenas.css";
 
@@ -13,7 +13,8 @@ const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
 
   const confirmarEliminacion = async () => {
     try {
-      await deleteReviews(resenaSeleccionada._id);
+      // deleteReviews ya maneja la recarga de reseñas
+      await deleteReviews(resenaSeleccionada._id); 
       setResenaSeleccionada(null);
 
       Swal.fire({
@@ -47,8 +48,8 @@ const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
                 <th>Nombre</th>
                 <th>Calificación</th>
                 <th>Comentario</th>
-                <th>Imágenes</th> {/* <-- NUEVA COLUMNA */}
-                <th>Compra</th>
+                <th>Imágenes</th>
+                <th>Producto</th> {/* Columna renombrada a Producto */}
                 <th></th>
               </tr>
             </thead>
@@ -57,14 +58,19 @@ const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
                 reviews.map((review) => (
                   <ResenaRow
                     key={review._id}
-                    {...review}
+                    // Pasamos las propiedades individuales de la reseña
+                    id_customer={review.id_customer}
+                    rank={review.rank}
+                    comment={review.comment}
+                    id_product={review.id_product}
+                    images={review.images}
                     onClick={() => handleEliminarClick(review)}
                   />
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6">No hay reseñas disponibles.</td>{" "}
-                  {/* <-- colSpan corregido a 6 */}
+                  {/* colSpan corregido a 6 */}
+                  <td colSpan="6">No hay reseñas disponibles.</td> 
                 </tr>
               )}
             </tbody>
