@@ -1,7 +1,7 @@
 import { toast } from "react-hot-toast";
 import { useEffect, useState } from "react";
 
-const api = "http://localhost:4000/api/reviews";
+const api = "https://eternaljoyeria-cg5d.onrender.com/api/reviews";
 
 const useFecthReviews = () => {
   const [reviews, setReviews] = useState([]);

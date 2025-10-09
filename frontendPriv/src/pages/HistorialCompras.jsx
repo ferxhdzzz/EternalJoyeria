@@ -8,7 +8,7 @@ import Topbar from "../components/TopBar/TopBar";
 import useFetchSales from "../hooks/HistorialVentas/useFetchSales";
 import useSaleActions from "../hooks/HistorialVentas/useSaleActions";
 import EditSale from "../hooks/HistorialVentas/EditSale";
-import "../Styles/HistorialCompras.css";
+import "../styles/HistorialCompras.css";
 
 const HistorialCompras = () => {
   // Hook personalizado para obtener ventas y refrescarlas
@@ -171,13 +171,7 @@ const HistorialCompras = () => {
                         ? "Actualizando..."
                         : "Editar"}
                     </Button>
-                    <Button
-                      onClick={() => deleteSale(sale._id)}
-                      className="btn-delete"
-                      disabled={loadingId === sale._id} // Deshabilita botón si loading
-                    >
-                      {loadingId === sale._id ? "Eliminando..." : "Eliminar"}
-                    </Button>
+                 
                   </div>
 
                   {/* Mostrar componente para editar venta si corresponde */}

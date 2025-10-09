@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaBell, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+
 import { NavLink } from 'react-router-dom';
 import usePerfilAdmin from "../../hooks/Ajustes/useFetchAjustes";
 import './TopBar.css';
@@ -15,6 +16,7 @@ const TopBar = () => {
       <div className="topbar-right">
         <div className="icon-button">
           <FaBell />
+
         </div>
 
         <NavLink to="/ajustes" className="profile">
@@ -33,8 +35,10 @@ const TopBar = () => {
 
       {menuOpen && (
         <div className="mobile-menu">
+
           <div className="icon-button mobile-bell">
             <FaBell />
+
           </div>
 
           <NavLink to="/ajustes" className="profile mobile-profile" onClick={() => setMenuOpen(false)}>

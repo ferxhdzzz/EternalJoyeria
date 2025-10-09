@@ -12,13 +12,20 @@ import {
   Alert,
   ActivityIndicator,
   Platform,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import useRegistro from '../hooks/Register/useRegistro';
+import CustomAlert from '../components/CustomAlert';
+import useCustomAlert from '../hooks/useCustomAlert';
+import { validatePassword, getPasswordRequirements } from '../utils/passwordValidation';
 
 const { width, height } = Dimensions.get('window');
 
-const RegisterScreen = ({ navigation }) => {
+const RegisterScreen = ({ navigation, route }) => {
   // Estados del formulario
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -35,14 +42,26 @@ const RegisterScreen = ({ navigation }) => {
   const [passwordError, setPasswordError] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
 
-  // Estados para el registro
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  // Hook de registro
+  const { registerClient, loading, error } = useRegistro();
+  
+  // Hook para alertas personalizadas
+  const {
+    alertConfig,
+    hideAlert,
+    showValidationError,
+    showError,
+    showSuccess,
+  } = useCustomAlert();
 
   // Referencias para las animaciones
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const formSlideAnim = useRef(new Animated.Value(50)).current;
+  const scrollViewRef = useRef(null);
+
+  // Estado para el teclado
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   useEffect(() => {
     // Animación de entrada
@@ -64,20 +83,29 @@ const RegisterScreen = ({ navigation }) => {
         useNativeDriver: true,
       }),
     ]).start();
+
+    // Listeners del teclado para mejorar el scroll
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (e) => {
+      setKeyboardHeight(e.endCoordinates.height);
+    });
+
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      keyboardDidShowListener?.remove();
+      keyboardDidHideListener?.remove();
+    };
   }, []);
 
   // Mostrar alerta cuando hay error del servidor
   useEffect(() => {
     if (error) {
-      Alert.alert(
+      showError(
         'Error de Registro',
-        error,
-        [
-          {
-            text: 'Intentar de nuevo',
-            onPress: () => setError(null),
-          },
-        ]
+        error
+        // Usar botón de cerrar por defecto
       );
     }
   }, [error]);
@@ -152,15 +180,17 @@ const RegisterScreen = ({ navigation }) => {
     }
   };
 
-  const validatePassword = (password) => {
-    if (!password) {
-      setPasswordError('La contraseña es requerida');
-      return false;
-    } else if (password.length < 8) {
-      setPasswordError('La contraseña debe tener al menos 8 caracteres');
-      return false;
-    } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      setPasswordError('La contraseña debe contener al menos un carácter especial');
+  // Función para filtrar solo números en el teléfono
+  const handlePhoneChange = (text) => {
+    // Solo permitir números
+    const numericValue = text.replace(/[^0-9]/g, '');
+    handleFieldChange('phone', numericValue);
+  };
+
+  const validatePasswordField = (password) => {
+    const validation = validatePassword(password);
+    if (!validation.isValid) {
+      setPasswordError(validation.message);
       return false;
     } else {
       setPasswordError('');
@@ -174,7 +204,7 @@ const RegisterScreen = ({ navigation }) => {
     const isLastNameValid = validateLastName(lastName);
     const isEmailValid = validateEmail(email);
     const isPhoneValid = validatePhone(phone);
-    const isPasswordValid = validatePassword(password);
+    const isPasswordValid = validatePasswordField(password);
     
     const formIsValid = isFirstNameValid && 
       isLastNameValid && 
@@ -207,7 +237,7 @@ const RegisterScreen = ({ navigation }) => {
         break;
       case 'password':
         setPassword(value);
-        if (passwordError) validatePassword(value);
+        if (passwordError) validatePasswordField(value);
         break;
     }
   };
@@ -219,77 +249,22 @@ const RegisterScreen = ({ navigation }) => {
     }
   }, [firstName, lastName, email, phone, password]);
 
-  // Función para registrar usuario
-  const registerClient = async (formData) => {
-    try {
-      // Para Android Studio Emulador: 10.0.2.2 mapea a localhost de tu PC
-      // Para iOS Simulador: localhost funciona normalmente  
-      // Para dispositivo físico: usa la IP de tu red local
-      const baseURL = Platform.OS === 'android' ? 'http://10.0.2.2:4000' : 'http://localhost:4000';
-      
-      console.log('🌐 Intentando conectar a:', baseURL);
-      
-      // Crear FormData para enviar datos multipart
-      const form = new FormData();
-      
-      form.append('firstName', formData.firstName);
-      form.append('lastName', formData.lastName);
-      form.append('email', formData.email);
-      form.append('password', formData.password);
-      form.append('phone', formData.phone);
-
-      // TEST: Primero probar conectividad básica
-      const testResponse = await fetch(`${baseURL}/`, {
-        method: 'GET',
-      });
-      console.log('🧪 Test de conectividad:', testResponse.status);
-      
-      const response = await fetch(`${baseURL}/api/registerCustomers`, {
-        method: 'POST',
-        headers: {
-          // Para FormData, no especifiques Content-Type manualmente
-          // React Native lo configurará automáticamente con boundary
-        },
-        body: form,
-        timeout: 10000, // 10 segundos de timeout
-      });
-
-      console.log('📡 Respuesta del servidor:', response.status);
-
-      const data = await response.json();
-      console.log('📄 Datos recibidos:', data);
-
-      if (!response.ok) {
-        throw new Error(data.message || `Error ${response.status}: ${response.statusText}`);
-      }
-
-      return { success: true, data };
-
-    } catch (err) {
-      console.error('❌ Error en registerClient:', err);
-      
-      // Verificar tipo de error para dar mejor feedback
-      if (err.message.includes('Network request failed')) {
-        throw new Error(`No se pudo conectar al servidor. Verifica que:
-1. Tu servidor esté ejecutándose en puerto 4000
-2. Estés usando la IP correcta (10.0.2.2 para Android Studio)
-3. No tengas firewall bloqueando la conexión`);
-      }
-      
-      throw new Error(err.message || 'Error desconocido en el registro');
-    }
-  };
 
   // Manejar registro
   const handleRegister = async () => {
     // Validar formulario localmente primero
     if (!validateForm()) {
-      Alert.alert('Formulario Incompleto', 'Por favor corrige los errores antes de continuar.');
+      const errors = {};
+      if (firstNameError) errors.firstName = firstNameError;
+      if (lastNameError) errors.lastName = lastNameError;
+      if (emailError) errors.email = emailError;
+      if (phoneError) errors.phone = phoneError;
+      if (passwordError) errors.password = passwordError;
+      
+      showValidationError(errors);
       return;
     }
 
-    setLoading(true);
-    setError(null);
 
     // Preparar datos del formulario
     const formData = {
@@ -304,27 +279,30 @@ const RegisterScreen = ({ navigation }) => {
       const result = await registerClient(formData);
       
       if (result.success) {
-        Alert.alert(
+        showSuccess(
           '¡Registro Exitoso!',
           'Te hemos enviado un código de verificación a tu correo electrónico.',
-          [
-            {
-              text: 'Continuar',
-              onPress: () => {
-                // Por ahora navegamos a Products, después puedes crear EmailVerification
-                navigation.navigate('Products', {
-                  email: formData.email,
-                  userData: formData
-                });
+          {
+            autoClose: false,
+            buttons: [
+              {
+                text: 'Verificar Código',
+                style: 'confirm',
+                onPress: () => {
+                  navigation.navigate('VerifyCode', { 
+                    email: formData.email,
+                    onNavigateToProducts: route.params?.onNavigateToProducts
+                  });
+                },
               },
-            },
-          ]
+            ]
+          }
         );
+      } else {
+        showError('Error de Registro', result.error || 'Ocurrió un error durante el registro.');
       }
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      showError('Error Inesperado', 'Ocurrió un error inesperado. Por favor intenta de nuevo.');
     }
   };
 
@@ -351,357 +329,379 @@ const RegisterScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <ScrollView 
-        contentContainerStyle={styles.scrollContainer}
+        ref={scrollViewRef}
+        style={{ flex: 1, backgroundColor: 'rgba(255, 221, 221, 0.37)' }}
+        contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Botón de regreso con animación */}
-        <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Text style={styles.backButtonText}>← Volver</Text>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* Sección superior rosa con curva cóncava */}
-        <Animated.View style={[styles.topSection, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-          <LinearGradient
-            colors={['#FFFFFF', '#FFE7E7']}
-            style={styles.pinkGradient}
-          >
-            <View style={styles.curveContainer}>
-              <View style={styles.curve} />
-            </View>
-            
-            <View style={styles.welcomeTextContainer}>
-              <Text style={styles.welcomeTitle}>Bienvenido</Text>
-              <Text style={styles.welcomeDescription}>
-                ¡Encuentra tus accesorios perfectos!{'\n'}
-                Es un placer tenerte aquí,{'\n'}
-                Regístrate para ver nuestros{'\n'}
-                productos
-              </Text>
-            </View>
-          </LinearGradient>
-        </Animated.View>
-
-        {/* Sección inferior blanca con formulario */}
-        <Animated.View style={[styles.bottomSection, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
-          <View style={styles.formContainer}>
-            {/* Campo Nombre */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Nombre</Text>
-              <TextInput
-                style={[styles.textInput, firstNameError ? styles.inputError : null]}
-                placeholder="Tu nombre"
-                placeholderTextColor="#666"
-                value={firstName}
-                onChangeText={(text) => handleFieldChange('firstName', text)}
-                onBlur={() => validateFirstName(firstName)}
-                autoCapitalize="words"
-                editable={!loading}
-              />
-              {firstNameError ? <Text style={styles.errorText}>{firstNameError}</Text> : null}
-            </View>
-
-            {/* Campo Apellido */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Apellido</Text>
-              <TextInput
-                style={[styles.textInput, lastNameError ? styles.inputError : null]}
-                placeholder="Tu apellido"
-                placeholderTextColor="#666"
-                value={lastName}
-                onChangeText={(text) => handleFieldChange('lastName', text)}
-                onBlur={() => validateLastName(lastName)}
-                autoCapitalize="words"
-                editable={!loading}
-              />
-              {lastNameError ? <Text style={styles.errorText}>{lastNameError}</Text> : null}
-            </View>
-
-            {/* Campo Correo */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Correo</Text>
-              <TextInput
-                style={[styles.textInput, emailError ? styles.inputError : null]}
-                placeholder="correo@ejemplo.com"
-                placeholderTextColor="#666"
-                value={email}
-                onChangeText={(text) => handleFieldChange('email', text)}
-                onBlur={() => validateEmail(email)}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                editable={!loading}
-              />
-              {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
-            </View>
-
-            {/* Campo Teléfono */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Teléfono</Text>
-              <TextInput
-                style={[styles.textInput, phoneError ? styles.inputError : null]}
-                placeholder="8 dígitos (SV) o 10 dígitos (US)"
-                placeholderTextColor="#666"
-                value={phone}
-                onChangeText={(text) => handleFieldChange('phone', text)}
-                onBlur={() => validatePhone(phone)}
-                keyboardType="phone-pad"
-                maxLength={15}
-                editable={!loading}
-              />
-              {phoneError ? <Text style={styles.errorText}>{phoneError}</Text> : null}
-              <Text style={styles.helperText}>
-                Formato: 12345678 (El Salvador) o 1234567890 (Estados Unidos)
-              </Text>
-            </View>
-
-            {/* Campo Contraseña */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Contraseña</Text>
-              <View style={styles.passwordInputContainer}>
-                <TextInput
-                  style={[styles.passwordTextInput, passwordError ? styles.inputError : null]}
-                  placeholder="***********"
-                  placeholderTextColor="#666"
-                  value={password}
-                  onChangeText={(text) => handleFieldChange('password', text)}
-                  onBlur={() => validatePassword(password)}
-                  secureTextEntry={!showPassword}
-                  editable={!loading}
-                />
-                <TouchableOpacity 
-                  style={styles.eyeIconButton} 
-                  onPress={togglePasswordVisibility}
-                  disabled={loading}
-                >
-                  <Ionicons 
-                    name={showPassword ? "eye-off" : "eye"} 
-                    size={24} 
-                    color="#666" 
-                  />
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.scrollContent}>
+              {/* Título y subtítulo */}
+              <Animated.View style={[styles.titleContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+                {/* Flecha de regreso */}
+                <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                  <Ionicons name="arrow-back" size={24} color="#000000" />
                 </TouchableOpacity>
-              </View>
-              {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
-            </View>
+                
+                <Text style={styles.mainTitle}>Registrarse</Text>
+                <Text style={styles.subtitle}>¡Encuentra los accesorios perfectos!</Text>
+                <Text style={styles.subtitle}>Es un placer tenerte aquí.</Text>
+                <Text style={styles.subtitle}>Regístrate para ver nuestros</Text>
+                <Text style={styles.subtitle}>productos.</Text>
+              </Animated.View>
 
-            {/* Enlace de inicio de sesión */}
-            <TouchableOpacity 
-              style={styles.loginLink} 
-              onPress={() => navigation.goBack()}
-              disabled={loading}
-            >
-              <Text style={styles.loginText}>
-                ¿Ya tienes cuenta? <Text style={styles.loginHighlight}>Inicia sesión</Text>
-              </Text>
-            </TouchableOpacity>
+              {/* Formulario de registro */}
+              <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
+                {/* Campo de nombre */}
+                <View style={styles.inputContainer}>
+                  <Text style={styles.inputLabel}>Nombre</Text>
+                  <View style={[styles.inputBox, firstNameError ? styles.inputError : null]}>
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder=""
+                      placeholderTextColor="#999"
+                      value={firstName}
+                      onChangeText={(text) => handleFieldChange('firstName', text)}
+                      onBlur={() => validateFirstName(firstName)}
+                      autoCapitalize="words"
+                      editable={!loading}
+                    />
+                  </View>
+                  {firstNameError ? <Text style={styles.errorText}>{firstNameError}</Text> : null}
+                </View>
+
+                {/* Campo de apellido */}
+                <View style={styles.inputContainer}>
+                  <Text style={styles.inputLabel}>Apellido</Text>
+                  <View style={[styles.inputBox, lastNameError ? styles.inputError : null]}>
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder=""
+                      placeholderTextColor="#999"
+                      value={lastName}
+                      onChangeText={(text) => handleFieldChange('lastName', text)}
+                      onBlur={() => validateLastName(lastName)}
+                      autoCapitalize="words"
+                      editable={!loading}
+                    />
+                  </View>
+                  {lastNameError ? <Text style={styles.errorText}>{lastNameError}</Text> : null}
+                </View>
+
+
+                {/* Campo de correo */}
+                <View style={styles.inputContainer}>
+                  <Text style={styles.inputLabel}>Correo</Text>
+                  <View style={[styles.inputBox, emailError ? styles.inputError : null]}>
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder=""
+                      placeholderTextColor="#999"
+                      value={email}
+                      onChangeText={(text) => handleFieldChange('email', text)}
+                      onBlur={() => validateEmail(email)}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      editable={!loading}
+                    />
+                  </View>
+                  {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+                </View>
+
+                {/* Campo de telefono */}
+                <View style={styles.inputContainer}>
+                  <Text style={styles.inputLabel}>Teléfono</Text>
+                  <View style={[styles.inputBox, phoneError ? styles.inputError : null]}>
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder=""
+                      placeholderTextColor="#999"
+                      value={phone}
+                      onChangeText={handlePhoneChange}
+                      onBlur={() => validatePhone(phone)}
+                      keyboardType="numeric"
+                      maxLength={10}
+                      editable={!loading}
+                    />
+                  </View>
+                  {phoneError ? <Text style={styles.errorText}>{phoneError}</Text> : null}
+                </View>
+
+                {/* Campo de contrasena */}
+                <View style={styles.inputContainer}>
+                  <Text style={styles.inputLabel}>Contraseña</Text>
+                  <View style={[styles.inputBox, passwordError ? styles.inputError : null]}>
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder=""
+                      placeholderTextColor="#999"
+                      value={password}
+                      onChangeText={(text) => handleFieldChange('password', text)}
+                      onBlur={() => validatePasswordField(password)}
+                      secureTextEntry={!showPassword}
+                      editable={!loading}
+                    />
+                    <TouchableOpacity 
+                      style={styles.eyeButton} 
+                      onPress={togglePasswordVisibility}
+                      disabled={loading}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons 
+                        name={showPassword ? "eye-off-outline" : "eye-outline"} 
+                        size={22} 
+                        color="#6b7280" 
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  {passwordError ? (
+                    <Text style={styles.errorText}>{passwordError}</Text>
+                  ) : (
+                    <Text style={styles.hintText}>
+                      Debe contener Al menos: 8 caracteres ,número y carácter especial (!@#$%^&*-_+)
+                    </Text>
+                  )}
+                </View>
+
+                {/* Boton de registro */}
+                <TouchableOpacity 
+                  style={[
+                    styles.registerButton, 
+                    (!isFormValid || loading) ? styles.registerButtonDisabled : null
+                  ]} 
+                  onPress={handleRegister}
+                  disabled={!isFormValid || loading}
+                >
+                  {loading ? (
+                    <View style={styles.loadingContainer}>
+                      <ActivityIndicator color="#FFFFFF" size="small" />
+                      <Text style={[styles.registerButtonText, { marginLeft: 10 }]}>
+                        Registrando...
+                      </Text>
+                    </View>
+                  ) : (
+                    <Text style={styles.registerButtonText}>Registrarse</Text>
+                  )}
+                </TouchableOpacity>
+
+                {/* Enlaces de navegacion */}
+                <View style={styles.linksContainer}>
+                  <TouchableOpacity 
+                    style={styles.loginLink} 
+                    onPress={() => navigation.goBack()}
+                    disabled={loading}
+                  >
+                    <Text style={styles.loginText}>
+                      ¿Ya tienes cuenta? <Text style={styles.loginHighlight}>Inicia sesión</Text>
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </Animated.View>
           </View>
-
-          {/* Botón de registro */}
-          <TouchableOpacity 
-            style={[
-              styles.registerButton, 
-              (!isFormValid || loading) ? styles.registerButtonDisabled : null
-            ]} 
-            onPress={handleRegister}
-            disabled={!isFormValid || loading}
-          >
-            {loading ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator color="#FFFFFF" size="small" />
-                <Text style={[styles.registerButtonText, { marginLeft: 10 }]}>
-                  Registrando...
-                </Text>
-              </View>
-            ) : (
-              <Text style={styles.registerButtonText}>Registrarse</Text>
-            )}
-          </TouchableOpacity>
-        </Animated.View>
+        </TouchableWithoutFeedback>
       </ScrollView>
-    </SafeAreaView>
+      
+      {/* Componente de alerta */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+        onClose={hideAlert}
+        autoClose={alertConfig.autoClose}
+        autoCloseDelay={alertConfig.autoCloseDelay}
+        showIcon={alertConfig.showIcon}
+        animationType={alertConfig.animationType}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
   },
-  scrollContainer: {
-    flexGrow: 1,
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 40,
+    paddingBottom: 200,
+    minHeight: height + 400,
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
   },
+  // Botón de regreso posicionado en la esquina
   backButton: {
     position: 'absolute',
-    top: 15,
+    top: 20,
     left: 20,
+    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 25,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
     zIndex: 10,
-    padding: 10,
   },
-  backButtonText: {
-    fontSize: 16,
-    color: '#2c3e50',
-    fontWeight: '600',
-  },
-  topSection: {
-    height: height * 0.4,
-    position: 'relative',
-  },
-  pinkGradient: {
-    flex: 1,
-    position: 'relative',
-  },
-  curveContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 60,
-  },
-  curve: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 60,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 60,
-    borderTopRightRadius: 60,
-  },
-  welcomeTextContainer: {
-    flex: 1,
-    justifyContent: 'center',
+  // Estilos existentes ajustados
+  titleContainer: {
     alignItems: 'center',
-    paddingHorizontal: 40,
-    paddingBottom: 60,
+    marginBottom: 30,
+    marginTop: 0,
+    marginHorizontal: 0,
+    backgroundColor: '#fdf2f8',
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    paddingVertical: 40,
+    paddingTop: 60,
+    paddingHorizontal: 20,
+    width: '100%',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  welcomeTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#2c3e50',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  welcomeDescription: {
-    fontSize: 16,
-    color: '#2c3e50',
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  bottomSection: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 30,
-    paddingTop: 40,
-    paddingBottom: 100,
-  },
-  formContainer: {
-    flex: 1,
-  },
-  inputContainer: {
-    marginBottom: 25,
-  },
-  inputLabel: {
-    fontSize: 16,
+  mainTitle: {
+    fontSize: 24,
     fontWeight: '600',
-    color: '#2c3e50',
+    color: '#1f2937',
+    textAlign: 'center',
     marginBottom: 12,
   },
-  textInput: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    color: '#2c3e50',
-  },
-  inputError: {
-    borderColor: '#e74c3c',
-    borderWidth: 2,
-  },
-  errorText: {
-    color: '#e74c3c',
+  subtitle: {
     fontSize: 14,
-    marginTop: 8,
-    marginLeft: 4,
+    color: '#6b7280',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 2,
   },
-  helperText: {
-    color: '#7f8c8d',
-    fontSize: 12,
-    marginTop: 6,
-    marginLeft: 4,
-    fontStyle: 'italic',
+  formContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 24,
+    paddingHorizontal: 24,
+    paddingTop: 32,
+    paddingBottom: 32,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+    marginBottom: 20,
   },
-  passwordInputContainer: {
-    position: 'relative',
+  inputContainer: {
+    marginBottom: 18,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#6b7280',
+    marginBottom: 8,
+    marginLeft: 6,
+  },
+  inputBox: {
+    backgroundColor: '#ffffff',
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    paddingLeft: 16,
+    paddingRight: 0,
+    paddingVertical: 0,
     flexDirection: 'row',
     alignItems: 'center',
+    height: 50,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
-  passwordTextInput: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    paddingRight: 50,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    color: '#2c3e50',
+  inputError: {
+    borderColor: '#ef4444',
+    backgroundColor: '#fef2f2',
+  },
+  textInput: {
     flex: 1,
+    fontSize: 15,
+    color: '#374151',
+    paddingVertical: 12,
+    paddingHorizontal: 0,
+    height: '100%',
   },
-  eyeIconButton: {
-    position: 'absolute',
-    right: 15,
+  eyeButton: {
     padding: 8,
+    marginLeft: -4,
+    marginRight: 16,
     justifyContent: 'center',
     alignItems: 'center',
+    width: 40,
+    height: 40,
   },
-  loginLink: {
-    marginTop: 20,
+  errorText: {
+    color: '#ef4444',
+    fontSize: 14,
+    marginTop: 4,
   },
-  loginText: {
-    fontSize: 16,
-    color: '#7f8c8d',
-  },
-  loginHighlight: {
-    color: '#E8B4B4',
-    fontWeight: '600',
+  hintText: {
+    color: '#666',
+    fontSize: 14,
+    marginTop: 5,
+    lineHeight: 18,
   },
   registerButton: {
     backgroundColor: '#000000',
-    paddingVertical: 15,
-    paddingHorizontal: 45,
-    marginTop: 40,
-    alignSelf: 'center',
-    borderRadius: 50,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-    width: 200,
-    height: 60,
+    borderRadius: 12,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 25,
+    marginBottom: 20,
   },
   registerButtonDisabled: {
-    backgroundColor: '#bdc3c7',
-    shadowOpacity: 0.1,
+    opacity: 0.6,
   },
   registerButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
   },
   loadingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  linksContainer: {
+    alignItems: 'center',
+    paddingTop: 10,
+  },
+  loginLink: {
+    marginTop: 5,
+  },
+  loginText: {
+    fontSize: 13,
+    color: '#6b7280',
+    textAlign: 'center',
+  },
+  loginHighlight: {
+    color: '#000000',
+    fontWeight: '600',
+    textDecorationLine: 'underline',
   },
 });
 

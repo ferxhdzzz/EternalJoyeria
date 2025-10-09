@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AdminAuthProvider } from './context/AdminAuthContext';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import RecuperacionContra from './pages/RecuperacionContra'; 
@@ -23,8 +24,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
-    <Router>
-      <Routes>
+    <AdminAuthProvider>
+      <Router>
+        <Routes>
         {/* Rutas PÚBLICAS */}
         <Route path="/" element={<Home />} />
 
@@ -40,7 +42,7 @@ function App() {
 
         {/* Rutas PRIVADAS */}
         <Route
-          path="/Dashboard"
+          path="/dashboard"
           element={
             <ProtectedRoute>
               <Dashboard />
@@ -97,7 +99,8 @@ function App() {
         />
          
       </Routes>
-    </Router>
+      </Router>
+    </AdminAuthProvider>
   );
 }
 

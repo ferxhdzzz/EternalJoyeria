@@ -1,40 +1,26 @@
-// src/hooks/auth/useLogin.js
+// src/hooks/Auth/useLogin.js
 import { useState } from "react";
-import { apiFetch } from "../../lib/api";
-import { useContext } from "react";
-import { AuthContext } from "../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 export default function useLogin() {
-  const { setUser } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
+  const { Login: ctxLogin } = useAuth(); // Nota: es "Login" con mayúscula en tu AuthContext
 
   const login = async ({ email, password }) => {
     setLoading(true);
     try {
-      const res = await apiFetch("/login", {
-        method: "POST",
-        body: { email, password },
-      });
+      // ctxLogin ya maneja errores internamente y devuelve { success, message }
+      const result = await ctxLogin(email, password);
       
-      // backend responde: { success, userType, user: { id, email, name? } }
-      if (res?.success) {
-        setUser({
-          id: res.user?.id || res.user?._id,
-          email: res.user?.email,
-          userType: res.userType,
-          name: res.user?.name || res.user?.firstName || "",
-          firstName: res.user?.firstName,
-          lastName: res.user?.lastName,
-        });
-        return { success: true, user: res.user };
-      } else {
-        return { success: false, error: res.message || 'Error al iniciar sesión' };
-      }
+      // Devolver el resultado tal como viene del contexto
+      return result;
+      
     } catch (error) {
-      console.error('Error en login:', error);
+      // Este catch es por si hay errores de red o problemas inesperados
+      console.error("Error inesperado en login:", error);
       return { 
         success: false, 
-        error: error.message || 'Error de conexión al iniciar sesión' 
+        message: error?.message || "Error de conexión. Intenta nuevamente." 
       };
     } finally {
       setLoading(false);

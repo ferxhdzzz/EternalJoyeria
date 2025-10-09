@@ -1,33 +1,68 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   TextInput,
-  Switch,
   ScrollView,
   Image,
   Alert,
+  Platform,
+  SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { StatusBar } from 'expo-status-bar';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../context/AuthContext';
+import CustomAlert from '../components/CustomAlert';
+import useCustomAlert from '../hooks/useCustomAlert';
 
 const ProfileScreen = ({ navigation, route }) => {
   const { user, updateUser, updateProfileImage, logout } = useAuth();
   const [profileData, setProfileData] = useState({
-    name: user?.firstName ? `${user.firstName} ${user.lastName}` : 'Jennifer Teos',
-    email: user?.email || 't22jenn@gmail.com',
-    phone: user?.phone || '71042228',
-    password: '**********',
-    language: user?.language || 'Español',
-    currency: user?.currency || 'USD',
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    email: user?.email || '',
+    phone: user?.phone || user?.phoneNumber || '',
     notifications: user?.notifications !== undefined ? user.notifications : true,
   });
-
+  
   const [editingField, setEditingField] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  
+  // Hook para alertas personalizadas
+  const {
+    alertConfig,
+    hideAlert,
+    showSuccess,
+    showError,
+    showLogoutConfirm,
+    showPermissionRequired,
+    showImagePickerOptions,
+  } = useCustomAlert();
+
+  // Sincroniza datos del perfil cuando cambia el usuario
+  useEffect(() => {
+    if (user) {
+      let f = user.firstName || '';
+      let l = user.lastName || '';
+      // Fallback si backend devuelve 'name'
+      if ((!f || !l) && typeof user.name === 'string') {
+        const parts = user.name.trim().split(/\s+/);
+        f = f || parts[0] || '';
+        l = l || parts.slice(1).join(' ') || '';
+      }
+
+      setProfileData(prev => ({
+        ...prev,
+        firstName: f,
+        lastName: l,
+        email: user.email || '',
+        phone: user.phone || user.phoneNumber || '',
+      }));
+    }
+  }, [user]);
 
   const handleEditField = (field) => {
     setEditingField(field);
@@ -37,10 +72,10 @@ const ProfileScreen = ({ navigation, route }) => {
     try {
       let updateData = {};
       
-      if (field === 'name') {
-        const nameParts = value.split(' ');
-        updateData.firstName = nameParts[0] || '';
-        updateData.lastName = nameParts.slice(1).join(' ') || '';
+      if (field === 'firstName') {
+        updateData.firstName = value;
+      } else if (field === 'lastName') {
+        updateData.lastName = value;
       } else if (field === 'phone') {
         updateData.phone = value;
       } else if (field === 'email') {
@@ -50,377 +85,450 @@ const ProfileScreen = ({ navigation, route }) => {
       if (Object.keys(updateData).length > 0) {
         const result = await updateUser(updateData);
         if (result.success) {
-          setProfileData(prev => ({ ...prev, [field]: value }));
-          Alert.alert('Éxito', 'Campo actualizado correctamente');
+          setProfileData(prev => ({ ...prev, ...updateData }));
+          showSuccess('Éxito', 'Campo actualizado correctamente');
         } else {
-          Alert.alert('Error', 'No se pudo actualizar el campo');
+          showError('Error', 'No se pudo actualizar el campo');
         }
       }
     } catch (error) {
-      Alert.alert('Error', 'Error al actualizar el campo');
+      showError('Error', 'Error al actualizar el campo');
     }
     
     setEditingField(null);
   };
 
-  const pickImage = async () => {
+  // Función principal que muestra la alerta personalizada de selección
+  const pickImage = () => {
+    showImagePickerOptions(
+      () => pickFromCamera(), // Acción para cámara
+      () => pickFromGallery(), // Acción para galería
+      () => {} // Acción para cancelar (no hacer nada)
+    );
+  };
+
+  // Función para tomar foto con cámara
+  const pickFromCamera = async () => {
     try {
-      // Verificar permisos existentes primero
-      let { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
-      
-      // Si no hay permisos, solicitarlos
-      if (status !== 'granted') {
-        const { status: newStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        status = newStatus;
-        
-        if (status !== 'granted') {
-          Alert.alert(
-            'Permisos requeridos',
-            'Necesitamos acceso a tu galería para cambiar la foto de perfil.',
-            [
-              { text: 'Cancelar', style: 'cancel' },
-              { 
-                text: 'Ir a Configuración', 
-                onPress: () => {
-                  Alert.alert(
-                    'Instrucciones',
-                    '1. Ve a Configuración\n2. Busca "Eternal Joyería" o "Expo Go"\n3. Activa "Fotos"\n4. Regresa a la app',
-                    [{ text: 'Entendido' }]
-                  );
-                }
-              }
-            ]
-          );
-          return;
-        }
+      let camPerm = await ImagePicker.getCameraPermissionsAsync();
+      if (camPerm?.status !== 'granted') {
+        camPerm = await ImagePicker.requestCameraPermissionsAsync();
+      }
+      if (camPerm?.status !== 'granted') {
+        showPermissionRequired(
+          'Permisos de cámara requeridos',
+          'Necesitamos acceso a la cámara para tomar tu foto de perfil.',
+          () => {
+            showError('Instrucciones', '1. Ve a Configuración\n2. Busca "Eternal Joyería" o "Expo Go"\n3. Activa "Cámara"\n4. Regresa a la app');
+          },
+          () => {}
+        );
+        return;
       }
 
-      // Abrir selector de imagen
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      const cameraResult = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.8,
       });
 
-      if (!result.canceled && result.assets[0]) {
-        const imageUri = result.assets[0].uri;
-        setSelectedImage(imageUri);
-        
-        // Actualizar la imagen en el contexto
-        const result = await updateProfileImage(imageUri);
-        if (result.success) {
-          Alert.alert(
-            'Éxito',
-            'Foto de perfil actualizada correctamente',
-            [{ text: 'OK' }]
-          );
-        } else {
-          Alert.alert('Error', 'No se pudo actualizar la foto');
-        }
+      if (!cameraResult || typeof cameraResult !== 'object') {
+        throw new TypeError('Respuesta de cámara inválida');
+      }
+
+      if (cameraResult.canceled === true) {
+        return; // Usuario canceló, no hacer nada
+      }
+
+      const assets = Array.isArray(cameraResult.assets) ? cameraResult.assets : [];
+      const first = assets[0];
+      const imageUri = first?.uri;
+      if (!imageUri) {
+        showError('Error', 'No se obtuvo una imagen válida de la cámara.');
+        return;
+      }
+
+      await uploadProfileImage(imageUri);
+    } catch (e) {
+      console.log('Camera pick error:', e);
+      showError('Error de cámara', 'No se pudo tomar la foto. Inténtalo de nuevo.');
+    }
+  };
+
+  const pickFromGallery = async () => {
+    try {
+      let libPerm = await ImagePicker.getMediaLibraryPermissionsAsync();
+      if (libPerm?.status !== 'granted') {
+        libPerm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      }
+      if (libPerm?.status !== 'granted') {
+        showPermissionRequired(
+          'Permisos de galería requeridos',
+          'Necesitamos acceso a tu galería para seleccionar una foto de perfil.',
+          () => {
+            showError('Instrucciones', '1. Ve a Configuración\n2. Busca "Eternal Joyería" o "Expo Go"\n3. Activa "Fotos"\n4. Regresa a la app');
+          },
+          () => {}
+        );
+        return;
+      }
+
+      const libResult = await ImagePicker.launchImageLibraryAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!libResult || libResult.canceled) return;
+
+      const assets = Array.isArray(libResult.assets) ? libResult.assets : [];
+      const first = assets[0];
+      const imageUri = first?.uri;
+      if (!imageUri) {
+        showError('Error', 'No se obtuvo una imagen válida de la galería.');
+        return;
+      }
+
+      await uploadProfileImage(imageUri);
+    } catch (e) {
+      console.log('Gallery pick error:', e);
+      showError('Error', 'No se pudo seleccionar la imagen de la galería.');
+    }
+  };
+
+  // Función centralizada para subir imagen de perfil
+  const uploadProfileImage = async (imageUri) => {
+    try {
+      setSelectedImage(imageUri);
+      const uploadRes = await updateProfileImage(imageUri);
+      if (uploadRes?.success) {
+        showSuccess('Éxito', 'Foto de perfil actualizada correctamente');
+        setSelectedImage(null);
+      } else {
+        showError('Error', uploadRes?.error || 'No se pudo actualizar la foto');
       }
     } catch (error) {
-      Alert.alert(
-        'Error',
-        'No se pudo seleccionar la imagen. Inténtalo de nuevo.',
-        [{ text: 'OK' }]
-      );
+      console.log('Upload profile image error:', error);
+      showError('Error', 'No se pudo subir la imagen. Inténtalo de nuevo.');
+      setSelectedImage(null);
     }
   };
 
   const handleLogout = async () => {
-    Alert.alert(
-      'Cerrar sesión',
-      '¿Estás seguro de que quieres desconectarte?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { 
-          text: 'Desconectarse', 
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const result = await logout();
-              if (result.success) {
-                // Navegar a la pantalla de login
-                navigation.reset({
-                  index: 0,
-                  routes: [{ name: 'Login' }],
-                });
-              } else {
-                Alert.alert('Error', 'No se pudo cerrar sesión');
-              }
-            } catch (error) {
-              Alert.alert('Error', 'Error al cerrar sesión');
-            }
-          }
+    showLogoutConfirm(
+      async () => {
+        try {
+          await logout();
+        } catch (error) {
+          showError('Error', 'Error al desconectarse');
         }
-      ]
+      },
+      () => {
+        // Usuario canceló, no hacer nada
+      }
     );
   };
 
-  const renderEditableField = (label, field, value, isPassword = false) => (
-    <View style={styles.fieldContainer}>
-      <Text style={styles.fieldLabel}>{label}</Text>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.inputField}
-          value={editingField === field ? value : profileData[field]}
-          onChangeText={(text) => handleSaveField(field, text)}
-          onFocus={() => setEditingField(field)}
-          onBlur={() => setEditingField(null)}
-          secureTextEntry={isPassword && editingField !== field}
-          editable={editingField === field}
-        />
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={() => handleEditField(field)}
-        >
-          <Ionicons name="pencil" size={16} color="#000" />
-        </TouchableOpacity>
+  const renderEditableField = (label, field, placeholder) => {
+    const isEditing = editingField === field;
+    
+    return (
+      <View style={styles.fieldContainer}>
+        <Text style={styles.fieldLabel}>{label}</Text>
+        <View style={styles.inputContainer}>
+          {isEditing ? (
+            <TextInput
+              style={styles.inputField}
+              value={profileData[field]}
+              onChangeText={(text) => setProfileData(prev => ({ ...prev, [field]: text }))}
+              placeholder={placeholder}
+              onBlur={() => handleSaveField(field, profileData[field])}
+              autoFocus
+            />
+          ) : (
+            <Text style={styles.readonlyText}>{profileData[field] || placeholder}</Text>
+          )}
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => isEditing ? handleSaveField(field, profileData[field]) : handleEditField(field)}
+          >
+            <Ionicons name={isEditing ? "checkmark" : "pencil"} size={16} color="#EC4899" />
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
-  const renderSelectionField = (label, field, value) => (
-    <View style={styles.fieldContainer}>
-      <Text style={styles.fieldLabel}>{label}</Text>
-      <TouchableOpacity style={styles.selectionContainer}>
-        <Text style={styles.selectionText}>{value}</Text>
-        <Ionicons name="chevron-forward" size={20} color="#000" />
+  const renderSelectionField = (label, field, value, onPress) => {
+    return (
+      <TouchableOpacity style={styles.selectionContainer} onPress={onPress}>
+        <View>
+          <Text style={styles.fieldLabel}>{label}</Text>
+          <Text style={styles.selectionText}>{value}</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={18} color="#BBB" />
       </TouchableOpacity>
-    </View>
-  );
+    );
+  };
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
+    <SafeAreaView style={styles.container}>
+      <StatusBar style="dark" />
+      
+      {/* Header simple */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#000" />
+        <TouchableOpacity 
+          style={styles.headerButton} 
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={22} color="#2d2d2d" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Datos del perfil</Text>
-        <View style={styles.placeholder} />
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerTitle}>Datos del perfil</Text>
+        </View>
+        <View style={styles.headerSpacer} />
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Profile Picture */}
-        <View style={styles.profilePictureContainer}>
-          <TouchableOpacity onPress={pickImage} style={styles.profilePictureTouchable}>
-            <Image
-              source={selectedImage ? { uri: selectedImage } : (user?.profileImage ? { uri: user.profileImage } : require('../../assets/Usuarionuevo.jpg'))}
-              style={styles.profilePicture}
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {/* Foto de perfil */}
+        <View style={styles.profileImageSection}>
+          <TouchableOpacity onPress={pickImage} style={styles.profileImageContainer}>
+            <Image 
+              source={selectedImage || user?.profilePicture 
+                ? { uri: selectedImage || user.profilePicture } 
+                : require('../../assets/Usuarionuevo.jpg')
+              } 
+              style={styles.profileImage} 
+              onError={(e) => console.log('Error loading image:', e.nativeEvent.error)} 
             />
-            <View style={styles.cameraIconOverlay}>
-              <Ionicons name="camera" size={24} color="#FFFFFF" />
-            </View>
           </TouchableOpacity>
-          <Text style={styles.profilePictureHint}>Toca para cambiar la foto</Text>
         </View>
 
-        {/* Personal Information */}
-        <View style={styles.section}>
-          {renderEditableField('Tu nombre', 'name', profileData.name)}
-          {renderEditableField('Tu correo', 'email', profileData.email)}
-          {renderEditableField('Tu teléfono', 'phone', profileData.phone)}
-          {renderEditableField('Tu contraseña', 'password', profileData.password, true)}
-        </View>
-
-        {/* Settings */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Configuraciones</Text>
-          {renderSelectionField('Idioma', 'language', profileData.language)}
-          {renderSelectionField('Moneda', 'currency', profileData.currency)}
-        </View>
-
-        {/* Notifications */}
-        <View style={styles.section}>
-          <View style={styles.notificationRow}>
-            <Text style={styles.fieldLabel}>Notificaciones</Text>
-            <Switch
-              value={profileData.notifications}
-              onValueChange={(value) => {
-                setProfileData(prev => ({ ...prev, notifications: value }));
-                updateUser({ notifications: value });
-              }}
-              trackColor={{ false: '#E5E5EA', true: '#FFB6C1' }}
-              thumbColor="#FFFFFF"
-            />
+        {/* Campos de informacion */}
+        <View style={styles.fieldsContainer}>
+          {/* Tu nombre */}
+          <View style={styles.fieldRow}>
+            <View style={styles.fieldContent}>
+              <Text style={styles.fieldLabel}>Tu nombre</Text>
+              <Text style={styles.fieldValue}>
+                {`${profileData.firstName} ${profileData.lastName}`.trim() || 'Nombre completo'}
+              </Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.editIcon}
+              onPress={() => handleEditField('firstName')}
+            >
+              <Ionicons name="pencil-outline" size={18} color="#666" />
+            </TouchableOpacity>
           </View>
-        </View>
 
-        {/* Action Links */}
-        <View style={styles.section}>
+          {/* Tu correo */}
+          <View style={styles.fieldRow}>
+            <View style={styles.fieldContent}>
+              <Text style={styles.fieldLabel}>Tu correo</Text>
+              <Text style={styles.fieldValue}>
+                {profileData.email || 'correo@ejemplo.com'}
+              </Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.editIcon}
+              onPress={() => handleEditField('email')}
+            >
+              <Ionicons name="pencil-outline" size={18} color="#666" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Tu telefono */}
+          <View style={styles.fieldRow}>
+            <View style={styles.fieldContent}>
+              <Text style={styles.fieldLabel}>Tu teléfono</Text>
+              <Text style={styles.fieldValue}>
+                {profileData.phone || 'Número de teléfono'}
+              </Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.editIcon}
+              onPress={() => handleEditField('phone')}
+            >
+              <Ionicons name="pencil-outline" size={18} color="#666" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Tu contraseña */}
+          <View style={styles.fieldRow}>
+            <View style={styles.fieldContent}>
+              <Text style={styles.fieldLabel}>Tu contraseña</Text>
+              <Text style={styles.fieldValue}>••••••••••</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.editIcon}
+              onPress={() => navigation.navigate('ChangePassword')}
+            >
+              <Ionicons name="pencil-outline" size={18} color="#666" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Politica de privacidad */}
           <TouchableOpacity 
-            style={styles.actionButton}
+            style={styles.fieldRow}
             onPress={() => navigation.navigate('PrivacyPolicy')}
           >
-            <Text style={styles.actionText}>Política de privacidad</Text>
+            <View style={styles.fieldContent}>
+              <Text style={styles.fieldLabel}>Política de privacidad</Text>
+            </View>
           </TouchableOpacity>
+
+          {/* Terminos y condiciones */}
           <TouchableOpacity 
-            style={styles.actionButton}
+            style={styles.fieldRow}
             onPress={() => navigation.navigate('TermsConditions')}
           >
-            <Text style={styles.actionText}>Términos y condiciones</Text>
+            <View style={styles.fieldContent}>
+              <Text style={styles.fieldLabel}>Términos y condiciones</Text>
+            </View>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={handleLogout}>
-            <Text style={[styles.actionText, styles.logoutText]}>Desconectarse</Text>
+
+          {/* Desconectarse */}
+          <TouchableOpacity 
+            style={styles.logoutRow}
+            onPress={handleLogout}
+          >
+            <Text style={styles.logoutText}>Desconectarse</Text>
           </TouchableOpacity>
         </View>
-        
-        {/* Espacio extra para evitar que el menú tape el contenido */}
-        <View style={styles.extraSpace} />
       </ScrollView>
-    </View>
+
+      {/* Alerta personalizada */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+        onClose={hideAlert}
+      />
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 60,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 16,
+    paddingTop: 50,
+    paddingBottom: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e9ecef',
   },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  placeholder: {
-    width: 40,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingBottom: 100,
-  },
-  profilePictureContainer: {
-    alignItems: 'center',
-    marginVertical: 40,
-  },
-  profilePicture: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    borderWidth: 3,
-    borderColor: '#FFB6C1',
-  },
-  profilePictureTouchable: {
-    position: 'relative',
-  },
-  cameraIconOverlay: {
-    position: 'absolute',
-    bottom: 5,
-    right: 5,
-    backgroundColor: '#FFB6C1',
-    borderRadius: 20,
-    width: 40,
-    height: 40,
+  headerButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#f8f9fa',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  profilePictureHint: {
-    fontSize: 14,
-    color: '#8E8E93',
-    marginTop: 10,
-    textAlign: 'center',
+  headerCenter: {
+    flex: 1,
+    alignItems: 'center',
   },
-  section: {
-    marginBottom: 30,
+  headerSpacer: {
+    width: 44,
   },
-  sectionTitle: {
+  headerTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000',
-    marginBottom: 15,
+    fontWeight: '600',
+    color: '#2d2d2d',
   },
-  fieldContainer: {
-    marginBottom: 20,
+  scrollView: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  // Foto de perfil
+  profileImageSection: {
+    alignItems: 'center',
+    paddingVertical: 32,
+  },
+  profileImageContainer: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    overflow: 'hidden',
+    backgroundColor: '#f8f9fa',
+    borderWidth: 4,
+    borderColor: '#f48fb1',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  profileImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 75,
+  },
+  // Campos de informacion
+  fieldsContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  fieldRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f3f4',
+  },
+  fieldContent: {
+    flex: 1,
   },
   fieldLabel: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  fieldValue: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000',
-    marginBottom: 8,
+    color: '#2d2d2d',
+    fontWeight: '600',
   },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E5EA',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  inputField: {
-    flex: 1,
-    fontSize: 16,
-    color: '#000',
-    paddingVertical: 8,
-  },
-  editButton: {
+  editIcon: {
     padding: 8,
   },
-  selectionContainer: {
+  logoutRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E5EA',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-  },
-  selectionText: {
-    fontSize: 16,
-    color: '#000',
-  },
-  notificationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E5EA',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-  },
-  actionButton: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E5EA',
-    borderRadius: 8,
-    paddingVertical: 12,
-    marginBottom: 10,
-    alignItems: 'center',
-  },
-  actionText: {
-    fontSize: 16,
-    color: '#000',
-    textDecorationLine: 'underline',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderBottomWidth: 0,
   },
   logoutText: {
-    color: '#FF0000',
-  },
-  extraSpace: {
-    height: 120,
-    backgroundColor: 'transparent',
+    fontSize: 16,
+    color: '#ff4757',
+    fontWeight: '600',
   },
 });
 
-export default ProfileScreen; 
+export default ProfileScreen;

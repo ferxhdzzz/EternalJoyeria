@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions, Animated, ScrollView } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
@@ -9,6 +10,7 @@ const WelcomeScreen1 = ({ onNext }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
   const buttonScaleAnim = useRef(new Animated.Value(0.8)).current;
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     // Animación de entrada con fade y slide
@@ -53,62 +55,69 @@ const WelcomeScreen1 = ({ onNext }) => {
   };
 
   return (
-    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
-      <View style={styles.imageSection}>
-        <LinearGradient
-          colors={['#FFE4E1', '#FFF5F5']}
-          style={styles.gradientBackground}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 1 }}
-        >
-          <Animated.View 
-            style={[
-              styles.imageContainer,
-              { 
-                transform: [{ translateY: slideAnim }],
-                opacity: fadeAnim 
-              }
-            ]}
+    <SafeAreaView style={styles.container}>
+      <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+        <View style={styles.imageSection}>
+          <LinearGradient
+            colors={['rgba(211, 162, 148, 0.37)', 'rgba(211, 162, 148, 0.37)', 'rgba(211, 162, 148, 0.37)']}
+            style={styles.gradientBackground}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
           >
-            <Image
-              source={require('../../assets/welcome-images/bienvenida1.png')}
-              style={styles.womanImage}
-              resizeMode="cover"
-            />
-          </Animated.View>
-        </LinearGradient>
-      </View>
-
-      <Animated.View 
-        style={[
-          styles.contentSection,
-          { 
-            transform: [{ translateY: slideAnim }],
-            opacity: fadeAnim 
-          }
-        ]}
-      >
-        <View style={styles.curveSeparator} />
-        <Text style={styles.mainTitle}>
-          Encuentra tu estilo{'\n'}perfecto
-        </Text>
-        <Text style={styles.description}>
-          Descubre nuestras mejores{'\n'}colecciones a los mejores precios y{'\n'}calidad excepcional.
-        </Text>
-        <View style={styles.bottomRow}>
-          <View style={styles.navigationDots}>
-            <View style={[styles.dot, styles.activeDot]} />
-            <View style={styles.dot} />
-            <View style={styles.dot} />
-          </View>
-          <View>
-            <TouchableOpacity style={styles.startButton} onPress={handleStart}>
-              <Text style={styles.startButtonText}>Comenzar</Text>
-            </TouchableOpacity>
-          </View>
+            <Animated.View 
+              style={[
+                styles.imageContainer,
+                { 
+                  transform: [{ translateY: slideAnim }],
+                  opacity: fadeAnim 
+                }
+              ]}
+            >
+              <Image
+                source={require('../../assets/welcome-images/bienvenida1.png')}
+                style={styles.womanImage}
+                resizeMode="cover"
+              />
+            </Animated.View>
+          </LinearGradient>
         </View>
+        <Animated.View 
+          style={[
+            styles.contentSection,
+            { 
+              transform: [{ translateY: slideAnim }],
+              opacity: fadeAnim 
+            }
+          ]}
+        >
+          <View style={styles.curveSeparator} />
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: insets.bottom + 120 }}
+            showsVerticalScrollIndicator={false}
+          >
+            <Text style={styles.mainTitle}>
+              Bienvenida a{'\n'}Eternal Joyería
+            </Text>
+            <Text style={styles.description}>
+              Descubre la elegancia que perdura{'\n'}con nuestras exclusivas colecciones{'\n'}de joyería de alta calidad.
+            </Text>
+            <View style={styles.navigationDots}>
+              <View style={[styles.dot, styles.activeDot]} />
+              <View style={styles.dot} />
+              <View style={styles.dot} />
+            </View>
+          </ScrollView>
+          <TouchableOpacity 
+            style={styles.startButton} 
+            onPress={handleStart}
+          >
+            <Animated.Text style={[styles.startButtonText, { transform: [{ scale: buttonScaleAnim }] }]}>
+              Comenzar
+            </Animated.Text>
+          </TouchableOpacity>
+        </Animated.View>
       </Animated.View>
-    </Animated.View>
+    </SafeAreaView>
   );
 };
 
@@ -145,7 +154,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingHorizontal: 0,
     paddingTop: 20,
-    paddingBottom: 140, // Aumentado de 100 a 140 para parte de abajo más alargada
+    paddingBottom: 80, // Reducido para evitar que tape el botón en pantallas pequeñas
     position: 'relative',
   },
   curveSeparator: {
@@ -161,7 +170,7 @@ const styles = StyleSheet.create({
   },
   mainTitle: {
     fontSize: 32, // Aumentado de 28 a 32 para letra más grande
-    fontWeight: '800',
+    fontWeight: 'bold', // Agregado para título en negrita
     color: '#333',
     textAlign: 'center',
     marginTop: 20, // Reducido de 30 a 20 para mover el texto más arriba
@@ -181,6 +190,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: -20, // Mover los puntos más arriba
+    marginLeft: 30, // Mover los puntos hacia la derecha
   },
   dot: {
     width: 8,
@@ -193,47 +203,39 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#333',
+    backgroundColor: '#e91e63',
   },
   bottomRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 40,
+    marginTop: 20,
     paddingRight: 0,
     paddingLeft: 30, // Padding solo a la izquierda para los puntos
   },
   startButton: {
-    backgroundColor: '#000',
-    paddingVertical: 40, // Aumentado de 28 a 40 para hacer el botón más largo verticalmente
-    paddingHorizontal: 80,
+    backgroundColor: '#000000',
+    paddingVertical: 16,
+    paddingHorizontal: 36,
     borderTopLeftRadius: 35,
     borderTopRightRadius: 0,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    minWidth: 180,
+    minWidth: 140,
     marginRight: 0,
-    marginLeft: 'auto',
+    marginLeft: 0,
     position: 'absolute',
-    right: -10, // Cambiado de 0 a -10 para mover el botón un poco más a la derecha
-    bottom: -50, // Cambiado de -40 a -50 para mover el botón un poquito más abajo
+    right: 0,
+    bottom: 0,
   },
   startButtonText: { 
     color: '#fff', 
-    fontSize: 18, 
+    fontSize: 16, 
     fontWeight: '600', 
     textAlign: 'left', 
-    marginTop: -8,
-    marginLeft: -20,
+    marginTop: 0,
+    marginLeft: 0,
   },
 });
 
-export default WelcomeScreen1; 
+export default WelcomeScreen1;

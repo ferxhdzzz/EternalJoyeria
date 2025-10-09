@@ -20,6 +20,7 @@ import HistorialPage from './pages/Historial';
 import ProductDetail from './pages/ProductDetail';
 import CheckoutPage from './pages/CheckoutPage';
 import { CartProvider } from './context/CartContext';
+import { AuthProvider } from './context/AuthContext';
 import Contact from './pages/ContactUs';
 import DetailProduct from './pages/DetailProduct';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -31,15 +32,19 @@ import CategoriaAretes from './pages/CategoriaAretes';
 import CategoriaConjuntos from './pages/CategoriaConjuntos';
 import CategoriaAnillos from './pages/CategoriaAnillos';
 import PreguntasFrecuentes from './pages/PreguntasFrecuentes';
+import Profiles from './pages/Profiles';
+
 import ScrollToTop from './components/ScrollToTop';
 import Blog from './pages/Blog';
 
 import HistorialReviews from './pages/HistReviews';
 
 import CategoryProducts from './pages/CategoryProducts';
+import Error404 from './pages/Error404';
 
 
-import PublicRoute from './components/PublicRoute';
+import PrivateRoute from './components/PublicRoute';
+
 
 import './App.css';
 
@@ -55,10 +60,12 @@ function App() {
   }, []);
 
   return (
-    <CartProvider>
-      <Router>
-        <ScrollToTop />
-        <Routes>
+    <AuthProvider>
+      <CartProvider>
+        <Router>
+          <ScrollToTop />
+        
+          <Routes>
           <Route path="/" element={<Home />} />
           
           {/* Flujo recuperación */}
@@ -89,38 +96,69 @@ function App() {
           <Route path="/product/:id" element={<ProductDetail />} />
 
           {/* Protegidas */}
-          <Route path="/perfil" element={<Profile />} />
+          <Route 
+            path="/perfil" 
+            element={
+              <PrivateRoute>
+                <Profiles />
+              </PrivateRoute>
+            } 
+          />
           <Route
             path="/historial"
             element={
-              <PublicRoute>
+              <PrivateRoute>
                 <HistorialPage />
-              </PublicRoute>
+              </PrivateRoute>
             }
           />
           <Route
             path="/checkout"
             element={
-              <PublicRoute>
+              <PrivateRoute>
                 <CheckoutPage />
-              </PublicRoute>
+              </PrivateRoute>
             }
           />
 
    <Route
             path="/histReview"
             element={
-              <PublicRoute>
+              <PrivateRoute>
                 <HistorialReviews />
-              </PublicRoute>
+              </PrivateRoute>
             }
           />
 
+           <Route
+            path="/carrito"
+            element={
+              <PrivateRoute>
+                <CartPage />
+              </PrivateRoute>
+            }
+          />
 
-          {/* Carrito / otros */}
-          <Route path="/carrito" element={<CartPage />} />
+    <Route
+            path="/cart"
+            element={
+              <PrivateRoute>
+                <CartPage />
+              </PrivateRoute>
+            }
+          />
+              <Route
+            path="/shop"
+            element={
+              <PrivateRoute>
+                <CartPage />
+              </PrivateRoute>
+            }
+          />
+          {/* Carrito / otros 
+      
           <Route path="/cart" element={<CartPage />} />
-          <Route path="/shop" element={<CartPage />} />
+          <Route path="/shop" element={<CartPage />} />*/}
 
           <Route path="/contactanos" element={<Contact />} />
           <Route path="/detalle-producto/:id" element={<ProductDetail />} />
@@ -130,9 +168,13 @@ function App() {
           <Route path="/aviso-privacidad" element={<PrivacyNotice />} />
           <Route path="/faq" element={<PreguntasFrecuentes />} />
           <Route path="/blog" element={<Blog />} />
+          
+          {/* Ruta para manejar páginas no encontradas */}
+          <Route path="*" element={<Error404 />} />
         </Routes>
-      </Router>
-    </CartProvider>
+        </Router>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 

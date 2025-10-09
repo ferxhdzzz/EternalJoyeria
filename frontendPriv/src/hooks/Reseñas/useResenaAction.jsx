@@ -1,6 +1,6 @@
 import { toast } from "react-hot-toast";
 
-const api = "http://localhost:4000/api/reviews";
+const api = "https://eternaljoyeria-cg5d.onrender.com/api/reviews";
 
 const useReviewAction = (getReviews) => {
   const deleteReviews = async (id) => {

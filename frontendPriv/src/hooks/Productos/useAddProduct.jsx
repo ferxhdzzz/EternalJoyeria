@@ -9,7 +9,7 @@ export function useAddProduct() {
   const addProduct = async (productData) => {
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:4000/api/products", productData, {
+      const response = await axios.post("https://eternaljoyeria-cg5d.onrender.com/api/products", productData, {
         withCredentials: true,
       });
       toast.success("Producto agregado correctamente");

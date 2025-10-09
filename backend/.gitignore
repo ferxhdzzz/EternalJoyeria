@@ -5,3 +5,5 @@
 * .uploads
 * .env 
 * .public 
+.env*.local
+.env

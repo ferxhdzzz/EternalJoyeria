@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -7,254 +7,233 @@ import {
   Image,
   Dimensions,
   ScrollView,
-  Alert,
+  Platform,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { useCart } from '../context/CartContext';
+import CustomAlert from '../components/CustomAlert';
+import useCustomAlert from '../hooks/useCustomAlert';
+import { translateSize } from '../utils/sizeTranslations';
 
 const { width, height } = Dimensions.get('window');
 
-const CartScreen = ({ navigation, route }) => {
-  // Estado para simular productos en el carrito (inicialmente vacío)
-  const [cartItems, setCartItems] = useState([]);
+const CartScreen = ({ navigation }) => {
+  const { 
+    cartItems, 
+    updateQuantity, 
+    removeItem, 
+    getTotalPrice 
+  } = useCart();
+  
+  // Hook para alertas personalizadas
+  const {
+    alertConfig,
+    hideAlert,
+    showStockError,
+  } = useCustomAlert();
 
-  // Verificar si se pasaron productos desde otra pantalla
-  useEffect(() => {
-    console.log('CartScreen useEffect triggered');
-    console.log('Route params:', JSON.stringify(route.params));
-    
-    // Verificar parámetros del route
-    if (route.params?.newProduct) {
-      const newProduct = route.params.newProduct;
-      console.log('New product found in route params:', JSON.stringify(newProduct));
-      addProductToCart(newProduct);
-      navigation.setParams({ newProduct: undefined });
-    }
-  }, [route.params?.newProduct]);
-
-  // Función para añadir producto al carrito
-  const addProductToCart = (newProduct) => {
-    // Verificar si el producto ya existe en el carrito (por id y talla)
-    const existingProductIndex = cartItems.findIndex(item => 
-      item.id === newProduct.id && item.size === newProduct.size
-    );
-    
-    if (existingProductIndex >= 0) {
-      // Si ya existe, aumentar la cantidad
-      setCartItems(prevItems => 
-        prevItems.map((item, index) => 
-          index === existingProductIndex 
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        )
-      );
-    } else {
-      // Si no existe, añadirlo
-      setCartItems(prevItems => [...prevItems, { ...newProduct, quantity: 1 }]);
-    }
+  // Funciones para formatear medidas (copiadas de ProductDetailScreen)
+  const sizeDisplayName = (key) => {
+    const names = {
+      height: 'Alto',
+      width: 'Ancho',
+      length: 'Largo',
+      diameter: 'Diámetro',
+      thickness: 'Grosor',
+      weight: 'Peso',
+    };
+    return names[key] || key.charAt(0).toUpperCase() + key.slice(1);
   };
 
-  // Función para obtener la imagen del producto
+  // Función para filtrar qué campos mostrar como medidas (no como talla)
+  const isValidMeasurement = (key) => {
+    const validMeasurements = ['height', 'width', 'length', 'diameter', 'thickness', 'weight'];
+    return validMeasurements.includes(key.toLowerCase());
+  };
+
+  const formatMeasurement = (key, raw) => {
+    if (!raw) return '';
+    const str = String(raw).trim();
+    if (!str) return '';
+    const num = parseFloat(str);
+    if (isNaN(num)) return str;
+    
+    if (key === 'weight') {
+      return `${num} g`;
+    }
+    if (key === 'height' || key === 'width') {
+      return `${num} cm`;
+    }
+    return raw;
+  };
+  
+  const handleQuantityChange = (item, change) => {
+    const newQuantity = item.quantity + change;
+    const maxStock = item.stock || 999;
+    
+    if (change > 0 && newQuantity > maxStock) {
+      showStockError(
+        item.name || 'Producto',
+        maxStock,
+        () => navigation.navigate('MainTabs', { screen: 'Carrito' }), // Ver carrito (ya está aquí)
+        () => navigation.navigate('MainTabs', { screen: 'Home' }) // Seguir comprando
+      );
+      return;
+    }
+    
+    updateQuantity(item._id, item.size, change);
+  };
+
   const getProductImage = (product) => {
-    // If the product comes with a direct image source (from ProductDetailScreen)
-    if (product.image && typeof product.image === 'object') {
-      return product.image;
+    // ✅ Se corrigió esta función para usar el array de imágenes del producto
+    if (product.images && product.images.length > 0) {
+      return { uri: product.images[0] };
     }
-    
-    // If it comes with an image name (from test products)
-    if (product.image && typeof product.image === 'string') {
-      const imageMap = {
-        'peinetarosa': require('../../assets/Productos/peinetarosa.png'),
-        'aretedoradomargarita': require('../../assets/Productos/aretedoradomargarita.png'),
-        'collarorchidmorado': require('../../assets/Productos/collarorchidmorado.png'),
-      };
-      return imageMap[product.image] || require('../../assets/Productos/peinetarosa.png');
-    }
-    
-    // Default fallback image
+    // Fallback image (if no image is provided)
     return require('../../assets/Productos/peinetarosa.png');
   };
 
-  const updateQuantity = (id, change) => {
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + change) }
-          : item
-      )
-    );
-  };
-
-  const removeItem = (id) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
-  };
-
-  const getTotalPrice = () => {
-    return cartItems.reduce((total, item) => total + ((item.price || 0) * item.quantity), 0);
-  };
-
   const handleCheckout = () => {
-    // Navegar a la pantalla de pago
-    navigation.navigate('Payment', { totalAmount: getTotalPrice() });
+    navigation.navigate('Checkout');
   };
 
-  // Función para añadir productos al carrito (para pruebas)
-  const addTestProducts = () => {
-    setCartItems([
-      {
-        id: 1,
-        name: 'Peineta de orquidea roja',
-        price: 25.00,
-        quantity: 1,
-        image: 'peinetarosa',
-        size: '20 mm',
-      },
-      {
-        id: 2,
-        name: 'Aretes cafes',
-        price: 25.00,
-        quantity: 1,
-        image: 'aretedoradomargarita',
-        size: '15 mm',
-      },
-      {
-        id: 3,
-        name: 'Collar de orquidea morada',
-        price: 25.00,
-        quantity: 1,
-        image: 'collarorchidmorado',
-        size: '10 mm',
-      },
-    ]);
-  };
-
-  // Si el carrito está vacío, mostrar la pantalla vacía
   if (cartItems.length === 0) {
     return (
-      <LinearGradient
-        colors={['#FFE7E7', '#FFFFFF']}
-        style={styles.emptyContainer}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-      >
-        {/* Header */}
-        <View style={styles.header}>
+      <View style={styles.emptyContainer}>
+        <StatusBar style="dark" />
+        <View style={styles.headerSimple}>
           <Text style={styles.headerTitle}>Carrito</Text>
         </View>
-
-        {/* Main Content */}
-        <View style={styles.content}>
-          {/* Shopping Cart Illustration */}
-          <View style={styles.cartContainer}>
-            <Image
-              source={require('../../assets/carrito.png')}
-              style={styles.cartImage}
-              resizeMode="contain"
-            />
-            
-            {/* Sparkle Stars */}
-            <View style={styles.sparklesContainer}>
-              <View style={[styles.sparkle, styles.sparkle1]}>
-                <Ionicons name="star" size={16} color="#FFD700" />
-              </View>
-              <View style={[styles.sparkle, styles.sparkle2]}>
-                <Ionicons name="star" size={12} color="#FFD700" />
-              </View>
-              <View style={[styles.sparkle, styles.sparkle3]}>
-                <Ionicons name="star" size={14} color="#FFD700" />
-              </View>
-              <View style={[styles.sparkle, styles.sparkle4]}>
-                <Ionicons name="star" size={10} color="#FFD700" />
-              </View>
-            </View>
-          </View>
-
-          {/* Motivational Text */}
+        <View style={styles.content}> 
+          <Image
+            source={require('../../assets/carrito.png')}
+            style={styles.cartImage}
+            resizeMode="contain"
+          />
           <View style={styles.textContainer}>
             <Text style={styles.mainText}>Aún no hay brillo</Text>
             <Text style={styles.subText}>en tu carrito</Text>
           </View>
         </View>
-
-        {/* Shop Button */}
         <TouchableOpacity 
           style={styles.shopButton}
-          onPress={() => navigation.navigate('Inicio')}
+          onPress={() => navigation.navigate('Home')}
         >
           <Text style={styles.shopButtonText}>Comprar</Text>
         </TouchableOpacity>
-      </LinearGradient>
+      </View>
     );
   }
 
-  // Si hay productos, mostrar la interfaz completa del carrito
   return (
     <View style={styles.container}>
-      {/* Header */}
+      <StatusBar style="dark" />
       <View style={styles.cartHeader}>
-        <Text style={styles.cartHeaderTitle}>Mi carrito</Text>
+        <View style={styles.headerContent}>
+          <Text style={styles.cartHeaderTitle}>Mi carrito</Text>
+          <View style={styles.itemCount}>
+            <Text style={styles.itemCountText}>{cartItems.length}</Text>
+          </View>
+        </View>
       </View>
-
-      {/* Product List */}
       <ScrollView style={styles.productList} showsVerticalScrollIndicator={false}>
         {cartItems.map((item) => (
-          <View key={`${item.id}-${item.size}`} style={styles.productItem}>
-            {/* Product Image */}
-            <Image source={getProductImage(item)} style={styles.productImage} />
-            
-            {/* Product Info */}
-            <View style={styles.productInfo}>
-              <Text style={styles.productName}>{item.name}</Text>
-              {item.size && (
-                <Text style={styles.productSize}>Talla: {item.size}</Text>
-              )}
-              
-              {/* Quantity Controls */}
-              <View style={styles.quantityControls}>
-                <TouchableOpacity 
-                  style={styles.quantityButton}
-                  onPress={() => updateQuantity(item.id, -1)}
-                >
-                  <Ionicons name="remove" size={20} color="#666" />
-                </TouchableOpacity>
-                <Text style={styles.quantityText}>{item.quantity}</Text>
-                <TouchableOpacity 
-                  style={styles.quantityButton}
-                  onPress={() => updateQuantity(item.id, 1)}
-                >
-                  <Ionicons name="add" size={20} color="#666" />
-                </TouchableOpacity>
+          <View key={`${item._id}-${item.size}`} style={styles.productItem}>
+            <View style={styles.productCard}>
+              <View style={styles.imageContainer}>
+                <Image source={getProductImage(item)} style={styles.productImage} />
               </View>
-              
-              <Text style={styles.productPrice}>${(item.price || 0).toFixed(2)}</Text>
+              <View style={styles.productInfo}>
+                <Text style={styles.productName}>{item.name || 'Producto sin nombre'}</Text>
+                
+                {/* Talla - Solo mostrar si es una talla real, no medidas */}
+                {item.size && !isValidMeasurement(item.size) && (
+                  <View style={styles.sizeContainer}>
+                    <Ionicons name="resize" size={14} color="#6b7280" />
+                    <Text style={styles.productSize}>Talla: {translateSize(item.size)}</Text>
+                  </View>
+                )}
+
+                {/* Medidas - Filtrar solo medidas válidas */}
+                {item.measurements && Object.keys(item.measurements).length > 0 && (
+                  <View style={styles.measurementsContainer}>
+                    <Text style={styles.measurementsTitle}>Medidas:</Text>
+                    <View style={styles.measuresList}>
+                      {Object.entries(item.measurements)
+                        .filter(([key]) => isValidMeasurement(key))
+                        .slice(0, 3)
+                        .map(([key, value]) => (
+                          <View key={String(key)} style={styles.measureRow}>
+                            <Text style={styles.measureLabel}>{sizeDisplayName(key)}:</Text>
+                            <Text style={styles.measureValue}>{formatMeasurement(key, value)}</Text>
+                          </View>
+                        ))}
+                    </View>
+                  </View>
+                )}
+                <View style={styles.quantityControls}>
+                  <TouchableOpacity 
+                    style={styles.quantityButton}
+                    onPress={() => handleQuantityChange(item, -1)}
+                  >
+                    <Ionicons name="remove" size={18} color="#111827" />
+                  </TouchableOpacity>
+                  <View style={styles.quantityDisplay}>
+                    <Text style={styles.quantityText}>{item.quantity}</Text>
+                    {item.stock && (
+                      <Text style={styles.stockInfo}>/{item.stock}</Text>
+                    )}
+                  </View>
+                  <TouchableOpacity 
+                    style={styles.quantityButton}
+                    onPress={() => handleQuantityChange(item, 1)}
+                  >
+                    <Ionicons name="add" size={18} color="#111827" />
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.priceContainer}>
+                  <Ionicons name="pricetag" size={14} color="#6b7280" />
+                  <Text style={styles.priceLabel}>Precio:</Text>
+                  <Text style={styles.productPrice}>${(item.finalPrice || item.price || 0).toFixed(2)}</Text>
+                </View>
+              </View>
+              <TouchableOpacity 
+                style={styles.removeButton}
+                onPress={() => removeItem(item._id, item.size)}
+              >
+                <Ionicons name="trash" size={18} color="#e74c3c" />
+              </TouchableOpacity>
             </View>
-            
-            {/* Remove Button */}
-            <TouchableOpacity 
-              style={styles.removeButton}
-              onPress={() => removeItem(item.id)}
-            >
-              <Ionicons name="close" size={20} color="#000" />
-            </TouchableOpacity>
           </View>
         ))}
-        <View style={{ height: 100 }} /> {/* Extra space for scroll */}
+        <View style={{ height: 100 }} />
       </ScrollView>
-
-      {/* Total and Checkout */}
       <View style={styles.checkoutSection}>
-        <View style={styles.totalRow}>
-          <Text style={styles.totalLabel}>Total:</Text>
-          <Text style={styles.totalAmount}>${getTotalPrice().toFixed(2)}</Text>
+        <View style={styles.checkoutPanel}>
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Total</Text>
+            <Text style={styles.totalAmount}>${getTotalPrice().toFixed(2)}</Text>
+          </View>
+          <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
+            <Text style={styles.checkoutButtonText}>Proceder a pago</Text>
+          </TouchableOpacity>
         </View>
-        
-        <TouchableOpacity 
-          style={styles.checkoutButton}
-          onPress={handleCheckout}
-        >
-          <Text style={styles.checkoutButtonText}>Proceder a pago</Text>
-        </TouchableOpacity>
       </View>
+      
+      {/* Componente de alerta */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        type={alertConfig.type}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        buttons={alertConfig.buttons}
+        onClose={hideAlert}
+        autoClose={alertConfig.autoClose}
+        autoCloseDelay={alertConfig.autoCloseDelay}
+        showIcon={alertConfig.showIcon}
+        animationType={alertConfig.animationType}
+      />
     </View>
   );
 };
@@ -263,236 +242,283 @@ const styles = StyleSheet.create({
   // Estilos para el carrito vacío
   emptyContainer: {
     flex: 1,
-    backgroundColor: '#FFE7E7', // Fondo rosa claro como en la imagen
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
   },
-  header: {
-    paddingTop: 60,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    alignItems: 'center',
+  headerSimple: {
+    paddingTop: 56,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    backgroundColor: '#fff',
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '700',
-    color: '#000',
+    color: '#111827',
+    textAlign: 'center',
   },
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  cartContainer: {
-    position: 'relative',
-    marginBottom: 30,
+    paddingHorizontal: 32,
   },
   cartImage: {
-    width: width * 0.7,
-    height: height * 0.35,
-  },
-  sparklesContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-  },
-  sparkle: {
-    position: 'absolute',
-  },
-  sparkle1: {
-    top: '8%',
-    left: '12%',
-  },
-  sparkle2: {
-    top: '12%',
-    left: '22%',
-  },
-  sparkle3: {
-    top: '6%',
-    left: '18%',
-  },
-  sparkle4: {
-    top: '10%',
-    left: '16%',
+    width: 160,
+    height: 200,
+    marginBottom: 24,
+    opacity: 0.8,
   },
   textContainer: {
     alignItems: 'center',
-    marginBottom: 20, // Adjusted for button position
+    marginBottom: 32,
   },
   mainText: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '700',
-    color: '#000',
-    marginBottom: 5,
+    color: '#111827',
+    textAlign: 'center',
+    marginBottom: 4,
   },
   subText: {
-    fontSize: 18,
-    fontWeight: '500',
-    color: '#000',
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#111827',
+    textAlign: 'center',
   },
   shopButton: {
     backgroundColor: '#000',
-    paddingVertical: 22,
-    paddingHorizontal: 50,
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 0, // Esquina superior derecha no redondeada
-    borderBottomRightRadius: 18,
-    borderBottomLeftRadius: 0, // Esquina inferior izquierda no redondeada como en la imagen
-    marginLeft: 'auto', // Empuja el botón hacia la derecha
-    marginRight: 0, // Completamente a la derecha
-    marginBottom: 0, // Moved very close to bottom (minimal marginBottom)
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderRadius: 20,
+    marginBottom: 32,
+    marginHorizontal: 32,
   },
   shopButtonText: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: '600',
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+    textAlign: 'center',
+    letterSpacing: 0.2,
   },
 
   // Estilos para el carrito con productos
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
   },
   cartHeader: {
+    paddingTop: 56,
+    paddingBottom: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#fff',
+  },
+  headerContent: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center', // Centered without back button
-    paddingTop: 60,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  itemCount: {
+    backgroundColor: '#111827',
+    borderRadius: 12,
+    minWidth: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  itemCountText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   cartHeaderTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#000',
-  },
-  placeholder: {
-    width: 40,
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#111827',
   },
   productList: {
     flex: 1,
     paddingHorizontal: 20,
   },
   productItem: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 15,
     marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderRadius: 16,
+  },
+  productCard: {
+    flexDirection: 'row',
+    padding: 14,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E9ECEF',
+  },
+  imageContainer: {
+    width: 80,
+    height: 80,
+    marginRight: 15,
+    backgroundColor: '#f9fafb',
+    borderRadius: 12,
+    overflow: 'hidden',
   },
   productImage: {
     width: 80,
     height: 80,
-    borderRadius: 8,
-    marginRight: 15,
+    borderRadius: 12,
   },
   productInfo: {
     flex: 1,
     justifyContent: 'space-between',
   },
   productName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#000',
-    marginBottom: 5, // Adjusted for size text
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1f2937',
+    marginBottom: 8,
+  },
+  sizeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 12,
   },
   productSize: {
     fontSize: 14,
-    fontWeight: '400',
-    color: '#666',
-    marginBottom: 10,
+    fontWeight: '600',
+    color: '#6b7280',
   },
   quantityControls: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
+    backgroundColor: '#f9fafb',
+    borderRadius: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 4,
+    alignSelf: 'flex-start',
   },
   quantityButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: '#F0F0F0',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#e5e7eb',
     alignItems: 'center',
     justifyContent: 'center',
-    marginHorizontal: 8,
+  },
+  quantityDisplay: {
+    marginHorizontal: 15,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
   },
   quantityText: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#000',
-    minWidth: 20,
+    fontWeight: 'bold',
+    color: '#111827',
     textAlign: 'center',
+  },
+  stockInfo: {
+    fontSize: 12,
+    color: '#6b7280',
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 4,
+  },
+  priceLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#6b7280',
   },
   productPrice: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#000',
+    fontWeight: 'bold',
+    color: '#111827',
   },
   removeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#F0F0F0',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#fee2e2',
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 10,
   },
   checkoutSection: {
-    backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
-    paddingVertical: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    paddingVertical: 16,
+  },
+  checkoutPanel: {
+    borderRadius: 16,
+    padding: 16,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#E9ECEF',
   },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 12,
   },
   totalLabel: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#000',
+    fontWeight: '600',
+    color: '#6b7280',
   },
   totalAmount: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: '700',
-    color: '#000',
+    color: '#111827',
   },
   checkoutButton: {
+    marginTop: 8,
     backgroundColor: '#000',
-    paddingVertical: 18,
-    paddingHorizontal: 30,
-    borderRadius: 12,
+    borderRadius: 28,
+    paddingVertical: 14,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    justifyContent: 'center',
   },
   checkoutButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: 0.2,
+  },
+  
+  // Estilos para medidas
+  measurementsContainer: {
+    marginBottom: 8,
+  },
+  measurementsTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6b7280',
+    marginBottom: 4,
+  },
+  measuresList: {
+    backgroundColor: '#f9fafb',
+    borderRadius: 8,
+    padding: 8,
+    gap: 4,
+  },
+  measureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  measureLabel: {
+    fontSize: 12,
+    color: '#374151',
+    fontWeight: '500',
+  },
+  measureValue: {
+    fontSize: 12,
+    color: '#111827',
     fontWeight: '600',
   },
 });

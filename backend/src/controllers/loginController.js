@@ -1,226 +1,102 @@
-// ===== IMPORTACIONES =====
-
-import customersModel from "../models/Customers.js";
-import adminModel from "../models/Administrator.js";
+import CustomersModel from "../models/Customers.js";
+import AdministratorsModel from "../models/Administrator.js";
 import bcryptjs from "bcryptjs";
-import jsonwebtoken from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { config } from "../config.js";
 
-// ===== CONFIGURACIÓN SIMPLE DE INTENTOS =====
-const MAX_ATTEMPTS = 5; // Máximo intentos fallidos permitidos
-const BLOCK_TIME = 15 * 60 * 1000; // 15 minutos de bloqueo en milisegundos
-
-// Almacenar intentos fallidos en memoria (simple)
-// Estructura: { email: { count: número, blockedUntil: timestamp } }
-const attempts = new Map();
-
-// ===== OBJETO CONTROLADOR =====
+const MAX_ATTEMPTS = 3;
+const LOCK_TIME = 15 * 60 * 1000; // 15 minutos
 const loginController = {};
 
-// ===== FUNCIÓN PRINCIPAL DE LOGIN =====
 loginController.login = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password } = req.body;
 
-  // Validar que se envíen email y password
-  if (!email || !password) {
-    return res.status(400).json({
-      success: false,
-      message: "Email and password are required",
-    });
-  }
+  try {
+    let user = await AdministratorsModel.findOne({ email });
+    let userType = "admin";
 
-  // Validar formato del email
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid email format",
-    });
-  }
+    if (!user) {
+      user = await CustomersModel.findOne({ email });
+      userType = "customer";
+    }
 
-  // ===== VERIFICAR INTENTOS FALLIDOS Y BLOQUEO =====
-  const emailKey = email.toLowerCase(); // Normalizar email para la búsqueda
-  const now = Date.now(); // Tiempo actual
-  const userAttempts = attempts.get(emailKey); // Obtener intentos del usuario
-  
-  // Si está bloqueado, verificar si ya pasó el tiempo de bloqueo
-  if (userAttempts && userAttempts.blockedUntil && now < userAttempts.blockedUntil) {
-    // Calcular minutos restantes del bloqueo
-    const minutesLeft = Math.ceil((userAttempts.blockedUntil - now) / 60000);
-    return res.status(429).json({
-      success: false,
-      message: `Cuenta bloqueada faltan ${minutesLeft} minutos.`,
-    });
-  }
+    if (!user)
+      return res.status(401).json({ success: false, message: "Usuario no encontrado" });
 
-  try {
-    let userFound; // Usuario encontrado en la base de datos
-    let userType; // Tipo de usuario (admin o customer)
+    // Bloqueo por intentos fallidos
+    if (user.lockUntil && user.lockUntil > Date.now()) {
+      const minutosRestantes = Math.ceil((user.lockUntil - Date.now()) / 60000);
+      return res.status(403).json({
+        success: false,
+        message: `Cuenta bloqueada. Intenta nuevamente en ${minutosRestantes} minutos`,
+      });
+    }
 
-    // ===== BUSCAR EN TABLA DE ADMINISTRADORES PRIMERO =====
-    const adminFound = await adminModel.findOne({ email: email.toLowerCase() });
+    const isMatch = await bcryptjs.compare(password, user.password);
+    if (!isMatch) {
+      user.loginAttempts = (user.loginAttempts || 0) + 1;
 
-    if (adminFound) {
-      userType = "admin";
-      console.log("el que acaba de iniciar es un admin");
-      userFound = adminFound;
+      if (user.loginAttempts >= MAX_ATTEMPTS) {
+        user.lockUntil = Date.now() + LOCK_TIME;
+        await user.save();
+        return res.status(403).json({
+          success: false,
+          message: `Cuenta bloqueada por ${LOCK_TIME / 60000} minutos`,
+        });
+      }
 
-      // Comparar password con hash almacenado
-      const isMatch = await bcryptjs.compare(password, adminFound.password);
-      if (!isMatch) {
-        // ===== PASSWORD INCORRECTO - REGISTRAR INTENTO FALLIDO =====
-        const currentAttempts = attempts.get(emailKey) || { count: 0 };
-        currentAttempts.count++; // Incrementar contador
-        
-        // Si alcanzó el máximo de intentos, bloquear cuenta
-        if (currentAttempts.count >= MAX_ATTEMPTS) {
-          currentAttempts.blockedUntil = now + BLOCK_TIME; // Establecer tiempo de bloqueo
-          attempts.set(emailKey, currentAttempts);
-          return res.status(429).json({
-            success: false,
-            message: "Muchos intentos falidos. Tu cuenta fue bloqueada por 15 minutos.",
-          });
-        }
-        
-        // Guardar intentos y mostrar cuántos quedan
-        attempts.set(emailKey, currentAttempts);
-        return res.status(401).json({
-          success: false,
-          message: `Credenciales invalidas ${MAX_ATTEMPTS - currentAttempts.count} intentos restantes`,
-        });
-      }
-    } else {
-      // ===== SI NO ES ADMIN, BUSCAR EN TABLA DE CLIENTES =====
-      userFound = await customersModel.findOne({ email: email.toLowerCase() });
+      await user.save();
+      return res.status(401).json({
+        success: false,
+        message: `Contraseña incorrecta. Intentos restantes: ${MAX_ATTEMPTS - user.loginAttempts}`,
+      });
+    }
 
-      if (userFound) {
-        userType = "customer";
-        console.log("el que acaba de iniciar es un cliente");
-        
-        // Comparar password con hash almacenado
-        const isMatch = await bcryptjs.compare(password, userFound.password);
-        if (!isMatch) {
-          // ===== PASSWORD INCORRECTO - REGISTRAR INTENTO FALLIDO =====
-          const currentAttempts = attempts.get(emailKey) || { count: 0 };
-          currentAttempts.count++; // Incrementar contador
-          
-          // Si alcanzó el máximo de intentos, bloquear cuenta
-          if (currentAttempts.count >= MAX_ATTEMPTS) {
-            currentAttempts.blockedUntil = now + BLOCK_TIME; // Establecer tiempo de bloqueo
-            attempts.set(emailKey, currentAttempts);
-            return res.status(429).json({
-              success: false,
-              message: "Muchos intentos falidos. Tu cuenta fue bloqueada por 15 minutos",
-            });
-          }
-          
-          // Guardar intentos y mostrar cuántos quedan
-          attempts.set(emailKey, currentAttempts);
-          return res.status(401).json({
-            success: false,
-            message: `Credenciales invalidas. ${MAX_ATTEMPTS - currentAttempts.count} intentos restantes.`,
-          });
-        }
-      }
-    }
+    // Contraseña correcta
+    user.loginAttempts = 0;
+    user.lockUntil = null;
+    await user.save();
 
-    // ===== USUARIO NO EXISTE EN NINGUNA TABLA =====
-    if (!userFound) {
-      // ===== REGISTRAR INTENTO FALLIDO PARA EMAIL INEXISTENTE =====
-      const currentAttempts = attempts.get(emailKey) || { count: 0 };
-      currentAttempts.count++; // Incrementar contador
-      
-      // Si alcanzó el máximo de intentos, bloquear cuenta
-      if (currentAttempts.count >= MAX_ATTEMPTS) {
-        currentAttempts.blockedUntil = now + BLOCK_TIME; // Establecer tiempo de bloqueo
-        attempts.set(emailKey, currentAttempts);
-        return res.status(429).json({
-          success: false,
-          message: "Muchos intentos falidos. Tu cuenta fue bloqueada por 15 minutos",
-        });
-      }
-      
-      // Guardar intentos y mostrar cuántos quedan
-      attempts.set(emailKey, currentAttempts);
-      return res.status(401).json({
-        success: false,
-        message: `Credenciales invalidas ${MAX_ATTEMPTS - currentAttempts.count} intentos restantes.`,
-      });
-    }
+    // Generar JWT
+    const token = jwt.sign(
+      { id: user._id, userType },
+      config.jwt.secret,
+      { expiresIn: config.jwt.expiresIn }
+    );
 
-    // ===== LOGIN EXITOSO - LIMPIAR INTENTOS FALLIDOS =====
-    attempts.delete(emailKey); // Eliminar registro de intentos fallidos
+    // MODIFICACIÓN CLAVE: Verificamos 'production' O el protocolo de la petición.
+    // También se añade una comprobación directa del encabezado de proxy.
+    const isSecure = process.env.NODE_ENV === "production" || 
+                     req.protocol === 'https' ||
+                     req.headers['x-forwarded-proto'] === 'https'; // Agregado para robustez
 
-    // ===== CREAR TOKEN JWT =====
-    const token = jsonwebtoken.sign(
-      {
-        id: userFound._id,
-        userType,
-        email: userFound.email,
-      },
-      config.jwt.jwtSecret,
-      { expiresIn: config.jwt.expiresIn }
-    );
+    // Guardar cookie JWT (cross-site/producción HTTPS)
+    res.cookie("authToken", token, {
+      httpOnly: true,
+      secure: isSecure, // Usamos la variable determinada
+      sameSite: "none", // Necesario para cross-site
+      path: "/",
+      maxAge: 24 * 60 * 60 * 1000, // 1 día
+    });
 
-    // ===== ESTABLECER COOKIE CON EL TOKEN =====
-    res.cookie("authToken", token, {
-      httpOnly: true, // Solo accesible desde el servidor
-      secure: process.env.NODE_ENV === "production", // HTTPS en producción
-      sameSite: "strict", // Protección CSRF
-      path: "/", // Disponible en todas las rutas
-      maxAge: 24 * 60 * 60 * 1000, // 24 horas de duración
-    });
-
-    // ===== RESPUESTA DE LOGIN EXITOSO =====
-    res.status(200).json({
-      success: true,
-      message: "Login successful",
-      userType: userType,
-      token: token, // Agregar token para React Native
-      user: {
-        id: userFound._id,
-        email: userFound.email,
-        name: userFound.name,
-      },
-    });
-  } catch (error) {
-    // ===== MANEJO DE ERRORES DEL SERVIDOR =====
-    console.error("Login error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
-  }
+    res.json({
+      success: true,
+      message: "Login successful",
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        phone: user.phone || "",
+        profilePicture: user.profilePicture || "",
+      },
+      userType,
+    });
+  } catch (error) {
+    console.error("Error login:", error);
+    res.status(500).json({ success: false, message: "Error del servidor" });
+  }
 };
 
-// ===== FUNCIÓN PARA VERIFICAR SI EL USUARIO ES ADMIN =====
-loginController.checkAdmin = (req, res) => {
-  try {
-    // Obtener token de las cookies
-    const { authToken } = req.cookies;
-
-    // Verificar si existe el token
-    if (!authToken) {
-      return res.json({ ok: false, message: "No auth token found" });
-    }
-
-
-    // Verificar y decodificar el token JWT
-
-    const decoded = jsonwebtoken.verify(authToken, config.jwt.jwtSecret);
-
-    // Verificar si el usuario es admin
-    if (decoded.userType === "admin") {
-      return res.json({ ok: true });
-    } else {
-      return res.json({ ok: false, message: "Access denied" });
-    }
-  } catch (error) {
-    // Manejo de errores (token inválido o expirado)
-    console.error("checkAdmin error:", error);
-    return res.json({ ok: false, message: "Invalid or expired token" });
-  }
-};
-
-// ===== EXPORTAR CONTROLADOR =====
 export default loginController;

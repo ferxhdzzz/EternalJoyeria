@@ -1,9 +1,75 @@
-import Sale from "../models/Sales.js";
+import Sale from "../models/sales.js";
 import Order from "../models/Orders.js";
 import Product from "../models/Products.js";
 import mongoose from 'mongoose';
 
 const salesController = {};
+
+
+/**
+ * @description Verifica si un cliente específico ha comprado un producto.
+ * Endpoint recomendado: GET /api/sales/check-purchase/:customerId/:productId
+ * @param {object} req - Objeto de solicitud de Express con params.
+ * @param {object} res - Objeto de respuesta de Express.
+ */
+salesController.checkProductPurchase = async (req, res) => {
+    try {
+        const { customerId, productId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(customerId) || !mongoose.Types.ObjectId.isValid(productId)) {
+            return res.status(400).json({ message: "IDs de cliente o producto no válidos." });
+        }
+
+        // 1. Encontrar todas las ventas del cliente
+        const sales = await Sale.find({ idCustomers: customerId })
+            .populate({
+                path: "idOrder",
+                // Solo necesitamos el array de productos de la orden
+                select: "products", 
+                populate: {
+                    // Y solo necesitamos los IDs de los productos
+                    path: "products.productId", 
+                    model: "Products",
+                    select: "_id" 
+                },
+            })
+            .select("idOrder"); // Solo necesitamos la referencia a la Orden
+
+        let hasPurchased = false;
+
+        // 2. Iterar las ventas para verificar la compra
+        for (const sale of sales) {
+            // Verificar si la orden existe y tiene productos
+            if (sale.idOrder && sale.idOrder.products && sale.idOrder.products.length > 0) {
+                // Iterar sobre los productos de esa orden
+                const productFound = sale.idOrder.products.some(productItem => {
+                    // El producto dentro de la orden debe existir y su _id debe coincidir
+                    return productItem.productId && productItem.productId._id.toString() === productId;
+                });
+
+                if (productFound) {
+                    hasPurchased = true;
+                    break; // Terminamos la búsqueda al encontrar la primera coincidencia
+                }
+            }
+        }
+
+        if (hasPurchased) {
+            return res.json({ purchased: true, message: "El cliente ha comprado este producto." });
+        } else {
+            return res.json({ purchased: false, message: "El cliente no ha comprado este producto." });
+        }
+
+    } catch (error) {
+        console.error("Error en checkProductPurchase:", error);
+        res.status(500).json({ 
+            message: "Error al verificar la compra del producto", 
+            error: error.message 
+        });
+    }
+};
+
+
 
 /**
  *Crea una nueva venta.
@@ -228,4 +294,92 @@ salesController.deleteSale = async (req, res) => {
   }
 };
 
+// Lee SOLO las ventas del usuario autenticado (cliente)
+salesController.getMySales = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    const mySales = await Sale.find({ idCustomers: userId })
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "idOrder",
+        select: "status total totalCents currency createdAt products idCustomer",
+        populate: [
+          { path: "products.productId", select: "name images price finalPrice" },
+          { path: "idCustomer", select: "firstName lastName email" },
+        ],
+      });
+
+    return res.json(mySales);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error al obtener tu historial de ventas",
+      error: error.message,
+    });
+  }
+};
+
+// Agregar este método al final de tu salesController.js (antes del export default)
+
+/**
+ * @description Obtiene las ventas agrupadas por mes para el gráfico
+ * @param {object} req - Objeto de solicitud de Express.
+ * @param {object} res - Objeto de respuesta de Express.
+ */
+salesController.getMonthlySales = async (req, res) => {
+  try {
+    const { year } = req.query; // Opcional: filtrar por año
+    const currentYear = year || new Date().getFullYear();
+
+    const sales = await Sale.find()
+      .populate({
+        path: "idOrder",
+        select: "total createdAt",
+      });
+
+    // Inicializar array con todos los meses en 0
+    const monthlyData = [
+      { mes: "Ene", ventas: 0 },
+      { mes: "Feb", ventas: 0 },
+      { mes: "Mar", ventas: 0 },
+      { mes: "Abr", ventas: 0 },
+      { mes: "May", ventas: 0 },
+      { mes: "Jun", ventas: 0 },
+      { mes: "Jul", ventas: 0 },
+      { mes: "Ago", ventas: 0 },
+      { mes: "Sep", ventas: 0 },
+      { mes: "Oct", ventas: 0 },
+      { mes: "Nov", ventas: 0 },
+      { mes: "Dic", ventas: 0 },
+    ];
+
+    // Procesar las ventas
+    sales.forEach(sale => {
+      if (!sale.idOrder) return;
+
+      const orderDate = new Date(sale.idOrder.createdAt);
+      const orderYear = orderDate.getFullYear();
+      
+      // Filtrar por año si se especifica
+      if (orderYear === parseInt(currentYear)) {
+        const monthIndex = orderDate.getMonth(); // 0-11
+        monthlyData[monthIndex].ventas += sale.idOrder.total || 0;
+      }
+    });
+
+    res.json({
+      success: true,
+      year: currentYear,
+      data: monthlyData
+    });
+
+  } catch (error) {
+    console.error("Error en getMonthlySales:", error);
+    res.status(500).json({ 
+      success: false,
+      message: "Error al obtener las ventas mensuales", 
+      error: error.message 
+    });
+  }
+};
 export default salesController;

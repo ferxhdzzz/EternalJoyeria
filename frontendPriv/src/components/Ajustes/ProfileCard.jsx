@@ -1,239 +1,244 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { NavLink } from "react-router-dom";
-import Swal from "sweetalert2";
-import usePerfilAdmin from "../../hooks/Ajustes/useFetchAjustes";
-import useDataAjustes from "../../hooks/Ajustes/useDataAjustes";
-import Label from "./Label";
+// Asumo que usePerfilAdmin ahora exporta 'refetchAdmin'
+import usePerfilAdmin from "../../hooks/Ajustes/useFetchAjustes"; 
+import useDataAjustes from "../../hooks/Ajustes/useDataAjustes"; 
+import Label from "./Label"; 
 import Button from "./Button";
 import "./ProfileCard.css";
 
 const ProfileCard = () => {
-  const { admin, loading, error } = usePerfilAdmin();
-  const { updateAdmin, uploadImage } = useDataAjustes();
-  const { register, handleSubmit, reset, formState: { errors }, getValues } = useForm();
+  // Extraemos 'refetchAdmin' del hook
+  const { admin, loading, error, refetchAdmin } = usePerfilAdmin();
+  const { updateAdmin, uploadImage } = useDataAjustes();
+  // Usamos 'nombre' y 'correo' para los campos del formulario
+  const { register, handleSubmit, reset, formState: { errors }, getValues } = useForm();
 
-  const [imagenPreview, setImagenPreview] = useState(null);
-  const [editingField, setEditingField] = useState(null); // "nombre" | "correo" | "foto"
-  const [nuevaFoto, setNuevaFoto] = useState(null);
+  const [imagenPreview, setImagenPreview] = useState(null);
+  const [editingField, setEditingField] = useState(null); // "nombre" | "correo" | "foto"
+  const [nuevaFoto, setNuevaFoto] = useState(null);
+  // Estado para la notificación de éxito
+  const [successMessage, setSuccessMessage] = useState(null);
 
-  useEffect(() => {
-    if (admin) {
-      reset({
-        nombre: admin.name || "",
-        correo: admin.email || "",
-      });
-      setImagenPreview(admin.profilePicture || null);
-    }
-  }, [admin, reset]);
+  // Función para manejar la visualización del mensaje de éxito
+  const handleSuccess = (message) => {
+    setSuccessMessage(message);
+    // Ocultar el mensaje después de 3 segundos
+    setTimeout(() => {
+      setSuccessMessage(null);
+    }, 3000);
+  };
 
-  const handleEdit = (field) => {
-    setEditingField(field);
-  };
+  useEffect(() => {
+    // Este useEffect se dispara cuando 'admin' cambia (al cargar o después de un refetch exitoso)
+    if (admin) {
+      reset({
+        nombre: admin.name || "",
+        correo: admin.email || "",
+      });
+      setImagenPreview(admin.profilePicture || null);
+    }
+  }, [admin, reset]); // Dependencia clave: 'admin'
 
-  // Guardar nombre o correo
-  const onSubmit = async (data) => {
-    // ✅ Siempre enviar ambos campos
-    const updatedData = {
-      name: data.nombre,
-      email: data.correo,
-    };
+  const handleEdit = (field) => setEditingField(field);
 
-    const result = await Swal.fire({
-      title: "¿Guardar cambios?",
-      text: "Se actualizará tu perfil.",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Sí, guardar",
-      cancelButtonText: "Cancelar",
-      confirmButtonColor: "#e91e63"
-    });
+  // Esta función ahora se llama EXCLUSIVAMENTE desde el formulario del MODAL
+  const onSubmit = async (data) => {
+    // Determinar qué campo se está guardando
+    const fieldToSave = editingField;
+    
+    if (!fieldToSave || fieldToSave === "foto") return;
 
-    if (result.isConfirmed) {
-      await updateAdmin(updatedData);
-      setEditingField(null);
-      Swal.fire({
-        title: "Actualizado",
-        text: "Tu perfil ha sido actualizado",
-        icon: "success",
-        confirmButtonColor: "#e91e63"
-      });
-    }
-  };
+    try {
+      const updatedData = {};
+      if (fieldToSave === "nombre") {
+        updatedData.name = data.nombre;
+        // Aseguramos que el correo mantenga el valor actual del estado (por si acaso)
+        updatedData.email = getValues("correo"); 
+      } else if (fieldToSave === "correo") {
+        updatedData.email = data.correo;
+        // Aseguramos que el nombre mantenga el valor actual del estado
+        updatedData.name = getValues("nombre"); 
+      }
+      
+      const updatedAdmin = await updateAdmin(updatedData);
+      
+      if (updatedAdmin) {
+        // Recargar los datos para que el useEffect actualice la vista principal
+        refetchAdmin();
+        setEditingField(null); // Cerrar modal
+        handleSuccess("¡Perfil actualizado correctamente!"); // 🟢 ÉXITO
+      }
+    } catch (e) {
+      console.error("Error al actualizar:", e);
+    }
+  };
 
-  // Actualizar vista previa y guardar foto seleccionada
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setNuevaFoto(file);
-      setImagenPreview(URL.createObjectURL(file));
-    }
-  };
+  const handleImageSubmit = async () => {
+    if (!nuevaFoto) return;
+    try {
+      const imageUrl = await uploadImage(nuevaFoto);
+      if (imageUrl) {
+        const valores = getValues();
+        // Enviamos la nueva URL de la imagen junto con el nombre/correo actualizados.
+        const updatedAdmin = await updateAdmin({
+          name: valores.nombre,
+          email: valores.correo,
+          profilePicture: imageUrl,
+        });
+        if (updatedAdmin) {
+          // Recargar los datos para que el hook de fetch tenga la nueva URL
+          refetchAdmin(); 
+          setEditingField(null);
+          setNuevaFoto(null);
+          setImagenPreview(imageUrl);
+          handleSuccess("¡Foto de perfil actualizada correctamente!"); // 🟢 ÉXITO
+        }
+      }
+    } catch (e) {
+      console.error("Error al subir foto:", e);
+    }
+  };
 
-  // Guardar la foto nueva al backend
-  const handleImageSubmit = async () => {
-    if (!nuevaFoto) {
-      Swal.fire({
-        title: "Error",
-        text: "Selecciona una imagen primero.",
-        icon: "error",
-        confirmButtonColor: "#e91e63",
-      });
-      return;
-    }
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNuevaFoto(file);
+      setImagenPreview(URL.createObjectURL(file));
+    }
+  };
 
-    const result = await Swal.fire({
-      title: "¿Guardar nueva foto?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Sí, guardar",
-      cancelButtonText: "Cancelar",
-      confirmButtonColor: "#e91e63",
-    });
+  if (loading) return <p className="cargando-texto">Cargando perfil...</p>;
+  if (error) return <p className="error-texto">Error al cargar el perfil: {error}. Asegúrate de haber iniciado sesión.</p>;
 
-    if (result.isConfirmed) {
-      const imageUrl = await uploadImage(nuevaFoto);
-      if (imageUrl) {
-        const valores = getValues(); // obtener nombre y correo actuales
+  return (
+    <>
+      {/* Notificación de éxito flotante */}
+      {successMessage && (
+        <div 
+          className="success-toast"
+          style={{
+            position: 'fixed', 
+            top: '20px', 
+            right: '20px', 
+            backgroundColor: '#4CAF50', 
+            color: 'white', 
+            padding: '15px 20px', 
+            borderRadius: '8px', 
+            zIndex: 1000,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+            transition: 'opacity 0.3s ease-out'
+          }}
+        >
+          {successMessage}
+        </div>
+      )}
+      
+      {/* El formulario principal ya no es necesario para la submission de nombre/correo */}
+      <div className="profile-card">
+        <div className="profile-header">
+          {imagenPreview && (
+            <div className="preview-circle" style={{ backgroundImage: `url(${imagenPreview})` }} />
+          )}
+          <Button text="Actualizar foto" onClick={() => handleEdit("foto")} />
+        </div>
 
-        await updateAdmin({
-          name: valores.nombre,
-          email: valores.correo,
-          profilePicture: imageUrl,
-        });
+        <div className="info-container">
+          <div className="info-box">
+            <Label text="Nombre" />
+            <div className="info-row">
+              <input
+                {...register("nombre")}
+                className="info-input"
+                disabled={true} // Siempre deshabilitado para mostrar
+                readOnly // Añadir readOnly para mejor accesibilidad/claridad
+              />
+              <Button text="Editar" onClick={() => handleEdit("nombre")} />
+            </div>
+            {errors.nombre && <p className="error-texto">{errors.nombre.message}</p>}
 
-        Swal.fire({
-          title: "Foto actualizada",
-          icon: "success",
-          confirmButtonColor: "#e91e63",
-        });
-        setEditingField(null);
-        setNuevaFoto(null);
-        setImagenPreview(imageUrl);
-      } else {
-        Swal.fire({
-          title: "Error",
-          text: "No se pudo actualizar la foto.",
-          icon: "error",
-          confirmButtonColor: "#e91e63",
-        });
-      }
-    }
-  };
+            <Label text="Correo" />
+            <div className="info-row">
+              <input
+                {...register("correo")}
+                className="info-input"
+                disabled={true} // Siempre deshabilitado para mostrar
+                readOnly
+              />
+              <Button text="Editar" onClick={() => handleEdit("correo")} />
+            </div>
+            {errors.correo && <p className="error-texto">{errors.correo.message}</p>}
 
-  if (loading) return <p className="cargando-texto">Cargando perfil...</p>;
-  if (error) return <p className="error-texto">{error}</p>;
+            <Label text="Contraseña" />
+            <div className="info-row">
+              <input type="password" className="info-input" value="**********" disabled readOnly />
+              <NavLink to="/recuperacion/">
+                <Button text="¿Olvidó la contraseña?" />
+              </NavLink>
+            </div>
+          </div>
 
-  return (
-    <form className="profile-card" onSubmit={handleSubmit(onSubmit)}>
-      <div className="profile-header">
-        {imagenPreview && (
-          <div
-            className="preview-circle"
-            style={{ backgroundImage: `url(${imagenPreview})` }}
-          />
-        )}
-        <Button text="Actualizar foto" onClick={() => handleEdit("foto")} />
-      </div>
+          <div className="admin-box">
+            <Label text="Acerca del administrador" />
+            <p className="admin-description">
+              El administrador es el usuario responsable de gestionar y supervisar el funcionamiento completo del 
+              sitio web de Eternal Joyería. Tiene acceso exclusivo a las funciones internas de la plataforma.
+            </p>
+          </div>
+        </div>
 
-      <div className="info-container">
-        <div className="info-box">
-          <Label text="Nombre" />
-          <div className="info-row">
-            <input {...register("nombre", { required: "El nombre es obligatorio" })} className="info-input" disabled />
-            <Button text="Editar" onClick={() => handleEdit("nombre")} />
-          </div>
+        {/* Modal para editar nombre/correo */}
+        {editingField && editingField !== "foto" && (
+          <div className="overlay">
+            <div className="overlay-content">
+              <h3>Editar {editingField === "nombre" ? "Nombre" : "Correo"}</h3>
+              {/* Usamos un nuevo formulario independiente para el modal */}
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <input
+                  {...register(editingField, {
+                    required: `El ${editingField} es obligatorio`,
+                    ...(editingField === "correo" && {
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: "Formato de correo inválido",
+                      },
+                    }),
+                  })}
+                  className="floating-input"
+                  placeholder={`Nuevo ${editingField}`}
+                  autoFocus
+                />
+                {errors[editingField] && <p className="error-texto">{errors[editingField].message}</p>}
+                <div className="button-group">
+                  <Button text="Guardar" type="submit" className="purple-btn" />
+                  {/* Al cancelar, limpiamos los errores y cerramos */}
+                  <Button text="Cancelar" className="purple-btn" onClick={() => { setEditingField(null); reset(); }} />
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
-          <Label text="Correo" />
-          <div className="info-row">
-            <input
-              {...register("correo", {
-                required: "El correo es obligatorio",
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Formato de correo inválido"
-                }
-              })}
-              className="info-input"
-              disabled
-            />
-            <Button text="Editar" onClick={() => handleEdit("correo")} />
-          </div>
-
-          <Label text="Contraseña" />
-          <div className="info-row">
-            <input type="password" className="info-input" value="**********" disabled readOnly />
-            <NavLink to="/recuperacion/">
-              <Button text="¿Olvidó la contraseña?" />
-            </NavLink>
-          </div>
-        </div>
-
-        <div className="admin-box">
-          <Label text="Acerca del administrador" />
-          <p className="admin-description">
-           El administrador es el usuario responsable de gestionar y supervisar el funcionamiento completo del 
-           sitio web de Eternal Joyería. Tiene acceso exclusivo a las funciones internas de la plataforma, 
-           permitiéndole agregar, editar o 
-           eliminar productos, gestionar pedidos, revisar 
-           comentarios de clientes y mantener actualizada la información de la tienda.
-          </p>
-
-        </div>
-        <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
-      </div>
-
-      {/* Mini formulario flotante para editar nombre o correo */}
-      {editingField && editingField !== "foto" && (
-        <div className="overlay-form">
-          <div className="form-content">
-            <h3>Editar {editingField === "nombre" ? "Nombre" : "Correo"}</h3>
-            <input
-              {...register(editingField, {
-                required: `El ${editingField} es obligatorio`,
-                ...(editingField === "correo" && {
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: "Formato de correo inválido"
-                  },
-                }),
-              })}
-              className="floating-input"
-              placeholder={`Nuevo ${editingField}`}
-              autoFocus
-            />
-            {errors[editingField] && (
-              <p className="error-texto">{errors[editingField].message}</p>
-            )}
-
-             <br />  <br />
-            <div className="button-group">
-              <Button text="Cancelar" className="cc" onClick={() => setEditingField(null)} />
-              <Button text="Guardar" type="submit" />   
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Mini formulario flotante para actualizar foto */}
-      {editingField === "foto" && (
-        <div className="overlay-form">
-          <div className="form-content">
-            <h3>Actualizar Foto</h3>
-            {nuevaFoto && (
-              <img src={URL.createObjectURL(nuevaFoto)} alt="preview" className="preview-img" />
-            )}
-            <input type="file" accept="image/*" onChange={handleFileChange} />
-            <br /> <br />
-            <div className="button-group">
-              <Button text="Cancelar" onClick={() => { setEditingField(null); setNuevaFoto(null); }} />
-              <Button text="Guardar" onClick={handleImageSubmit} />
-            </div>
-          </div>
-        </div>
-      )}
-    </form>
-  );
+        {/* Modal para actualizar foto */}
+        {editingField === "foto" && (
+          <div className="overlay">
+            <div className="overlay-content">
+              <h3>Actualizar Foto</h3>
+              {nuevaFoto && <img src={URL.createObjectURL(nuevaFoto)} alt="preview" className="preview-img" />}
+              <input type="file" accept="image/*" onChange={handleFileChange} />
+              <br />
+              <br />
+              <div className="button-group">
+                <Button text="Guardar" className="purple-btn" onClick={handleImageSubmit} />
+                <Button text="Cancelar" className="purple-btn" onClick={() => { setEditingField(null); setNuevaFoto(null); }} />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
 };
 
 export default ProfileCard;
