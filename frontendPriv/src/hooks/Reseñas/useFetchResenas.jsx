@@ -3,9 +3,8 @@ import { useEffect, useState } from "react";
 
 const api = "https://eternaljoyeria-cg5d.onrender.com/api/reviews";
 
-const useFetchResenas = () => { // Corregido a useFetchResenas
+const useFetchResenas = () => {
   const [reviews, setReviews] = useState([]);
-  // Nuevo estado para almacenar la lista única de productos
   const [products, setProducts] = useState([]); 
 
   const getReviews = async () => {
@@ -21,6 +20,7 @@ const useFetchResenas = () => { // Corregido a useFetchResenas
       
       // Extraer productos únicos para el filtro
       const uniqueProducts = data.reduce((acc, review) => {
+          // Si tiene id_product y name, y no está ya en la lista
           if (review.id_product && review.id_product.name && !acc.some(p => p._id === review.id_product._id)) {
               acc.push({
                   _id: review.id_product._id,

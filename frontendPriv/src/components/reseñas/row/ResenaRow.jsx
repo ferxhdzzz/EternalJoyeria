@@ -1,5 +1,5 @@
 import React from "react";
-import EliminarButton from "../Boton/EliminarButton"; // Asumo la ruta
+import EliminarButton from "../Boton/EliminarButton";
 import "./ResenaRow.css";
 
 const ResenaRow = ({
@@ -10,17 +10,15 @@ const ResenaRow = ({
   images = [],
   onClick,
 }) => {
-  // Obtiene el nombre del cliente de forma segura
   const nombre =
-    typeof id_customer === "object" && id_customer
+    typeof id_customer === "object"
       ? `${id_customer?.firstName || ""} ${id_customer?.lastName || ""}`
-      : String(id_customer || 'Desconocido'); // Manejo de null/undefined
+      : String(id_customer);
 
-  // Obtiene el nombre del producto de forma segura
-  const producto =
-    typeof id_product === "object" && id_product
-      ? `${id_product?.name || "Producto Eliminado"}` // Usamos "Producto Eliminado" en lugar de string vacío
-      : String(id_product || 'Desconocido');
+  const compra =
+    typeof id_product === "object"
+      ? `${id_product?.name || ""}`
+      : String(id_product);
 
   return (
     <tr className="resena-row">
@@ -28,12 +26,15 @@ const ResenaRow = ({
       <td>{String(rank)}</td>
       <td>{String(comment)}</td>
 
-      {/* CELDA DE IMÁGENES: Muestra las miniaturas */}
+      {/* CELDA DE IMÁGENES */}
       <td className="resena-images-cell">
         {images.length > 0 ? (
           <div className="resena-images-container">
             {images.slice(0, 3).map(
-              (imgUrl, index) => (
+              (
+                imgUrl,
+                index // Muestra solo las primeras 3
+              ) => (
                 <img
                   key={index}
                   src={imgUrl}
@@ -52,7 +53,7 @@ const ResenaRow = ({
       </td>
       {/* FIN CELDA DE IMÁGENES */}
 
-      <td>{producto}</td>
+      <td>{compra}</td>
       <td>
         <EliminarButton onClick={onClick} confirmar />
       </td>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ResenaRow from "../row/ResenaRow";
-import ConfirmacionModal from "../modal/ConfirmacionModal"; // Asumo la ruta
+import ConfirmacionModal from "../modal/ConfirmacionModal";
 import Swal from "sweetalert2";
 import "./TablaResenas.css";
 
@@ -13,8 +13,7 @@ const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
 
   const confirmarEliminacion = async () => {
     try {
-      // deleteReviews ya maneja la recarga de reseñas
-      await deleteReviews(resenaSeleccionada._id); 
+      await deleteReviews(resenaSeleccionada._id);
       setResenaSeleccionada(null);
 
       Swal.fire({
@@ -48,8 +47,8 @@ const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
                 <th>Nombre</th>
                 <th>Calificación</th>
                 <th>Comentario</th>
-                <th>Imágenes</th>
-                <th>Producto</th> {/* Columna renombrada a Producto */}
+                <th>Imágenes</th> {/* <-- NUEVA COLUMNA */}
+                <th>Compra</th>
                 <th></th>
               </tr>
             </thead>
@@ -58,19 +57,14 @@ const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
                 reviews.map((review) => (
                   <ResenaRow
                     key={review._id}
-                    // Pasamos las propiedades individuales de la reseña
-                    id_customer={review.id_customer}
-                    rank={review.rank}
-                    comment={review.comment}
-                    id_product={review.id_product}
-                    images={review.images}
+                    {...review}
                     onClick={() => handleEliminarClick(review)}
                   />
                 ))
               ) : (
                 <tr>
-                  {/* colSpan corregido a 6 */}
-                  <td colSpan="6">No hay reseñas disponibles.</td> 
+                  <td colSpan="6">No hay reseñas disponibles.</td>{" "}
+                  {/* <-- colSpan corregido a 6 */}
                 </tr>
               )}
             </tbody>
