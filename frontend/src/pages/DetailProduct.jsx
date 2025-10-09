@@ -378,10 +378,11 @@ const ProductDetail = () => {
       </>
     );
   }
- 
-   // Lógica de añadir al carrito y manejo de cantidad
-  const handleAddToCart = () => {
-    if (quantity === 0 || product.stock === 0) {
+ const handleAddToCart = () => {
+    // Convertimos product.stock a entero para hacer comparaciones seguras
+    const currentStock = parseInt(product.stock, 10); 
+ 
+    if (quantity === 0 || currentStock === 0 || isNaN(currentStock)) {
       Swal.fire({
         title: 'Sin stock disponible',
         text: 'Este producto no tiene stock o la cantidad seleccionada es 0.',
@@ -392,10 +393,10 @@ const ProductDetail = () => {
       return;
     }
  
-    if (quantity > product.stock) {
+    if (quantity > currentStock) {
       Swal.fire({
         title: 'Stock insuficiente',
-        text: `Solo quedan ${product.stock} unidad(es) de este producto.`,
+        text: `Solo quedan ${currentStock} unidad(es) de este producto.`,
         icon: 'warning',
         confirmButtonText: 'Ok',
         confirmButtonColor: '#D1A6B4',
@@ -411,7 +412,7 @@ const ProductDetail = () => {
       image: product.images && product.images.length > 0 ? product.images[0] : product.img,
       size: selectedSize,
       quantity: quantity,
-      stock: product.stock // <<<< LA LÍNEA QUE FALTABA
+      stock: currentStock // <<<< ¡STOCK AHORA ES NÚMERO Y SE PASA AL CONTEXTO!
     };
    
     addToCart(productToAdd);
