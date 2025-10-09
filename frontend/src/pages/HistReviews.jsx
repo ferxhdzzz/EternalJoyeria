@@ -1,148 +1,151 @@
-// src/pages/HistReviews.jsx
-import React, { useState, useEffect } from 'react';
-import Nav from '../components/Nav/Nav';
-import ReviewItem from '../components/Historial/Reviews';
-import SidebarCart from '../components/Cart/SidebarCart';
-import './HistReviews.css';
-import Footer from '../components/Footer';
-import { useAuth } from '../context/AuthContext';
+import React, { useState } from 'react';
+import  "./ReviewList.css";
 
-// Define la URL base de tu API, es buena práctica mantenerla consistente
-const API_BASE_URL = 'https://eternaljoyeria-cg5d.onrender.com/api';
 
-const HistReviews = () => {
-  const { user, loading: authLoading } = useAuth();
-  const [reviews, setReviews] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [cartOpen, setCartOpen] = useState(false);
+const ReviewItem = ({ review }) => {
+  // 1. CLAVE: Verificación de review principal
+  if (!review) {
+    return null; 
+  }
+  
+  const [selectedImageIndex, setSelectedImageIndex] = useState(null);
 
-  useEffect(() => {
-    // Determinar el ID del usuario
-    const userId = user?._id || user?.id;
-    
-    const fetchReviews = async () => {
-      setIsLoading(true);
-      setError(null);
+  const openGallery = (index) => setSelectedImageIndex(index);
+  const closeGallery = () => setSelectedImageIndex(null);
 
-      try {
-        console.log(`Iniciando fetch de reseñas para userId: ${userId}`);
+  // --- Handlers de Galería ---
+  // Aseguramos que review.images sea un array vacío si es null o undefined.
+  const reviewImages = Array.isArray(review.images) ? review.images : [];
 
-        const response = await fetch(
-          `${API_BASE_URL}/reviews/user/${userId}`, // Usamos el ID recuperado
-          {
-            method: 'GET',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-          }
-        );
-
-        if (response.status === 401) {
-          setReviews([]);
-          throw new Error('No autorizado. Inicia sesión nuevamente. (401)');
-        }
-
-        if (!response.ok) {
-          if (response.status === 404) {
-            console.log('No se encontraron reseñas (404).');
-            setReviews([]);
-          } else {
-            throw new Error(`Error al cargar las reseñas: ${response.statusText}`);
-          }
-        } else {
-          const data = await response.json();
-          const list = Array.isArray(data) ? data : (data?.reviews || []);
-          setReviews(list);
-        }
-      } catch (err) {
-        setError(err.message || 'Error al cargar las reseñas');
-        console.error('Error al obtener las reseñas:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    // Solo hacemos la petición si la autenticación ha terminado de cargar Y tenemos un ID de usuario.
-    if (!authLoading && userId) {
-      fetchReviews();
-    } else if (!authLoading && !userId) {
-        // La autenticación terminó, pero no hay usuario logueado.
-        setIsLoading(false);
-        setReviews([]);
-        setError('Debes iniciar sesión para ver tus reseñas.');
-    }
-    
-  }, [authLoading, user?._id, user?.id]);
-
-  const handleDeleteReview = (id) => {
-    setReviews(prev => prev.filter(r => r._id !== id));
+  const handleNext = () => {
+    if (reviewImages.length > 0 && selectedImageIndex !== null) {
+      setSelectedImageIndex((prevIndex) =>
+        prevIndex === reviewImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }
   };
 
-  if (isLoading || authLoading) {
-    return (
-      <div className="historial-page">
-        <h2>Cargando tus reseñas...</h2>
-      </div>
-    );
-  }
+  const handlePrev = () => {
+    if (reviewImages.length > 0 && selectedImageIndex !== null) {
+      setSelectedImageIndex((prevIndex) =>
+        prevIndex === 0 ? reviewImages.length - 1 : prevIndex - 1
+      );
+    }
+  };
+  // --- Fin Handlers ---
 
-  if (error) {
-    return (
-      <>
-        <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
-        <Nav cartOpen={cartOpen} />
-        <div className="historial-page">
-          <h2>Error: {error}</h2>
-          <p>Asegúrate de haber iniciado sesión correctamente.</p>
-        </div>
-        <Footer />
-      </>
-    );
-  }
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Sin fecha';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (e) {
+      return 'Fecha inválida';
+    }
+  };
+
+  const renderStars = (rank) => {
+    const safeRank = Number(rank) || 0;
+    if (safeRank < 1) return <span className="no-rating">Sin calificación</span>;
+    
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <span key={i} className={`star ${i <= safeRank ? 'filled' : ''}`}>
+          ★
+        </span>
+      );
+    }
+    return stars;
+  };
+
+  // 2. CLAVE: Corregimos cómo se accede a id_product, id_customer e images
+  // Si review.id_product es null/undefined, todo lo que sigue después de él es nulo de forma segura.
+  const userName = review.id_customer?.firstName || 'Anónimo';
+  
+  // **Esta es la línea que fallaba si id_product era null**
+  const productName = review.id_product?.name || 'Producto desconocido';
+  
+  // Usamos encadenamiento opcional en cada nivel.
+  const productImage = review.id_product?.images?.[0] || 'https://placehold.co/150x150';
+
 
   return (
-    <>
-      <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
-      <Nav cartOpen={cartOpen} />
+    <div className="historial-item-content">
+      {/* Imagen del producto */}
+      <div className="historial-item-image-container">
+        <img
+          src={productImage}
+          alt={productName}
+          className="historial-item-image"
+        />
+      </div>
 
-      <div className="historial-page">
-        <div className="historial-hero">
-          <div className="historial-hero-content">
-            <div className="historial-hero-text">
-              <h1 className="historial-title">Tu Historial de Reseñas</h1>
-              <p className="historial-subtitle">Revive tus momentos especiales con nuestras joyas únicas</p>
+ {/* Detalles */}
+<div className="historial-item-details">
+ <div className="product-info">
+ <h3 className="product-name">{productName}</h3>
+ </div>
+
+        <div className="review-body-content">
+          <div className="review-text-and-rating">
+            <div className="review-comment-section">
+              <p className="review-comment-text">
+                {review.comment?.trim() || "Sin comentario"}
+              </p>
+              <p className="user-name">Por: {userName}</p>
             </div>
-            <div className="historial-stats">
-              <div className="stat-card">
-                <div className="stat-number">{reviews.length}</div>
-                <div className="stat-label">Reseñas Realizadas</div>
-              </div>
+            <div className="review-rating">
+              {renderStars(review.rank)}
             </div>
+            <p className="order-date">{formatDate(review.createdAt)}</p>
           </div>
-        </div>
 
-        <div className="historial-orders">
-          <div className="orders-container">
-            {reviews.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-icon">⭐</div>
-                <h3>No has realizado ninguna reseña aún</h3>
-                <p>Cuando califiques un producto, aparecerá aquí.</p>
+          {/* Sección de imágenes adjuntas */}
+          {reviewImages.length > 0 && (
+            <div className="review-images-section">
+              <p className="review-images-label">Imágenes adjuntas:</p>
+              <div className="review-images">
+                {reviewImages.map((img, index) => (
+                  <img
+                    key={index}
+                    src={img}
+                    alt={`Imagen de reseña ${index + 1}`}
+                    className="review-image"
+                    onClick={() => openGallery(index)}
+                  />
+                ))}
               </div>
-            ) : (
-              reviews.map(review => (
-                <div key={review._id} className="historial-item">
-                  <ReviewItem review={review} onDelete={handleDeleteReview} />
-                </div>
-              ))
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Modal de galería */}
+      {selectedImageIndex !== null && reviewImages.length > 0 && (
+        <div className="gallery-modal-overlay" onClick={closeGallery}>
+          <div className="gallery-modal-content" onClick={(e) => e.stopPropagation()}>
+            <span className="close-btn" onClick={closeGallery}>&times;</span>
+            <img
+              src={reviewImages[selectedImageIndex]}
+              alt={`Imagen ampliada ${selectedImageIndex + 1}`}
+              className="expanded-image"
+            />
+            {reviewImages.length > 1 && (
+              <>
+                <button className="prev-btn" onClick={handlePrev}>❮</button>
+                <button className="next-btn" onClick={handleNext}>❯</button>
+              </>
             )}
           </div>
         </div>
-      </div>
-
-      <Footer />
-    </>
+      )}
+    </div>
   );
 };
 
-export default HistReviews;
+export default ReviewItem;

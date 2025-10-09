@@ -3,37 +3,36 @@ import  "./ReviewList.css";
 
 
 const ReviewItem = ({ review }) => {
-  // ---------------------------------------------------------------------
-  // CORRECCIÓN CLAVE: Verificar si review es nulo o indefinido al inicio.
-  // Si no hay reseña, retorna un componente vacío para evitar el error.
+  // 1. CLAVE: Verificación de review principal
   if (!review) {
     return null; 
   }
-  // ---------------------------------------------------------------------
-
+  
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
 
   const openGallery = (index) => setSelectedImageIndex(index);
   const closeGallery = () => setSelectedImageIndex(null);
 
-  // Mejoramos la seguridad en los handlers con encadenamiento opcional
+  // --- Handlers de Galería ---
+  // Aseguramos que review.images sea un array vacío si es null o undefined.
+  const reviewImages = Array.isArray(review.images) ? review.images : [];
+
   const handleNext = () => {
-    const images = review.images || []; // Asegura que images sea un array
-    if (images.length > 0 && selectedImageIndex !== null) {
+    if (reviewImages.length > 0 && selectedImageIndex !== null) {
       setSelectedImageIndex((prevIndex) =>
-        prevIndex === images.length - 1 ? 0 : prevIndex + 1
+        prevIndex === reviewImages.length - 1 ? 0 : prevIndex + 1
       );
     }
   };
 
   const handlePrev = () => {
-    const images = review.images || []; // Asegura que images sea un array
-    if (images.length > 0 && selectedImageIndex !== null) {
+    if (reviewImages.length > 0 && selectedImageIndex !== null) {
       setSelectedImageIndex((prevIndex) =>
-        prevIndex === 0 ? images.length - 1 : prevIndex - 1
+        prevIndex === 0 ? reviewImages.length - 1 : prevIndex - 1
       );
     }
   };
+  // --- Fin Handlers ---
 
   const formatDate = (dateString) => {
     if (!dateString) return 'Sin fecha';
@@ -50,7 +49,6 @@ const ReviewItem = ({ review }) => {
   };
 
   const renderStars = (rank) => {
-    // Utilizamos el encadenamiento opcional para rank
     const safeRank = Number(rank) || 0;
     if (safeRank < 1) return <span className="no-rating">Sin calificación</span>;
     
@@ -65,13 +63,15 @@ const ReviewItem = ({ review }) => {
     return stars;
   };
 
-  // Usamos encadenamiento opcional (?.) para evitar errores si los objetos son nulos
+  // 2. CLAVE: Corregimos cómo se accede a id_product, id_customer e images
+  // Si review.id_product es null/undefined, todo lo que sigue después de él es nulo de forma segura.
   const userName = review.id_customer?.firstName || 'Anónimo';
+  
+  // **Esta es la línea que fallaba si id_product era null**
   const productName = review.id_product?.name || 'Producto desconocido';
+  
+  // Usamos encadenamiento opcional en cada nivel.
   const productImage = review.id_product?.images?.[0] || 'https://placehold.co/150x150';
-  
-  // Aseguramos que review.images sea un array para evitar errores de map
-  const reviewImages = Array.isArray(review.images) ? review.images : [];
 
 
   return (
@@ -85,11 +85,11 @@ const ReviewItem = ({ review }) => {
         />
       </div>
 
-      {/* Detalles */}
-      <div className="historial-item-details">
-        <div className="product-info">
-          <h3 className="product-name">{productName}</h3>
-        </div>
+ {/* Detalles */}
+<div className="historial-item-details">
+ <div className="product-info">
+ <h3 className="product-name">{productName}</h3>
+ </div>
 
         <div className="review-body-content">
           <div className="review-text-and-rating">
