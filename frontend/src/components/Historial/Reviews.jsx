@@ -1,156 +1,100 @@
-import React, { useState } from 'react';
-import  "./ReviewList.css";
+import React from 'react';
+import { FaTrash } from 'react-icons/fa';
+import Swal from 'sweetalert2';
+import './Review.css';
 
+const ReviewItem = ({ review, onDelete }) => {
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Sin fecha';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
 
-const ReviewItem = ({ review }) => {
-  // **1. Verificación Inicial Máxima Seguridad**
-  if (!review) {
-    return null; 
-  }
-  
-  // **2. Definición Segura de Variables (CLAVE)**
-  // Utilizamos el encadenamiento opcional (?.) y el operador de coalescencia nula (?? o ||) 
-  // para manejar cualquier campo que pueda ser null/undefined desde el servidor.
-  const customer = review.id_customer;
-  const product = review.id_product; // <--- Este es el objeto que debe estar seguro
-  
-  // APLICACIÓN DE SEGURIDAD EN PROPIEDADES ANIDADAS
-  const userName = customer?.firstName || 'Anónimo';
-  const productName = product?.name || 'Producto desconocido';
-  
-  // Esto es lo más seguro: si 'product' es null, devuelve 'undefined', luego el || asigna el placeholder.
-  const productImage = product?.images?.[0] || 'https://placehold.co/150x150'; 
-  
-  // Las imágenes de la reseña, aseguramos que sea un array
-  const reviewImages = Array.isArray(review.images) ? review.images : [];
-  
+  const renderStars = (rank) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <span key={i} className={`star ${i <= rank ? 'filled' : ''}`}>
+          ★
+        </span>
+      );
+    }
+    return stars;
+  };
 
-  const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+  const handleDelete = () => {
+    Swal.fire({
+      title: '¿Deseas eliminar esta reseña?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ff5c8d', // rosita
+      cancelButtonColor: '#aaa',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        onDelete(review._id);
+        Swal.fire({
+          title: 'Eliminada',
+          text: 'La reseña ha sido eliminada',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
+    });
+  };
 
-  const openGallery = (index) => setSelectedImageIndex(index);
-  const closeGallery = () => setSelectedImageIndex(null);
-
-  // Los handlers ya están bien, usan reviewImages
-  const handleNext = () => {
-    if (reviewImages.length > 0 && selectedImageIndex !== null) {
-      setSelectedImageIndex((prevIndex) =>
-        prevIndex === reviewImages.length - 1 ? 0 : prevIndex + 1
-      );
-    }
-  };
-
-  const handlePrev = () => {
-    if (reviewImages.length > 0 && selectedImageIndex !== null) {
-      setSelectedImageIndex((prevIndex) =>
-        prevIndex === 0 ? reviewImages.length - 1 : prevIndex - 1
-      );
-    }
-  };
-
-  // ... (formatDate y renderStars se mantienen sin cambios ya que ya eran seguros)
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Sin fecha';
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    } catch (e) {
-      return 'Fecha inválida';
-    }
-  };
-
-  const renderStars = (rank) => {
-    const safeRank = Number(rank) || 0;
-    if (safeRank < 1) return <span className="no-rating">Sin calificación</span>;
-    
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <span key={i} className={`star ${i <= safeRank ? 'filled' : ''}`}>
-          ★
-        </span>
-      );
-    }
-    return stars;
-  };
-
-
-  return (
-    <div className="historial-item-content">
-      {/* Imagen del producto */}
-      <div className="historial-item-image-container">
-        <img
-          src={productImage}
-          alt={productName}
-          className="historial-item-image"
-        />
-      </div>
-
-      {/* Detalles */}
-      <div className="historial-item-details">
-        <div className="product-info">
-          <h3 className="product-name">{productName}</h3>
-        </div>
-
-        <div className="review-body-content">
-          <div className="review-text-and-rating">
-            <div className="review-comment-section">
-              <p className="review-comment-text">
-                {review.comment?.trim() || "Sin comentario"}
-              </p>
-              <p className="user-name">Por: {userName}</p>
-            </div>
-            <div className="review-rating">
-              {renderStars(review.rank)}
-            </div>
-            <p className="order-date">{formatDate(review.createdAt)}</p>
-          </div>
-
-          {/* Sección de imágenes adjuntas */}
-          {reviewImages.length > 0 && (
-            <div className="review-images-section">
-              <p className="review-images-label">Imágenes adjuntas:</p>
-              <div className="review-images">
-                {reviewImages.map((img, index) => (
-                  <img
-                    key={index}
-                    src={img}
-                    alt={`Imagen de reseña ${index + 1}`}
-                    className="review-image"
-                    onClick={() => openGallery(index)}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Modal de galería */}
-      {selectedImageIndex !== null && reviewImages.length > 0 && (
-        <div className="gallery-modal-overlay" onClick={closeGallery}>
-          <div className="gallery-modal-content" onClick={(e) => e.stopPropagation()}>
-            <span className="close-btn" onClick={closeGallery}>&times;</span>
-            <img
-              src={reviewImages[selectedImageIndex]}
-              alt={`Imagen ampliada ${selectedImageIndex + 1}`}
-              className="expanded-image"
-            />
-            {reviewImages.length > 1 && (
-              <>
-                <button className="prev-btn" onClick={handlePrev}>❮</button>
-                <button className="next-btn" onClick={handleNext}>❯</button>
-              </>
-            )}
-            
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return (
+    <div className="historial-item-content">
+      <div className="historial-item-image-container">
+        <img
+          src={review.id_product.images?.[0] || 'https://placehold.co/150x150'}
+          alt={review.id_product.name}
+          className="historial-item-image"
+        />
+      </div>
+      <div className="historial-item-details">
+        <div className="product-info" style={{ position: 'relative' }}>
+          <h3 className="product-name">{review.id_product.name}</h3>
+          {/* Botón de eliminar en esquina superior derecha */}
+          <FaTrash
+            onClick={handleDelete}
+            className="delete-review-icon"
+            title="Eliminar reseña"
+          />
+        </div>
+        <div className="review-body-content">
+          <div className="review-text-and-rating">
+            <div className="review-comment-section">
+              <p className="review-comment-text">{review.comment}</p>
+            </div>
+            <div className="review-rating">{renderStars(review.rank)}</div>
+            <p className="order-date">{formatDate(review.createdAt)}</p>
+          </div>
+          {review.images && review.images.length > 0 && (
+            <div className="review-images-section">
+              <p className="review-images-label">Imágenes adjuntas:</p>
+              <div className="review-images">
+                {review.images.map((img, index) => (
+                  <img
+                    key={index}
+                    src={img}
+                    alt={`Reseña ${index + 1}`}
+                    className="review-image"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default ReviewItem;
