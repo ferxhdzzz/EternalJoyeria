@@ -147,5 +147,3 @@ className="historial-item-image"
 };
 
 export default ReviewItem;
-
-

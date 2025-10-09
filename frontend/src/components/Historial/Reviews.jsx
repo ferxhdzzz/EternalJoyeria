@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import './Review.css';
 
 const ReviewItem = ({ review, onDelete }) => {
+  // Función para formatear la fecha
   const formatDate = (dateString) => {
     if (!dateString) return 'Sin fecha';
     const date = new Date(dateString);
@@ -14,6 +15,7 @@ const ReviewItem = ({ review, onDelete }) => {
     });
   };
 
+  // Función para renderizar las estrellas
   const renderStars = (rank) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -26,6 +28,7 @@ const ReviewItem = ({ review, onDelete }) => {
     return stars;
   };
 
+  // Función para manejar la eliminación de la reseña
   const handleDelete = () => {
     Swal.fire({
       title: '¿Deseas eliminar esta reseña?',
@@ -49,18 +52,28 @@ const ReviewItem = ({ review, onDelete }) => {
     });
   };
 
+  // --- CORRECCIÓN CLAVE ---
+  // Usamos Encadenamiento Opcional (`?.`) para prevenir errores si id_product es null
+  const productName = review.id_product?.name || 'Producto Desconocido';
+  const productImageUrl = review.id_product?.images?.[0] || 'https://placehold.co/150x150';
+  // --------------------------
+
   return (
     <div className="historial-item-content">
       <div className="historial-item-image-container">
         <img
-          src={review.id_product.images?.[0] || 'https://placehold.co/150x150'}
-          alt={review.id_product.name}
+          // Uso seguro de la URL de la imagen
+          src={productImageUrl} 
+          // Uso seguro del nombre
+          alt={productName} 
           className="historial-item-image"
         />
       </div>
       <div className="historial-item-details">
         <div className="product-info" style={{ position: 'relative' }}>
-          <h3 className="product-name">{review.id_product.name}</h3>
+          {/* Uso seguro del nombre */}
+          <h3 className="product-name">{productName}</h3>
+          
           {/* Botón de eliminar en esquina superior derecha */}
           <FaTrash
             onClick={handleDelete}
