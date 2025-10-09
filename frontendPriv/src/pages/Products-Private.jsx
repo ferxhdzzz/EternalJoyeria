@@ -158,6 +158,8 @@ const Products = () => {
                         color:
                           product.stock === 0
                             ? "#dc3545"
+                            : product.stock < 3
+                            ? "#dc3545"
                             : product.stock <= 5
                             ? "#ffc107"
                             : "#222",

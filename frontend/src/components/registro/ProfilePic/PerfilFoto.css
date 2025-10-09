@@ -2,8 +2,13 @@
   display: flex;
   justify-content: center;
   margin: 20px 0;
-    margin-top: -50px;
+  margin-top: 20px; /* Movido más abajo */
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
 
+.perfil-foto-container:hover {
+  transform: scale(1.05);
 }
 
 .perfil-foto {
@@ -11,13 +16,19 @@
   object-fit: cover;
   border: 3px solid #ccc;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.perfil-foto-container:hover .perfil-foto {
+  border-color: #d47a9a;
+  box-shadow: 0 6px 12px rgba(212, 122, 154, 0.3);
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .perfil-foto-container {
     margin: 16px 0;
-    margin-top: -40px;
+    margin-top: 16px; /* Movido más abajo en responsive */
   }
   
   .perfil-foto {
@@ -28,7 +39,7 @@
 @media (max-width: 480px) {
   .perfil-foto-container {
     margin: 12px 0;
-    margin-top: -30px;
+    margin-top: 12px; /* Movido más abajo en responsive */
   }
   
   .perfil-foto {

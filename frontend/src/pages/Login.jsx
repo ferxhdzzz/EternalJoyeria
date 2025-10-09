@@ -170,7 +170,11 @@ const Login = () => {
         </div>
 
         <OlvidarCont text="¿Olvidaste tu contraseña?" to="/recuperacion" />
-        <Button type="submit" text={loading ? "Ingresando..." : "Ingresar →"} />
+
+        <div className="auth-container login-specific-styles">
+          <Button type="submit" text={loading ? "Ingresando..." : "Ingresar"} />
+        </div>
+
         <Label textBefore="¿No tienes cuenta?" linkText="Regístrate" to="/registro" />
       </form>
 

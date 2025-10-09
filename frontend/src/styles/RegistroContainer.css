@@ -1,9 +1,25 @@
 .registro-content {
     width: 100%;
+    overflow: visible; /* Asegurar que no se corten los elementos */
 }
 
 /* Ajustes para que el Stepper se vea bien dentro de la tarjeta */
 .recover-card .Stepper {
     margin-bottom: 2rem; /* Espacio entre el stepper y el contenido del paso */
     padding: 0 1rem; /* Alinear con el resto del contenido */
+}
+
+/* Asegurar que el contenedor del stepper tenga suficiente espacio */
+.recover-card {
+    overflow: visible; /* Permitir que los elementos se vean completos */
+    padding-top: 20px; /* Espacio adicional en la parte superior */
+}
+
+/* Estilos específicos para el ojito en el registro */
+.registro-content .eye-icon {
+    right: -8px !important; /* Fuera del borde derecho */
+}
+
+.registro-content .input-group-eye .eye-icon {
+    right: -8px !important; /* Fuera del borde derecho */
 }

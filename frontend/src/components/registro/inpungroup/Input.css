@@ -10,27 +10,28 @@
   font-size: 14px;
   margin-bottom: 10px; /* Más espacio entre el label y el input */
   color: black;
-
+  min-width: 120px; /* Ancho mínimo consistente para todos los labels */
+  display: inline-block;
 }
 
 .input {
   background-color: white;
   width: 100%;
-max-width: 100%;
+  max-width: 100%;
   color: black;
   padding: 10px 14px;
-  border: 2px solid #000; /* Borde más visible */
-  border-radius: 20px;
+  border: 1px solid #e0e0e0; /* Borde más delgado y gris más claro */
+  border-radius: 8px; /* Menos redondeado */
   outline: none;
   font-size: 16px;
-  box-shadow: 0 0 0 0 rgba(255,105,180,0.3);
-  transition: border-color 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s cubic-bezier(.4,2,.6,1), transform 0.15s cubic-bezier(.4,2,.6,1);
+  box-shadow: none; /* Sin sombra */
+  transition: border-color 0.3s cubic-bezier(.4,2,.6,1);
+  box-sizing: border-box; /* Asegurar que padding y border estén incluidos en el ancho */
 }
 
 .input:focus {
   border-color: #ff69b4;
-  box-shadow: 0 0 0 4px rgba(255,105,180,0.15);
-  transform: scale(1.03);
+  box-shadow: none; /* Sin sombra en focus */
 }
 
 .input-container {
@@ -38,19 +39,33 @@ max-width: 100%;
   width: 100%;
 }
 
-/* The input is already 100% width, but we need space for the icon */
+/* Asegurar que todos los inputs tengan el mismo ancho */
 .input-container .input {
-  padding-right: 45px; /* Make space for the icon */
+  box-sizing: border-box;
+}
+
+/* Asegurar que todos los inputs tengan el mismo ancho visual */
+.input-group-eye .input {
+  width: calc(100% + 45px); /* Extender el ancho para compensar el padding */
+  margin-right: -45px; /* Ajustar el margen para que se vea alineado */
+  box-sizing: border-box;
+  padding-right: 45px; /* Mantener espacio para el icono */
 }
 
 .eye-icon {
   position: absolute;
-  top: 60%;
-  right: 15px;
+  top: 45%;
+  right: 2px !important; /* Movido aún más a la derecha con !important */
   transform: translateY(-50%);
   cursor: pointer;
   color: #555;
   font-size: 22px;
+}
+
+/* Estilos específicos para el ojito en el registro */
+.registro-content .eye-icon,
+.recover-card .eye-icon {
+  right: -10px !important; /* Aún más a la derecha en el registro */
 }
 
 /* Responsive Design */
@@ -62,21 +77,30 @@ max-width: 100%;
   .input-label {
     font-size: 13px;
     margin-bottom: 8px;
+    min-width: 100px; /* Ajuste para pantallas medianas */
   }
   
   .input {
     padding: 8px 12px;
     font-size: 15px;
-    border-radius: 15px;
+    border-radius: 6px; /* Menos redondeado en responsive */
   }
   
   .input-container .input {
     padding-right: 40px;
   }
   
+  /* Mantener consistencia en pantallas medianas */
+  .input-group-eye .input {
+    width: calc(100% + 40px);
+    margin-right: -40px;
+    box-sizing: border-box;
+    padding-right: 40px;
+  }
+  
   .eye-icon {
     font-size: 20px;
-    right: 12px;
+    right: 1px !important; /* Movido aún más a la derecha en responsive */
   }
 }
 
@@ -88,21 +112,30 @@ max-width: 100%;
   .input-label {
     font-size: 12px;
     margin-bottom: 6px;
+    min-width: 80px; /* Ajuste para pantallas pequeñas */
   }
   
   .input {
     padding: 6px 10px;
     font-size: 14px;
-    border-radius: 12px;
+    border-radius: 5px; /* Menos redondeado en responsive */
   }
   
   .input-container .input {
     padding-right: 35px;
   }
   
+  /* Mantener consistencia en pantallas pequeñas */
+  .input-group-eye .input {
+    width: calc(100% + 35px);
+    margin-right: -35px;
+    box-sizing: border-box;
+    padding-right: 35px;
+  }
+  
   .eye-icon {
     font-size: 18px;
-    right: 10px;
+    right: 0px !important; /* Movido aún más a la derecha en responsive */
   }
 }
 
