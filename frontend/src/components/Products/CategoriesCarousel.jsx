@@ -34,6 +34,7 @@ const CategoriesCarousel = () => {
 
   return (
     <div className="categories-carousel-container">
+      <br /><br />
       <h2>Explorar Categorías</h2>
       <br />
       <div className="categories-carousel">
