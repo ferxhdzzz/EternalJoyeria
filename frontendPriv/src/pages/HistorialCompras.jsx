@@ -174,14 +174,7 @@ const HistorialCompras = () => {
                         : "Editar"}
                     </Button>
 
-                    <Button
-                      type="button"
-                      onClick={() => deleteSale(sale._id)}
-                      className="btn-delete"
-                      disabled={loadingId === sale._id}
-                    >
-                      {loadingId === sale._id ? "Eliminando..." : "Eliminar"}
-                    </Button>
+                  
                   </div>
 
                   {editingSaleId === sale._id && (

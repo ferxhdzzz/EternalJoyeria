@@ -36,10 +36,7 @@ const TopBar = () => {
       {menuOpen && (
         <div className="mobile-menu">
 
-          <div className="icon-button mobile-bell">
-            <FaBell />
-
-          </div>
+        
 
           <NavLink to="/ajustes" className="profile mobile-profile" onClick={() => setMenuOpen(false)}>
             <img
