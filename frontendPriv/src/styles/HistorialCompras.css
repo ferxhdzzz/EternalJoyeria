@@ -1,3 +1,70 @@
+/* --- Nuevo CSS para el Filtro Minimalista --- */
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Alinea a la izquierda */
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.filter-label {
+  font-size: 1rem;
+  color: #333;
+  font-weight: 500;
+  margin-right: 15px;
+}
+
+.customer-select-filter {
+  /* Estilo de input minimalista */
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #555;
+  background-color: #fcfcfc;
+  transition: all 0.3s ease;
+  appearance: none; /* Oculta el estilo nativo del select */
+  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M287%20197.35l-14.8-14.8c-2.7-2.7-6.2-4.1-9.7-4.1s-7%201.4-9.7%204.1L146.2%20272.9l-106.6-106.6c-5.4-5.4-14.2-5.4-19.6%200l-14.8%2014.8c-5.4%205.4-5.4%2014.2%200%2019.6l125.7%20125.7c2.7%202.7%206.2%204.1%209.8%204.1s7.1-1.4%209.8-4.1l125.7-125.7c5.4-5.4%205.4-14.2%200-19.6z%22%2F%3E%3C%2Fsvg%3E'); /* Icono minimalista de flecha hacia abajo */
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 0.7em;
+  padding-right: 35px; /* Espacio para el icono */
+  width: 300px; /* Ancho fijo para mantener la estética */
+  cursor: pointer;
+}
+
+.customer-select-filter:hover {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 1px #e74c3c;
+}
+
+/* Permitir búsqueda al hacer clic (aunque el Select nativo no tiene buscador,
+   los navegadores modernos (Chrome/Firefox) a menudo permiten escribir
+   para saltar entre opciones, cumpliendo con la "búsqueda" minimalista) */
+.customer-select-filter:focus {
+  outline: none;
+  border-color: #c0392b;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
+}
+
+/* Responsive para pantallas pequeñas */
+@media (max-width: 600px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .customer-select-filter {
+    width: 100%; /* Ocupa todo el ancho en móvil */
+  }
+}
+
+/* El resto de tu CSS (historial-compras-container, sale-card, etc.) se mantiene sin cambios. */
+
+
 /* Layout principal */
 .page-layout {
   background-color: #FFF3F2;
@@ -414,6 +481,8 @@ font-weight: normal;
 .historial-compras-container::-webkit-scrollbar-track {
   background: transparent;
 }
+
+
 
 /* Responsive Design */
 @media (max-width: 768px) {

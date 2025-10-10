@@ -11,25 +11,24 @@ import EditSale from "../hooks/HistorialVentas/EditSale";
 import "../styles/HistorialCompras.css";
 
 const HistorialCompras = () => {
-  // Hook personalizado para obtener ventas y refrescarlas
-  const { sales, getSales } = useFetchSales();
-  // Hook personalizado para acciones sobre ventas, recibe función para refrescar
+  const { sales, getSales, customers } = useFetchSales();
   const { deleteSale: deleteSaleOriginal } = useSaleActions(getSales);
 
-  // Estado para controlar qué venta está en modo edición
+  const [selectedCustomer, setSelectedCustomer] = useState("");
   const [editingSaleId, setEditingSaleId] = useState(null);
-  // Estado para controlar loading individual por venta (borrar/editar)
   const [loadingId, setLoadingId] = useState(null);
 
-  // --- Lógica de ordenamiento para mostrar las más recientes primero ---
-  const sortedSales = [...sales].sort((a, b) => {
-    // return new Date(b.createdAt) - new Date(a.createdAt); // opción si existe fecha
+  const filteredSales = sales.filter((sale) => {
+    if (!selectedCustomer) return true;
+    return sale.idOrder?.idCustomer?._id === selectedCustomer;
+  });
+
+  const sortedSales = [...filteredSales].sort((a, b) => {
     if (a._id < b._id) return 1;
     if (a._id > b._id) return -1;
     return 0;
   });
 
-  // Función para eliminar una venta con confirmación SweetAlert
   const deleteSale = async (id) => {
     const result = await Swal.fire({
       title: "¿Estás seguro?",
@@ -49,9 +48,7 @@ const HistorialCompras = () => {
         await Swal.fire({
           title: "Eliminando...",
           allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          },
+          didOpen: () => Swal.showLoading(),
           showConfirmButton: false,
         });
 
@@ -82,37 +79,49 @@ const HistorialCompras = () => {
 
   return (
     <div className="dashboard-container">
-      {/* Sidebar lateral */}
       <Sidebar />
       <div className="main-content">
-        {/* Barra superior */}
         <div className="topbar-wrapper">
           <Topbar />
         </div>
 
-        {/* Contenedor principal de historial */}
         <div className="historial-compras-container">
-          {/* Título y subtítulo */}
           <div className="historial-header">
             <Titulo>Historial de Compras</Titulo>
             <SubTitulo>Administra las ventas de manera efectiva</SubTitulo>
           </div>
 
-          {/* Contenedor para las ventas */}
+          <div className="filter-bar">
+            <label htmlFor="customer-filter" className="filter-label">
+              Filtrar por Cliente:
+            </label>
+            <select
+              id="customer-filter"
+              className="customer-select-filter"
+              value={selectedCustomer}
+              onChange={(e) => setSelectedCustomer(e.target.value)}
+            >
+              <option value="">— Todos los Clientes —</option>
+              {customers.map((customer) => (
+                <option key={customer._id} value={customer._id}>
+                  {customer.fullName}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="sales-container">
             {sortedSales.length === 0 ? (
               <div className="no-sales-message">
-                <p>No hay ventas registradas</p>
+                <p>No hay ventas registradas {selectedCustomer && "para este cliente"}.</p>
               </div>
             ) : (
               sortedSales.map((sale) => (
                 <div key={sale._id} className="sale-card">
-                  {/* Encabezado con nombre cliente y estado venta */}
                   <div className="sale-header">
                     <div className="sale-customer-info">
                       <h3>
-                        {sale.idOrder?.idCustomer?.firstName}{" "}
-                        {sale.idOrder?.idCustomer?.lastName}
+                        {sale.idOrder?.idCustomer?.firstName} {sale.idOrder?.idCustomer?.lastName}
                       </h3>
                     </div>
                     <div className={`sale-status ${sale.idOrder?.status}`}>
@@ -120,11 +129,9 @@ const HistorialCompras = () => {
                     </div>
                   </div>
 
-                  {/* Detalles principales de la venta */}
                   <div className="sale-details">
                     <p>
-                      <strong>Cliente:</strong>{" "}
-                      {sale.idOrder?.idCustomer?.firstName}{" "}
+                      <strong>Cliente:</strong> {sale.idOrder?.idCustomer?.firstName}{" "}
                       {sale.idOrder?.idCustomer?.lastName}
                     </p>
                     <p>
@@ -134,30 +141,27 @@ const HistorialCompras = () => {
                       <strong>Dirección:</strong> {sale.address}
                     </p>
                     <p>
-                      <strong>Email:</strong>{" "}
-                      {sale.idOrder?.idCustomer?.email}
+                      <strong>Email:</strong> {sale.idOrder?.idCustomer?.email}
                     </p>
                     <p>
                       <strong>Total:</strong> ${sale.idOrder?.total}
                     </p>
                   </div>
 
-                  {/* Lista de productos comprados */}
                   <div className="products-section">
                     <p>Productos:</p>
                     <div className="products-list">
                       {sale.idOrder?.products?.map((product, index) => (
                         <div key={index} className="product-item">
                           <p>
-                            <strong>{product.productId?.name}</strong> - Cantidad:{" "}
-                            {product.quantity} - Subtotal: ${product.subtotal}
+                            <strong>{product.productId?.name}</strong> - Cantidad: {product.quantity} - Subtotal: $
+                            {product.subtotal}
                           </p>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* Botones de acción */}
                   <div className="action-buttons">
                     <Button
                       type="button"
@@ -170,10 +174,16 @@ const HistorialCompras = () => {
                         : "Editar"}
                     </Button>
 
-                   
+                    <Button
+                      type="button"
+                      onClick={() => deleteSale(sale._id)}
+                      className="btn-delete"
+                      disabled={loadingId === sale._id}
+                    >
+                      {loadingId === sale._id ? "Eliminando..." : "Eliminar"}
+                    </Button>
                   </div>
 
-                  {/* Componente para editar venta */}
                   {editingSaleId === sale._id && (
                     <EditSale
                       key={sale._id}
