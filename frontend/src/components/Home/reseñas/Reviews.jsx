@@ -10,11 +10,11 @@ const Reviews = () => {
     const fetchReviews = async () => {
       try {
         const response = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/reviews");
-        
+
         if (!response.ok) {
           throw new Error('Error al cargar las reseñas');
         }
-        
+
         const data = await response.json();
         setReviews(data);
         setIsLoading(false);
@@ -27,6 +27,36 @@ const Reviews = () => {
 
     fetchReviews();
   }, []);
+
+  // Función auxiliar para renderizar el contenido de una reseña
+  const renderReviewContent = (review, index) => {
+    const customer = review.id_customer;
+    const customerName = customer
+      ? `${customer.firstName} ${customer.lastName}`.trim()
+      : 'Cliente Anónimo';
+
+    const customerAvatar =
+      customer?.profilePicture ||
+      `https://randomuser.me/api/portraits/${customer?.gender || (index % 2 === 0 ? 'women' : 'men')}/${index + 1}.jpg`;
+
+    return (
+      <div className="review">
+        <img
+          src={customerAvatar}
+          className="avatar"
+          alt={customerName}
+        />
+
+        <h3 className="name">{customerName}</h3>
+
+        <div className="stars">
+          {'★'.repeat(review.rank)}
+          {'☆'.repeat(5 - review.rank)}
+        </div>
+        <p className="comment">{review.comment}</p>
+      </div>
+    );
+  };
 
   if (isLoading) {
     return (
@@ -66,30 +96,18 @@ const Reviews = () => {
         <h2 className="reviews-title">¿Qué opinan nuestros clientes?</h2>
         <div className="reviews-row">
           {reviews.map((review, index) => {
-            const customer = review.id_customer;
-            const customerName = customer ? `${customer.firstName} ${customer.lastName}`.trim() : 'Cliente Anónimo';
-            
-            // ✅ CORRECCIÓN AQUÍ: Usamos profilePicture en lugar de avatar
-            const customerAvatar = customer?.profilePicture || `https://randomuser.me/api/portraits/${customer?.gender || (index % 2 === 0 ? 'women' : 'men')}/${index + 1}.jpg`;
+            const nextReviewIndex = (index + 1) % reviews.length;
+            const nextReview = reviews[nextReviewIndex];
 
             return (
               <div className="card" key={review._id || index}>
                 <div className="first-content">
-                  <div className="review">
-                    <img 
-                      src={customerAvatar}
-                      className="avatar" 
-                      alt={customerName} 
-                    />
+                  {renderReviewContent(review, index)}
+                </div>
 
-                    <h3 className="name">{customerName}</h3>
-                    
-                    <div className="stars">
-                      {'★'.repeat(review.rank)}
-                      {'☆'.repeat(5 - review.rank)}
-                    </div>
-                    <p className="comment">{review.comment}</p>
-                  </div>
+                <div className="second-content next-review">
+                  <p className="next-review-title">Vea la siguiente reseña:</p>
+                  {renderReviewContent(nextReview, nextReviewIndex)}
                 </div>
               </div>
             );
