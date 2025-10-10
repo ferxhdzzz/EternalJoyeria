@@ -18,7 +18,7 @@ const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d6336c",
-      cancelButtonColor: "#d33",
+      cancelButtonColor: "#96a2afff",
       confirmButtonText: "Sí, eliminar",
       cancelButtonText: "Cancelar",
     });

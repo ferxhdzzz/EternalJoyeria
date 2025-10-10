@@ -18,8 +18,11 @@ const CategorieGrid = ({ cats = [], refreshCategories }) => {
       title: "¿Seguro que quieres eliminar esta categoría?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar",
+     confirmButtonColor: "#d6336c",
+     cancelButtonColor: "#96a2afff",
+        confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar"
+      
     }).then(async (result) => {
       if (result.isConfirmed) {
         await deleteCategorieById(categorie._id);
