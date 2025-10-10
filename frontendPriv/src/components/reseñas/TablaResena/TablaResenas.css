@@ -1,61 +1,48 @@
-.tabla-resenas-container {
+.reviews-card-list-container {
   background-color: #fff;
   padding: 30px;
   border-radius: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  width: 90%;
-  margin: auto;
-  box-sizing: border-box;
-
-  /* Agrega scroll vertical cuando la tabla es alta */
-  max-height: 70vh;  /* ajusta según prefieras */
+  width: 100%; /* Ocupa todo el ancho disponible en .content-area */
+  max-height: 80vh; /* Ajusta la altura máxima del contenedor con scroll */
   overflow-y: auto;
-  overflow-x: hidden; /* ocultar horizontal por defecto */
+  box-sizing: border-box;
 }
 
-/* Scroll horizontal en pantallas menores o iguales a 676px */
-@media (max-width: 983px) {
-  .tabla-resenas-container {
-    overflow-x: auto;
-    overflow-y: auto; /* mantener scroll vertical */
-    width: 100%;
-    padding-left: 2;
-    padding-right: 0;
-    margin: 0; /* quita el centrado automático */
-    max-width: 50vw; /* permite que ocupe todo el ancho disponible */
-    max-height: 70vh;
-    display: block;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .tabla-resenas {
-    min-width: 900px; /* para que no se corte nada */
-  }
-}
-/* Scrollbar vertical y horizontal igual que compras */
-.tabla-resenas-container::-webkit-scrollbar {
+/* Scrollbar (personalizado) */
+.reviews-card-list-container::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-.tabla-resenas-container::-webkit-scrollbar-thumb {
+.reviews-card-list-container::-webkit-scrollbar-thumb {
   background: #ccc;
   border-radius: 10px;
 }
 
-.tabla-resenas-container::-webkit-scrollbar-track {
+.reviews-card-list-container::-webkit-scrollbar-track {
   background: transparent;
 }
 
-/* Tabla */
-.tabla-resenas {
-  width: 100%;
-  border-collapse: collapse;
+/* Diseño GRID para las tarjetas */
+.reviews-grid {
+  display: grid;
+  /* 3 columnas en escritorio, con espacio de 20px */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding-top: 15px;
 }
 
-.tabla-resenas th {
-  text-align: left;
-  font-size: 13px;
-  color: #888;
-  padding-bottom: 10px;
+/* Media Query para tabletas y móviles */
+@media (max-width: 983px) {
+  .reviews-grid {
+    /* 1 o 2 columnas en pantallas más pequeñas */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+  }
+
+  .reviews-card-list-container {
+    max-height: 70vh; /* Ajuste para móviles */
+    padding: 15px;
+  }
 }
