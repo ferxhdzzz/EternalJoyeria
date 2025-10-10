@@ -1,9 +1,7 @@
 import React from "react";
 import EliminarButton from "../Boton/EliminarButton";
-import "./ResenaRow.css";
-import Swal from "sweetalert2";
-
-
+import "./ResenaRow.css"; 
+import Swal from "sweetalert2"; 
 
 const ResenaCard = ({
   id_customer,
@@ -23,7 +21,6 @@ const ResenaCard = ({
       ? `${id_product?.name || "Producto Desconocido"}`
       : "ID Producto: " + String(id_product);
 
-  // --- Función para generar estrellas de calificación ---
   const renderStars = (rating) => {
     const fullStar = "★";
     const emptyStar = "☆";
@@ -31,61 +28,69 @@ const ResenaCard = ({
 
     return (
       <span className="rating-stars">
-        {Array(maxStars)
-          .fill(0)
-          .map((_, i) => (
-            <span key={i} style={{ color: i < rating ? "#ffc107" : "#e4e5e9" }}>
-              {i < rating ? fullStar : emptyStar}
-            </span>
-          ))}
+        {Array(maxStars).fill(0).map((_, i) => (
+          <span key={i} style={{ color: i < rating ? '#ffc107' : '#e4e5e9' }}>
+            {i < rating ? fullStar : emptyStar}
+          </span>
+        ))}
       </span>
     );
   };
 
-  // --- NUEVA FUNCIÓN: Maneja el clic en las miniaturas ---
   const handleImageClick = (images, startIndex) => {
     if (images.length === 0) return;
 
-    // Crea el contenido del carrusel/slider con las imágenes
     const steps = images.map((url) => ({
-      title: "Imágenes de la Reseña",
-      text: `${nombre} | Producto: ${compra}`,
-      imageUrl: url,
-      imageAlt: "Imagen de reseña",
-      imageHeight: "auto",
-      imageWidth: "100%",
-      showCancelButton: false,
-      confirmButtonText: "Cerrar",
+      html: `
+        <div style="text-align: center;">
+          <img src="${url}" style="max-width: 100%; max-height: 70vh; object-fit: contain; border-radius: 8px;">
+          <p style="margin-top: 10px; font-size: 14px; color: #555;">
+            ${nombre} | Producto: ${compra}
+          </p>
+        </div>
+      `,
+      showConfirmButton: false,
+      showCloseButton: true,
     }));
 
-    // Muestra el carrusel de SweetAlert2
     Swal.mixin({
       currentProgressStep: startIndex,
-      progressSteps: steps.map((_, i) => `${i + 1}/${steps.length}`),
-      showClass: { popup: "swal2-noanimation" },
-      hideClass: { popup: "swal2-noanimation" },
+      progressSteps: steps.map((_, i) => `Imagen ${i + 1}/${steps.length}`),
+      customClass: {
+        popup: 'custom-swal-image-popup',
+        container: 'custom-swal-image-container'
+      },
+      width: 'auto',
+      padding: '1em',
+      allowOutsideClick: true,
+      allowEscapeKey: true,
+      showCancelButton: true,
+      confirmButtonText: 'Siguiente →',
+      cancelButtonText: '← Anterior',
+      beforeOpen: () => {
+        const step = Swal.getProgressSteps().indexOf(
+          Swal.getContainer().querySelector('.swal2-progress-step-active')
+        );
+        const stepsCount = Swal.getContainer().querySelectorAll('.swal2-progress-step').length;
+
+        Swal.getConfirmButton().style.display = step === stepsCount - 1 ? 'none' : 'inline-block';
+        Swal.getCancelButton().style.display = step === 0 ? 'none' : 'inline-block';
+      },
     }).queue(steps);
   };
 
   return (
     <div className="resena-card">
-      {/* Cabecera de la tarjeta: Nombre y Calificación */}
       <div className="card-header">
         <h3 className="customer-name">{nombre}</h3>
         <div className="rating-display">{renderStars(rank)}</div>
       </div>
 
-      {/* Comentario */}
       <div className="card-body">
-        <p className="review-comment">
-          <strong>Comentario:</strong> {String(comment)}
-        </p>
-        <p className="product-info">
-          <strong>Producto:</strong> {compra}
-        </p>
+        <p className="review-comment"><strong>Comentario:</strong> {String(comment)}</p>
+        <p className="product-info"><strong>Producto:</strong> {compra}</p>
       </div>
 
-      {/* Imágenes */}
       <div className="card-images">
         <strong>Imágenes:</strong>
         {images.length > 0 ? (
@@ -113,7 +118,6 @@ const ResenaCard = ({
         )}
       </div>
 
-      {/* Acción de Eliminar */}
       <div className="card-actions">
         <EliminarButton onClick={onClick} confirmar />
       </div>
