@@ -17,7 +17,7 @@ const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
       text: `Estás a punto de eliminar la reseña de ${review.nombre}. ¡Esta acción es irreversible!`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
+      confirmButtonColor: "#d6336c",
       cancelButtonColor: "#d33",
       confirmButtonText: "Sí, eliminar",
       cancelButtonText: "Cancelar",
