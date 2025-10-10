@@ -1,6 +1,9 @@
 import React from "react";
 import EliminarButton from "../Boton/EliminarButton";
 import "./ResenaRow.css";
+import Swal from "sweetalert2";
+
+
 
 const ResenaCard = ({
   id_customer,
@@ -20,9 +23,9 @@ const ResenaCard = ({
       ? `${id_product?.name || "Producto Desconocido"}`
       : "ID Producto: " + String(id_product);
 
-  // Función para generar estrellas de calificación
+  // --- Función para generar estrellas de calificación ---
   const renderStars = (rating) => {
-    const fullStar = "★"; // Puedes cambiar por un ícono o emoji
+    const fullStar = "★";
     const emptyStar = "☆";
     const maxStars = 5;
 
@@ -37,6 +40,31 @@ const ResenaCard = ({
           ))}
       </span>
     );
+  };
+
+  // --- NUEVA FUNCIÓN: Maneja el clic en las miniaturas ---
+  const handleImageClick = (images, startIndex) => {
+    if (images.length === 0) return;
+
+    // Crea el contenido del carrusel/slider con las imágenes
+    const steps = images.map((url) => ({
+      title: "Imágenes de la Reseña",
+      text: `${nombre} | Producto: ${compra}`,
+      imageUrl: url,
+      imageAlt: "Imagen de reseña",
+      imageHeight: "auto",
+      imageWidth: "100%",
+      showCancelButton: false,
+      confirmButtonText: "Cerrar",
+    }));
+
+    // Muestra el carrusel de SweetAlert2
+    Swal.mixin({
+      currentProgressStep: startIndex,
+      progressSteps: steps.map((_, i) => `${i + 1}/${steps.length}`),
+      showClass: { popup: "swal2-noanimation" },
+      hideClass: { popup: "swal2-noanimation" },
+    }).queue(steps);
   };
 
   return (
@@ -67,11 +95,17 @@ const ResenaCard = ({
                 key={index}
                 src={imgUrl}
                 alt={`Reseña imagen ${index + 1}`}
-                className="resena-thumbnail"
+                className="resena-thumbnail clickable"
+                onClick={() => handleImageClick(images, index)}
               />
             ))}
             {images.length > 3 && (
-              <span className="image-count">+{images.length - 3}</span>
+              <span
+                className="image-count clickable"
+                onClick={() => handleImageClick(images, 3)}
+              >
+                +{images.length - 3}
+              </span>
             )}
           </div>
         ) : (

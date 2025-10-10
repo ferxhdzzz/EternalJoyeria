@@ -99,3 +99,12 @@
   margin-top: auto; /* Empuja el botón al final de la tarjeta */
   text-align: right;
 }
+
+.clickable {
+  cursor: pointer;
+}
+
+/* Opcional: efecto al pasar el mouse sobre las miniaturas */
+.resena-thumbnail:hover {
+  opacity: 0.8;
+}
