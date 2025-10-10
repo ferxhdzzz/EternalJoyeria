@@ -14,10 +14,7 @@ const TopBar = () => {
   return (
     <div className="topbar">
       <div className="topbar-right">
-        <div className="icon-button">
-          <FaBell />
-
-        </div>
+       
 
         <NavLink to="/ajustes" className="profile">
           <img
