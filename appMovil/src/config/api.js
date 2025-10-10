@@ -1,100 +1,93 @@
-// Configuración centralizada de la API para la app móvil
-// IMPORTANTE: Solo cambiar la IP aquí para actualizar toda la app
-// Esta configuración debe actualizarse según tu IP local actual
+// src/config/api.js
+// Base URL: usa variable pública de Expo; fallback a Render (producción)
+const DEFAULT_URL = 'https://eternaljoyeria-cg5d.onrender.com';
+export const BACKEND_URL = (process.env.EXPO_PUBLIC_BACKEND_URL || DEFAULT_URL).replace(/\/+$/, '');
 
-// CAMBIAR SOLO ESTA IP PARA TODA LA APP
-export const BACKEND_URL = 'http://192.168.1.200:4000';
-
-// Configuración de endpoints
+// Endpoints
 export const API_ENDPOINTS = {
-  // Autenticación
+  // Auth
   LOGIN: '/api/login',
   LOGOUT: '/api/logout',
-  
-  // Usuarios
+
+  // Usuario
   CUSTOMERS_ME: '/api/customers/me',
   REGISTER: '/api/registerCustomers',
   VERIFY_EMAIL: '/api/registerCustomers/verifyCodeEmail',
   RESEND_CODE: '/api/registerCustomers/resend-code',
-  
-  // Recuperación de contraseña
+
+  // Recuperación
   RECOVERY_REQUEST: '/api/recoveryPassword/requestCode',
   RECOVERY_VERIFY: '/api/recoveryPassword/verifyCode',
   RECOVERY_RESET: '/api/recoveryPassword/newPassword',
-  
-  // Productos
+
+  // Catálogo
   PRODUCTS: '/api/products',
   PRODUCTS_BY_CATEGORY: '/api/products/category',
   CATEGORIES: '/api/categories',
-  
-  // Pedidos
+
+  // Órdenes / ventas
   ORDERS: '/api/orders',
   ORDERS_CART: '/api/orders/cart',
   ORDERS_CART_ITEMS: '/api/orders/cart/items',
   ORDERS_CART_ADDRESSES: '/api/orders/cart/addresses',
   SALES: '/api/sales',
-  
+
   // Pagos
   WOMPI: '/api/wompi',
   WOMPI_TOKEN: '/api/wompi/token',
   WOMPI_PAYMENT_3DS: '/api/wompi/payment3ds',
-  
+
   // Perfil
   PROFILE_CHANGE_PASSWORD: '/api/profile/change-password',
-  
+
   // Reviews
-  REVIEWS: '/api/reviews'
+  REVIEWS: '/api/reviews',
 };
 
-// Función helper para construir URLs completas
-export const buildApiUrl = (endpoint) => {
-  return `${BACKEND_URL}${endpoint}`;
-};
+// Construir URL completa evitando dobles barras
+export const buildApiUrl = (endpoint = '') =>
+  `${BACKEND_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
-// Función helper para hacer peticiones autenticadas con AsyncStorage
+// ---- Helpers de fetch ----
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Cabeceras de auth (compatibles con tu backend: Authorization y x-access-token)
+export const buildAuthHeaders = async (extra = {}) => {
+  const token = await AsyncStorage.getItem('authToken');
+  return {
+    ...(token ? { Authorization: `Bearer ${token}`, 'x-access-token': token } : {}),
+    ...extra,
+  };
+};
 
 export const apiRequest = async (endpoint, options = {}) => {
   const url = buildApiUrl(endpoint);
-  
-  // Obtener token automáticamente si no se proporciona
-  const token = options.token || await AsyncStorage.getItem('authToken');
-  
-  const defaultOptions = {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` }),
-      ...options.headers
-    }
+  const token = options.token || (await AsyncStorage.getItem('authToken'));
+
+  const headersBase = {
+    Accept: 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}`, 'x-access-token': token } : {}),
+    ...options.headers,
   };
-  
-  const finalOptions = { ...defaultOptions, ...options };
-  
-  // Si hay body y es objeto, convertir a JSON
-  if (finalOptions.body && typeof finalOptions.body === 'object' && !(finalOptions.body instanceof FormData)) {
-    finalOptions.body = JSON.stringify(finalOptions.body);
+
+  const opts = { method: 'GET', ...options, headers: headersBase };
+
+  // Si body es objeto (y NO es FormData), enviar como JSON
+  if (opts.body && typeof opts.body === 'object' && !(opts.body instanceof FormData)) {
+    opts.headers = { 'Content-Type': 'application/json', ...opts.headers };
+    opts.body = JSON.stringify(opts.body);
   }
-  
-  try {
-    console.log(`🔄 [API] ${finalOptions.method} ${url}`);
-    const response = await fetch(url, finalOptions);
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `HTTP ${response.status}`);
-    }
-    
-    console.log(`✅ [API] ${finalOptions.method} ${url} - Success`);
-    return response;
-  } catch (error) {
-    console.error(`❌ [API] ${finalOptions.method} ${url} - Error:`, error.message);
-    throw error;
+
+  console.log(`[API] ${opts.method} ${url}`);
+  const res = await fetch(url, opts);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `HTTP ${res.status}`);
   }
+  return res;
 };
 
-// Función helper específica para peticiones que devuelven JSON
 export const apiRequestJson = async (endpoint, options = {}) => {
-  const response = await apiRequest(endpoint, options);
-  return await response.json();
+  const res = await apiRequest(endpoint, options);
+  return res.json();
 };

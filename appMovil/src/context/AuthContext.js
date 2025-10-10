@@ -1,16 +1,15 @@
+// src/context/AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BACKEND_URL, API_ENDPOINTS, buildApiUrl } from '../config/api';
+import { BACKEND_URL, API_ENDPOINTS, buildApiUrl, buildAuthHeaders } from '../config/api';
 import { Alert } from 'react-native';
 
 export const AuthContext = createContext();
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
-  }
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth debe ser usado dentro de un AuthProvider');
+  return ctx;
 };
 
 export const AuthProvider = ({ children }) => {
@@ -18,18 +17,13 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-
-  // Asegura que profilePicture sea una URL absoluta
   const normalizeProfileUrl = (url) => {
     if (!url) return '';
-    // Ya absoluta
     if (/^https?:\/\//i.test(url)) return url;
-    // Evitar doble slash
     if (url.startsWith('/')) return `${BACKEND_URL}${url}`;
     return `${BACKEND_URL}/${url}`;
   };
 
-  // Verificar si hay un usuario guardado al iniciar la app
   useEffect(() => {
     checkUserSession();
   }, []);
@@ -39,37 +33,26 @@ export const AuthProvider = ({ children }) => {
       const userData = await AsyncStorage.getItem('userData');
       const token = await AsyncStorage.getItem('authToken');
       const savedBackendUrl = await AsyncStorage.getItem('lastBackendUrl');
-      
+
       if (userData && token) {
-        // Verificar si la IP del backend ha cambiado
         if (savedBackendUrl && savedBackendUrl !== BACKEND_URL) {
-          console.log('IP del backend cambio, limpiando sesion...');
-          console.log('IP anterior:', savedBackendUrl);
-          console.log('IP actual:', BACKEND_URL);
-          
-          // Mostrar alerta informativa al usuario
           setTimeout(() => {
-            Alert.alert(
-              'Cambio de red detectado',
-              'Se ha detectado un cambio en la conexion. Por favor, inicia sesion nuevamente.',
-              [{ text: 'Entendido', style: 'default' }]
-            );
-          }, 500);
-          
+            Alert.alert('Cambio de servidor', 'Se detectó cambio de backend. Inicia sesión de nuevo.');
+          }, 300);
           await logout();
           return;
         }
-        
-        // Intentar refrescar datos desde el backend
+
         let parsedUser = JSON.parse(userData);
         try {
+          const headers = await buildAuthHeaders();
           const meRes = await fetch(buildApiUrl(API_ENDPOINTS.CUSTOMERS_ME), {
             method: 'GET',
-            headers: { 'Authorization': `Bearer ${token}` },
+            headers,
           });
           if (meRes.ok) {
             const meData = await meRes.json();
-            const refreshedUser = {
+            parsedUser = {
               id: meData._id || meData.id || parsedUser?.id,
               email: meData.email || parsedUser?.email,
               firstName: meData.firstName || parsedUser?.firstName || '',
@@ -77,88 +60,50 @@ export const AuthProvider = ({ children }) => {
               phone: meData.phone || parsedUser?.phone || '',
               profilePicture: normalizeProfileUrl(meData.profilePicture || parsedUser?.profilePicture || ''),
             };
-            parsedUser = refreshedUser;
-            await AsyncStorage.setItem('userData', JSON.stringify(refreshedUser));
-            // Guardar la IP actual como válida
+            await AsyncStorage.setItem('userData', JSON.stringify(parsedUser));
             await AsyncStorage.setItem('lastBackendUrl', BACKEND_URL);
           } else {
-            // Si el token no es valido, limpiar sesion
-            console.log('Token invalido, limpiando sesion...');
             await logout();
             return;
           }
-        } catch (e) {
-          console.log('Error de conexion al verificar sesion:', e.message);
-          // Si hay error de conexion, limpiar sesion para forzar nuevo login
-          if (e.message.includes('Network request failed') || 
-              e.message.includes('fetch') ||
-              e.message.includes('timeout')) {
-            console.log('Error de red detectado, limpiando sesion...');
-            
-            // Mostrar alerta informativa al usuario
-            setTimeout(() => {
-              Alert.alert(
-                'Error de conexion',
-                'No se pudo conectar con el servidor. Por favor, verifica tu conexion e inicia sesion nuevamente.',
-                [{ text: 'Entendido', style: 'default' }]
-              );
-            }, 500);
-            
-            await logout();
-            return;
-          }
-          // Si es otro tipo de error, seguir con cache
+        } catch {
+          // Si Render está lento, mantenemos cache
         }
         setUser(parsedUser);
         setIsAuthenticated(true);
       }
-    } catch (error) {
-      console.log('Error al verificar sesión:', error);
+    } catch (e) {
+      console.log('Error al verificar sesión:', e);
     } finally {
       setLoading(false);
     }
   };
 
-  // Funcion de login que se conecta al backend
   const login = async (email, password) => {
     try {
       const loginUrl = buildApiUrl(API_ENDPOINTS.LOGIN);
-      console.log('🔐 [AuthContext] Iniciando login...');
-      console.log('📧 Email:', email);
-      console.log('🌐 URL de login:', loginUrl);
-      
       const response = await fetch(loginUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
-      console.log('📡 [AuthContext] Respuesta recibida:', response.status);
-      
-      const data = await response.json();
-      console.log('📄 [AuthContext] Datos de respuesta:', data);
-
+      const data = await response.json().catch(() => ({}));
       if (response.ok && data.success) {
-        // Guardar token
         await AsyncStorage.setItem('authToken', data.token);
 
-        // Obtener perfil completo del usuario autenticado
+        const headers = await buildAuthHeaders();
         const meRes = await fetch(buildApiUrl(API_ENDPOINTS.CUSTOMERS_ME), {
           method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${data.token}`,
-          },
+          headers,
         });
 
         let finalUser = data.user;
         if (meRes.ok) {
           const meData = await meRes.json();
-          // meData puede ser el documento completo del cliente
           finalUser = {
-            id: meData._id || meData.id || data.user.id,
-            email: meData.email || data.user.email,
+            id: meData._id || meData.id || data.user?.id,
+            email: meData.email || data.user?.email,
             firstName: meData.firstName || '',
             lastName: meData.lastName || '',
             phone: meData.phone || '',
@@ -166,218 +111,129 @@ export const AuthProvider = ({ children }) => {
           };
         }
 
-        // Guardar usuario normalizado
         await AsyncStorage.setItem('userData', JSON.stringify(finalUser));
-        
-        // Guardar la IP actual del backend para detectar cambios futuros
         await AsyncStorage.setItem('lastBackendUrl', BACKEND_URL);
-
-        // Actualizar estado
         setUser(finalUser);
         setIsAuthenticated(true);
-
         return { success: true, user: finalUser, userType: data.userType };
-      } else {
-        return { success: false, error: data.message || 'Credenciales inválidas' };
       }
+      return { success: false, error: data.message || 'Credenciales inválidas' };
     } catch (error) {
-      console.error('❌ [AuthContext] Error en login:', error);
-      console.error('❌ [AuthContext] Tipo de error:', error.name);
-      console.error('❌ [AuthContext] Mensaje:', error.message);
-      
-      // Verificar si es un error de red
-      if (error.message.includes('Network request failed') || error.message.includes('fetch')) {
-        return { success: false, error: 'No se puede conectar al servidor. Verifica tu conexión a internet y que el backend esté funcionando.' };
+      if (String(error?.message || '').includes('Network')) {
+        return { success: false, error: 'No se puede conectar al servidor.' };
       }
-      
       return { success: false, error: 'Error de conexión al servidor' };
     }
   };
 
-  // Funcion de logout
   const logout = async () => {
     try {
       await AsyncStorage.removeItem('userData');
       await AsyncStorage.removeItem('authToken');
-      await AsyncStorage.removeItem('lastBackendUrl'); // Limpiar IP guardada
+      await AsyncStorage.removeItem('lastBackendUrl');
       setUser(null);
       setIsAuthenticated(false);
-      console.log('Sesión cerrada correctamente');
-    } catch (error) {
-      console.log('Error al cerrar sesión:', error);
+    } catch (e) {
+      console.log('Error al cerrar sesión:', e);
     }
   };
 
-  // Funcion para actualizar datos del usuario
+  // Actualizar datos (PUT -> fallback PATCH) compatible con tu backend
   const updateUser = async (newData) => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
-      const response = await fetch(buildApiUrl(API_ENDPOINTS.CUSTOMERS_ME), {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newData),
-      });
+      const headers = await buildAuthHeaders({ 'Content-Type': 'application/json' });
+      const url = buildApiUrl(API_ENDPOINTS.CUSTOMERS_ME);
 
-      if (response.ok) {
-        // El backend retorna { client: updatedCustomer }
-        const resJson = await response.json().catch(() => null);
-        const client = resJson?.client;
-        const updatedUser = client ? {
-          id: client._id || user?.id,
-          email: client.email ?? user?.email,
-          firstName: client.firstName ?? user?.firstName ?? '',
-          lastName: client.lastName ?? user?.lastName ?? '',
-          phone: client.phone ?? user?.phone ?? '',
-          profilePicture: normalizeProfileUrl(client.profilePicture ?? user?.profilePicture ?? ''),
-        } : { ...user, ...newData };
-        
-        // Actualizar en AsyncStorage
-        await AsyncStorage.setItem('userData', JSON.stringify(updatedUser));
-        
-        // Actualizar estado
-        setUser(updatedUser);
-        
-        return { success: true, user: updatedUser };
-      } else {
-        return { success: false, error: 'Error al actualizar perfil' };
+      const make = (method) =>
+        fetch(url, { method, headers, body: JSON.stringify(newData) });
+
+      let res = await make('PUT');
+      if (res.status === 405 || res.status === 404) res = await make('PATCH');
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        return { success: false, error: err?.message || `HTTP ${res.status}` };
       }
+
+      const resJson = await res.json().catch(() => null);
+      const client = resJson?.client ?? resJson;
+
+      const updatedUser = {
+        id: client?._id || client?.id || user?.id,
+        email: client?.email ?? user?.email,
+        firstName: client?.firstName ?? user?.firstName ?? '',
+        lastName: client?.lastName ?? user?.lastName ?? '',
+        phone: client?.phone ?? user?.phone ?? '',
+        profilePicture: normalizeProfileUrl(client?.profilePicture ?? user?.profilePicture ?? ''),
+      };
+
+      await AsyncStorage.setItem('userData', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      return { success: true, user: updatedUser };
     } catch (error) {
-      console.log('Error al actualizar usuario:', error);
-      return { success: false, error: 'Error al actualizar usuario' };
+      return { success: false, error: error?.message || 'Error al actualizar perfil' };
     }
   };
 
-  // Funcion para actualizar foto de perfil
+  // Actualizar foto (multipart/form-data) – NO fijar Content-Type
   const updateProfileImage = async (imageUri) => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
-      
-      // Crear FormData para la imagen
-      const formData = new FormData();
-      // Intentar inferir extension y mime
-      const uriParts = (imageUri || '').split('.')
-      const ext = uriParts.length > 1 ? uriParts.pop().toLowerCase() : 'jpg';
-      const mime = ext === 'png' ? 'image/png' : ext === 'gif' ? 'image/gif' : 'image/jpeg';
-      // Normalizar URI (Android puede usar content://)
-      const normalizedUri = imageUri?.startsWith('file://') || imageUri?.startsWith('content://')
-        ? imageUri
-        : `file://${imageUri}`;
-      formData.append('profilePicture', {
-        uri: normalizedUri,
-        type: mime,
-        name: `profile.${ext}`,
-      });
+      const url = buildApiUrl(API_ENDPOINTS.CUSTOMERS_ME);
+      const auth = await buildAuthHeaders();
 
-      const response = await fetch(buildApiUrl(API_ENDPOINTS.CUSTOMERS_ME), {
+      const formData = new FormData();
+      const ext = (imageUri?.split('.').pop() || 'jpg').toLowerCase();
+      const mime = ext === 'png' ? 'image/png' : ext === 'gif' ? 'image/gif' : 'image/jpeg';
+      const normalizedUri =
+        imageUri?.startsWith('file://') || imageUri?.startsWith('content://')
+          ? imageUri
+          : `file://${imageUri}`;
+
+      formData.append('profilePicture', { uri: normalizedUri, type: mime, name: `profile.${ext}` });
+
+      const response = await fetch(url, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: auth, // Authorization + x-access-token
         body: formData,
       });
 
-      if (response.ok) {
-        const data = await response.json().catch(() => null);
-        const client = data?.client;
-        const newUrl = normalizeProfileUrl(client?.profilePicture);
-        const updatedUser = { ...user, profilePicture: newUrl || user?.profilePicture };
-        
-        // Actualizar en AsyncStorage
-        await AsyncStorage.setItem('userData', JSON.stringify(updatedUser));
-        
-        // Actualizar estado
-        setUser(updatedUser);
-        
-        return { success: true, user: updatedUser };
-      } else {
+      if (!response.ok) {
         const err = await response.json().catch(() => ({}));
-        return { success: false, error: err?.message || 'Error al actualizar foto' };
+        return { success: false, error: err?.message || `HTTP ${response.status}` };
       }
-    } catch (error) {
-      console.log('Error al actualizar foto:', error);
+
+      const data = await response.json().catch(() => null);
+      const client = data?.client ?? data;
+      const newUrl = normalizeProfileUrl(client?.profilePicture);
+      const updatedUser = { ...user, profilePicture: newUrl || user?.profilePicture };
+
+      await AsyncStorage.setItem('userData', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      return { success: true, user: updatedUser };
+    } catch {
       return { success: false, error: 'Error al actualizar foto' };
     }
   };
 
-  // Funcion para cambiar la contrasena
+  // Cambiar contraseña (ruta de tu backend /api/profile/change-password)
   const changePassword = async (currentPassword, newPassword) => {
     try {
-      console.log('[Frontend] Enviando solicitud de cambio de contrasena...');
-      
-      const token = await AsyncStorage.getItem('authToken');
-      if (!token) {
-        console.log('[Frontend] No se encontro token');
-        throw new Error('No se encontró el token de autenticación');
-      }
+      const headers = await buildAuthHeaders({ 'Content-Type': 'application/json', Accept: 'application/json' });
+      const url = buildApiUrl(API_ENDPOINTS.PROFILE_CHANGE_PASSWORD);
 
-      console.log('[Frontend] Token encontrado:', token.substring(0, 50) + '...');
-      
-      //Solicitud simple para verificar conectividad
-      const testUrl = buildApiUrl(API_ENDPOINTS.CUSTOMERS_ME);
-      console.log('[Frontend] Probando conectividad con:', testUrl);
-      
-      try {
-        const testResponse = await fetch(testUrl, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        console.log('[Frontend] Test de conectividad:', testResponse.status);
-      } catch (testError) {
-        console.log('[Frontend] Error de conectividad:', testError);
-        throw new Error('No se puede conectar al servidor. Verifica tu conexión.');
-      }
-
-      const changePasswordUrl = buildApiUrl(API_ENDPOINTS.PROFILE_CHANGE_PASSWORD);
-      console.log('[Frontend] Enviando solicitud a:', changePasswordUrl);
-      console.log('[Frontend] Datos enviados:', {
-        currentPassword: '***',
-        newPassword: '***'
-      });
-      
-      const response = await fetch(changePasswordUrl, {
+      const res = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          currentPassword,
-          newPassword
-        }),
+        headers,
+        body: JSON.stringify({ currentPassword, newPassword }),
       });
 
-      console.log('[Frontend] Respuesta del servidor:', response.status, response.statusText);
-      
-      const data = await response.json();
-      console.log('[Frontend] Datos de respuesta:', data);
-
-      if (!response.ok) {
-        console.log('[Frontend] Error en respuesta:', data);
-        throw new Error(data.message || 'Error al cambiar la contraseña');
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        return { success: false, error: data?.message || `HTTP ${res.status}` };
       }
-
-      console.log('[Frontend] Contrasena cambiada exitosamente');
-      return { success: true, message: data.message || 'Contraseña actualizada correctamente' };
-    } catch (error) {
-      console.error('[Frontend] Error al cambiar la contrasena:', error);
-      
-      // Si es un error de red, devolver un mensaje mas especifico
-      if (error.message.includes('Network request failed') || error.message.includes('fetch')) {
-        return { 
-          success: false, 
-          error: 'Error de conexión. Verifica que el servidor esté funcionando y tu conexión a internet.'
-        };
-      }
-      
-      return { 
-        success: false, 
-        error: error.message || 'Error al cambiar la contraseña. Inténtalo de nuevo.'
-      };
+      return { success: true, message: data?.message || 'Contraseña actualizada correctamente' };
+    } catch {
+      return { success: false, error: 'Error de conexión. Verifica el servidor.' };
     }
   };
 
@@ -392,9 +248,5 @@ export const AuthProvider = ({ children }) => {
     changePassword,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

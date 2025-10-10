@@ -22,8 +22,10 @@
       },
       "edgeToEdgeEnabled": true,
       "permissions": [
-        "CAMERA"
-      ]
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.isjustomi.eternaljoyeria"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -35,7 +37,13 @@
           "photosPermission": "Permite que Eternal Joyería acceda a tus fotos para actualizar tu perfil.",
           "cameraPermission": "Permite que Eternal Joyería use la cámara para tomar tu foto de perfil."
         }
-      ]
-    ]
+      ],
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "321b9fba-39a5-49be-ad01-b050a1a955de"
+      }
+    }
   }
 }
