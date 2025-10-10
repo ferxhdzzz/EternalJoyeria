@@ -2,6 +2,7 @@
 import fetch from "node-fetch";
 import Order from "../models/Orders.js";
 import Sale from "../models/sales.js";
+import Products from "../models/Products.js";
 
 const isMock = () =>
   String(process.env.wompiMode || "").toLowerCase() === "mock";
@@ -26,6 +27,50 @@ function fallbackRedirect(req) {
     process.env.corsOrigin ||
     "http://localhost:5173";
   return `${origin.replace(/\/$/, "")}/checkout`;
+}
+
+// Función para reducir el stock de los productos después de un pago exitoso
+async function reduceProductStock(order) {
+  console.log(`📦 [STOCK] Reduciendo stock para orden ${order._id}`);
+  
+  try {
+    for (const item of order.products) {
+      const { productId, quantity } = item;
+      
+      console.log(`📦 [STOCK] Procesando producto ${productId}, cantidad: ${quantity}`);
+      
+      // Buscar el producto
+      const product = await Products.findById(productId);
+      if (!product) {
+        console.error(`❌ [STOCK] Producto ${productId} no encontrado`);
+        continue;
+      }
+      
+      console.log(`📦 [STOCK] Stock actual del producto ${product.name}: ${product.stock}`);
+      
+      // Verificar que hay suficiente stock
+      if (product.stock < quantity) {
+        console.error(`❌ [STOCK] Stock insuficiente para ${product.name}. Stock: ${product.stock}, Requerido: ${quantity}`);
+        // No detener el proceso, solo registrar el error
+        continue;
+      }
+      
+      // Reducir el stock
+      const newStock = Math.max(0, product.stock - quantity);
+      await Products.findByIdAndUpdate(
+        productId,
+        { stock: newStock },
+        { new: true }
+      );
+      
+      console.log(`✅ [STOCK] Stock actualizado para ${product.name}: ${product.stock} → ${newStock}`);
+    }
+    
+    console.log(`✅ [STOCK] Stock reducido exitosamente para orden ${order._id}`);
+  } catch (error) {
+    console.error(`❌ [STOCK] Error al reducir stock para orden ${order._id}:`, error);
+    // No lanzar error para no afectar el flujo de pago
+  }
 }
 
 /* ================== TOKEN OAuth ================== */
@@ -138,17 +183,21 @@ export const payment3ds = async (req, res) => {
         });
       }
 
-      // Actualizar el estado de la orden a pagado
-      order.status = "pagado";
-      order.paymentStatus = "completed";
-      order.paymentDate = new Date();
-      await order.save();
-
       // Verificar si ya existe una venta para esta orden
       let existingSale = await Sale.findOne({ idOrder: order._id });
       
-      // Si no existe una venta, crearla
+      // Si no existe una venta, procesar el pago
       if (!existingSale) {
+        // Actualizar el estado de la orden a pagado
+        order.status = "pagado";
+        order.paymentStatus = "completed";
+        order.paymentDate = new Date();
+        await order.save();
+
+        // ✅ REDUCIR STOCK DE LOS PRODUCTOS (solo si es la primera vez)
+        await reduceProductStock(order);
+
+        // Crear la venta
         existingSale = await Sale.create({
           idOrder: order._id,
           idCustomers: order.idCustomer,
@@ -159,6 +208,8 @@ export const payment3ds = async (req, res) => {
           createdAt: new Date(),
           updatedAt: new Date()
         });
+      } else {
+        console.log(`⚠️ [PAYMENT] Venta ya existe para orden ${order._id}, no se reduce stock`);
       }
 
       // Obtener la orden actualizada con toda la información
@@ -235,15 +286,25 @@ export const payment3ds = async (req, res) => {
       });
     }
 
-    // Pago aprobado
-    order.status = "pagado";
-    await order.save();
+    // Verificar si ya existe una venta para esta orden
+    let existingSale = await Sale.findOne({ idOrder: order._id });
+    
+    if (!existingSale) {
+      // Pago aprobado - primera vez
+      order.status = "pagado";
+      await order.save();
 
-    const sale = await Sale.create({
-      idOrder: order._id,
-      idCustomers: order.idCustomer,
-      address: onlyAddressLine(order, formData),
-    });
+      // ✅ REDUCIR STOCK DE LOS PRODUCTOS (solo si es la primera vez)
+      await reduceProductStock(order);
+
+      existingSale = await Sale.create({
+        idOrder: order._id,
+        idCustomers: order.idCustomer,
+        address: onlyAddressLine(order, formData),
+      });
+    } else {
+      console.log(`⚠️ [PAYMENT] Venta ya existe para orden ${order._id}, no se reduce stock`);
+    }
 
     const orderOut = await Order.findById(order._id)
       .populate("idCustomer", "firstName lastName email")
@@ -251,7 +312,7 @@ export const payment3ds = async (req, res) => {
 
     return res.json({
       estadoTransaccion: "APROBADA",
-      sale,
+      sale: existingSale,
       order: orderOut,
       wompi: data,
     });

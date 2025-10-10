@@ -10,6 +10,8 @@ import {
   SafeAreaView,
   Dimensions,
   Platform,
+  Modal,
+  ActivityIndicator,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
@@ -34,6 +36,10 @@ const ReviewsScreen = ({ navigation, route }) => {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [hasPurchased, setHasPurchased] = useState(null); // null = no verificado, true/false = resultado
+  const [checkingPurchase, setCheckingPurchase] = useState(false);
+  const [selectedImageModal, setSelectedImageModal] = useState(null);
+  const [imageModalVisible, setImageModalVisible] = useState(false);
   
   const {
     alertConfig,
@@ -42,12 +48,92 @@ const ReviewsScreen = ({ navigation, route }) => {
     showReviewSuccess,
     showReviewError,
     showImagePickerOptions,
+    showAlert,
   } = useCustomAlert();
 
   // Obtener imagen del producto
   const productImageUri = Array.isArray(product?.images) && product.images.length
     ? product.images[0]
     : (typeof product?.image === 'string' ? product.image : null);
+
+  // Verificar si el usuario ha comprado este producto
+  const checkUserPurchase = async () => {
+    if (!user || !product?._id) {
+      setHasPurchased(false);
+      return;
+    }
+
+    setCheckingPurchase(true);
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) {
+        setHasPurchased(false);
+        return;
+      }
+
+      // Volver al endpoint con autenticación real
+      const url = buildApiUrl(`${API_ENDPOINTS.PRODUCTS_CHECK_PURCHASE}/${product._id}`);
+      console.log('🌐 [PURCHASE_CHECK] URL construida (TEST):', url);
+      console.log('🌐 [PURCHASE_CHECK] Endpoint:', API_ENDPOINTS.PRODUCTS_CHECK_PURCHASE);
+      console.log('🌐 [PURCHASE_CHECK] Product ID:', product._id);
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'x-access-token': token,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('🌐 [PURCHASE_CHECK] Status:', response.status);
+      console.log('🌐 [PURCHASE_CHECK] Headers:', response.headers);
+      
+      const responseText = await response.text();
+      console.log('🌐 [PURCHASE_CHECK] Response text:', responseText);
+      
+      let data;
+      try {
+        data = JSON.parse(responseText);
+        console.log('🛒 [PURCHASE_CHECK] Respuesta parseada:', data);
+      } catch (parseError) {
+        console.error('❌ [PURCHASE_CHECK] Error parsing JSON:', parseError);
+        console.error('❌ [PURCHASE_CHECK] Response text was:', responseText);
+        throw new Error(`Error parsing response: ${parseError.message}`);
+      }
+
+      if (response.ok && data.success) {
+        setHasPurchased(data.hasPurchased);
+        console.log(`✅ [PURCHASE_CHECK] Usuario ${data.hasPurchased ? 'SÍ' : 'NO'} ha comprado el producto`);
+      } else {
+        console.error('❌ [PURCHASE_CHECK] Error en respuesta:', data);
+        setHasPurchased(false);
+      }
+    } catch (error) {
+      console.error('❌ [PURCHASE_CHECK] Error al verificar compra:', error);
+      setHasPurchased(false);
+    } finally {
+      setCheckingPurchase(false);
+    }
+  };
+
+  // Funciones para el modal de imagen
+  const openImageModal = (imageUri) => {
+    setSelectedImageModal(imageUri);
+    setImageModalVisible(true);
+  };
+
+  const closeImageModal = () => {
+    setImageModalVisible(false);
+    setSelectedImageModal(null);
+  };
+
+  // Verificar compra del usuario al cargar la pantalla
+  useEffect(() => {
+    if (user) {
+      checkUserPurchase();
+    }
+  }, [user, product?._id]);
 
   // Cargar reseñas del producto
   useEffect(() => {
@@ -76,14 +162,46 @@ const ReviewsScreen = ({ navigation, route }) => {
         }
         
         const data = await res.json();
-        console.log('[Reviews] Reviews loaded:', data);
+        console.log('[Reviews] Reseñas obtenidas:', data);
         
         if (Array.isArray(data)) {
           setReviews(data);
+          // Log para debugging de imágenes
+          console.log(`📱 [REVIEWS] Total reseñas recibidas: ${data.length}`);
+          data.forEach((review, index) => {
+            console.log(`📱 [REVIEWS] Reseña ${index + 1}:`, {
+              id: review._id,
+              comment: review.comment?.substring(0, 30) + '...',
+              images: review.images,
+              image: review.image,
+              hasImages: !!(review.images && review.images.length > 0),
+              hasImage: !!review.image,
+              imagesLength: review.images?.length || 0
+            });
+            
+            // Log específico de URLs de imágenes
+            if (review.images && review.images.length > 0) {
+              console.log(`📱 [REVIEWS] URLs de imágenes:`, review.images);
+            }
+            if (review.image) {
+              console.log(`📱 [REVIEWS] URL de imagen singular:`, review.image);
+            }
+          });
         } else if (data.reviews && Array.isArray(data.reviews)) {
           setReviews(data.reviews);
+          // Log para debugging de imágenes
+          data.reviews.forEach((review, index) => {
+            console.log(`[Reviews] Reseña ${index + 1}:`, {
+              id: review._id,
+              comment: review.comment?.substring(0, 50) + '...',
+              images: review.images,
+              image: review.image,
+              hasImages: !!(review.images && review.images.length > 0),
+              hasImage: !!review.image
+            });
+          });
         } else {
-          console.warn('[Reviews] Unexpected data format:', data);
+          console.warn('[Reviews] Formato de respuesta inesperado:', data);
           setReviews([]);
         }
       } catch (error) {
@@ -266,23 +384,34 @@ const ReviewsScreen = ({ navigation, route }) => {
       
       setSubmitting(true);
       
-      const reviewData = {
-        rank: selectedRating,
-        comment: reviewText.trim(),
-        id_product: product._id || product.id,
-        id_customer: user._id || user.id
-      };
-
-      console.log('[ReviewsScreen] Submitting review:', reviewData);
-
       const token = await AsyncStorage.getItem('authToken');
+      
+      // Crear FormData para enviar imagen si existe
+      const formData = new FormData();
+      formData.append('rank', selectedRating.toString());
+      formData.append('comment', reviewText.trim());
+      formData.append('id_product', product._id || product.id);
+      formData.append('id_customer', user._id || user.id);
+      
+      // Agregar imagen si existe
+      if (selectedImage) {
+        console.log('[ReviewsScreen] Agregando imagen a la reseña:', selectedImage);
+        formData.append('images', {
+          uri: selectedImage,
+          type: 'image/jpeg',
+          name: 'review-image.jpg',
+        });
+      }
+
+      console.log('[ReviewsScreen] Submitting review with FormData');
+
       const response = await fetch(`${BACKEND_URL}/api/reviews`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
         },
-        body: JSON.stringify(reviewData)
+        body: formData
       });
 
       const data = await response.json();
@@ -367,6 +496,37 @@ const ReviewsScreen = ({ navigation, route }) => {
                   showError('Debes iniciar sesión para dejar una reseña');
                   return;
                 }
+                
+                // Verificar si el usuario ha comprado el producto
+                if (hasPurchased === false) {
+                  showAlert({
+                    type: 'warning',
+                    title: 'Compra Requerida',
+                    message: 'Solo puedes escribir reseñas de productos que hayas comprado. ¡Compra este producto para poder compartir tu experiencia!',
+                    buttons: [
+                      {
+                        text: 'Entendido',
+                        style: 'cancel',
+                        onPress: () => hideAlert(),
+                      },
+                      {
+                        text: 'Ver producto',
+                        style: 'confirm',
+                        onPress: () => {
+                          hideAlert();
+                          navigation.goBack();
+                        },
+                      },
+                    ],
+                  });
+                  return;
+                }
+                
+                if (hasPurchased === null || checkingPurchase) {
+                  showError('Verificando tu historial de compras...');
+                  return;
+                }
+                
                 setShowForm(true);
               }}
             >
@@ -515,6 +675,53 @@ const ReviewsScreen = ({ navigation, route }) => {
                   </View>
                 </View>
                 <Text style={styles.reviewText}>{review.comment || ''}</Text>
+                
+                {/* Mostrar fotos de la reseña si existen */}
+                {(review.images && review.images.length > 0) && (
+                  <View style={styles.reviewImagesContainer}>
+                    {console.log(`🖼️ [RENDER] Renderizando ${review.images.length} imágenes para reseña ${review._id}`)}
+                    {review.images.map((imageUri, index) => (
+                      <TouchableOpacity 
+                        key={index}
+                        style={styles.reviewImageContainer}
+                        onPress={() => openImageModal(imageUri)}
+                        activeOpacity={0.8}
+                      >
+                        <Image 
+                          source={{ uri: imageUri }} 
+                          style={styles.reviewImageThumbnail}
+                          resizeMode="cover"
+                          onLoad={() => console.log(`✅ [IMAGE] Imagen cargada: ${imageUri}`)}
+                          onError={(error) => console.error(`❌ [IMAGE] Error cargando imagen: ${imageUri}`, error.nativeEvent)}
+                        />
+                        <View style={styles.imageOverlay}>
+                          <Ionicons name="expand" size={20} color="#fff" />
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+                
+                {/* Fallback para reseñas con campo 'image' singular (compatibilidad) */}
+                {(!review.images || review.images.length === 0) && review.image && (
+                  <TouchableOpacity 
+                    style={styles.reviewImageContainer}
+                    onPress={() => openImageModal(review.image)}
+                    activeOpacity={0.8}
+                  >
+                    {console.log(`🖼️ [RENDER] Renderizando imagen singular para reseña ${review._id}: ${review.image}`)}
+                    <Image 
+                      source={{ uri: review.image }} 
+                      style={styles.reviewImageThumbnail}
+                      resizeMode="cover"
+                      onLoad={() => console.log(`✅ [IMAGE] Imagen singular cargada: ${review.image}`)}
+                      onError={(error) => console.error(`❌ [IMAGE] Error cargando imagen singular: ${review.image}`, error.nativeEvent)}
+                    />
+                    <View style={styles.imageOverlay}>
+                      <Ionicons name="expand" size={20} color="#fff" />
+                    </View>
+                  </TouchableOpacity>
+                )}
               </View>
             ))
           ) : (
@@ -527,6 +734,39 @@ const ReviewsScreen = ({ navigation, route }) => {
         </View>
 
       </ScrollView>
+
+      {/* Modal para ver imagen en detalle */}
+      <Modal
+        visible={imageModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={closeImageModal}
+      >
+        <View style={styles.modalContainer}>
+          <TouchableOpacity 
+            style={styles.modalBackground}
+            onPress={closeImageModal}
+            activeOpacity={1}
+          >
+            <View style={styles.modalContent}>
+              <TouchableOpacity 
+                style={styles.closeButton}
+                onPress={closeImageModal}
+              >
+                <Ionicons name="close" size={30} color="#fff" />
+              </TouchableOpacity>
+              
+              {selectedImageModal && (
+                <Image 
+                  source={{ uri: selectedImageModal }}
+                  style={styles.modalImage}
+                  resizeMode="contain"
+                />
+              )}
+            </View>
+          </TouchableOpacity>
+        </View>
+      </Modal>
 
       {/* Alerta personalizada */}
       <CustomAlert
@@ -821,6 +1061,71 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#fff',
     fontWeight: '600',
+  },
+  
+  // Estilos para fotos en reseñas
+  reviewImagesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 10,
+    gap: 8,
+  },
+  reviewImageContainer: {
+    marginTop: 10,
+    position: 'relative',
+    alignSelf: 'flex-start',
+  },
+  reviewImageThumbnail: {
+    width: 120,
+    height: 120,
+    borderRadius: 8,
+    backgroundColor: '#f0f0f0',
+  },
+  imageOverlay: {
+    position: 'absolute',
+    bottom: 5,
+    right: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    borderRadius: 15,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+  // Estilos para modal de imagen
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalBackground: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '90%',
+    height: '80%',
+    position: 'relative',
+  },
+  modalImage: {
+    width: '100%',
+    height: '100%',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: -50,
+    right: 0,
+    zIndex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

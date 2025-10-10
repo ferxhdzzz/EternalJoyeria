@@ -214,9 +214,9 @@ const ForgotPasswordScreen = ({ navigation }) => {
                   Ingresa tu correo electrónico para recibir un código de recuperación
                 </Text>
 
-              {/* Formulario de recuperacion */}
+              {/* Formulario de recuperación */}
               <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
-                {/* Campo de correo electronico */}
+                {/* Campo de correo electrónico */}
                 <View style={styles.inputContainer}>
                   <Text style={styles.inputLabel}>Correo Electrónico</Text>
                   <View style={[styles.inputWrapper, emailError ? styles.inputError : null]}>

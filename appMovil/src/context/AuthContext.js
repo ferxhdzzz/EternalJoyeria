@@ -55,9 +55,9 @@ export const AuthProvider = ({ children }) => {
             parsedUser = {
               id: meData._id || meData.id || parsedUser?.id,
               email: meData.email || parsedUser?.email,
-              firstName: meData.firstName || parsedUser?.firstName || '',
-              lastName: meData.lastName || parsedUser?.lastName || '',
-              phone: meData.phone || parsedUser?.phone || '',
+              firstName: meData.hasOwnProperty('firstName') ? (meData.firstName || '') : (parsedUser?.firstName || ''),
+              lastName: meData.hasOwnProperty('lastName') ? (meData.lastName || '') : (parsedUser?.lastName || ''),
+              phone: meData.hasOwnProperty('phone') ? (meData.phone || '') : (parsedUser?.phone || ''),
               profilePicture: normalizeProfileUrl(meData.profilePicture || parsedUser?.profilePicture || ''),
             };
             await AsyncStorage.setItem('userData', JSON.stringify(parsedUser));
@@ -104,9 +104,9 @@ export const AuthProvider = ({ children }) => {
           finalUser = {
             id: meData._id || meData.id || data.user?.id,
             email: meData.email || data.user?.email,
-            firstName: meData.firstName || '',
-            lastName: meData.lastName || '',
-            phone: meData.phone || '',
+            firstName: meData.hasOwnProperty('firstName') ? (meData.firstName || '') : '',
+            lastName: meData.hasOwnProperty('lastName') ? (meData.lastName || '') : '',
+            phone: meData.hasOwnProperty('phone') ? (meData.phone || '') : '',
             profilePicture: normalizeProfileUrl(meData.profilePicture || ''),
           };
         }
@@ -141,6 +141,9 @@ export const AuthProvider = ({ children }) => {
   // Actualizar datos (PUT -> fallback PATCH) compatible con tu backend
   const updateUser = async (newData) => {
     try {
+      console.log('[AuthContext] Actualizando usuario con datos:', newData);
+      console.log('[AuthContext] Usuario actual antes de actualizar:', user);
+      
       const headers = await buildAuthHeaders({ 'Content-Type': 'application/json' });
       const url = buildApiUrl(API_ENDPOINTS.CUSTOMERS_ME);
 
@@ -150,27 +153,37 @@ export const AuthProvider = ({ children }) => {
       let res = await make('PUT');
       if (res.status === 405 || res.status === 404) res = await make('PATCH');
 
+      console.log('[AuthContext] Respuesta del servidor:', res.status);
+
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
+        console.error('[AuthContext] Error del servidor:', err);
         return { success: false, error: err?.message || `HTTP ${res.status}` };
       }
 
       const resJson = await res.json().catch(() => null);
+      console.log('[AuthContext] Datos recibidos del servidor:', resJson);
+      
       const client = resJson?.client ?? resJson;
 
       const updatedUser = {
         id: client?._id || client?.id || user?.id,
         email: client?.email ?? user?.email,
-        firstName: client?.firstName ?? user?.firstName ?? '',
-        lastName: client?.lastName ?? user?.lastName ?? '',
-        phone: client?.phone ?? user?.phone ?? '',
+        firstName: client?.hasOwnProperty('firstName') ? (client.firstName || '') : (user?.firstName || ''),
+        lastName: client?.hasOwnProperty('lastName') ? (client.lastName || '') : (user?.lastName || ''),
+        phone: client?.hasOwnProperty('phone') ? (client.phone || '') : (user?.phone || ''),
         profilePicture: normalizeProfileUrl(client?.profilePicture ?? user?.profilePicture ?? ''),
       };
 
+      console.log('[AuthContext] Usuario actualizado:', updatedUser);
+
       await AsyncStorage.setItem('userData', JSON.stringify(updatedUser));
       setUser(updatedUser);
+      
+      console.log('[AuthContext] Estado del usuario actualizado exitosamente');
       return { success: true, user: updatedUser };
     } catch (error) {
+      console.error('[AuthContext] Error al actualizar perfil:', error);
       return { success: false, error: error?.message || 'Error al actualizar perfil' };
     }
   };

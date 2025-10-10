@@ -1,11 +1,20 @@
 // Archivo: RecoveryPassword.js
-
 import fetch from "node-fetch";
 
 //Aqui colocar la API KEY que obtuvieron de Brevo
 const apiKey = process.env.brevoApiKey;
 
 const RecoveryPassword = async function enviarCorreo(email, code) {
+  console.log(' [RecoveryPassword] Iniciando envío de correo de recuperación');
+  console.log(' [RecoveryPassword] Email destino:', email);
+  console.log(' [RecoveryPassword] Código:', code);
+  console.log(' [RecoveryPassword] API Key configurada:', apiKey ? 'SÍ ' : 'NO ');
+  
+  if (!apiKey) {
+    console.error(' [RecoveryPassword] ERROR: Brevo API Key no está configurada');
+    throw new Error('Brevo API Key no configurada');
+  }
+  
   const response = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: {
@@ -127,8 +136,19 @@ const RecoveryPassword = async function enviarCorreo(email, code) {
     }),
   });
 
+  console.log('📧 [RecoveryPassword] Respuesta de Brevo - Status:', response.status);
+  console.log('📧 [RecoveryPassword] Respuesta de Brevo - OK:', response.ok);
+  
   const data = await response.json();
-  console.log(data);
+  console.log('📧 [RecoveryPassword] Datos de respuesta:', data);
+  
+  if (!response.ok) {
+    console.error('❌ [RecoveryPassword] ERROR al enviar correo:', data);
+    throw new Error(`Error de Brevo: ${data.message || 'Error desconocido'}`);
+  }
+  
+  console.log('✅ [RecoveryPassword] Correo enviado exitosamente');
+  return data;
 };
 
 export default RecoveryPassword;

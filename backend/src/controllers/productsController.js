@@ -2,6 +2,7 @@
 
 import Product from "../models/Products.js";
 import Category from "../models/Category.js";
+import Order from "../models/Orders.js";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs/promises";
 
@@ -18,6 +19,10 @@ const productController = {};
 productController.getAllProducts = async (req, res) => {
   try {
     const products = await Product.find().populate("category_id", "name");
+    
+    // Log temporal para debugging de stock (simplificado)
+    console.log(`📋 [PRODUCTS] Devolviendo ${products.length} productos`);
+    
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: "error fetching products", error: error.message });
@@ -40,9 +45,128 @@ productController.getProductsByCategory = async (req, res) => {
   try {
     const categoryId = req.params.id;
     const products = await Product.find({ category_id: categoryId }).populate("category_id", "name");
+    
+    // Log temporal para debugging de stock
+    console.log(`📋 [PRODUCTS] Devolviendo ${products.length} productos de categoría ${categoryId}`);
+    products.forEach(product => {
+      console.log(`📦 [PRODUCTS] ${product.name}: stock = ${product.stock}`);
+    });
+    
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: "error fetching products by category", error: error.message });
+  }
+};
+
+// ENDPOINT TEMPORAL PARA DEBUGGING DE STOCK
+productController.checkStock = async (req, res) => {
+  try {
+    const products = await Product.find({}, 'name stock').lean();
+    
+    console.log(`🔍 [DEBUG] Verificando stock directo de la base de datos:`);
+    const stockInfo = products.map(product => {
+      console.log(`🔍 [DEBUG] ${product.name}: ${product.stock}`);
+      return {
+        id: product._id,
+        name: product.name,
+        stock: product.stock
+      };
+    });
+    
+    res.json({
+      message: "Stock actual en la base de datos",
+      products: stockInfo,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error checking stock:', error);
+    res.status(500).json({ message: "Error checking stock", error: error.message });
+  }
+};
+
+// Verificar si un usuario ha comprado un producto específico
+productController.checkUserPurchase = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    let userId = req.userId; // Viene del middleware de autenticación
+    
+    console.log(`🛒 [PURCHASE_CHECK] =================================`);
+    console.log(`🛒 [PURCHASE_CHECK] Verificando compra - Usuario: ${userId}, Producto: ${productId}`);
+    console.log(`🛒 [PURCHASE_CHECK] Headers recibidos:`, JSON.stringify(req.headers, null, 2));
+    
+    if (!userId) {
+      console.log(`❌ [PURCHASE_CHECK] Usuario no autenticado`);
+      return res.status(401).json({ 
+        success: false, 
+        message: "Usuario no autenticado" 
+      });
+    }
+    
+    if (!productId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "ID de producto requerido" 
+      });
+    }
+    
+    // Buscar órdenes del usuario que contengan este producto y estén pagadas
+    console.log(`🔍 [PURCHASE_CHECK] Buscando órdenes con criterios:`);
+    console.log(`🔍 [PURCHASE_CHECK] - idCustomer: ${userId}`);
+    console.log(`🔍 [PURCHASE_CHECK] - status: 'pagado'`);
+    console.log(`🔍 [PURCHASE_CHECK] - products.productId: ${productId}`);
+    
+    // Primero, buscar TODAS las órdenes del usuario para debugging
+    const allUserOrders = await Order.find({
+      idCustomer: userId
+    }).populate('products.productId', 'name');
+    
+    console.log(`📊 [PURCHASE_CHECK] Total órdenes del usuario: ${allUserOrders.length}`);
+    
+    // Ahora buscar órdenes específicas con el producto
+    const orders = await Order.find({
+      idCustomer: userId,
+      status: 'pagado',
+      'products.productId': productId
+    }).populate('products.productId', 'name');
+    
+    console.log(`🛒 [PURCHASE_CHECK] Órdenes encontradas: ${orders.length}`);
+    
+    // Log simplificado de las órdenes encontradas
+    if (orders.length > 0) {
+      console.log(`✅ [PURCHASE_CHECK] Usuario SÍ ha comprado el producto (${orders.length} órdenes)`);
+    } else {
+      console.log(`❌ [PURCHASE_CHECK] Usuario NO ha comprado el producto`);
+    }
+    
+    if (orders.length > 0) {
+      // El usuario ha comprado este producto
+      const purchaseInfo = orders.map(order => ({
+        orderId: order._id,
+        purchaseDate: order.createdAt,
+        products: order.products.filter(p => p.productId._id.toString() === productId)
+      }));
+      
+      return res.json({
+        success: true,
+        hasPurchased: true,
+        message: "Usuario ha comprado este producto",
+        purchases: purchaseInfo
+      });
+    } else {
+      return res.json({
+        success: true,
+        hasPurchased: false,
+        message: "Usuario no ha comprado este producto"
+      });
+    }
+    
+  } catch (error) {
+    console.error('❌ [PURCHASE_CHECK] Error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Error al verificar compra", 
+      error: error.message 
+    });
   }
 };
 

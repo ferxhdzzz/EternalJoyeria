@@ -8,12 +8,25 @@ import { config } from "../config.js";
  * @returns {function} Función middleware de Express.
  */
 export const validateAuthToken = (allowedRoles) => (req, res, next) => {
-    // 1. Obtener el token de la cookie
-    // El nombre de la cookie debe coincidir exactamente con el usado en loginController.js ("authToken")
-    const token = req.cookies.authToken;
+    console.log(`🔐 [AUTH] Validando token para ruta: ${req.method} ${req.path}`);
+    
+    // 1. Obtener el token de cookies (web) o headers (móvil)
+    let token = req.cookies.authToken; // Para frontend web
+    console.log(`🔐 [AUTH] Token en cookies: ${token ? 'SÍ' : 'NO'}`);
+    
+    // Si no hay token en cookies, buscar en headers (para app móvil)
+    if (!token) {
+        const authHeader = req.headers.authorization || req.headers['x-access-token'];
+        console.log(`🔐 [AUTH] Authorization header: ${authHeader ? 'SÍ' : 'NO'}`);
+        if (authHeader) {
+            // Si viene como "Bearer TOKEN", extraer solo el TOKEN
+            token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
+            console.log(`🔐 [AUTH] Token extraído de header: ${token ? 'SÍ' : 'NO'}`);
+        }
+    }
 
     if (!token) {
-        console.log("Acceso denegado: Token no encontrado en las cookies.");
+        console.log("Acceso denegado: Token no encontrado en cookies ni headers.");
         return res.status(401).json({ 
             success: false, 
             message: "Acceso denegado. No se ha proporcionado un token." 
@@ -42,6 +55,7 @@ export const validateAuthToken = (allowedRoles) => (req, res, next) => {
         req.userId = id;
         req.userType = userType; 
 
+        console.log(`✅ [AUTH] Token válido - Usuario: ${id}, Tipo: ${userType}`);
         next();
     } catch (error) {
         // Manejar errores de token (expiración, firma inválida, etc.)

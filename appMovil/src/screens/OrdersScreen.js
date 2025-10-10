@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   RefreshControl,
   Image,
   Dimensions,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
@@ -22,8 +23,13 @@ const { width } = Dimensions.get('window');
 const OrdersScreen = ({ navigation }) => {
   const { user } = useAuth();
   const [orders, setOrders] = useState([]);
+  const [allOrders, setAllOrders] = useState([]); // Todos los pedidos sin filtrar
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  
+  // Estados para filtros
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState('todos');
+  const [selectedDateFilter, setSelectedDateFilter] = useState('todos');
 
 
   // Obtener pedidos del usuario
@@ -51,29 +57,34 @@ const OrdersScreen = ({ navigation }) => {
         const data = await response.json();
         console.log('✅ [OrdersScreen] Datos recibidos:', data.length, 'registros');
         
-        // Filtrar solo pedidos completados/pagados (no carritos temporales)
-        const completedOrders = Array.isArray(data) ? data.filter(order => {
-          // Solo mostrar pedidos que NO sean carritos temporales
-          const isCompletedOrder = order.status && 
+        // Filtrar solo pedidos reales (no carritos temporales)
+        const realOrders = Array.isArray(data) ? data.filter(order => {
+          // Excluir solo carritos temporales y drafts
+          const isRealOrder = order.status && 
             order.status !== 'cart' && 
-            order.status !== 'draft' && 
-            order.status !== 'pending_payment' &&
-            order.paymentStatus !== 'pending';
+            order.status !== 'draft';
           
           console.log(`[OrdersScreen] Orden ${order._id?.slice(-6)}:`, {
             status: order.status,
             paymentStatus: order.paymentStatus,
-            isCompleted: isCompletedOrder
+            isReal: isRealOrder
           });
           
-          return isCompletedOrder;
+          return isRealOrder;
         }) : [];
         
-        console.log('🔍 [OrdersScreen] Pedidos completados:', completedOrders.length);
+        console.log('🔍 [OrdersScreen] Pedidos reales:', realOrders.length);
         
-        // Log detallado de cada pedido completado para debug
-        completedOrders.forEach((order, index) => {
-          console.log(`[OrdersScreen] Pedido completado ${index + 1}:`, {
+        // Ordenar por fecha (más reciente primero)
+        const sorted = realOrders
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
+        // Guardar todos los pedidos para filtros
+        setAllOrders(sorted);
+        
+        // Log detallado de cada pedido para debug
+        sorted.forEach((order, index) => {
+          console.log(`[OrdersScreen] Pedido ${index + 1}:`, {
             id: order._id?.slice(-6),
             status: order.status,
             total: order.total,
@@ -81,11 +92,6 @@ const OrdersScreen = ({ navigation }) => {
             products: order.products?.length || 0
           });
         });
-        
-        // Mostrar solo pedidos completados y ordenar por fecha (desc)
-        const sorted = completedOrders
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        setOrders(sorted);
       } else {
         const errorText = await response.text();
         console.error('❌ [OrdersScreen] Error:', response.status, errorText);
@@ -114,6 +120,74 @@ const OrdersScreen = ({ navigation }) => {
     setRefreshing(true);
     fetchUserOrders();
   };
+
+  // Definir filtros disponibles
+  const statusFilters = [
+    { id: 'todos', label: 'Todos', icon: 'list' },
+    { id: 'pagado', label: 'Pagado', icon: 'checkmark-circle' },
+    { id: 'pendiente', label: 'Pendiente', icon: 'time' },
+    { id: 'pending_payment', label: 'Pago Pendiente', icon: 'card' },
+    { id: 'En camino', label: 'En Camino', icon: 'car' },
+    { id: 'cancelado', label: 'Cancelado', icon: 'close-circle' },
+  ];
+
+  const dateFilters = [
+    { id: 'todos', label: 'Todas las fechas', icon: 'calendar' },
+    { id: 'semana', label: 'Última semana', icon: 'calendar-outline' },
+    { id: 'mes', label: 'Último mes', icon: 'calendar-outline' },
+    { id: 'trimestre', label: 'Últimos 3 meses', icon: 'calendar-outline' },
+  ];
+
+  // Función para filtrar por fecha
+  const filterByDate = (orders, dateFilter) => {
+    if (dateFilter === 'todos') return orders;
+    
+    const now = new Date();
+    const startDate = new Date();
+    
+    switch (dateFilter) {
+      case 'semana':
+        startDate.setDate(now.getDate() - 7);
+        break;
+      case 'mes':
+        startDate.setMonth(now.getMonth() - 1);
+        break;
+      case 'trimestre':
+        startDate.setMonth(now.getMonth() - 3);
+        break;
+      default:
+        return orders;
+    }
+    
+    return orders.filter(order => new Date(order.createdAt) >= startDate);
+  };
+
+  // Función para filtrar por estado
+  const filterByStatus = (orders, statusFilter) => {
+    if (statusFilter === 'todos') return orders;
+    return orders.filter(order => order.status === statusFilter);
+  };
+
+  // Aplicar filtros usando useMemo para optimización
+  const filteredOrders = useMemo(() => {
+    let filtered = [...allOrders];
+    
+    // Aplicar filtro de estado
+    filtered = filterByStatus(filtered, selectedStatusFilter);
+    
+    // Aplicar filtro de fecha
+    filtered = filterByDate(filtered, selectedDateFilter);
+    
+    console.log(`🔍 [OrdersScreen] Filtros aplicados - Estado: ${selectedStatusFilter}, Fecha: ${selectedDateFilter}`);
+    console.log(`🔍 [OrdersScreen] Resultados: ${filtered.length}/${allOrders.length} pedidos`);
+    
+    return filtered;
+  }, [allOrders, selectedStatusFilter, selectedDateFilter]);
+
+  // Actualizar orders cuando cambien los filtros
+  useEffect(() => {
+    setOrders(filteredOrders);
+  }, [filteredOrders]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -222,6 +296,118 @@ const OrdersScreen = ({ navigation }) => {
     </TouchableOpacity>
   );
 
+  // Componente para filtros de estado
+  const renderStatusFilters = () => (
+    <View style={styles.filtersSection}>
+      <Text style={styles.filterSectionTitle}>Filtrar por estado:</Text>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.filtersContainer}
+      >
+        {statusFilters.map((filter) => {
+          const isSelected = selectedStatusFilter === filter.id;
+          const count = filter.id === 'todos' 
+            ? allOrders.length 
+            : allOrders.filter(order => order.status === filter.id).length;
+          
+          return (
+            <TouchableOpacity
+              key={filter.id}
+              style={[styles.filterButton, isSelected && styles.filterButtonActive]}
+              onPress={() => setSelectedStatusFilter(filter.id)}
+            >
+              <Ionicons 
+                name={filter.icon} 
+                size={16} 
+                color={isSelected ? '#fff' : '#6b7280'} 
+              />
+              <Text style={[styles.filterText, isSelected && styles.filterTextActive]}>
+                {filter.label}
+              </Text>
+              {count > 0 && (
+                <View style={[styles.filterBadge, isSelected && styles.filterBadgeActive]}>
+                  <Text style={[styles.filterBadgeText, isSelected && styles.filterBadgeTextActive]}>
+                    {count}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+    </View>
+  );
+
+  // Componente para filtros de fecha
+  const renderDateFilters = () => (
+    <View style={styles.filtersSection}>
+      <Text style={styles.filterSectionTitle}>Filtrar por fecha:</Text>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.filtersContainer}
+      >
+        {dateFilters.map((filter) => {
+          const isSelected = selectedDateFilter === filter.id;
+          const filteredByDate = filterByDate(allOrders, filter.id);
+          const count = filter.id === 'todos' 
+            ? allOrders.length 
+            : filteredByDate.length;
+          
+          return (
+            <TouchableOpacity
+              key={filter.id}
+              style={[styles.filterButton, isSelected && styles.filterButtonActive]}
+              onPress={() => setSelectedDateFilter(filter.id)}
+            >
+              <Ionicons 
+                name={filter.icon} 
+                size={16} 
+                color={isSelected ? '#fff' : '#6b7280'} 
+              />
+              <Text style={[styles.filterText, isSelected && styles.filterTextActive]}>
+                {filter.label}
+              </Text>
+              {count > 0 && (
+                <View style={[styles.filterBadge, isSelected && styles.filterBadgeActive]}>
+                  <Text style={[styles.filterBadgeText, isSelected && styles.filterBadgeTextActive]}>
+                    {count}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+    </View>
+  );
+
+  // Componente para limpiar filtros
+  const renderClearFilters = () => {
+    const hasActiveFilters = selectedStatusFilter !== 'todos' || selectedDateFilter !== 'todos';
+    
+    if (!hasActiveFilters) return null;
+    
+    return (
+      <View style={styles.clearFiltersContainer}>
+        <TouchableOpacity
+          style={styles.clearFiltersButton}
+          onPress={() => {
+            setSelectedStatusFilter('todos');
+            setSelectedDateFilter('todos');
+          }}
+        >
+          <Ionicons name="refresh" size={16} color="#ef4444" />
+          <Text style={styles.clearFiltersText}>Limpiar filtros</Text>
+        </TouchableOpacity>
+        <Text style={styles.resultsCount}>
+          {orders.length} de {allOrders.length} pedidos
+        </Text>
+      </View>
+    );
+  };
+
   const EmptyState = () => (
     <View style={styles.emptyContainer}> 
       <View style={styles.emptyHeader}><Text style={styles.headerTitle}>Mis Pedidos</Text></View>
@@ -274,6 +460,15 @@ const OrdersScreen = ({ navigation }) => {
       <View style={styles.headerBar}>
         <Text style={styles.headerTitle}>Mis Pedidos</Text>
       </View>
+
+      {/* Filtros */}
+      {allOrders.length > 0 && (
+        <View style={styles.filtersWrapper}>
+          {renderStatusFilters()}
+          {renderDateFilters()}
+          {renderClearFilters()}
+        </View>
+      )}
 
       <FlatList
         data={orders}
@@ -589,6 +784,91 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     fontWeight: '600',
+  },
+  
+  // Estilos para filtros
+  filtersWrapper: {
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  filtersSection: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  filterSectionTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2d2d2d',
+    marginBottom: 8,
+  },
+  filtersContainer: {
+    paddingRight: 16,
+    gap: 8,
+  },
+  filterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f9fafb',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    gap: 6,
+  },
+  filterButtonActive: {
+    backgroundColor: '#000',
+    borderColor: '#000',
+  },
+  filterText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#6b7280',
+  },
+  filterTextActive: {
+    color: '#fff',
+  },
+  filterBadge: {
+    backgroundColor: '#e5e7eb',
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    marginLeft: 4,
+  },
+  filterBadgeActive: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  filterBadgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#6b7280',
+  },
+  filterBadgeTextActive: {
+    color: '#fff',
+  },
+  clearFiltersContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#f9fafb',
+  },
+  clearFiltersButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  clearFiltersText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#ef4444',
+  },
+  resultsCount: {
+    fontSize: 12,
+    color: '#6b7280',
+    fontWeight: '500',
   },
 });
 

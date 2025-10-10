@@ -18,11 +18,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCart } from '../context/CartContext';
 import usePayment from '../hooks/usePayment';
+import useFetchProducts from '../hooks/useFetchProducts';
 import CustomAlert from '../components/CustomAlert';
 import useCustomAlert from '../hooks/useCustomAlert';
 
 const CheckoutScreen = ({ navigation }) => {
   const { cartItems, clearCart } = useCart();
+  const { refreshProductos } = useFetchProducts();
   const {
     step,
     setStep,
@@ -238,6 +240,16 @@ const CheckoutScreen = ({ navigation }) => {
 
     try {
       await handleFinishPayment();
+      
+      // ✅ REFRESCAR PRODUCTOS DESPUÉS DEL PAGO EXITOSO
+      console.log('🔄 Refrescando productos después del pago exitoso...');
+      try {
+        await refreshProductos();
+        console.log('✅ Productos refrescados exitosamente');
+      } catch (refreshError) {
+        console.error('❌ Error al refrescar productos:', refreshError);
+      }
+      
       showPaymentSuccess(total.toFixed(2), {
         buttons: [
           {
@@ -521,31 +533,17 @@ const CheckoutScreen = ({ navigation }) => {
           </Animated.View>
         )}
 
-        {/* Paso 2: Informacion de pago */}
+        {/* Paso 2: Información de pago */}
         {step === 2 && (
           <Animated.View style={[styles.stepContainer, { opacity: fadeAnim }]}>
             <View style={styles.stepTitleContainer}>
               <Text style={styles.stepTitle}>Información de pago</Text>
             </View>
             
-            {/* Informacion de modo prueba */}
-            <View style={styles.testModeContainer}>
-              <View style={styles.testModeHeader}>
-                <Text style={styles.testModeTitle}>Modo de Prueba Activo</Text>
-              </View>
-              <Text style={styles.testModeText}>
-                Usa estas tarjetas de prueba para simular pagos:
-              </Text>
-              <Text style={styles.testCardNumber}>• 4242 4242 4242 4242</Text>
-              <Text style={styles.testCardNumber}>• 4111 1111 1111 1111</Text>
-              <Text style={styles.testModeText}>
-                Fecha: cualquier fecha futura • CVV: cualquier 3 dígitos
-              </Text>
-            </View>
             
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Text style={styles.inputLabel}>Nombre en la tarjeta</Text>
+                <Text style={styles.inputLabel}>Nombre del titular de la tarjeta</Text>
               </View>
               <TextInput
                 style={[styles.textInput, errors.nombreTarjetaHabiente && styles.inputError]}
@@ -1072,37 +1070,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#000',
     marginTop: 10,
-  },
-  testModeContainer: {
-    backgroundColor: '#E8F5E8',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#4CAF50',
-  },
-  testModeHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-    gap: 8,
-  },
-  testModeTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2E7D32',
-  },
-  testModeText: {
-    fontSize: 14,
-    color: '#388E3C',
-    marginBottom: 4,
-  },
-  testCardNumber: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1B5E20',
-    fontFamily: 'monospace',
-    marginLeft: 8,
   },
 });
 

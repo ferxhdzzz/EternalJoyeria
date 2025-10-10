@@ -8,11 +8,9 @@ import { v2 as cloudinary } from "cloudinary"; // servicio para subir y gestiona
 import clientsModel from "../models/Customers.js"; // modelo mongoose de clientes
 import { config } from "../config.js"; // configuración global del proyecto
 
-// Importamos la nueva función de Brevo para VERIFICACIÓN
-import mailVerifyBrevo from "../utils/BrevoMailVerify.js"; 
-
-// Importación de la función de Brevo para BIENVENIDA (ya la habíamos cambiado)
-import welcomeEmail from "../utils/BrevoWelcomeEmail.js";
+// Volver a usar Nodemailer (sistema antiguo que funcionaba)
+import { sendMail, HTMLEmailVerification } from "../utils/mailVerify.js";
+import { HTMLWelcomeEmail } from "../utils/HTMLWelcomeEmail.js";
 
 // configuración de credenciales de cloudinary desde variables de entorno
 
@@ -159,7 +157,7 @@ registerCustomersController.registerClient = async (req, res) => {
         expiresAt,
         userId: newClient._id // Incluir ID del usuario para mayor seguridad
       },
-      config.jwt.jwtSecret,
+      config.jwt.secret,
       { expiresIn: config.jwt.expiresIn }
     );
 
@@ -168,13 +166,16 @@ registerCustomersController.registerClient = async (req, res) => {
       console.log("Verification code generated:", verificationCode);
     }
 
-    // ===== ENVIAR EMAIL DE VERIFICACIÓN (¡USANDO BREVO!) =====
+    // ===== ENVIAR EMAIL DE VERIFICACIÓN (USANDO NODEMAILER) =====
     console.log("Sending verification email to:", newClient.email);
     try {
-      // Usamos la función de Brevo
-      await mailVerifyBrevo(
+      // Usamos Nodemailer (Gmail SMTP)
+      const htmlVerification = HTMLEmailVerification(verificationCode);
+      await sendMail(
         newClient.email,
-        verificationCode
+        "Verificación de cuenta - Eternal Joyería",
+        `Tu código de verificación es: ${verificationCode}`,
+        htmlVerification
       );
       
     } catch (emailError) {
@@ -253,7 +254,7 @@ registerCustomersController.verifyCodeEmail = async (req, res) => {
     // ===== VERIFICAR Y DECODIFICAR TOKEN JWT =====
     let decoded;
     try {
-      decoded = jsonwebtoken.verify(token, config.jwt.jwtSecret);
+      decoded = jsonwebtoken.verify(token, config.jwt.secret);
     } catch (jwtError) {
       // Limpiar cookie inválida
       res.clearCookie("verificationToken");
@@ -343,9 +344,12 @@ registerCustomersController.verifyCodeEmail = async (req, res) => {
 
     // ===== ENVIAR EMAIL DE BIENVENIDA (Usando Brevo) =====
     try {
-      await welcomeEmail(
+      const htmlWelcome = HTMLWelcomeEmail(client.firstName);
+      await sendMail(
         client.email,
-        client.firstName
+        "Bienvenido a Eternal Joyería",
+        `Bienvenido ${client.firstName}`,
+        htmlWelcome
       );
 
       if (process.env.NODE_ENV !== "production") { // *** CORRECCIÓN: Usar NODE_ENV ***
@@ -444,7 +448,7 @@ registerCustomersController.resendVerificationCode = async (req, res) => {
         expiresAt,
         userId: client._id // Incluir ID para consistencia
       },
-      config.jwt.jwtSecret,
+      config.jwt.secret,
       { expiresIn: config.jwt.expiresIn }
     );
 
@@ -453,12 +457,15 @@ registerCustomersController.resendVerificationCode = async (req, res) => {
       console.log("New verification code generated (resend):", verificationCode);
     }
 
-    // ===== ENVIAR NUEVO EMAIL DE VERIFICACIÓN (¡USANDO BREVO!) =====
+    // ===== ENVIAR NUEVO EMAIL DE VERIFICACIÓN (USANDO NODEMAILER) =====
     try {
-      // Usamos la nueva función de Brevo
-      await mailVerifyBrevo(
+      // Usamos Nodemailer (Gmail SMTP)
+      const htmlVerification = HTMLEmailVerification(verificationCode);
+      await sendMail(
         client.email,
-        verificationCode
+        "Verificación de cuenta - Eternal Joyería",
+        `Tu código de verificación es: ${verificationCode}`,
+        htmlVerification
       );
       
     } catch (emailError) {

@@ -4,8 +4,13 @@ import fetch from "node-fetch";
 const apiKey = process.env.brevoApiKey;
  
 const MailVerify = async function enviarCorreo(email, code) {
+  console.log('📧 [MailVerify] Iniciando envío de correo de verificación');
+  console.log('📧 [MailVerify] Email destino:', email);
+  console.log('📧 [MailVerify] Código:', code);
+  console.log('📧 [MailVerify] API Key configurada:', apiKey ? 'SÍ ✅' : 'NO ❌');
+  
   if (!apiKey) {
-    console.error("Brevo API Key no definida. No se puede enviar el correo de verificación.");
+    console.error("❌ [MailVerify] ERROR: Brevo API Key no definida. No se puede enviar el correo de verificación.");
     return { success: false, message: "Error de configuración: API Key no definida." };
   }
  
@@ -108,18 +113,22 @@ const MailVerify = async function enviarCorreo(email, code) {
       }),
     });
  
+    console.log('📧 [MailVerify] Respuesta de Brevo - Status:', response.status);
+    console.log('📧 [MailVerify] Respuesta de Brevo - OK:', response.ok);
+    
     const data = await response.json();
-    console.log(data);
+    console.log('📧 [MailVerify] Datos de respuesta:', data);
 
     if (response.ok) {
+        console.log('✅ [MailVerify] Correo de verificación enviado exitosamente');
         return { success: true, message: "Correo de verificación enviado exitosamente." };
     } else {
-        console.error("Error al enviar correo de verificación (Brevo):", data);
+        console.error("❌ [MailVerify] ERROR al enviar correo de verificación (Brevo):", data);
         return { success: false, message: "Error del servicio Brevo.", data };
     }
 
   } catch (error) {
-    console.error("Error en la función MailVerify:", error);
+    console.error("❌ [MailVerify] ERROR en la función MailVerify:", error);
     return { success: false, message: "Error interno del servidor.", error };
   }
 };

@@ -1,7 +1,9 @@
 // src/config/api.js
 // Base URL: usa variable pública de Expo; fallback a Render (producción)
-const DEFAULT_URL = 'https://eternaljoyeria-cg5d.onrender.com';
-export const BACKEND_URL = (process.env.EXPO_PUBLIC_BACKEND_URL || DEFAULT_URL).replace(/\/+$/, '');
+//const DEFAULT_URL = 'https://eternaljoyeria-cg5d.onrender.com';
+//export const BACKEND_URL = (process.env.EXPO_PUBLIC_BACKEND_URL || DEFAULT_URL).replace(/\/+$/, '');
+
+export const BACKEND_URL = 'http://192.168.1.200:4000';
 
 // Endpoints
 export const API_ENDPOINTS = {
@@ -23,6 +25,7 @@ export const API_ENDPOINTS = {
   // Catálogo
   PRODUCTS: '/api/products',
   PRODUCTS_BY_CATEGORY: '/api/products/category',
+  PRODUCTS_CHECK_PURCHASE: '/api/products/check-purchase',
   CATEGORIES: '/api/categories',
 
   // Órdenes / ventas

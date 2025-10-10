@@ -217,7 +217,7 @@ customersController.refreshToken = async (req, res) => {
     // Intentar decodificar el token (incluso si está expirado)
     let decoded;
     try {
-      decoded = jwt.verify(authToken, config.jwt.jwtSecret, { ignoreExpiration: true });
+      decoded = jwt.verify(authToken, config.jwt.secret, { ignoreExpiration: true });
     } catch (error) {
       return res.status(401).json({ 
         message: "Token inválido",
@@ -241,7 +241,7 @@ customersController.refreshToken = async (req, res) => {
         email: customer.email, 
         userType: "customer" 
       },
-      config.jwt.jwtSecret,
+      config.jwt.secret,
       { expiresIn: config.jwt.expiresIn }
     );
 

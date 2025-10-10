@@ -16,6 +16,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_ENDPOINTS, buildApiUrl } from '../config/api';
 import { useNavigation } from '@react-navigation/native';
 import CustomAlert from '../components/CustomAlert';
@@ -26,7 +27,7 @@ const { width, height } = Dimensions.get('window');
 
 const NewPasswordScreen = ({ route }) => {
   const navigation = useNavigation();
-  const { email, code } = route.params;
+  const { email, code, token } = route.params;
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -123,16 +124,26 @@ const NewPasswordScreen = ({ route }) => {
     setIsLoading(true);
     
     try {
+      // Obtener el token de los parámetros de navegación o de AsyncStorage
+      let recoveryToken = token; // Primero intentar con el parámetro
+      
+      if (!recoveryToken) {
+        // Si no viene en parámetros, buscar en AsyncStorage
+        recoveryToken = await AsyncStorage.getItem('recoveryToken');
+      }
+      
+      if (!recoveryToken) {
+        throw new Error('No se encontró token de recuperación.');
+      }
+      
       const response = await fetch(buildApiUrl(API_ENDPOINTS.RECOVERY_RESET), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${recoveryToken}` // Enviar token en header
         },
         body: JSON.stringify({
-          email,
-          newPassword,
-          code,
-          userType: 'customer'
+          newPassword
         }),
         credentials: 'include' // Importante para manejar cookies
       });
@@ -202,7 +213,7 @@ const NewPasswordScreen = ({ route }) => {
               <Text style={styles.subtitle}>Crea una nueva contraseña segura para tu cuenta</Text>
             </Animated.View>
 
-            {/* Formulario de contrasena */}
+            {/* Formulario de contraseña */}
             <Animated.View 
               style={[
                 styles.formContainer,
@@ -212,7 +223,7 @@ const NewPasswordScreen = ({ route }) => {
                 }
               ]}
             >
-              {/* Campo de nueva contrasena */}
+              {/* Campo de nueva contraseña */}
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Nueva Contraseña</Text>
                 <View style={[
@@ -287,7 +298,7 @@ const NewPasswordScreen = ({ route }) => {
                 )}
               </View>
 
-              {/* Boton de actualizar contrasena */}
+              {/* Botón de actualizar contraseña */}
               <TouchableOpacity
                 style={[
                   styles.button,

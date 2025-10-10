@@ -285,7 +285,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
         showsVerticalScrollIndicator={false}
       >
         <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
-              {/* Contrasena actual */}
+              {/* Contraseña actual */}
               <View style={styles.inputContainer}>
                 <View style={styles.labelContainer}>
                   <Ionicons name="lock-closed" size={16} color="#000" />
@@ -319,7 +319,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
                 {currentPasswordError ? <Text style={styles.errorText}>{currentPasswordError}</Text> : null}
               </View>
 
-              {/* Nueva contrasena */}
+              {/* Nueva contraseña */}
               <View style={styles.inputContainer}>
                 <View style={styles.labelContainer}>
                   <Ionicons name="lock-open" size={16} color="#000" />
@@ -353,7 +353,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
                 {newPasswordError ? <Text style={styles.errorText}>{newPasswordError}</Text> : null}
               </View>
 
-              {/* Confirmar nueva contrasena */}
+              {/* Confirmar nueva contraseña */}
               <View style={styles.inputContainer}>
                 <View style={styles.labelContainer}>
                   <Ionicons name="checkmark-circle" size={16} color="#000" />

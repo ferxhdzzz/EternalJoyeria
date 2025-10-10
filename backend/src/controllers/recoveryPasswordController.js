@@ -9,8 +9,8 @@ import clientsModel from "../models/Customers.js";
 import adminModel from "../models/Administrator.js";
 
 
-// *** CAMBIO: Nueva importación de la función de Brevo para recuperación ***
-import RecoveryPassword from "../utils/BrevoRecoveryPasswordEmail.js";
+// *** CAMBIO: Volver a usar Nodemailer (sistema antiguo que funcionaba) ***
+import { sendEmail, HTMLRecoveryEmail } from "../utils/mailRecoveryPassword.js";
 
 
 // importación de configuración general del proyecto
@@ -55,37 +55,41 @@ recoveryPasswordController.requestCode = async (req, res) => {
     res.cookie("tokenRecoveryCode", token, {
       maxAge: 20 * 60 * 1000,
       sameSite: "None", // Permite el envío de cookies a través de dominios (CORS)
-      httpOnly: true,
       secure: true,   // Obligatorio cuando SameSite es "None" (solo funciona en HTTPS)
       path: "/",
     });
-    // --- FIN CORRECCIÓN CRUCIAL ---
+	// --- FIN CORRECCIÓN CRUCIAL ---
 
-    // Intentar enviar el correo
-    try {
-      // *** CAMBIO CLAVE: Llamada a la nueva función de Brevo ***
-      await RecoveryPassword(email, code);
-      
-      return res.json({
-        success: true,
-        message: "Código de recuperación enviado correctamente.",
-        recoveryToken: token // Incluir token para app móvil
-      });
-    } catch (emailError) {
-      console.error("Error al enviar el correo (Brevo):", emailError);
-      // Aún así respondemos con éxito pero indicamos que hubo un problema con el correo
-      return res.status(200).json({
-        success: true,
-        message: "El código se generó correctamente, pero hubo un problema al enviar el correo.",
-        recoveryToken: token // Incluir token para app móvil
-      });
-    }
-  } catch (error) {
-    console.error("Error en requestCode:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error interno del servidor al procesar la solicitud."
-    });
+	// Intentar enviar el correo con Nodemailer (Gmail SMTP)
+	try {
+	  const htmlContent = HTMLRecoveryEmail(code);
+	  await sendEmail(
+	    email,
+	    "Recuperación de Contraseña - Eternal Joyería",
+	    `Tu código de recuperación es: ${code}`,
+	    htmlContent
+	  );
+	  
+	  return res.json({
+	    success: true,
+	    message: "Código de recuperación enviado correctamente.",
+	    recoveryToken: token // Incluir token para app móvil
+	  });
+	} catch (emailError) {
+	  console.error("Error al enviar el correo (Nodemailer):", emailError);
+	  // Aún así respondemos con éxito pero indicamos que hubo un problem con el correo
+	  return res.status(200).json({
+	    success: true,
+	    message: "El código se generó correctamente, pero hubo un problem al enviar el correo.",
+	    recoveryToken: token // Incluir token para app móvil
+	  });
+	}
+} catch (error) {
+	console.error("Error en requestCode:", error);
+	res.status(500).json({
+		success: false,
+		message: "Error interno del servidor al procesar la solicitud."
+	});
   }
 };
 

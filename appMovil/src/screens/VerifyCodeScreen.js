@@ -500,7 +500,7 @@ const VerifyCodeScreen = ({ route }) => {
                 </Text>
               )}
  
-              {/* Boton de verificacion */}
+              {/* Botón de verificación */}
               <TouchableOpacity
                 style={[styles.button, isLoading && styles.buttonDisabled]}
                 onPress={verifyCode}

@@ -229,7 +229,7 @@ const LoginScreen = ({ navigation, route }) => {
             >
               {/* Contenedor de título */}
               <Animated.View style={[styles.titleContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-                <Text style={styles.mainTitle}>Iniciar sesion</Text>
+                <Text style={styles.mainTitle}>Iniciar sesión</Text>
                 <Text style={styles.subtitle}>¡Encuentra tus accesorios perfectos!</Text>
                 <Text style={styles.subtitle}>Es un placer tenerte aquí.</Text>
                 <Text style={styles.subtitle}>Regístrate para ver nuestros</Text>
@@ -310,7 +310,7 @@ const LoginScreen = ({ navigation, route }) => {
                       <Text style={[styles.loginButtonText, { marginLeft: 10 }]}>Iniciando...</Text>
                     </View>
                   ) : (
-                    <Text style={styles.loginButtonText}>Iniciar sesion</Text>
+                    <Text style={styles.loginButtonText}>Iniciar sesión</Text>
                   )}
                 </TouchableOpacity>
 

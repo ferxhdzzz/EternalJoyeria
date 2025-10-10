@@ -56,9 +56,25 @@ reviewsController.getReviewsByProduct = async (req, res) => {
   const { id } = req.params;
 
   try {
+    console.log(`📝 [REVIEWS] Buscando reseñas para producto: ${id}`);
+    
     const reviews = await Review.find({ id_product: id })
       .populate({ path: "id_customer", select: "-password" })
       .populate("id_product");
+
+    console.log(`📝 [REVIEWS] Reseñas encontradas: ${reviews.length}`);
+    
+    // Log COMPLETO de cada reseña para debugging de imágenes
+    reviews.forEach((review, index) => {
+      console.log(`📝 [REVIEWS] ===== RESEÑA ${index + 1} COMPLETA =====`);
+      console.log(`📝 [REVIEWS] ID: ${review._id}`);
+      console.log(`📝 [REVIEWS] Comentario: ${review.comment}`);
+      console.log(`📝 [REVIEWS] Campo 'images':`, review.images);
+      console.log(`📝 [REVIEWS] Campo 'image':`, review.image);
+      console.log(`📝 [REVIEWS] Todos los campos:`, Object.keys(review.toObject ? review.toObject() : review));
+      console.log(`📝 [REVIEWS] Objeto completo:`, JSON.stringify(review, null, 2));
+      console.log(`📝 [REVIEWS] ================================`);
+    });
 
     if (!reviews || reviews.length === 0) {
       return res.status(404).json({ message: "No reviews found for this product" });
@@ -77,7 +93,8 @@ reviewsController.getReviewsByProduct = async (req, res) => {
 reviewsController.createReview = async (req, res) => {
   const { id_customer, id_product, rank, comment } = req.body;
   
-  console.log("Received body:", req.body);
+  console.log("📝 [CREATE_REVIEW] Received body:", req.body);
+  console.log("📝 [CREATE_REVIEW] Received files:", req.files?.length || 0);
 
   try {
     if (!id_customer || !id_product || rank == null || !comment?.trim()) {
@@ -100,9 +117,11 @@ reviewsController.createReview = async (req, res) => {
     
     let uploadedImages = [];
     if (req.files && req.files.length > 0) {
+      console.log(`📝 [CREATE_REVIEW] Subiendo ${req.files.length} imágenes a Cloudinary`);
       for (const file of req.files) {
+        console.log(`📝 [CREATE_REVIEW] Subiendo archivo: ${file.originalname || file.filename}`);
         const result = await cloudinary.uploader.upload(file.path, {
-          folder: "products",
+          folder: "reviews",
           allowed_formats: ["png", "jpg", "jpeg", "PNG", "JPG"],
           transformation: [
             { width: 800, height: 800, crop: "fill" },
@@ -110,9 +129,14 @@ reviewsController.createReview = async (req, res) => {
           ]
         });
         uploadedImages.push(result.secure_url);
+        console.log(`📝 [CREATE_REVIEW] Imagen subida: ${result.secure_url}`);
         await fs.unlink(file.path);
       }
+    } else {
+      console.log(`📝 [CREATE_REVIEW] No se recibieron archivos de imagen`);
     }
+
+    console.log(`📝 [CREATE_REVIEW] Creando reseña con ${uploadedImages.length} imágenes`);
 
     const newReview = new Review({
       id_customer,

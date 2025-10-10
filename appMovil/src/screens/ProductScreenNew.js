@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
 import useFetchProducts from '../hooks/useFetchProducts';
@@ -90,7 +90,19 @@ const ProductScreen = ({ route }) => {
     }
   }, [selectedCategory]);
 
-  // Filtrar productos por categoría seleccionada (defensa extra si llega todo el listado)
+  // Refrescar productos cuando la pantalla recibe foco (ej: después de una compra)
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('🔄 ProductScreen recibió foco, refrescando productos...');
+      if (selectedCategory === 'todos') {
+        refreshProductos(null);
+      } else {
+        refreshProductos(selectedCategory);
+      }
+    }, [selectedCategory])
+  );
+
+  // Función para filtrar productos por categoría seleccionada (defensa extra si llega todo el listado)
   const filteredProducts = useMemo(() => {
     if (!Array.isArray(productos)) return [];
     if (selectedCategory === 'todos') return productos;

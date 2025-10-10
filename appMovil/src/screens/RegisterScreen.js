@@ -392,7 +392,7 @@ const RegisterScreen = ({ navigation, route }) => {
                 </View>
 
 
-                {/* Campo de correo */}
+                {/* Campo de correo electrónico */}
                 <View style={styles.inputContainer}>
                   <Text style={styles.inputLabel}>Correo</Text>
                   <View style={[styles.inputBox, emailError ? styles.inputError : null]}>
@@ -411,7 +411,7 @@ const RegisterScreen = ({ navigation, route }) => {
                   {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
                 </View>
 
-                {/* Campo de telefono */}
+                {/* Campo de teléfono */}
                 <View style={styles.inputContainer}>
                   <Text style={styles.inputLabel}>Teléfono</Text>
                   <View style={[styles.inputBox, phoneError ? styles.inputError : null]}>
@@ -430,7 +430,7 @@ const RegisterScreen = ({ navigation, route }) => {
                   {phoneError ? <Text style={styles.errorText}>{phoneError}</Text> : null}
                 </View>
 
-                {/* Campo de contrasena */}
+                {/* Campo de contraseña */}
                 <View style={styles.inputContainer}>
                   <Text style={styles.inputLabel}>Contraseña</Text>
                   <View style={[styles.inputBox, passwordError ? styles.inputError : null]}>

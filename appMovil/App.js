@@ -24,8 +24,8 @@ const AppContent = () => {
       if (isAuthenticated) {
         setCurrentScreen(6); // Navegador principal de la app
       } else {
-        // Si no está autenticado y ya pasó las bienvenidas, va al Login
-        if (currentScreen >= 6) {
+        // Si no está autenticado y ya estaba en la app (currentScreen >= 4), va al Login
+        if (currentScreen >= 4) {
           setCurrentScreen(4); // Pantalla de Login
         }
       }

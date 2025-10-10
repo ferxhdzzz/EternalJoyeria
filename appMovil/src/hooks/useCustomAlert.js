@@ -164,7 +164,7 @@ const useCustomAlert = () => {
   const showPaymentSuccess = useCallback((amount, options = {}) => {
     showSuccess(
       '¡Pago Exitoso!',
-      `Tu compra por $${amount} ha sido procesada correctamente. Recibirás un correo de confirmación pronto.`,
+      `Tu compra por $${amount} ha sido procesada correctamente.`,
       {
         autoClose: false,
         buttons: [

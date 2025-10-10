@@ -20,6 +20,7 @@ import useCustomAlert from '../hooks/useCustomAlert';
 
 const ProfileScreen = ({ navigation }) => {
   const { user, updateUser, updateProfileImage, logout } = useAuth();
+  const [refreshing, setRefreshing] = useState(false);
 
   const [profileData, setProfileData] = useState({
     firstName: user?.firstName || '',
@@ -46,21 +47,56 @@ const ProfileScreen = ({ navigation }) => {
   // Sincroniza datos cuando cambia el usuario
   useEffect(() => {
     if (user) {
+      console.log('[ProfileScreen] Usuario actualizado:', user);
       const f = user.firstName || '';
       const l = user.lastName || '';
-      setProfileData(prev => ({
-        ...prev,
+      const fullName = [f, l].filter(Boolean).join(' ').trim();
+      
+      setProfileData({
         firstName: f,
         lastName: l,
         email: user.email || '',
         phone: user.phone || user.phoneNumber || '',
-      }));
+        notifications: user.notifications !== undefined ? user.notifications : true,
+      });
+      
+      // Si estamos editando el nombre, actualizar el input también
       if (editingField === 'name') {
-        setNameInput([f, l].filter(Boolean).join(' ').trim());
+        setNameInput(fullName);
       }
+      
+      console.log('[ProfileScreen] Datos sincronizados:', { f, l, fullName });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, editingField]);
+
+  // Función para refrescar manualmente los datos
+  const refreshProfile = async () => {
+    setRefreshing(true);
+    try {
+      // Forzar sincronización con los datos del usuario actual
+      if (user) {
+        const f = user.firstName || '';
+        const l = user.lastName || '';
+        const fullName = [f, l].filter(Boolean).join(' ').trim();
+        
+        setProfileData({
+          firstName: f,
+          lastName: l,
+          email: user.email || '',
+          phone: user.phone || user.phoneNumber || '',
+          notifications: user.notifications !== undefined ? user.notifications : true,
+        });
+        
+        console.log('[ProfileScreen] Datos refrescados manualmente:', { f, l, fullName });
+        showSuccess('Actualizado', 'Datos sincronizados correctamente');
+      }
+    } catch (error) {
+      console.error('[ProfileScreen] Error al refrescar:', error);
+      showError('Error', 'No se pudieron refrescar los datos');
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   /** --------- EDITAR CAMPOS --------- **/
   const startEdit = (field) => {
@@ -77,44 +113,188 @@ const ProfileScreen = ({ navigation }) => {
 
       if (field === 'name') {
         const v = (value || '').trim();
+        
+        // Validar que no esté vacío
         if (!v) {
-          setEditingField(null);
+          showError('Error', 'El nombre no puede estar vacío');
           return;
         }
+        
+        // Validar longitud mínima del nombre completo
+        if (v.length < 2) {
+          showError('Error', 'El nombre debe tener al menos 2 caracteres');
+          return;
+        }
+        
+        // Validar longitud máxima del nombre completo
+        if (v.length > 100) {
+          showError('Error', 'El nombre es demasiado largo (máximo 100 caracteres)');
+          return;
+        }
+        
+        // Validar que solo contenga letras, espacios y caracteres válidos
+        const nameRegex = /^[a-záéíóúñüA-ZÁÉÍÓÚÑÜ\s'-]+$/;
+        if (!nameRegex.test(v)) {
+          showError('Error', 'El nombre solo puede contener letras, espacios, guiones y apóstrofes');
+          return;
+        }
+        
         const [firstName, ...rest] = v.split(/\s+/);
-        updateData = { firstName, lastName: rest.join(' ') };
+        const lastName = rest.join(' ').trim();
+        
+        // Validar longitud de firstName
+        if (firstName.length < 2) {
+          showError('Error', 'El nombre debe tener al menos 2 caracteres');
+          return;
+        }
+        
+        if (firstName.length > 50) {
+          showError('Error', 'El nombre es demasiado largo (máximo 50 caracteres)');
+          return;
+        }
+        
+        // Validar longitud de lastName si existe
+        if (lastName && lastName.length > 50) {
+          showError('Error', 'El apellido es demasiado largo (máximo 50 caracteres)');
+          return;
+        }
+        
+        updateData = { 
+          firstName: firstName || '', 
+          lastName: lastName || '' 
+        };
+        
       } else if (field === 'email') {
         const v = (value || '').trim();
+        
+        // Validar que no esté vacío
         if (!v) {
-          setEditingField(null);
+          showError('Error', 'El correo electrónico no puede estar vacío');
           return;
         }
+        
+        // Validar longitud
+        if (v.length < 5) {
+          showError('Error', 'El correo electrónico es demasiado corto');
+          return;
+        }
+        
+        if (v.length > 100) {
+          showError('Error', 'El correo electrónico es demasiado largo (máximo 100 caracteres)');
+          return;
+        }
+        
+        // Validar formato de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(v)) {
+          showError('Error', 'Formato de correo electrónico inválido. Ejemplo: usuario@ejemplo.com');
+          return;
+        }
+        
+        // Validar que no tenga espacios
+        if (v.includes(' ')) {
+          showError('Error', 'El correo electrónico no puede contener espacios');
+          return;
+        }
+        
+        // Validar caracteres especiales no permitidos
+        const invalidChars = /[<>()[\]\\,;:]/;
+        if (invalidChars.test(v)) {
+          showError('Error', 'El correo electrónico contiene caracteres no válidos');
+          return;
+        }
+        
         updateData = { email: v };
+        
       } else if (field === 'phone') {
         const v = (value || '').trim();
+        
+        // Validar que no esté vacío
         if (!v) {
-          setEditingField(null);
+          showError('Error', 'El teléfono no puede estar vacío');
           return;
         }
+        
+        // Validar longitud mínima
+        if (v.length < 8) {
+          showError(
+            'Teléfono inválido', 
+            'El teléfono debe tener al menos 8 caracteres'
+          );
+          return;
+        }
+        
+        // Validar longitud máxima
+        if (v.length > 15) {
+          showError(
+            'Teléfono inválido', 
+            'El teléfono no puede tener más de 15 caracteres'
+          );
+          return;
+        }
+        
+        // Validar formato de teléfono: solo números, +, -, espacios, paréntesis
+        const phoneRegex = /^[0-9+\-\s()]+$/;
+        if (!phoneRegex.test(v)) {
+          showError(
+            'Teléfono inválido', 
+            'El teléfono solo puede contener números, +, -, espacios o paréntesis'
+          );
+          return;
+        }
+        
+        // Validar que tenga al menos 8 dígitos numéricos
+        const digitsOnly = v.replace(/[^0-9]/g, '');
+        if (digitsOnly.length < 8) {
+          showError(
+            'Teléfono inválido', 
+            'El teléfono debe contener al menos 8 dígitos numéricos'
+          );
+          return;
+        }
+        
+        // Validar que no tenga caracteres repetidos excesivamente (ej: +++++++)
+        if (/(.)\1{5,}/.test(v)) {
+          showError('Teléfono inválido', 'El formato del teléfono no es válido');
+          return;
+        }
+        
         updateData = { phone: v };
       }
 
       if (updateData) {
+        console.log('[ProfileScreen] Enviando actualización:', updateData);
+        
         const result = await updateUser(updateData);
+        console.log('[ProfileScreen] Resultado de actualización:', result);
+        
         if (result?.success) {
-          setProfileData(prev => ({
-            ...prev,
-            ...('firstName' in updateData ? { firstName: updateData.firstName } : null),
-            ...('lastName' in updateData ? { lastName: updateData.lastName } : null),
-            ...('email' in updateData ? { email: updateData.email } : null),
-            ...('phone' in updateData ? { phone: updateData.phone } : null),
-          }));
-          showSuccess('Éxito', 'Datos actualizados');
+          // Actualizar el estado local inmediatamente
+          if (field === 'name') {
+            setProfileData(prev => ({
+              ...prev,
+              firstName: updateData.firstName,
+              lastName: updateData.lastName,
+            }));
+          } else if (field === 'email') {
+            setProfileData(prev => ({
+              ...prev,
+              email: updateData.email,
+            }));
+          } else if (field === 'phone') {
+            setProfileData(prev => ({
+              ...prev,
+              phone: updateData.phone,
+            }));
+          }
+          
+          showSuccess('Éxito', 'Datos actualizados correctamente');
         } else {
           showError('Error', result?.error || 'No se pudo actualizar el perfil');
         }
       }
     } catch (err) {
+      console.error('[ProfileScreen] Error al actualizar:', err);
       showError('Error', 'No se pudo actualizar. Intenta de nuevo.');
     } finally {
       Keyboard.dismiss();
@@ -219,8 +399,11 @@ const ProfileScreen = ({ navigation }) => {
       async () => {
         try {
           await logout();
-          navigation?.reset?.({ index: 0, routes: [{ name: 'Login' }] });
-        } catch {
+          // El logout limpia AsyncStorage y actualiza isAuthenticated a false
+          // App.js detectará el cambio y mostrará la pantalla de Login automáticamente
+          showSuccess('Sesión cerrada', 'Has cerrado sesión correctamente');
+        } catch (error) {
+          console.error('[ProfileScreen] Error al cerrar sesión:', error);
           showError('Error', 'Error al desconectarse');
         }
       },
@@ -309,7 +492,17 @@ const ProfileScreen = ({ navigation }) => {
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>Datos del perfil</Text>
         </View>
-        <View style={styles.headerSpacer} />
+        <TouchableOpacity 
+          style={styles.refreshButton} 
+          onPress={refreshProfile}
+          disabled={refreshing}
+        >
+          <Ionicons 
+            name={refreshing ? "sync" : "refresh"} 
+            size={20} 
+            color={refreshing ? "#999" : "#2d2d2d"} 
+          />
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -332,7 +525,7 @@ const ProfileScreen = ({ navigation }) => {
         <View style={styles.fieldsContainer}>
           {renderNameField()}
           {renderEditableField('Tu correo', 'email', 'correo@ejemplo.com', 'email-address')}
-          {renderEditableField('Tu teléfono', 'phone', 'Número de teléfono', 'phone-pad')}
+          {renderEditableField('Tu teléfono', 'phone', '+57 300 123 4567 (8-15 dígitos)', 'phone-pad')}
 
           {/* Contraseña (navega a pantalla de cambio) */}
           <View style={styles.fieldRow}>
@@ -399,7 +592,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 2,
   },
   headerCenter: { flex: 1, alignItems: 'center' },
-  headerSpacer: { width: 44 },
+  refreshButton: { 
+    width: 44, 
+    height: 44, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    borderRadius: 22,
+    backgroundColor: '#f5f5f5',
+  },
   headerTitle: { fontSize: 18, fontWeight: '600', color: '#2d2d2d' },
   scrollView: { flex: 1, paddingHorizontal: 16 },
 
