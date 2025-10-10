@@ -48,7 +48,7 @@ const ResenaRow = ({
             )}
           </div>
         ) : (
-          <span>N/A</span>
+          <span>Sin inmagen</span>
         )}
       </td>
       {/* FIN CELDA DE IMÁGENES */}
