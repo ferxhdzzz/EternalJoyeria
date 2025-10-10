@@ -6,6 +6,7 @@ const Reviews = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // --- 1. Lógica para la actualización automática ---
   useEffect(() => {
     const fetchReviews = async () => {
       try {
@@ -26,17 +27,18 @@ const Reviews = () => {
     };
 
     fetchReviews();
+
+    // Auto actualización cada 60 segundos
+    const intervalId = setInterval(fetchReviews, 60000);
+    return () => clearInterval(intervalId);
   }, []);
 
   // Función auxiliar para renderizar el contenido de una reseña
   const renderReviewContent = (review, index) => {
     const customer = review.id_customer;
-    const customerName = customer
-      ? `${customer.firstName} ${customer.lastName}`.trim()
-      : 'Cliente Anónimo';
+    const customerName = customer ? `${customer.firstName} ${customer.lastName}`.trim() : 'Cliente Anónimo';
 
-    const customerAvatar =
-      customer?.profilePicture ||
+    const customerAvatar = customer?.profilePicture ||
       `https://randomuser.me/api/portraits/${customer?.gender || (index % 2 === 0 ? 'women' : 'men')}/${index + 1}.jpg`;
 
     return (
@@ -58,6 +60,10 @@ const Reviews = () => {
     );
   };
 
+  // --- 2. Limitar a solo las primeras 3 reseñas ---
+  const top3Reviews = reviews.slice(0, 3);
+
+  // --- 3. Estados de carga y error ---
   if (isLoading) {
     return (
       <section className="reviews-section">
@@ -79,7 +85,7 @@ const Reviews = () => {
     );
   }
 
-  if (reviews.length === 0) {
+  if (top3Reviews.length === 0) {
     return (
       <section className="reviews-section">
         <div className="reviews-container">
@@ -95,8 +101,8 @@ const Reviews = () => {
       <div className="reviews-container">
         <h2 className="reviews-title">¿Qué opinan nuestros clientes?</h2>
         <div className="reviews-row">
-          {reviews.map((review, index) => {
-            const nextReviewIndex = (index + 1) % reviews.length;
+          {top3Reviews.map((review, index) => {
+            const nextReviewIndex = (reviews.findIndex(r => r._id === review._id) + 1) % reviews.length;
             const nextReview = reviews[nextReviewIndex];
 
             return (
@@ -104,7 +110,6 @@ const Reviews = () => {
                 <div className="first-content">
                   {renderReviewContent(review, index)}
                 </div>
-
                 <div className="second-content next-review">
                   <p className="next-review-title">Vea la siguiente reseña:</p>
                   {renderReviewContent(nextReview, nextReviewIndex)}

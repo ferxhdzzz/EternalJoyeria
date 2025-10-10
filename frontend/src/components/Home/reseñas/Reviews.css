@@ -5,9 +5,8 @@
   margin: 0;
 }
 
-/* 1. AUMENTAR EL TAMAÑO DEL CONTENEDOR */
 .reviews-container {
-  max-width: 1400px; /* Aumentado a 1400px */
+  max-width: 1200px; /* Reducido para centrar 3 cards de manera más efectiva */
   margin: 0 auto;
   padding: 0 20px;
   background-color: #FFFFFF;
@@ -27,15 +26,15 @@
 
 .reviews-row {
   display: flex;
-  justify-content: center;
+  justify-content: center; /* Centra las tarjetas */
   gap: 40px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap; /* Mantener en una sola fila para 3 */
   padding: 20px;
   background-color: #FFFFFF;
 }
 
 .card {
-  width: 260px;
+  width: 330px;
   height: 320px;
   background: linear-gradient(to top, #FFE8ED 0%, #FFFFFF 60%);
   border: 1px solid #EAEAEA;
@@ -83,7 +82,6 @@
   font-size: inherit;
 }
 
-/* Estilo para el título de la siguiente reseña */
 .next-review-title {
   position: absolute;
   top: 10px;
@@ -95,12 +93,13 @@
   font-weight: bold;
 }
 
-/* Contenido de la reseña */
 .review {
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
 .avatar {
@@ -138,20 +137,18 @@
 }
 
 /* Responsive */
-@media (max-width: 1400px) {
-  .card {
-    width: 20%;
-    max-width: 260px;
-    min-width: 200px;
-  }
-}
-
 @media (max-width: 992px) {
   .reviews-title {
     font-size: 2.8rem;
   }
+
+  .reviews-row {
+    flex-wrap: wrap;
+  }
+
   .card {
-    width: 280px;
+    width: 45%;
+    min-width: 250px;
     height: 300px;
   }
 }
@@ -163,11 +160,10 @@
 
   .reviews-row {
     gap: 15px;
-    flex-wrap: wrap;
   }
 
   .card {
-    width: 45%;
+    width: 100%;
     height: 250px;
   }
 }
@@ -178,11 +174,10 @@
   }
 
   .reviews-row {
-    gap: 10px;
+    padding: 10px;
   }
 
   .card {
-    width: 100%;
     height: 230px;
   }
 
