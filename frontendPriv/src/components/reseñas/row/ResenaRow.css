@@ -108,3 +108,10 @@
 .resena-thumbnail:hover {
   opacity: 0.8;
 }
+
+/* CSS para asegurar que la imagen de SweetAlert2 sea responsiva */
+.swal2-image-responsive {
+  max-width: 100% !important;
+  max-height: 70vh !important; /* Limita la altura del modal */
+  object-fit: contain;
+}

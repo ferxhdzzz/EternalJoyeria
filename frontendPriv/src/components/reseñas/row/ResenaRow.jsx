@@ -40,18 +40,21 @@ const ResenaCard = ({
   const handleImageClick = (images, startIndex) => {
     if (images.length === 0) return;
 
-    const steps = images.map((url) => ({
-      html: `
-        <div style="text-align: center;">
-          <img src="${url}" style="max-width: 100%; max-height: 70vh; object-fit: contain; border-radius: 8px;">
-          <p style="margin-top: 10px; font-size: 14px; color: #555;">
-            ${nombre} | Producto: ${compra}
-          </p>
-        </div>
-      `,
-      showConfirmButton: false,
-      showCloseButton: true,
-    }));
+// Si solo hay una imagen o se hace clic en una miniatura individual
+if (images.length === 1 || startIndex < images.length) {
+  Swal.fire({
+    title: 'Imagen de la Reseña',
+    text: `${nombre} | Producto: ${compra}`,
+    imageUrl: images[startIndex], // Usamos la URL directa
+    imageWidth: 'auto',
+    imageHeight: 'auto',
+    showConfirmButton: false,
+    showCloseButton: true,
+    customClass: {
+      image: 'swal2-image-responsive' // Usaremos este CSS
+    },
+  });
+}
 
     Swal.mixin({
       currentProgressStep: startIndex,
