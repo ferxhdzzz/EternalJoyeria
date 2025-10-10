@@ -21,9 +21,16 @@ const HistorialCompras = () => {
   // Estado para controlar loading individual por venta (borrar/editar)
   const [loadingId, setLoadingId] = useState(null);
 
+  // --- Lógica de ordenamiento para mostrar las más recientes primero ---
+  const sortedSales = [...sales].sort((a, b) => {
+    // return new Date(b.createdAt) - new Date(a.createdAt); // opción si existe fecha
+    if (a._id < b._id) return 1;
+    if (a._id > b._id) return -1;
+    return 0;
+  });
+
   // Función para eliminar una venta con confirmación SweetAlert
   const deleteSale = async (id) => {
-    // Mostrar confirmación al usuario antes de eliminar
     const result = await Swal.fire({
       title: "¿Estás seguro?",
       text: "No podrás revertir esta acción",
@@ -37,9 +44,8 @@ const HistorialCompras = () => {
 
     if (result.isConfirmed) {
       try {
-        setLoadingId(id); // Marcar venta en loading para deshabilitar botones
+        setLoadingId(id);
 
-        // Mostrar loading mientras se procesa eliminación
         await Swal.fire({
           title: "Eliminando...",
           allowOutsideClick: false,
@@ -49,14 +55,10 @@ const HistorialCompras = () => {
           showConfirmButton: false,
         });
 
-        // Llamar a la función original para eliminar venta
         await deleteSaleOriginal(id);
-
-        // Refrescar la lista de ventas luego de eliminar
         await getSales();
 
-        Swal.close(); // Cerrar modal de loading
-        // Mostrar mensaje de éxito breve
+        Swal.close();
         Swal.fire({
           icon: "success",
           title: "Venta eliminada",
@@ -66,7 +68,6 @@ const HistorialCompras = () => {
         });
       } catch (error) {
         Swal.close();
-        // Mostrar mensaje de error si falla la eliminación
         Swal.fire({
           icon: "error",
           title: "Error",
@@ -74,7 +75,7 @@ const HistorialCompras = () => {
           confirmButtonColor: "#d6336c",
         });
       } finally {
-        setLoadingId(null); // Quitar loading
+        setLoadingId(null);
       }
     }
   };
@@ -99,14 +100,12 @@ const HistorialCompras = () => {
 
           {/* Contenedor para las ventas */}
           <div className="sales-container">
-            {/* Mostrar mensaje si no hay ventas */}
-            {sales.length === 0 ? (
+            {sortedSales.length === 0 ? (
               <div className="no-sales-message">
                 <p>No hay ventas registradas</p>
               </div>
             ) : (
-              // Mapear y mostrar cada venta como tarjeta
-              sales.map((sale) => (
+              sortedSales.map((sale) => (
                 <div key={sale._id} className="sale-card">
                   {/* Encabezado con nombre cliente y estado venta */}
                   <div className="sale-header">
@@ -150,37 +149,44 @@ const HistorialCompras = () => {
                       {sale.idOrder?.products?.map((product, index) => (
                         <div key={index} className="product-item">
                           <p>
-                            <strong>{product.productId?.name}</strong> -
-                            Cantidad: {product.quantity} - Subtotal: $
-                            {product.subtotal}
+                            <strong>{product.productId?.name}</strong> - Cantidad:{" "}
+                            {product.quantity} - Subtotal: ${product.subtotal}
                           </p>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* Botones de acción para editar o eliminar */}
+                  {/* Botones de acción */}
                   <div className="action-buttons">
                     <Button
                       type="button"
                       onClick={() => setEditingSaleId(sale._id)}
                       className="btn-edit"
-                      disabled={loadingId === sale._id} // Deshabilita botón si loading
+                      disabled={loadingId === sale._id}
                     >
                       {loadingId === sale._id && editingSaleId !== sale._id
                         ? "Actualizando..."
                         : "Editar"}
                     </Button>
-                 
+
+                    <Button
+                      type="button"
+                      onClick={() => deleteSale(sale._id)}
+                      className="btn-delete"
+                      disabled={loadingId === sale._id}
+                    >
+                      {loadingId === sale._id ? "Eliminando..." : "Eliminar"}
+                    </Button>
                   </div>
 
-                  {/* Mostrar componente para editar venta si corresponde */}
+                  {/* Componente para editar venta */}
                   {editingSaleId === sale._id && (
                     <EditSale
                       key={sale._id}
                       saleId={sale._id}
                       onClose={() => setEditingSaleId(null)}
-                      onSave={getSales} // Refrescar lista al guardar cambios
+                      onSave={getSales}
                     />
                   )}
                 </div>
