@@ -114,38 +114,38 @@ const RecuperacionContra = () => {
           width: 100%;
         }
 
-        .pink-input {
-          width: 100%;
-          height: 56px;
-          padding: 16px 16px 8px 16px;
-          border: 2px solid #f8bbd9;
-          border-radius: 16px;
-          font-size: 16px;
-          font-family: inherit;
-          background: linear-gradient(145deg, #fef7f7, #fff0f3);
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          outline: none;
-          box-sizing: border-box;
-          color: #4a4a4a;
-        }
+       .pink-input {
+  width: 100%;
+  height: 56px;
+  padding: 16px 16px 8px 16px;
+  border: 2px solid #f8bbd9;
+  border-radius: 16px;
+  font-size: 16px;
+  font-family: inherit;
+  background: linear-gradient(145deg, #fef7f7, #fff0f3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  box-sizing: border-box;
+  color: #4a4a4a;
+}
+
 
         .pink-input:focus {
           border-color: #ec4899;
-          box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.15), 
-                      0 4px 12px rgba(236, 72, 153, 0.1);
-          background: linear-gradient(145deg, #ffffff, #fef7f7);
-          transform: translateY(-1px) scale(1.01);
+          box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.2);
+          background: #fce7f3;
+          transform: none;
         }
 
         .pink-input:hover:not(:focus) {
           border-color: #f472b6;
-          box-shadow: 0 2px 8px rgba(244, 114, 182, 0.12);
-          transform: translateY(-0.5px);
+          background: #fce7f3;
+          transform: none;
         }
 
         .pink-input.error {
           border-color: #f87171;
-          background: linear-gradient(145deg, #fef2f2, #fff5f5);
+          background: #fce7f3;
           animation: shake 0.5s ease-in-out;
         }
 
@@ -155,7 +155,7 @@ const RecuperacionContra = () => {
         }
 
         .pink-input::placeholder {
-          color: #d1a3a3;
+          color: #000000ff;
         }
 
         .pink-label {
@@ -167,7 +167,7 @@ const RecuperacionContra = () => {
           color: #be185d;
           pointer-events: none;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          background: linear-gradient(145deg, #fef7f7, #fff0f3);
+          background: #fce7f3;
           padding: 0 6px;
           border-radius: 6px;
           font-weight: 500;
@@ -180,14 +180,38 @@ const RecuperacionContra = () => {
           font-weight: 600;
           color: #ec4899;
           transform: translateY(0) scale(0.95);
-          background: linear-gradient(145deg, #ffffff, #fef7f7);
-          box-shadow: 0 2px 4px rgba(236, 72, 153, 0.1);
+          background: #fce7f3;
         }
 
         .pink-input.error:focus + .pink-label,
         .pink-input.error:not(:placeholder-shown) + .pink-label {
           color: #ef4444;
-          background: linear-gradient(145deg, #fef2f2, #fff5f5);
+          background: #fce7f3;
+        }
+
+        .pink-password-toggle {
+          position: absolute;
+          right: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: linear-gradient(145deg, #f472b6, #ec4899);
+          border: none;
+          color: #ffffff;
+          cursor: pointer;
+          padding: 8px;
+          border-radius: 8px;
+          transition: all 0.3s ease;
+          box-shadow: 0 2px 4px rgba(236, 72, 153, 0.2);
+        }
+
+        .pink-password-toggle:hover {
+          background: linear-gradient(145deg, #ec4899, #db2777);
+          box-shadow: 0 4px 8px rgba(236, 72, 153, 0.3);
+          transform: translateY(-50%) scale(1.05);
+        }
+
+        .pink-password-toggle:active {
+          transform: translateY(-50%) scale(0.95);
         }
 
         .pink-error-message {
@@ -203,7 +227,7 @@ const RecuperacionContra = () => {
         }
 
         .pink-error-message::before {
-          content: "";
+          content: "⚠️";
           font-size: 12px;
         }
 
@@ -213,13 +237,13 @@ const RecuperacionContra = () => {
         }
 
         .improved-form {
+          padding: 24px;
           background: rgba(255, 255, 255, 0.95);
           backdrop-filter: blur(10px);
           border: 1px solid rgba(248, 187, 217, 0.3);
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 
                       0 10px 10px -5px rgba(0, 0, 0, 0.04),
                       0 0 0 1px rgba(236, 72, 153, 0.05);
-          border-radius: 20px;
         }
 
         .recover-title {
@@ -231,7 +255,6 @@ const RecuperacionContra = () => {
           font-weight: 700;
           text-align: center;
           margin: 16px 0 24px 0;
-          font-size: 1.75rem;
         }
 
         /* Animaciones */
@@ -267,12 +290,12 @@ const RecuperacionContra = () => {
           .recover-card.improved-form {
             margin: 20px;
             padding: 24px 20px;
-            border-radius: 18px;
+            border-radius: 20px;
             background: rgba(255, 255, 255, 0.97);
           }
 
           .recover-title {
-            font-size: 1.5rem;
+            font-size: 24px;
             margin: 16px 0 24px 0;
           }
 
@@ -293,6 +316,11 @@ const RecuperacionContra = () => {
           .pink-input-container {
             margin-bottom: 18px;
           }
+
+          .pink-password-toggle {
+            padding: 6px;
+            border-radius: 6px;
+          }
         }
 
         /* Para dispositivos muy pequeños */
@@ -304,7 +332,7 @@ const RecuperacionContra = () => {
           .recover-card.improved-form {
             margin: 10px;
             padding: 20px 16px;
-            border-radius: 16px;
+            border-radius: 18px;
           }
 
           .pink-input {
@@ -316,12 +344,18 @@ const RecuperacionContra = () => {
           .pink-label {
             left: 18px;
           }
+
+          .pink-password-toggle {
+            right: 14px;
+            padding: 6px;
+          }
         }
 
         /* Mejora para accesibilidad */
         @media (prefers-reduced-motion: reduce) {
           .pink-input,
-          .pink-label {
+          .pink-label,
+          .pink-password-toggle {
             transition: none;
             animation: none;
           }
@@ -330,30 +364,39 @@ const RecuperacionContra = () => {
         /* Dark mode support con tema rosado */
         @media (prefers-color-scheme: dark) {
           .pink-input {
-            background: linear-gradient(145deg, rgba(45, 25, 35, 0.9), rgba(55, 30, 40, 0.8));
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
             border-color: #f472b6;
-            color: #fdf2f8;
+            color: #000000ff;
           }
 
           .pink-input:focus {
             border-color: #ec4899;
-            background: linear-gradient(145deg, rgba(55, 30, 40, 0.95), rgba(45, 25, 35, 0.9));
-            box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.2);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), hsla(0, 0%, 100%, 0.90));
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
           }
 
           .pink-label {
             color: #f472b6;
-            background: linear-gradient(145deg, rgba(45, 25, 35, 0.9), rgba(55, 30, 40, 0.8));
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
           }
 
           .pink-input:focus + .pink-label,
           .pink-input:not(:placeholder-shown) + .pink-label {
             color: #ec4899;
-            background: linear-gradient(145deg, rgba(55, 30, 40, 0.95), rgba(45, 25, 35, 0.9));
+            background: linear-gradient(145deg, rgba(243, 243, 243, 0.95), rgba(255, 255, 255, 0.9));
+          }
+
+          .pink-password-toggle {
+            background: linear-gradient(145deg, #ec4899, #db2777);
+            color: #ffffff;
+          }
+
+          .pink-password-toggle:hover {
+            background: linear-gradient(145deg, #db2777, #be185d);
           }
 
           .recover-card.improved-form {
-            background: linear-gradient(145deg, rgba(30, 20, 25, 0.95), rgba(20, 15, 20, 0.9));
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
             border: 1px solid rgba(244, 114, 182, 0.2);
             box-shadow: 0 8px 32px rgba(236, 72, 153, 0.1);
           }
@@ -368,7 +411,7 @@ const RecuperacionContra = () => {
 
           .pink-input.error {
             border-color: #f87171;
-            background: linear-gradient(145deg, rgba(60, 30, 30, 0.9), rgba(70, 35, 35, 0.8));
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
           }
 
           .pink-error-message {

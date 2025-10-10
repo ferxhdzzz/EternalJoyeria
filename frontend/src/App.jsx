@@ -44,7 +44,7 @@ import Error404 from './pages/Error404';
 
 
 import PrivateRoute from './components/PublicRoute';
-import AuthDebug from './components/AuthDebug';
+
 
 import './App.css';
 
@@ -64,7 +64,7 @@ function App() {
       <CartProvider>
         <Router>
           <ScrollToTop />
-          <AuthDebug />
+        
           <Routes>
           <Route path="/" element={<Home />} />
           

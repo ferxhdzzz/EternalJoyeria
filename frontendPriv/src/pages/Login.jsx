@@ -58,7 +58,7 @@ export default function Login() {
   const onSubmit = async (data) => {
     console.log("Form submitted:", data);
     try {
-      const response = await fetch("http://localhost:4000/api/login", {
+      const response = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -157,8 +157,7 @@ export default function Login() {
         <OlvidarCont text="¿Olvidaste tu contraseña?" to="/recuperacion" />
         <Button type="submit" text="Ingresar →" />
       </form>
-
-      <style>{`
+ <style>{`
         /* Estilos para los inputs rosados mejorados */
         .pink-input-container {
           margin-bottom: 20px;
@@ -170,38 +169,38 @@ export default function Login() {
           width: 100%;
         }
 
-        .pink-input {
-          width: 100%;
-          height: 56px;
-          padding: 16px 16px 8px 16px;
-          border: 2px solid #f8bbd9;
-          border-radius: 16px;
-          font-size: 16px;
-          font-family: inherit;
-          background: linear-gradient(145deg, #fef7f7, #fff0f3);
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          outline: none;
-          box-sizing: border-box;
-          color: #4a4a4a;
-        }
+       .pink-input {
+  width: 100%;
+  height: 56px;
+  padding: 16px 16px 8px 16px;
+  border: 2px solid #f8bbd9;
+  border-radius: 16px;
+  font-size: 16px;
+  font-family: inherit;
+  background: linear-gradient(145deg, #fef7f7, #fff0f3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  box-sizing: border-box;
+  color: #4a4a4a;
+}
+
 
         .pink-input:focus {
           border-color: #ec4899;
-          box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.15), 
-                      0 4px 12px rgba(236, 72, 153, 0.1);
-          background: linear-gradient(145deg, #ffffff, #fef7f7);
-          transform: translateY(-1px) scale(1.01);
+          box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.2);
+          background: #fce7f3;
+          transform: none;
         }
 
         .pink-input:hover:not(:focus) {
           border-color: #f472b6;
-          box-shadow: 0 2px 8px rgba(244, 114, 182, 0.12);
-          transform: translateY(-0.5px);
+          background: #fce7f3;
+          transform: none;
         }
 
         .pink-input.error {
           border-color: #f87171;
-          background: linear-gradient(145deg, #fef2f2, #fff5f5);
+          background: #fce7f3;
           animation: shake 0.5s ease-in-out;
         }
 
@@ -223,7 +222,7 @@ export default function Login() {
           color: #be185d;
           pointer-events: none;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          background: linear-gradient(145deg, #fef7f7, #fff0f3);
+          background: #fce7f3;
           padding: 0 6px;
           border-radius: 6px;
           font-weight: 500;
@@ -236,14 +235,13 @@ export default function Login() {
           font-weight: 600;
           color: #ec4899;
           transform: translateY(0) scale(0.95);
-          background: linear-gradient(145deg, #ffffff, #fef7f7);
-          box-shadow: 0 2px 4px rgba(236, 72, 153, 0.1);
+          background: #fce7f3;
         }
 
         .pink-input.error:focus + .pink-label,
         .pink-input.error:not(:placeholder-shown) + .pink-label {
           color: #ef4444;
-          background: linear-gradient(145deg, #fef2f2, #fff5f5);
+          background: #fce7f3;
         }
 
         .pink-password-toggle {
@@ -421,26 +419,26 @@ export default function Login() {
         /* Dark mode support con tema rosado */
         @media (prefers-color-scheme: dark) {
           .pink-input {
-            background: linear-gradient(145deg, rgba(45, 25, 35, 0.9), rgba(55, 30, 40, 0.8));
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
             border-color: #f472b6;
-            color: #fdf2f8;
+            color: #000000ff;
           }
 
           .pink-input:focus {
             border-color: #ec4899;
-            background: linear-gradient(145deg, rgba(55, 30, 40, 0.95), rgba(45, 25, 35, 0.9));
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), hsla(0, 0%, 100%, 0.90));
             box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.2);
           }
 
           .pink-label {
             color: #f472b6;
-            background: linear-gradient(145deg, rgba(45, 25, 35, 0.9), rgba(55, 30, 40, 0.8));
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
           }
 
           .pink-input:focus + .pink-label,
           .pink-input:not(:placeholder-shown) + .pink-label {
             color: #ec4899;
-            background: linear-gradient(145deg, rgba(55, 30, 40, 0.95), rgba(45, 25, 35, 0.9));
+            background: linear-gradient(145deg, rgba(243, 243, 243, 0.95), rgba(255, 255, 255, 0.9));
           }
 
           .pink-password-toggle {
@@ -453,7 +451,7 @@ export default function Login() {
           }
 
           .recover-card.improved-form {
-            background: linear-gradient(145deg, rgba(30, 20, 25, 0.95), rgba(20, 15, 20, 0.9));
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
             border: 1px solid rgba(244, 114, 182, 0.2);
             box-shadow: 0 8px 32px rgba(236, 72, 153, 0.1);
           }

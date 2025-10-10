@@ -6,8 +6,8 @@ import Button from "../components/Componte-hook/Button";
 import Sidebar from "../components/Sidebar/Sidebar";
 import Topbar from "../components/TopBar/TopBar";
 import EditProduct from "../hooks/Productos/EditProduct";
-import "../Styles/PaginaProduct.css";
-import "../Styles/CategoryFilterBar.css";
+import "../styles/PaginaProduct.css";
+import "../styles/CategoryFilterBar.css";
 
 import { useDataProduct } from "../hooks/Productos/UseDataProduct";
 import useDataCategorias from "../hooks/Categorias/useDataCategorias";

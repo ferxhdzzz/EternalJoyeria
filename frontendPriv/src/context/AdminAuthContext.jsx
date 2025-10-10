@@ -1,73 +1,83 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
-const AdminAuthContext = createContext();
+// URL base de la API (DEBE coincidir con el backend)
+const API_BASE_URL = "https://eternaljoyeria-cg5d.onrender.com/api";
 
-export const AdminAuthProvider = ({ children }) => {
-  const [isAuth, setIsAuth] = useState(false);
-  const [loading, setLoading] = useState(true);
+// 1. Crear el contexto
+const AdminAuthContext = createContext(null);
 
-  // Función para verificar si el usuario es admin
-  const verifyAdmin = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("http://localhost:4000/api/admins/me", {
-        method: "GET",
-        credentials: "include",
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        console.log("Admin verification result:", data);
-        setIsAuth(true);
-        return true;
-      } else {
-        console.log("Admin verification failed:", res.status);
-        setIsAuth(false);
-        return false;
-      }
-    } catch (error) {
-      console.error("Admin verification error:", error);
-      setIsAuth(false);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Función para actualizar el estado de autenticación después del login
-  const updateAuthStatus = async () => {
-    return await verifyAdmin();
-  };
-
-  // Función para logout
-  const logout = () => {
-    setIsAuth(false);
-  };
-
-  // Verificar autenticación al cargar la app
-  useEffect(() => {
-    verifyAdmin();
-  }, []);
-
-  return (
-    <AdminAuthContext.Provider
-      value={{
-        isAuth,
-        loading,
-        updateAuthStatus,
-        logout,
-        verifyAdmin
-      }}
-    >
-      {children}
-    </AdminAuthContext.Provider>
-  );
-};
-
+/**
+ * Hook personalizado para consumir el contexto de autenticación de administrador.
+ * Devuelve { isAuth, loading, userData, updateAuthStatus }.
+ */
 export const useAdminAuth = () => {
-  const context = useContext(AdminAuthContext);
-  if (!context) {
-    throw new Error("useAdminAuth must be used within AdminAuthProvider");
-  }
-  return context;
+  const context = useContext(AdminAuthContext);
+  if (!context) {
+    throw new Error("useAdminAuth debe ser usado dentro de un AdminAuthProvider");
+  }
+  return context;
 };
+
+// 2. Componente Proveedor (Provider)
+export function AdminAuthProvider({ children }) {
+  // ESTADO QUE INDICA SI EL USUARIO ESTÁ AUTENTICADO COMO ADMINISTRADOR
+  const [isAuth, setIsAuth] = useState(false);
+  // ESTADO QUE INDICA SI LA VERIFICACIÓN ESTÁ EN CURSO
+  const [loading, setLoading] = useState(true);
+  // ESTADO PARA ALMACENAR LOS datos del usuario
+  const [userData, setUserData] = useState(null);
+
+  /**
+   * Función que realiza la solicitud al backend para verificar el token de autenticación.
+   * Es la misma función que se ejecuta al inicio y la que se llama manualmente en Login.jsx.
+   * @returns {boolean} true si la autenticación fue exitosa.
+   */
+  const updateAuthStatus = async () => {
+    setLoading(true);
+    try {
+      // SOLICITUD AL BACKEND para verificar y obtener datos del administrador
+      const res = await fetch(`${API_BASE_URL}/admins/me`, {
+        method: "GET",
+        credentials: "include", // CRUCIAL para enviar la cookie 'authToken'
+      });
+
+      if (!res.ok) {
+        console.error(`Admin verification failed: ${res.status} ${res.statusText}`);
+        setIsAuth(false);
+        setUserData(null);
+        return false; // Retorna false en caso de fallo de autenticación
+      }
+
+      const data = await res.json();
+      setIsAuth(true);
+      setUserData(data.user); // Usa data.user, que es la estructura de adminController.js
+      return true; // Retorna true si la autenticación es exitosa
+    } catch (error) {
+      console.error("Error de conexión al verificar admin:", error);
+      setIsAuth(false);
+      setUserData(null);
+      return false; // Retorna false en caso de error de conexión
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // EFFECTO para verificar la autenticación al montar el componente (al inicio de la app)
+  useEffect(() => {
+    updateAuthStatus();
+  }, []);
+
+  // 3. Valor del contexto
+  const contextValue = {
+    isAuth,
+    loading,
+    userData,
+    updateAuthStatus, // ¡Ahora sí exportamos la función de actualización!
+  };
+
+  return (
+    <AdminAuthContext.Provider value={contextValue}>
+      {children}
+    </AdminAuthContext.Provider>
+  );
+}

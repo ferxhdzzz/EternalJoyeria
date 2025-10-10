@@ -31,7 +31,7 @@ export default function AddProductPage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("http://localhost:4000/api/categories", {
+        const res = await axios.get("https://eternaljoyeria-cg5d.onrender.com/api/categories", {
           withCredentials: true,
         });
         const data = res.data;

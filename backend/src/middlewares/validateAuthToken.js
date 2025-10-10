@@ -1,74 +1,63 @@
-// backend/src/middlewares/validateAuthToken.js
 import jwt from "jsonwebtoken";
+// Asegúrate de que este path es correcto para importar tu configuración
 import { config } from "../config.js";
 
-export const validateAuthToken = (allowedUserTypes = []) => {
-  return (req, res, next) => {
-    try {
-      console.log('🔐 Middleware validateAuthToken ejecutándose...');
-      console.log('🔐 Cookies recibidas:', req.cookies);
-      console.log('🔐 URL solicitada:', req.originalUrl);
-      console.log('🔐 Método HTTP:', req.method);
-      
-      const { authToken } = req.cookies;
-      if (!authToken) {
-        console.log('❌ No hay authToken en cookies');
+/**
+ * Middleware para validar el JWT de la cookie y verificar los roles de acceso.
+ * @param {Array<string>} allowedRoles - Array de roles permitidos (e.g., ["admin", "customer"]).
+ * @returns {function} Función middleware de Express.
+ */
+export const validateAuthToken = (allowedRoles) => (req, res, next) => {
+    // 1. Obtener el token de la cookie
+    // El nombre de la cookie debe coincidir exactamente con el usado en loginController.js ("authToken")
+    const token = req.cookies.authToken;
+
+    if (!token) {
+        console.log("Acceso denegado: Token no encontrado en las cookies.");
         return res.status(401).json({ 
-          message: "Token no proporcionado. Debes iniciar sesión.",
-          code: "NO_TOKEN"
+            success: false, 
+            message: "Acceso denegado. No se ha proporcionado un token." 
         });
-      }
-
-      console.log('🔐 Token encontrado, verificando...');
-
-      // 3. Verificar y decodificar el token
-      const decoded = jwt.verify(authToken, config.jwt.jwtSecret);
-      console.log('✅ Token verificado correctamente:', {
-        id: decoded.id,
-        email: decoded.email,
-        userType: decoded.userType
-      });
-
-      // Validar contra la lista de roles permitidos
-      if (allowedUserTypes.length > 0 && !allowedUserTypes.includes(decoded.userType)) {
-        console.log('❌ Usuario no tiene permisos:', decoded.userType, 'Permitidos:', allowedUserTypes);
-        return res.status(403).json({ 
-          message: "Acceso denegado. No tienes permisos suficientes.",
-          code: "INSUFFICIENT_PERMISSIONS"
-        });
-      }
-
-      req.userId = decoded.id;
-      req.userType = decoded.userType;
-      
-      console.log('✅ Middleware completado, userId establecido:', req.userId);
-
-      next();
-    } catch (error) {
-      console.error("❌ Error al validar token:", error);
-      
-      if (error.name === 'TokenExpiredError') {
-        console.log('❌ Token expirado:', error.expiredAt);
-        return res.status(401).json({ 
-          message: "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.",
-          code: "TOKEN_EXPIRED",
-          expiredAt: error.expiredAt
-        });
-      }
-      
-      if (error.name === 'JsonWebTokenError') {
-        console.log('❌ Token inválido');
-        return res.status(401).json({ 
-          message: "Token inválido. Por favor, inicia sesión nuevamente.",
-          code: "INVALID_TOKEN"
-        });
-      }
-      
-      console.log('❌ Error desconocido en validación de token');
-      return res.status(401).json({ 
-        message: "Error de autenticación. Por favor, inicia sesión nuevamente.",
-        code: "AUTH_ERROR"
-      });
     }
-  };
+
+    // 2. Verificar y decodificar el token
+    try {
+        // La clave secreta debe coincidir con la usada para firmar el token en el login
+        const decoded = jwt.verify(token, config.jwt.secret); 
+        
+        // El payload del token es { id: user._id, userType }
+        const { id, userType } = decoded;
+
+        // 3. Verificar si el rol del usuario está permitido
+        if (!allowedRoles.includes(userType)) {
+            console.log(`Acceso denegado: El usuario de tipo '${userType}' no tiene permiso para acceder a esta ruta.`);
+            return res.status(403).json({ 
+                success: false, 
+                message: "Acceso prohibido. Permisos insuficientes." 
+            });
+        }
+
+        // 4. Adjuntar datos de usuario a la solicitud y continuar
+        // Esto permite acceder a req.userId y req.userType en los controladores subsiguientes
+        req.userId = id;
+        req.userType = userType; 
+
+        next();
+    } catch (error) {
+        // Manejar errores de token (expiración, firma inválida, etc.)
+        console.error("Error de verificación de JWT:", error.message);
+        
+        // Opcional: Limpiar la cookie expirada o inválida
+        res.clearCookie("authToken", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production" || req.protocol === 'https',
+            sameSite: "none",
+            path: "/",
+        });
+
+        return res.status(401).json({ 
+            success: false, 
+            message: "Token inválido o expirado." 
+        });
+    }
 };

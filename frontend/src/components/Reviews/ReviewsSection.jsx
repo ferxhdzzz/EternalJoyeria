@@ -59,7 +59,7 @@ const ReviewsSection = ({ productId, productName }) => {
   const fetchReviews = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`http://localhost:4000/api/reviews/product/${productId}`);
+      const response = await fetch(`https://eternaljoyeria-cg5d.onrender.com/api/reviews/product/${productId}`);
       if (!response.ok) {
         if (response.status === 404) {
           setReviews([]);
@@ -94,7 +94,7 @@ const ReviewsSection = ({ productId, productName }) => {
   // Función para eliminar una reseña
   const handleDeleteReview = async (reviewId) => {
     try {
-      const response = await fetch(`http://localhost:4000/api/reviews/${reviewId}`, {
+      const response = await fetch(`https://eternaljoyeria-cg5d.onrender.com/api/reviews/${reviewId}`, {
         method: 'DELETE'
       });
       if (!response.ok) {

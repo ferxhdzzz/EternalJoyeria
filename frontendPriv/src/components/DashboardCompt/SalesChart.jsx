@@ -34,7 +34,7 @@ const SalesChart = () => {
   // Función para obtener el total de ventas del dashboard
   const fetchDashboardSalesCount = async () => {
     try {
-      const response = await fetch("http://localhost:4000/api/sales", {
+      const response = await fetch("https://eternaljoyeria-cg5d.onrender.com/api/sales", {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ const SalesChart = () => {
       setLoading(true);
       
       // Obtener datos mensuales de ventas (valor monetario)
-      const monthlyResponse = await fetch(`http://localhost:4000/api/sales/monthly?year=${year}`, {
+      const monthlyResponse = await fetch(`https://eternaljoyeria-cg5d.onrender.com/api/sales/monthly?year=${year}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ const SalesChart = () => {
       });
 
       // Obtener todas las ventas
-      const allSalesResponse = await fetch(`http://localhost:4000/api/sales`, {
+      const allSalesResponse = await fetch(`https://eternaljoyeria-cg5d.onrender.com/api/sales`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
