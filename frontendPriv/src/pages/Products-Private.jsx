@@ -56,18 +56,10 @@ const Products = () => {
     }
   };
 
-  // 1. Filtrar productos por categoría
   const filteredProducts =
     selectedCategory === "Todas"
       ? products
       : products.filter((p) => p.category_id?.name === selectedCategory);
-
-  // 2. Ordenar productos filtrados (más recientes primero)
-  const sortedAndFilteredProducts = [...filteredProducts].sort((a, b) => {
-    if (a._id < b._id) return 1;
-    if (a._id > b._id) return -1;
-    return 0;
-  });
 
   return (
     <div className="dashboard-container">
@@ -112,12 +104,12 @@ const Products = () => {
 
           {/* Lista de productos */}
           <div className="products-list">
-            {sortedAndFilteredProducts.length === 0 ? (
+            {filteredProducts.length === 0 ? (
               <div className="no-products-message">
                 <p>No hay productos disponibles.</p>
               </div>
             ) : (
-              sortedAndFilteredProducts.map((product) => {
+              filteredProducts.map((product) => {
                 let medidas = {};
 
                 if (product.measurements) {
@@ -135,16 +127,10 @@ const Products = () => {
                 return (
                   <div key={product._id} className="product-card">
                     <div className="product-info">
-                      <h3 className="product-title">
-                        {product.name || "Sin nombre"}
-                      </h3>
+                      <h3 className="product-title">{product.name || "Sin nombre"}</h3>
 
-                      {Array.isArray(product.images) &&
-                      product.images.length > 0 ? (
-                        <ImageSlider
-                          images={product.images}
-                          name={product.name}
-                        />
+                      {Array.isArray(product.images) && product.images.length > 0 ? (
+                        <ImageSlider images={product.images} name={product.name} />
                       ) : (
                         <p className="no-image">Sin imagen</p>
                       )}
@@ -165,9 +151,7 @@ const Products = () => {
                     </p>
 
                     <p>Descuento: {product.discountPercentage ?? 0}%</p>
-                    <p>
-                      Categoría: {product.category_id?.name || "Sin categoría"}
-                    </p>
+                    <p>Categoría: {product.category_id?.name || "Sin categoría"}</p>
 
                     <p
                       style={{
@@ -194,9 +178,7 @@ const Products = () => {
                     )}
 
                     <div className="product-actions">
-                      <Button onClick={() => setEditingProductId(product._id)}>
-                        Editar
-                      </Button>
+                      <Button onClick={() => setEditingProductId(product._id)}>Editar</Button>
                       <Button
                         onClick={() => handleDelete(product._id)}
                         style={{ backgroundColor: "#dc3545" }}
