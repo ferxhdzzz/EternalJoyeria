@@ -3,7 +3,7 @@
 //const DEFAULT_URL = 'https://eternaljoyeria-cg5d.onrender.com';
 //export const BACKEND_URL = (process.env.EXPO_PUBLIC_BACKEND_URL || DEFAULT_URL).replace(/\/+$/, '');
 
-export const BACKEND_URL = 'http://192.168.1.200:4000';
+export const BACKEND_URL = 'https://eternaljoyeria-cg5d.onrender.com';
 
 // Endpoints
 export const API_ENDPOINTS = {
