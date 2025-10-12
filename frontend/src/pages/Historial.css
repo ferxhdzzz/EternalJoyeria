@@ -198,6 +198,27 @@
   font-family: 'DM Sans', sans-serif;
 }
 
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #6d4b4b; 
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+    padding: 0.5rem 0.8rem;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.back-link:hover {
+    color: #4b1717;
+    background-color: #fff5f5;
+    border-color: #ffdada;
+}
+
 /* Responsive Design Mejorado */
 @media (max-width: 1200px) {
   .historial-hero-content {

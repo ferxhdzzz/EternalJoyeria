@@ -1,29 +1,56 @@
 .historial-venta {
-  background: white;
-  border-radius: 16px;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  border: 1px solid rgba(0,0,0,0.08);
-  overflow: hidden;
-  transition: all 0.3s ease;
+    background: white;
+    border-radius: 16px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.08);
+    overflow: hidden;
+    transition: all 0.3s ease;
 }
 
 .historial-venta:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
 .venta-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  background-color: #f7f3f3;
-  border-bottom: 1px solid #e0d8d8;
-  flex-wrap: wrap;
-  gap: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background-color: #f7f3f3;
+    border-bottom: 1px solid #e0d8d8;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
+/* 🚨 NUEVO: Estilo para el botón de detalles (ojito) */
+.details-eye-btn {
+    background: transparent; 
+    border: none;
+    color: #4b1717; 
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    margin-left: 1rem; /* Espacio con el status */
+    flex-shrink: 0;
+    line-height: 1; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.details-eye-btn:hover {
+    background-color: #fcebeb; 
+    color: #7b1f1f;
+    transform: scale(1.1);
+}
+
+.details-eye-btn:active {
+    background-color: #f7e0e0;
+    transform: scale(1.05);
+}
 .venta-info, .venta-total {
   display: flex;
   flex-direction: column;
