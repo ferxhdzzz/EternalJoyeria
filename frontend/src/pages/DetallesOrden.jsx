@@ -1,125 +1,188 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import Nav from '../components/Nav/Nav';
-import Footer from '../components/Footer';
-import HistorialItem from '../components/Historial/HistorialItem'; 
-import '../components/Historial/HistorialVenta.css'; 
-import './Historial.css'; 
-import { FiArrowLeft } from 'react-icons/fi'; // Icono de flecha para regresar
+import { useParams, useNavigate } from 'react-router-dom';
+import { FiArrowLeft, FiPackage, FiMapPin, FiCreditCard } from 'react-icons/fi';
+import Nav from '../components/Nav/Nav'; // Ajusta la ruta si es necesario
+import Footer from '../components/Footer'; // Ajusta la ruta si es necesario
+import SidebarCart from '../components/Cart/SidebarCart'; // Si lo usas en todas las páginas
+import './OrderDetailPage.css'; // 🚨 Debes crear este archivo CSS
 
-const API_BASE_URL = 'https://eternaljoyeria-cg5d.onrender.com/api';
+// ------------------------------------------------------------------
+// CONFIGURACIÓN DE LA API (Consolidado)
+// ------------------------------------------------------------------
+const BACKEND_URL = 'https://eternaljoyeria-cg5d.onrender.com';
+const API_ENDPOINTS = {
+    ORDERS: '/api/orders',
+    PRODUCTS: '/api/products',
+};
 
-// Función para obtener la dirección de envío priorizando la de la tabla Sales
-const fetchAddressFromSales = async (orderId) => {
-    try {
-        // Asumiendo que existe un endpoint para buscar la Venta por el ID de la Orden
-        const response = await fetch(`${API_BASE_URL}/sales/by-order/${orderId}`, {
-            credentials: 'include'
-        });
-        if (response.ok) {
-            const saleData = await response.json();
-            // Retorna el campo 'address' que es el string de la tabla Sales
-            if (saleData && saleData.address) {
-                return saleData.address;
-            }
-        }
-        return null;
-    } catch (err) {
-        console.warn("Error al obtener la dirección de la tabla 'Sales'.", err);
-        return null;
+// Función para construir URL completa
+const buildApiUrl = (endpoint = '') =>
+    `${BACKEND_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+
+// Función para generar la URL completa de una imagen
+const getProductImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+        return imagePath;
     }
-}
-
-// Función auxiliar para formatear la dirección (si viene como objeto de la tabla Orders)
-const formatAddressObject = (addressObj) => {
-    if (!addressObj) return "Dirección no disponible.";
-    
-    const { line1, city, region, country, zip } = addressObj;
-    return [line1, city, region, country, zip]
-        .filter(part => part && part.trim() !== '')
-        .join(', ');
+    return `${BACKEND_URL}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
 };
+// ------------------------------------------------------------------
 
-const getStatusColor = (status) => {
-    if (!status) return '#6b7280';
-    switch (status.toLowerCase()) {
-        case 'entregado':
-            return '#10b981';
-        case 'en camino':
-            return '#f59e0b';
-        case 'pendiente':
-        case 'no pagado':
-            return '#ef4444';
-        case 'pagado':
-            return '#10b981';
-        default:
-            return '#6b7280';
-    }
-};
-
-const formatDate = (dateString) => {
-    if (!dateString) return 'Sin fecha';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-};
-
-const DetallesOrdenPage = () => {
+const OrderDetailPage = () => {
+    // Captura el ID de la orden de la URL
     const { orderId } = useParams();
+    const navigate = useNavigate();
+
     const [order, setOrder] = useState(null);
-    const [saleAddress, setSaleAddress] = useState(null); // Estado para la dirección de Sales
-    const [isLoading, setIsLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [cartOpen, setCartOpen] = useState(false); // Para el SidebarCart
+
+    // #region Funciones de Formateo
+
+    const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    };
+
+    const getStatusInfo = (status) => {
+        const lowerStatus = status?.toLowerCase() || 'desconocido';
+        let color = '#9E9E9E'; // Gris
+        let text = status || 'Desconocido';
+
+        switch (lowerStatus) {
+            case 'pagado':
+                color = '#28a745'; // Verde
+                text = 'Pagado';
+                break;
+            case 'pending_payment':
+                color = '#ffc107'; // Amarillo
+                text = 'Pendiente de Pago';
+                break;
+            case 'no pagado':
+                color = '#dc3545'; // Rojo
+                text = 'No Pagado';
+                break;
+            case 'enviado':
+            case 'en camino':
+                color = '#007bff'; // Azul
+                text = 'En Camino';
+                break;
+            case 'entregado':
+                color = '#17a2b8'; // Azul claro
+                text = 'Entregado';
+                break;
+            default:
+                color = '#6c757d'; // Gris oscuro
+                text = status;
+                break;
+        }
+        return { color, text };
+    };
+
+    // Formateo de precios (asumiendo que el API devuelve en centavos para los totales)
+    const formatPrice = (cents) => {
+        if (cents == null || isNaN(cents)) return 'N/A';
+        return `$${(cents / 100).toFixed(2)}`;
+    };
+
+    // #endregion
 
     useEffect(() => {
-        const fetchOrderDetails = async () => {
-            setIsLoading(true);
+        const fetchOrderDetail = async () => {
+            if (!orderId) {
+                setLoading(false);
+                setError('ID de pedido no encontrado.');
+                return;
+            }
+
+            setLoading(true);
             setError(null);
-            
+
             try {
-                // 1. Obtener los detalles de la ORDEN por su ID
-                const orderResponse = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
-                    credentials: 'include'
-                }); 
+                // El token debe obtenerse de donde lo guardes (ej: localStorage)
+                const token = localStorage.getItem('authToken');
+
+                // 1. Obtener los detalles de la Orden
+                const orderUrl = buildApiUrl(API_ENDPOINTS.ORDERS) + `/${orderId}`;
+                const orderResponse = await fetch(orderUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
 
                 if (!orderResponse.ok) {
-                    throw new Error(`Error ${orderResponse.status}: No se pudo cargar el detalle de la orden.`);
+                    throw new Error(`Error ${orderResponse.status}: No se pudo cargar el detalle del pedido.`);
                 }
-                
-                const orderData = await orderResponse.json();
-                setOrder(orderData);
 
-                // 2. Intentar obtener la dirección de la tabla Sales
-                const addressFromSales = await fetchAddressFromSales(orderId);
-                setSaleAddress(addressFromSales);
+                let data = await orderResponse.json();
 
-                setIsLoading(false);
+                // 2. Obtener datos completos de cada producto si la información no está populada
+                if (data.products && data.products.length > 0) {
+                    const productsWithDetails = await Promise.all(
+                        data.products.map(async (product) => {
+                            // Si productId ya es un objeto (populado), úsalo
+                            const isPopulated = typeof product.productId === 'object' && product.productId !== null;
+                            const productId = isPopulated ? product.productId._id : product.productId;
+
+                            if (productId && !isPopulated) {
+                                try {
+                                    const productResponse = await fetch(buildApiUrl(API_ENDPOINTS.PRODUCTS) + `/${productId}`, {
+                                        method: 'GET',
+                                        headers: { 'Authorization': `Bearer ${token}` }
+                                    });
+
+                                    if (productResponse.ok) {
+                                        const fullProduct = await productResponse.json();
+                                        const actualProductData = fullProduct.product || fullProduct;
+                                        
+                                        return {
+                                            ...product,
+                                            productId: actualProductData, // Reemplazar ID simple por objeto completo
+                                        };
+                                    }
+                                } catch (productError) {
+                                    console.error('Error fetching individual product:', productError);
+                                }
+                            }
+                            return product; // Devolver el producto original si no se pudo obtener o ya estaba completo
+                        })
+                    );
+                    data = { ...data, products: productsWithDetails };
+                }
+
+                setOrder(data);
+
             } catch (err) {
+                console.error('Error al cargar detalle del pedido:', err);
                 setError(err.message);
-                setIsLoading(false);
+            } finally {
+                setLoading(false);
             }
         };
 
-        if (orderId) {
-            fetchOrderDetails();
-        }
+        fetchOrderDetail();
     }, [orderId]);
 
-    if (isLoading) {
+    // #region Contenido JSX (Renderizado)
+
+    if (loading) {
         return (
             <>
-                <Nav />
-                <div className="historial-page">
-                    <div className="orders-container">
-                        <div className="empty-state">
-                            <h3>Cargando detalles de la orden...</h3>
-                        </div>
-                    </div>
+                <Nav cartOpen={cartOpen} />
+                <div className="order-detail-page loading">
+                    <h1 className="main-title">Cargando Pedido...</h1>
+                    <div className="loading-spinner"></div>
                 </div>
                 <Footer />
             </>
@@ -129,17 +192,15 @@ const DetallesOrdenPage = () => {
     if (error || !order) {
         return (
             <>
-                <Nav />
-                <div className="historial-page">
-                    <div className="orders-container">
-                        <div className="empty-state">
-                            <div className="empty-icon">❌</div>
-                            <h3>{error || "Orden no encontrada"}</h3>
-                            <p>El detalle de la orden con ID: {orderId} no pudo ser cargado.</p>
-                            <Link to="/historial" className="filter-btn active" style={{ marginTop: '1rem' }}>
-                                <FiArrowLeft style={{ marginRight: '0.5rem' }} /> Volver al historial
-                            </Link>
-                        </div>
+                <Nav cartOpen={cartOpen} />
+                <div className="order-detail-page error">
+                    <button className="back-btn" onClick={() => navigate(-1)}>
+                        <FiArrowLeft /> Volver al historial
+                    </button>
+                    <div className="error-box">
+                        <span className="error-icon">❌</span>
+                        <h2>No se pudo encontrar el pedido.</h2>
+                        <p>{error || "El ID del pedido no es válido o no existe."}</p>
                     </div>
                 </div>
                 <Footer />
@@ -147,98 +208,129 @@ const DetallesOrdenPage = () => {
         );
     }
 
-    const productsToDisplay = order.products.map((productItem, index) => ({
-        key: `${order._id}-${productItem.productId._id}-${index}`,
-        name: productItem.productId.name,
-        price: productItem.productId.price, 
-        image: productItem.productId.images?.[0] || 'https://placehold.co/150x150',
-        quantity: productItem.quantity,
-        subtotal: productItem.subtotal, 
-    }));
-
-    // Priorizar la dirección de la tabla Sales (string)
-    const finalAddress = saleAddress || formatAddressObject(order.shippingAddress);
+    const statusInfo = getStatusInfo(order.status);
+    const productsList = order.products || [];
 
     return (
         <>
-            <Nav />
-            <div className="historial-page">
-                <div className="historial-hero">
-                    <div className="historial-hero-content" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
-                        <Link to="/historial" className="back-link">
-                             <FiArrowLeft size={18} style={{ marginRight: '8px' }} /> 
-                            Volver al Historial de Compras
-                        </Link>
-                        <h1 className="historial-title" style={{ fontSize: '2rem' }}>Detalles de la Orden #{orderId.slice(-8)}</h1>
-                        <p className="historial-subtitle">Información detallada sobre tu pedido.</p>
+            <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+            <Nav cartOpen={cartOpen} />
+
+            <div className="order-detail-page">
+                <div className="order-header-wrapper">
+                    <button className="back-btn" onClick={() => navigate(-1)}>
+                        <FiArrowLeft /> Volver al historial
+                    </button>
+
+                    <div className="order-title-section">
+                        <h1>Detalle del Pedido #{order._id.slice(-6).toUpperCase()}</h1>
+                        <span 
+                            className="status-badge" 
+                            style={{ backgroundColor: statusInfo.color }}
+                        >
+                            {statusInfo.text}
+                        </span>
                     </div>
+
+                    <p className="order-date-time">
+                        Realizado el: {formatDate(order.createdAt)}
+                    </p>
                 </div>
-                
-                <div className="historial-orders">
-                    <div className="orders-container">
-                        
-                        <div className="historial-venta" style={{ padding: '2rem' }}>
-                            <div className="venta-header">
-                                <div className="venta-info">
-                                    <span className="info-label">Fecha de Compra</span>
-                                    <span className="info-value">{formatDate(order.createdAt)}</span>
-                                </div>
-                                <div className="venta-info">
-                                    <span className="info-label">Estado de la Orden</span>
-                                    <span 
-                                        className="status-text"
-                                        style={{ color: getStatusColor(order.status) }}
-                                    >
-                                        {order.status || 'Sin estado'}
-                                    </span>
-                                </div>
-                                <div className="venta-total">
-                                    <span className="total-label">Total Pagado</span>
-                                    <span className="total-amount">${order.total?.toFixed(2) || '0.00'}</span>
-                                </div>
-                            </div>
-                            
-                            <hr style={{ margin: '1.5rem 0', border: 'none', borderTop: '1px solid #e0d8d8' }}/>
 
-                            <h3 style={{ color: '#4b1717', margin: '0 0 1rem 0', fontWeight: '600' }}>Dirección de Envío</h3>
-                            <p style={{ color: '#6d4b4b', margin: '0 0 0.5rem 0', fontWeight: '500' }}>
-                                {finalAddress}
-                            </p>
-                            {order.shippingAddress && order.shippingAddress.name && (
-                                <p style={{ color: '#6d4b4b', margin: '0' }}>
-                                    **Contacto:** {order.shippingAddress.name} ({order.shippingAddress.email}) | Tel: {order.shippingAddress.phone}
-                                </p>
-                            )}
-                            
-                            <hr style={{ margin: '1.5rem 0', border: 'none', borderTop: '1px solid #e0d8d8' }}/>
-
-                            <h3 style={{ color: '#4b1717', margin: '0 0 1rem 0', fontWeight: '600' }}>Productos</h3>
-                            <div className="venta-productos" style={{ padding: '0' }}>
-                                {productsToDisplay.map(product => (
-                                    <HistorialItem key={product.key} product={product} />
-                                ))}
-                            </div>
-                            
-                            <hr style={{ margin: '1.5rem 0', border: 'none', borderTop: '1px solid #e0d8d8' }}/>
-
-                            <div className="venta-total" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', gap: '2rem', padding: '0 0.5rem' }}>
-                                <div style={{ textAlign: 'right' }}>
-                                    <span className="info-label">Costo de Envío</span>
-                                    <span className="info-value">${(order.shippingCents / 100)?.toFixed(2) || '0.00'}</span>
-                                </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <span className="info-label">Total Final</span>
-                                    <span className="total-amount">${order.total?.toFixed(2) || '0.00'}</span>
-                                </div>
-                            </div>
-
+                <div className="order-content">
+                    {/* Sección de Productos */}
+                    <div className="products-section card-box">
+                        <h2 className="section-title"><FiPackage /> Productos ({productsList.length})</h2>
+                        <div className="product-list">
+                            {productsList.map((productItem, index) => {
+                                const fullProduct = productItem.productId;
+                                const imageUrl = getProductImageUrl(fullProduct?.images?.[0]);
+                                
+                                return (
+                                    <div key={index} className="product-item">
+                                        <div className="product-image-container">
+                                            <img 
+                                                src={imageUrl || 'https://placehold.co/80x80/f0f0f0/333?text=N/A'} 
+                                                alt={fullProduct?.name || 'Producto'}
+                                                className="product-img"
+                                            />
+                                        </div>
+                                        <div className="product-info-details">
+                                            <span className="product-name">{fullProduct?.name || 'Producto Desconocido'}</span>
+                                            <span className="product-quantity">
+                                                Cantidad: **{productItem.quantity}**
+                                            </span>
+                                            <span className="product-price">
+                                                {formatPrice(productItem.unitPriceCents)} c/u
+                                            </span>
+                                        </div>
+                                        <div className="product-subtotal">
+                                            <span className="subtotal-label">Subtotal:</span>
+                                            <span className="subtotal-value">
+                                                {formatPrice(productItem.subtotalCents)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
+                    </div>
+
+                    {/* Sección de Dirección de Envío */}
+                    {order.shippingAddress && (
+                        <div className="shipping-section card-box">
+                            <h2 className="section-title"><FiMapPin /> Dirección de Envío</h2>
+                            <div className="address-details">
+                                <p><strong>{order.shippingAddress.name}</strong> ({order.shippingAddress.phone})</p>
+                                <p>{order.shippingAddress.line1} {order.shippingAddress.line2}</p>
+                                <p>{order.shippingAddress.city}, {order.shippingAddress.country}</p>
+                                <p>CP: {order.shippingAddress.zip}</p>
+                                <p>Email: {order.shippingAddress.email}</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Resumen de Costos */}
+                    <div className="summary-section card-box">
+                        <h2 className="section-title"><FiCreditCard /> Resumen de Pagos</h2>
+                        <div className="summary-row">
+                            <span>Subtotal Productos:</span>
+                            <span>{formatPrice((order.totalCents || 0) - (order.shippingCents || 0) - (order.taxCents || 0) + (order.discountCents || 0))}</span>
+                        </div>
+                        {order.shippingCents > 0 && (
+                            <div className="summary-row">
+                                <span>Costo de Envío:</span>
+                                <span>{formatPrice(order.shippingCents)}</span>
+                            </div>
+                        )}
+                        {order.taxCents > 0 && (
+                            <div className="summary-row">
+                                <span>Impuestos (IVA):</span>
+                                <span>{formatPrice(order.taxCents)}</span>
+                            </div>
+                        )}
+                        {order.discountCents > 0 && (
+                            <div className="summary-row discount-row">
+                                <span>Descuento Aplicado:</span>
+                                <span>-{formatPrice(order.discountCents)}</span>
+                            </div>
+                        )}
+                        <div className="summary-row total-row">
+                            <span>Total Pagado:</span>
+                            <span className="total-amount">{formatPrice(order.totalCents)}</span>
+                        </div>
+                        {order.wompiReference && (
+                            <p className="payment-ref">
+                                **Referencia Wompi:** {order.wompiReference}
+                            </p>
+                        )}
                     </div>
                 </div>
             </div>
+
             <Footer />
         </>
     );
 };
 
-export default DetallesOrdenPage;
+export default OrderDetailPage;

@@ -14,6 +14,8 @@ import VerificarCodigo from './pages/VerificarCodigo';   // ← nueva import
 import Actualizacion from './pages/CambiarCont';          // CambiarCont.jsx
 
 import Login from './pages/Login';
+import Detalle from './pages/DetallesOrden';
+
 import RegistroContainer from './pages/RegistroContainer';
 import CartPage from './components/Cart/CartPage';
 import HistorialPage from './pages/Historial';
@@ -86,6 +88,8 @@ function App() {
 
           {/* Catálogo / info públicas */}
           <Route path="/sobre-nosotros" element={<AboutUs />} />
+          <Route path="/sobre-nosotros" element={<AboutUs />} />
+
           <Route path="/productos" element={<Products />} />
           <Route path="/categoria" element={<Products />} />
           <Route path="/categoria/collares" element={<CategoriaCollares />} />
