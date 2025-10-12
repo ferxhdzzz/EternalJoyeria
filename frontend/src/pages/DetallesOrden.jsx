@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiPackage, FiMapPin, FiCreditCard } from 'react-icons/fi';
-import Nav from '../components/Nav/Nav'; // Ajusta la ruta si es necesario
-import Footer from '../components/Footer'; // Ajusta la ruta si es necesario
-import SidebarCart from '../components/Cart/SidebarCart'; // Si lo usas en todas las páginas
-import './OrderDetailPage.css'; // 🚨 Debes crear este archivo CSS
+import Nav from '../components/Nav/Nav'; 
+import Footer from '../components/Footer'; 
+import SidebarCart from '../components/Cart/SidebarCart'; 
+import './OrderDetailPage.css'; // Asegúrate de que este archivo CSS existe
 
 // ------------------------------------------------------------------
 // CONFIGURACIÓN DE LA API (Consolidado)
@@ -30,14 +30,13 @@ const getProductImageUrl = (imagePath) => {
 // ------------------------------------------------------------------
 
 const OrderDetailPage = () => {
-    // Captura el ID de la orden de la URL
     const { orderId } = useParams();
     const navigate = useNavigate();
 
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [cartOpen, setCartOpen] = useState(false); // Para el SidebarCart
+    const [cartOpen, setCartOpen] = useState(false); 
 
     // #region Funciones de Formateo
 
@@ -55,40 +54,40 @@ const OrderDetailPage = () => {
 
     const getStatusInfo = (status) => {
         const lowerStatus = status?.toLowerCase() || 'desconocido';
-        let color = '#9E9E9E'; // Gris
+        let color = '#9E9E9E'; 
         let text = status || 'Desconocido';
 
         switch (lowerStatus) {
             case 'pagado':
-                color = '#28a745'; // Verde
+                color = '#28a745'; 
                 text = 'Pagado';
                 break;
             case 'pending_payment':
-                color = '#ffc107'; // Amarillo
+                color = '#ffc107'; 
                 text = 'Pendiente de Pago';
                 break;
             case 'no pagado':
-                color = '#dc3545'; // Rojo
+                color = '#dc3545'; 
                 text = 'No Pagado';
                 break;
             case 'enviado':
             case 'en camino':
-                color = '#007bff'; // Azul
+                color = '#007bff'; 
                 text = 'En Camino';
                 break;
             case 'entregado':
-                color = '#17a2b8'; // Azul claro
+                color = '#17a2b8'; 
                 text = 'Entregado';
                 break;
             default:
-                color = '#6c757d'; // Gris oscuro
+                color = '#6c757d'; 
                 text = status;
                 break;
         }
         return { color, text };
     };
 
-    // Formateo de precios (asumiendo que el API devuelve en centavos para los totales)
+    // Formateo de precios (asumiendo que el API devuelve en centavos)
     const formatPrice = (cents) => {
         if (cents == null || isNaN(cents)) return 'N/A';
         return `$${(cents / 100).toFixed(2)}`;
@@ -108,21 +107,17 @@ const OrderDetailPage = () => {
             setError(null);
 
             try {
-                // El token debe obtenerse de donde lo guardes (ej: localStorage)
-                const token = localStorage.getItem('authToken');
-
                 // 1. Obtener los detalles de la Orden
                 const orderUrl = buildApiUrl(API_ENDPOINTS.ORDERS) + `/${orderId}`;
                 const orderResponse = await fetch(orderUrl, {
                     method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
+                    // 🚨 CORRECCIÓN CRUCIAL: Incluir credenciales (cookies)
+                    credentials: 'include' 
                 });
 
                 if (!orderResponse.ok) {
-                    throw new Error(`Error ${orderResponse.status}: No se pudo cargar el detalle del pedido.`);
+                    throw new Error(`Error ${orderResponse.status}: No se pudo cargar el detalle del pedido. Asegúrate de estar logueado.`);
                 }
 
                 let data = await orderResponse.json();
@@ -131,7 +126,6 @@ const OrderDetailPage = () => {
                 if (data.products && data.products.length > 0) {
                     const productsWithDetails = await Promise.all(
                         data.products.map(async (product) => {
-                            // Si productId ya es un objeto (populado), úsalo
                             const isPopulated = typeof product.productId === 'object' && product.productId !== null;
                             const productId = isPopulated ? product.productId._id : product.productId;
 
@@ -139,7 +133,8 @@ const OrderDetailPage = () => {
                                 try {
                                     const productResponse = await fetch(buildApiUrl(API_ENDPOINTS.PRODUCTS) + `/${productId}`, {
                                         method: 'GET',
-                                        headers: { 'Authorization': `Bearer ${token}` }
+                                        // 🚨 CORRECCIÓN: Incluir credenciales también aquí
+                                        credentials: 'include'
                                     });
 
                                     if (productResponse.ok) {
@@ -148,14 +143,14 @@ const OrderDetailPage = () => {
                                         
                                         return {
                                             ...product,
-                                            productId: actualProductData, // Reemplazar ID simple por objeto completo
+                                            productId: actualProductData,
                                         };
                                     }
                                 } catch (productError) {
                                     console.error('Error fetching individual product:', productError);
                                 }
                             }
-                            return product; // Devolver el producto original si no se pudo obtener o ya estaba completo
+                            return product; 
                         })
                     );
                     data = { ...data, products: productsWithDetails };

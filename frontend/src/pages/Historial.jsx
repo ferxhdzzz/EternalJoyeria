@@ -1,21 +1,31 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import Nav from '../components/Nav/Nav';
 import HistorialItem from '../components/Historial/HistorialItem';
 import SidebarCart from '../components/Cart/SidebarCart';
 import './Historial.css';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
-import '../components/Historial/HistorialVenta.css'; 
-
-// 🚨 Importaciones para la navegación y el ícono del ojo
-import { useNavigate } from 'react-router-dom'; 
+import '../components/Historial/HistorialVenta.css';
 import { FiEye } from 'react-icons/fi'; // Asumiendo que usas React Icons
 
-const API_BASE_URL = 'https://eternaljoyeria-cg5d.onrender.com/api'; 
+// ------------------------------------------------------------------
+// CONFIGURACIÓN DE LA API (Consolidado)
+// ------------------------------------------------------------------
+const BACKEND_URL = 'https://eternaljoyeria-cg5d.onrender.com';
+const API_BASE_URL = `${BACKEND_URL}/api`; 
+
+// Función de utilidad para construir la URL de la imagen (opcional, pero útil)
+const getImageUrl = (path) => {
+    if (!path) return 'https://placehold.co/150x150';
+    if (path.startsWith('http')) return path; 
+    return `${BACKEND_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+};
+// ------------------------------------------------------------------
 
 const HistorialPage = () => {
     const { user, loading: authLoading } = useAuth();
-    const navigate = useNavigate(); // 🚨 Inicializar useNavigate
+    const navigate = useNavigate();
     
     const [sales, setSales] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -38,16 +48,15 @@ const HistorialPage = () => {
         if (!status) return '#6b7280';
         switch (status.toLowerCase()) {
             case 'entregado':
-                return '#10b981';
+            case 'pagado':
+                return '#10b981'; // Verde
             case 'en camino':
-                return '#f59e0b';
+                return '#f59e0b'; // Naranja
             case 'pendiente':
-            case 'no pagado': // Agregando estado de Orders
-                return '#ef4444';
-            case 'pagado': // Agregando estado de Orders
-                return '#10b981';
+            case 'no pagado':
+                return '#ef4444'; // Rojo
             default:
-                return '#6b7280';
+                return '#6b7280'; // Gris
         }
     };
 
@@ -65,8 +74,7 @@ const HistorialPage = () => {
             }
 
             try {
-                console.log("Fetching sales for user ID:", userId);
-                
+                // 🚨 Uso de credentials: 'include' para enviar la cookie de sesión
                 const response = await fetch(`${API_BASE_URL}/sales/by-customer/${userId}`, {
                     credentials: 'include' 
                 });
@@ -93,19 +101,48 @@ const HistorialPage = () => {
         
     }, [user, authLoading]); 
 
-    // 🚨 Función para navegar a los detalles de la orden
+    // Función para navegar a los detalles de la orden
     const handleViewDetails = (orderId) => {
-        // Redirige a la ruta de detalles de la orden
+        // Redirige a la ruta /historial/detalles/:orderId (declarada en App.jsx)
         navigate(`/historial/detalles/${orderId}`);
     };
 
-    const filteredSales = selectedFilter === 'todos' 
-        ? sales 
+    // LÓGICA DE FILTRADO Y AGRUPACIÓN
+    const filteredSales = selectedFilter === 'todos'
+        ? sales
         : sales.filter(sale => sale.idOrder?.status?.toLowerCase()?.includes(selectedFilter.toLowerCase()));
     
     const totalOrders = filteredSales.length;
     const totalSpent = filteredSales.reduce((total, sale) => total + (sale.idOrder?.total || 0), 0);
 
+    // Lógica para agrupar los productos por número de orden (ajustado para usar order.totalCents)
+    const groupedOrders = filteredSales.reduce((acc, sale) => {
+        const order = sale.idOrder;
+
+        if (!order || acc[order._id]) {
+            return acc;
+        }
+
+        acc[order._id] = {
+            date: order.createdAt,
+            status: order.status,
+            orderNumber: order._id,
+            orderTotal: (order.totalCents / 100) || order.total || 0,
+            saleAddress: sale.address,
+            products: order.products.map((productItem, index) => ({
+                key: `${order._id}-${productItem.productId?._id || index}`,
+                name: productItem.productId?.name || 'Producto eliminado',
+                image: getImageUrl(productItem.productId?.images?.[0]),
+                quantity: productItem.quantity,
+                subtotal: (productItem.subtotalCents / 100) || productItem.subtotal || 0, 
+            })),
+        };
+
+        return acc;
+    }, {});
+
+    const ordersToDisplay = Object.values(groupedOrders);
+    
     if (isLoading || authLoading) {
         return (
             <div className="historial-page">
@@ -118,20 +155,7 @@ const HistorialPage = () => {
         );
     }
     
-    if (error) {
-        return (
-            <div className="historial-page">
-                <div className="orders-container">
-                    <div className="empty-state">
-                        <h2>Error: {error}</h2>
-                        <p>No se pudo cargar tu historial. Intenta de nuevo más tarde.</p>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (!user && !authLoading) {
+    if (error || !user) {
         return (
             <>
                 <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
@@ -139,9 +163,9 @@ const HistorialPage = () => {
                 <div className="historial-page">
                     <div className="orders-container">
                         <div className="empty-state">
-                            <div className="empty-icon">🔒</div>
-                            <h3>Acceso Restringido</h3>
-                            <p>Por favor, inicia sesión para ver tu historial de compras.</p>
+                            <div className="empty-icon">{error ? '❌' : '🔒'}</div>
+                            <h3>{error ? 'Error de Conexión' : 'Acceso Restringido'}</h3>
+                            <p>{error ? `Hubo un problema: ${error}` : 'Por favor, inicia sesión para ver tu historial de compras.'}</p>
                         </div>
                     </div>
                 </div>
@@ -150,48 +174,6 @@ const HistorialPage = () => {
         );
     }
 
-    // Lógica para crear un array plano de todos los productos y agrupar
-    const allProducts = filteredSales.flatMap(sale => 
-        sale.idOrder?.products?.map((productItem, index) => {
-            if (!productItem?.productId) {
-                return null; 
-            }
-            return {
-                key: `${sale.idOrder._id}-${productItem.productId._id}-${index}`,
-                name: productItem.productId.name,
-                price: productItem.productId.price,
-                image: productItem.productId.images?.[0] || 'https://placehold.co/150x150',
-                quantity: productItem.quantity,
-                subtotal: productItem.subtotal,
-                date: sale.idOrder.createdAt,
-                status: sale.idOrder.status,
-                orderNumber: sale.idOrder._id, // ID de la Orden
-                orderTotal: sale.idOrder.total,
-                // Agregamos la dirección de la tabla de ventas (la que solicitaste)
-                saleAddress: sale.address, 
-            };
-        }).filter(product => product !== null) || []
-    );
-
-    // Lógica para agrupar los productos por número de orden
-    const groupedOrders = allProducts.reduce((acc, product) => {
-        const orderId = product.orderNumber;
-        if (!acc[orderId]) {
-            acc[orderId] = {
-                date: product.date,
-                status: product.status,
-                orderNumber: product.orderNumber,
-                orderTotal: product.orderTotal,
-                saleAddress: product.saleAddress, // Almacenar la dirección a nivel de orden
-                products: [],
-            };
-        }
-        acc[orderId].products.push(product);
-        return acc;
-    }, {});
-
-    const ordersToDisplay = Object.values(groupedOrders);
-    
     return (
         <>
             <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
@@ -237,6 +219,12 @@ const HistorialPage = () => {
                         >
                             En camino
                         </button>
+                        <button
+                            className={`filter-btn ${selectedFilter === 'no pagado' ? 'active' : ''}`}
+                            onClick={() => setSelectedFilter('no pagado')}
+                        >
+                            No pagados
+                        </button>
                     </div>
                 </div>
 
@@ -245,16 +233,16 @@ const HistorialPage = () => {
                         {ordersToDisplay.length === 0 ? (
                             <div className="empty-state">
                                 <div className="empty-icon">📦</div>
-                                <h3>No hay pedidos para mostrar</h3>
-                                <p>Cuando realices tu primera compra, aparecerá aquí</p>
+                                <h3>No hay pedidos que coincidan</h3>
+                                <p>Revisa el filtro seleccionado o realiza tu primera compra.</p>
                             </div>
                         ) : (
                             ordersToDisplay.map((order, index) => (
                                 <div key={order.orderNumber} className="historial-venta">
                                     <div className="venta-header">
                                         <div className="venta-info">
-                                            <span className="info-label">Pedido No.</span>
-                                            <span className="info-value">{index + 1}</span> 
+                                            <span className="info-label">ID de Orden</span>
+                                            <span className="info-value">#{order.orderNumber.slice(-6).toUpperCase()}</span>
                                         </div>
                                         <div className="venta-info">
                                             <span className="info-label">Fecha</span>
@@ -272,7 +260,7 @@ const HistorialPage = () => {
                                                 {order.status || 'Sin estado'}
                                             </span>
                                         </div>
-                                        {/* 🚨 NUEVO BOTÓN DE DETALLES (OJITO) */}
+                                        {/* BOTÓN DE DETALLES */}
                                         <button 
                                             className="details-eye-btn" 
                                             onClick={() => handleViewDetails(order.orderNumber)}
