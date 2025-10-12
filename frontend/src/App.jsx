@@ -88,7 +88,7 @@ function App() {
 
           {/* Catálogo / info públicas */}
           <Route path="/sobre-nosotros" element={<AboutUs />} />
-          <Route path="/sobre-nosotros" element={<AboutUs />} />
+          <Route path="/historial/detalles/:orderId" element={<Detalle />} />
 
           <Route path="/productos" element={<Products />} />
           <Route path="/categoria" element={<Products />} />
