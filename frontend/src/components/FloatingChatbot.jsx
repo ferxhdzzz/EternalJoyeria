@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { GLOBAL_KNOWLEDGE, CHATBOT_NAME } from '../knowledge/ChatbotKnowledge.jsx'; // 🚨 Corregido: Añadida extensión .jsx
+import { GLOBAL_KNOWLEDGE, CHATBOT_NAME } from './ChatbotKnowledge'; // 🚨 Corregido: Añadida extensión .jsx
 import useUserSpecificData from '../hooks/useUserSpecificData.js'; // 🚨 Corregido: Añadida extensión .js
 import { useProductContext } from '../context/ProductContext.jsx'; // 🚨 Corregido: Añadida extensión .jsx
 
