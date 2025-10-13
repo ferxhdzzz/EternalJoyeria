@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { GLOBAL_KNOWLEDGE, CHATBOT_NAME } from './ChatbotKnowledge';
+// Asegúrate de que estas rutas son correctas en tu proyecto
+import { GLOBAL_KNOWLEDGE, CHATBOT_NAME } from './ChatbotKnowledge'; 
 import useUserSpecificData from '../hooks/useUserSpecificData.js';
 import { useProductContext } from '../context/ProductContext.jsx';
 // La importación de 'framer-motion' (color) no se usa en este archivo, la mantengo pero no tiene efecto
@@ -20,7 +21,7 @@ const parseMarkdown = (text) => {
 
 // --- LÓGICA DE CLASIFICACIÓN (El motor de la "IA") ---
 const useChatbotLogic = (userName, productInfo, userData) => {
-    // ... (Lógica de classifyAndRespond, no modificada)
+    
     const classifyAndRespond = useCallback((text) => {
         const normalizedText = text.toLowerCase();
         
@@ -166,7 +167,7 @@ const FloatingChatbot = ({ userName }) => {
         messageArea: {
             flexGrow: 1, 
             padding: '15px', 
-            overflowY: 'auto', // Asegura el scroll en este div
+            overflowY: 'auto', // ESTO GESTIONA EL SCROLL EN TODO EL CONTENEDOR DE MENSAJES
             borderBottom: '1px solid #eee',
             display: 'flex', 
             flexDirection: 'column', 
@@ -182,7 +183,9 @@ const FloatingChatbot = ({ userName }) => {
         input: {
             flexGrow: 1, padding: '10px', border: '1px solid #ccc', borderRadius: '20px', // Borde más redondeado
             marginRight: '10px', backgroundColor: 'white',
-            outline: 'none', transition: 'border-color 0.2s', fontSize: '0.9em'
+            outline: 'none', transition: 'border-color 0.2s', fontSize: '0.9em',
+            // ✅ AJUSTE: Color de la letra del input a negro
+            color: 'black' 
         },
         sendButton: {
             backgroundColor: '#D1A6B4', color: 'white', border: 'none', borderRadius: '20px', // Borde más redondeado
@@ -196,14 +199,15 @@ const FloatingChatbot = ({ userName }) => {
             alignSelf: sender === 'user' ? 'flex-end' : 'flex-start',
             // Colores mejorados
             backgroundColor: sender === 'user' ? '#D1A6B4' : '#E8E8E8', // Color rosa para usuario, gris claro para bot
-            color: sender === 'user' ? 'black' : '#333',
+            color: sender === 'user' ? 'white' : '#333',
             
             // Asegura que solo se rompan las esquinas donde el mensaje no se une a uno del mismo emisor
             borderBottomRightRadius: sender === 'user' ? '0' : '15px',
             borderBottomLeftRadius: sender === 'user' ? '15px' : '0',
             
-            // 🚨 CAMBIO CLAVE AQUÍ: Usar 'normal' para que el texto se ajuste automáticamente al borde.
-            whiteSpace: 'normal',
+            // ✅ AJUSTE: Esto asegura que el texto se ajuste y no cause scroll en el mensaje individual
+            whiteSpace: 'normal', 
+            overflowWrap: 'break-word',
             
             boxShadow: '0 1px 1px rgba(0,0,0,0.05)' // Sutil sombra para los mensajes
         })
@@ -271,11 +275,22 @@ const FloatingChatbot = ({ userName }) => {
                     </form>
                 </div>
             )}
-        {/* 🚨 NOTA: Si quieres ocultar la barra de scroll completamente, 
-           debes añadir este CSS a tu archivo global (o un <style> en el componente) 
-           ya que no es soportado por inline styles de React */}
+        {/* NOTA: Este <style> es necesario para ocultar la barra de scroll en navegadores WebKit (Chrome/Safari) */}
         <style>
-            {`.message-area::-webkit-scrollbar { display: none; }`}
+            {`
+                /* Oculta la scrollbar para Webkit (Chrome, Safari) */
+                .message-area::-webkit-scrollbar { 
+                    display: none; 
+                }
+                /* Animación para los puntos de "escribiendo" (typing-dot) */
+                @keyframes blink {
+                    0%, 100% { opacity: 0.3; }
+                    50% { opacity: 1; }
+                }
+                .typing-dot:nth-child(1) { animation: blink 1.4s infinite; }
+                .typing-dot:nth-child(2) { animation: blink 1.4s infinite 0.2s; }
+                .typing-dot:nth-child(3) { animation: blink 1.4s infinite 0.4s; }
+            `}
         </style>
         </>
     );
