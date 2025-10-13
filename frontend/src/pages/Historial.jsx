@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { useNavigate } from 'react-router-dom';
 import Nav from '../components/Nav/Nav';
 import HistorialItem from '../components/Historial/HistorialItem';
@@ -9,19 +9,14 @@ import { useAuth } from '../context/AuthContext';
 import '../components/Historial/HistorialVenta.css';
 import { FiEye } from 'react-icons/fi';
 
-// ------------------------------------------------------------------
-// CONFIGURACIÓN DE LA API
-// ------------------------------------------------------------------
 const BACKEND_URL = 'https://eternaljoyeria-cg5d.onrender.com';
 const API_BASE_URL = `${BACKEND_URL}/api`;
 
-// Construcción segura de la URL de la imagen
 const getImageUrl = (path) => {
   if (!path) return 'https://placehold.co/150x150';
   if (path.startsWith('http')) return path;
   return `${BACKEND_URL}${path.startsWith('/') ? '' : '/'}${path}`;
 };
-// ------------------------------------------------------------------
 
 const HistorialPage = () => {
   const { user, loading: authLoading } = useAuth();
@@ -33,7 +28,6 @@ const HistorialPage = () => {
   const [cartOpen, setCartOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('todos');
 
-  // Funciones de formato
   const formatDate = (dateString) => {
     if (!dateString) return 'Sin fecha';
     const date = new Date(dateString);
@@ -49,14 +43,11 @@ const HistorialPage = () => {
     switch (status.toLowerCase()) {
       case 'entregado':
       case 'pagado':
-        return '#10b981'; // Verde
+        return '#10b981'; 
       case 'en camino':
-        return '#f59e0b'; // Naranja
-      case 'pendiente':
-      case 'no pagado':
-        return '#ef4444'; // Rojo
+        return '#f59e0b'; 
       default:
-        return '#6b7280'; // Gris
+        return '#6b7280';
     }
   };
 
@@ -83,7 +74,13 @@ const HistorialPage = () => {
         }
 
         const data = await response.json();
-        setSales(Array.isArray(data) ? data : []);
+
+        // Orden descendente por fecha
+        const sortedData = Array.isArray(data) 
+          ? data.sort((a, b) => new Date(b.idOrder?.createdAt) - new Date(a.idOrder?.createdAt))
+          : [];
+
+        setSales(sortedData);
         setIsLoading(false);
       } catch (err) {
         setError(err.message);
@@ -92,19 +89,14 @@ const HistorialPage = () => {
       }
     };
 
-    if (!authLoading && userId) {
-      fetchSales();
-    } else if (!authLoading) {
-      setIsLoading(false);
-    }
+    if (!authLoading && userId) fetchSales();
+    else if (!authLoading) setIsLoading(false);
   }, [user, authLoading]);
 
-  // Función para ver detalles
   const handleViewDetails = (orderId) => {
     navigate(`/historial/detalles/${orderId}`);
   };
 
-  // Filtrado y agrupación
   const filteredSales =
     selectedFilter === 'todos'
       ? sales
@@ -120,7 +112,6 @@ const HistorialPage = () => {
 
   const groupedOrders = filteredSales.reduce((acc, sale) => {
     const order = sale.idOrder;
-
     if (!order || acc[order._id]) return acc;
 
     acc[order._id] = {
@@ -141,7 +132,7 @@ const HistorialPage = () => {
           image: getImageUrl(productItem.productId?.images?.[0]),
           quantity,
           subtotal,
-          price: unitPrice, // 👈 se pasa precio unitario
+          price: unitPrice,
         };
       }),
     };
@@ -149,7 +140,9 @@ const HistorialPage = () => {
     return acc;
   }, {});
 
-  const ordersToDisplay = Object.values(groupedOrders);
+  // Orden descendente por fecha
+  const ordersToDisplay = Object.values(groupedOrders)
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
 
   if (isLoading || authLoading) {
     return (
@@ -192,6 +185,7 @@ const HistorialPage = () => {
       <Nav cartOpen={cartOpen} />
 
       <div className="historial-page">
+        {/* Hero y filtros */}
         <div className="historial-hero">
           <div className="historial-hero-content">
             <div className="historial-hero-text">
@@ -216,36 +210,22 @@ const HistorialPage = () => {
         <div className="historial-filters">
           <div className="filter-buttons">
             <button
-              className={`filter-btn ${
-                selectedFilter === 'todos' ? 'active' : ''
-              }`}
+              className={`filter-btn ${selectedFilter === 'todos' ? 'active' : ''}`}
               onClick={() => setSelectedFilter('todos')}
             >
               Todos los pedidos
             </button>
             <button
-              className={`filter-btn ${
-                selectedFilter === 'entregado' ? 'active' : ''
-              }`}
+              className={`filter-btn ${selectedFilter === 'entregado' ? 'active' : ''}`}
               onClick={() => setSelectedFilter('entregado')}
             >
               Entregados
             </button>
             <button
-              className={`filter-btn ${
-                selectedFilter === 'camino' ? 'active' : ''
-              }`}
+              className={`filter-btn ${selectedFilter === 'camino' ? 'active' : ''}`}
               onClick={() => setSelectedFilter('camino')}
             >
               En camino
-            </button>
-            <button
-              className={`filter-btn ${
-                selectedFilter === 'no pagado' ? 'active' : ''
-              }`}
-              onClick={() => setSelectedFilter('no pagado')}
-            >
-              No pagados
             </button>
           </div>
         </div>
@@ -256,9 +236,7 @@ const HistorialPage = () => {
               <div className="empty-state">
                 <div className="empty-icon">📦</div>
                 <h3>No hay pedidos que coincidan</h3>
-                <p>
-                  Revisa el filtro seleccionado o realiza tu primera compra.
-                </p>
+                <p>Revisa el filtro seleccionado o realiza tu primera compra.</p>
               </div>
             ) : (
               ordersToDisplay.map((order, index) => (
@@ -293,9 +271,7 @@ const HistorialPage = () => {
 
                     <button
                       className="details-eye-btn"
-                      onClick={() =>
-                        handleViewDetails(order.orderNumber)
-                      }
+                      onClick={() => handleViewDetails(order.orderNumber)}
                       title={`Ver detalles del pedido ${index + 1}`}
                     >
                       <FiEye size={20} />
@@ -304,10 +280,7 @@ const HistorialPage = () => {
 
                   <div className="venta-productos">
                     {order.products.map((product) => (
-                      <HistorialItem
-                        key={product.key}
-                        product={product}
-                      />
+                      <HistorialItem key={product.key} product={product} />
                     ))}
                   </div>
                 </div>
