@@ -48,6 +48,6 @@ export const GLOBAL_KNOWLEDGE = [
   },
   {
     query: /env(í|i)o|costo de entrega|env(í|i)o gratis/i,
-    answer: "El envío es **gratis para compras superiores a $50 USD**. De lo contrario, el costo es de $5.99 USD a cualquier parte del país.",
+    answer: "El envío es **gratis** a cualquier parte del país.",
   },
 ];

@@ -51,7 +51,9 @@ const useUserSpecificData = () => {
 
                 if (sales.length > 0) {
                     // Calcula Gasto Total (asume campo 'totalAmount')
-                    stats.totalSpent = sales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0); 
+                 stats.totalSpent = sales.reduce((sum, sale) =>  sum + ((sale.idOrder?.totalCents / 100) || sale.idOrder?.total || 0), 
+    0
+);
                     
                     // Encuentra Fecha Reciente (usa 'createdAt' o 'date')
                     const latestSale = sales.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt))[0];
