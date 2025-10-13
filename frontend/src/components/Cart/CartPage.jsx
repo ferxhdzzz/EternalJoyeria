@@ -120,8 +120,7 @@ const CartPage = () => {
                             <span className="cartpage-grey-text">${subtotal.toFixed(2)}</span>
                         </div>
                         <div className="cartpage-summary-row">
-                            <span className="cartpage-grey-text">Envío</span>
-                            <span className="cartpage-grey-text">${shipping.toFixed(2)}</span>
+                           
                         </div>
                         <div className="cartpage-summary-total">
                             <span>Total</span>

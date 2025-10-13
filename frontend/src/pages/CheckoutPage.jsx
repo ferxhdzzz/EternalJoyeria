@@ -439,8 +439,7 @@ const CheckoutPage = () => {
                 <span>${subtotal.toFixed(2)}</span>
               </div>
               <div className="ticket-summary-row">
-                <span>Envío</span>
-                <span>${shipping.toFixed(2)}</span>
+              
               </div>
               <div className="ticket-summary-total-row">
                 <span>Total</span>
