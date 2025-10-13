@@ -164,7 +164,7 @@ const FloatingChatbot = ({ userName }) => {
             // Crucial: Habilita el layout flex para apilar header, area y form
             display: 'flex', 
             flexDirection: 'column', 
-            overflow: 'hidden', // Evita que se desborde el contenido (aunque el scroll lo maneja messageArea)
+            overflow: 'hidden', 
         },
         header: {
             padding: '12px 15px', background: '#D1A6B4', color: 'white', fontWeight: 'bold', fontSize: '1.1em',
@@ -174,6 +174,8 @@ const FloatingChatbot = ({ userName }) => {
         messageArea: {
             // Crucial: Toma todo el espacio vertical restante
             flexGrow: 1, 
+            // ✅ AJUSTE: Soluciona el bug de Flexbox con overflow y height
+            minHeight: 0, 
             padding: '15px', 
             // Crucial: Aplica el scroll solo a este contenedor
             overflowY: 'auto', 
@@ -217,7 +219,7 @@ const FloatingChatbot = ({ userName }) => {
             borderBottomRightRadius: sender === 'user' ? '0' : '15px',
             borderBottomLeftRadius: sender === 'user' ? '15px' : '0',
             
-            // Crucial: Asegura que el texto se ajuste y no cause scroll en el mensaje individual
+            // Crucial: Asegura que el texto se ajuste y NO cause scroll en el mensaje individual
             whiteSpace: 'normal', 
             overflowWrap: 'break-word',
             
