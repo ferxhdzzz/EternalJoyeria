@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { GLOBAL_KNOWLEDGE, CHATBOT_NAME } from './ChatbotKnowledge';
 import useUserSpecificData from '../hooks/useUserSpecificData.js';
 import { useProductContext } from '../context/ProductContext.jsx';
+import { color } from 'framer-motion';
 // La importación de 'framer-motion' (color) no se usa en este archivo, la mantengo pero no tiene efecto
 
 // --- UTILIDAD DE MARKDOWN ---
@@ -171,6 +172,7 @@ const FloatingChatbot = ({ userName }) => {
             display: 'flex', 
             flexDirection: 'column', 
             gap: '10px', 
+color: 'black',
             backgroundColor: 'white', // Fondo blanco para el área de mensajes
             
             // Oculta la scrollbar por defecto, pero permite scroll
@@ -197,19 +199,24 @@ const FloatingChatbot = ({ userName }) => {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontWeight: 'bold'
         },
-        message: (sender) => ({
-            maxWidth: '85%', padding: '10px 12px', borderRadius: '15px', fontSize: '0.9em',
-            alignSelf: sender === 'user' ? 'flex-end' : 'flex-start',
-            // Colores mejorados
-            backgroundColor: sender === 'user' ? '#D1A6B4' : '#E8E8E8', // Color rosa para usuario, gris claro para bot
-            color: sender === 'user' ? 'white' : '#333',
-            
-            // Asegura que solo se rompan las esquinas donde el mensaje no se une a uno del mismo emisor
-            borderBottomRightRadius: sender === 'user' ? '0' : '15px',
-            borderBottomLeftRadius: sender === 'user' ? '15px' : '0',
-            whiteSpace: 'pre-wrap',
-            boxShadow: '0 1px 1px rgba(0,0,0,0.05)' // Sutil sombra para los mensajes
-        })
+         message: (sender) => ({
+        maxWidth: '85%', padding: '10px 12px', borderRadius: '15px', fontSize: '0.9em',
+        alignSelf: sender === 'user' ? 'flex-end' : 'flex-start',
+        // Colores mejorados
+        backgroundColor: sender === 'user' ? '#D1A6B4' : '#E8E8E8', // Color rosa para usuario, gris claro para bot
+        color: sender === 'user' ? 'white' : '#333',
+        
+        // Asegura que solo se rompan las esquinas donde el mensaje no se une a uno del mismo emisor
+        borderBottomRightRadius: sender === 'user' ? '0' : '15px',
+        borderBottomLeftRadius: sender === 'user' ? '15px' : '0',
+        
+        // 🚨 CAMBIO CLAVE: Cambiamos 'pre-wrap' a 'normal' o lo eliminamos. 
+        // 'pre-wrap' es útil si quieres mantener saltos de línea y espacios,
+        // pero 'normal' es mejor para que el texto se ajuste automáticamente.
+        whiteSpace: 'normal', 
+        
+        boxShadow: '0 1px 1px rgba(0,0,0,0.05)' // Sutil sombra para los mensajes
+    })
     };
 
     return (
