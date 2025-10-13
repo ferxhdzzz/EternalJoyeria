@@ -39,9 +39,14 @@ const Blog = () => {
   return (
 
     
+    
     <div className="blog-page-container">
 
        <Nva />
+       <br />
+       <br />
+       <br />
+       <br />
       {/* Encabezado del blog con título y descripción */}
       <header className="blog-header">
         <h1>Blog Eternal</h1>
