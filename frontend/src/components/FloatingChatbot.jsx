@@ -35,7 +35,7 @@ const useChatbotLogic = (userName, productInfo, userData) => {
             if (normalizedText.match(/mis rese(ñ|n)as|cuantas rese(ñ|n)as|rese(ñ|n)as hechas/i)) {
                 return `Has escrito **${userData.reviewsCount} reseña(s)** hasta ahora. ¡Gracias por compartir tu experiencia!`;
             }
-            if (normalizedText.match(/mi historial|ventas|cuantas compras|he gastado|mi (ú|u)ltima compra/i)) {
+            if (normalizedText.match(/mi historial|compras|cuantas compras|he gastado|mi (ú|u)ltima compra/i)) {
                 if (userData.totalOrders > 0) {
                     return `Tienes un total de **${userData.totalOrders} pedidos** con nosotros, y has gastado un total de **$${userData.totalSpent.toFixed(2)} USD**. Tu último pedido fue el ${userData.recentOrderDate}. ¡Eres un cliente VIP!`;
                 }
@@ -235,7 +235,7 @@ const FloatingChatbot = ({ userName }) => {
             {isOpen && (
                 <div style={chatbotStyles.container}>
                     <div style={chatbotStyles.header}>
-                        <span>{CHATBOT_NAME} - Asistente</span>
+                        <span>{CHATBOT_NAME} tu asistente personal</span>
                         {productInfo && <span style={{fontSize: '0.8em', marginLeft: '10px', fontWeight: 'normal', opacity: 0.8}}>Viendo: {productInfo.name}</span>}
                     </div>
 

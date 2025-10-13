@@ -94,7 +94,7 @@ const ContactUs = () => {
                 <p>
                   El Salvador
                   <br />
-                  San Salvador
+                  Santa Ana
                 </p>
               </div>
             </div>
@@ -116,7 +116,7 @@ const ContactUs = () => {
               </div>
               <div className="contact-info-content">
                 <h3>Teléfono</h3>
-                <p>+503 1234-5678</p>
+                <p>+503 6316-8938</p>
                 <small>WhatsApp disponible</small>
               </div>
             </div>
@@ -433,7 +433,7 @@ const ContactUs = () => {
             loading="lazy"
             allowFullScreen
             referrerpolicy="no-referrer-when-downgrade" // REEMPLAZA ESTE 'src' CON EL CÓDIGO EMBED REAL DE TU UBICACIÓN // EJEMPLO CON COORDENADAS DE EL SALVADOR:
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7752.408847505854!2d-89.22062482229002!3d13.706065400000005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8f63312cffdc0e23%3A0xfd208b3a87cfb4d9!2sMetrocentro%20San%20Salvador!5e0!3m2!1ses!2ssv!4v1760018543579!5m2!1ses!2ssv"
+           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15485.55264862891!2d-89.6508971630628!3d13.994983353665672!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8f62ebed822d117f%3A0x236c81db2e10187e!2sCd.%20Real!5e0!3m2!1ses-419!2ssv!4v1760330481268!5m2!1ses-419!2ssv" 
           ></iframe>{" "}
         </div>{" "}
       </div>

@@ -6,21 +6,21 @@ export const GLOBAL_KNOWLEDGE = [
   // --- INFORMACIÓN GENERAL DE LA EMPRESA ---
   {
     query: /horario|horarios de atenci(ó|o)n|cuando abren/i,
-    answer: "Nuestro horario de atención al cliente (soporte) es de Lunes a Viernes, de 9:00 AM a 6:00 PM (hora de la Ciudad de México). La tienda online está abierta 24/7.",
+    answer: "Nuestro horario de atención al cliente (soporte) es de Lunes a Viernes, de 9:00 AM a 6:00 PM (hora de El Salvador). La tienda online está abierta 24/7.",
   },
   {
     query: /ubicaci(ó|o)n|tienda f(í|i)sica|donde est(á|a)n/i,
-    answer: "Somos una joyeria **exclusivamente online** (eCommerce) para reducir costos y ofrecerte mejores precios. No tenemos una tienda física de momento.",
+    answer: "Somos una joyeria **exclusivamente online** (eCommerce) para reducir costos y ofrecerte mejores precios, o puedes encontrarnos en Santa Ana, Ciudad Real",
   },
   {
     query: /tel(é|e)fono|llamar|contactar/i,
-    answer: "Puedes contactarnos por email a **soporte@eternaljoyeria.com** o por WhatsApp al +52 55 1234 5678.",
+    answer: "Puedes contactarnos por email a **eternaljoyeria1@gmail.com** o por WhatsApp al +503 6316-8938.",
   },
   
   // --- PRODUCTOS Y CATEGORÍAS ---
   {
     query: /categor(í|i)as|tipos de joya|que venden/i,
-    answer: "Nuestras categorías principales son: **Anillos**, **Collares**, **Aretes** y **Pulseras**. ¡También tenemos colecciones especiales por temporada!",
+    answer: "Nuestras categorías principales son: **Anillos**, **Collares**, **Aretes** y **Pulseras**!",
   },
   {
     query: /mejores ofertas|descuentos|promociones/i,
