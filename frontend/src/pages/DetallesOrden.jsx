@@ -37,6 +37,10 @@ const OrderDetailPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [cartOpen, setCartOpen] = useState(false); 
+    
+    useEffect(() => {
+  window.scrollTo(0, 0);
+}, []);
 
     // #region Funciones de Formateo
 

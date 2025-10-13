@@ -35,6 +35,10 @@ const Blog = () => {
   // Estado para controlar qué post está seleccionado (para el modal)
   const [selectedPost, setSelectedPost] = useState(null);
 
+    useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="blog-page-container">
       {/* Encabezado del blog con título y descripción */}
