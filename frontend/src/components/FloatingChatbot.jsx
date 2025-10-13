@@ -154,20 +154,29 @@ const FloatingChatbot = ({ userName }) => {
             justifyContent: 'center', transition: 'transform 0.2s',
         },
         container: {
-            position: 'fixed', bottom: '90px', right: '20px', width: '350px', height: '450px',
+            position: 'fixed', bottom: '90px', right: '20px', width: '350px', 
+            // Altura fija, crucial para que flex funcione
+            height: '450px', 
             backgroundColor: '#f9f9f9', // Fondo sutil para la ventana del chat
             borderRadius: '15px', 
             boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)',
-            zIndex: 9999, display: 'flex', flexDirection: 'column', overflow: 'hidden',
+            zIndex: 9999, 
+            // Crucial: Habilita el layout flex para apilar header, area y form
+            display: 'flex', 
+            flexDirection: 'column', 
+            overflow: 'hidden', // Evita que se desborde el contenido (aunque el scroll lo maneja messageArea)
         },
         header: {
             padding: '12px 15px', background: '#D1A6B4', color: 'white', fontWeight: 'bold', fontSize: '1.1em',
-            borderTopLeftRadius: '15px', borderTopRightRadius: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+            borderTopLeftRadius: '15px', borderTopRightRadius: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            flexShrink: 0, // Asegura que el header no se encoja
         },
         messageArea: {
+            // Crucial: Toma todo el espacio vertical restante
             flexGrow: 1, 
             padding: '15px', 
-            overflowY: 'auto', // ESTO GESTIONA EL SCROLL EN TODO EL CONTENEDOR DE MENSAJES
+            // Crucial: Aplica el scroll solo a este contenedor
+            overflowY: 'auto', 
             borderBottom: '1px solid #eee',
             display: 'flex', 
             flexDirection: 'column', 
@@ -179,12 +188,15 @@ const FloatingChatbot = ({ userName }) => {
             msOverflowStyle: 'none', 
             scrollbarWidth: 'none', 
         },
-        form: { display: 'flex', padding: '10px', borderTop: '1px solid #eee', backgroundColor: '#f9f9f9' },
+        form: { 
+            display: 'flex', padding: '10px', borderTop: '1px solid #eee', backgroundColor: '#f9f9f9',
+            flexShrink: 0, // Asegura que el formulario no se encoja
+        },
         input: {
             flexGrow: 1, padding: '10px', border: '1px solid #ccc', borderRadius: '20px', // Borde más redondeado
             marginRight: '10px', backgroundColor: 'white',
             outline: 'none', transition: 'border-color 0.2s', fontSize: '0.9em',
-            // ✅ AJUSTE: Color de la letra del input a negro
+            // Color de la letra del input a negro
             color: 'black' 
         },
         sendButton: {
@@ -205,7 +217,7 @@ const FloatingChatbot = ({ userName }) => {
             borderBottomRightRadius: sender === 'user' ? '0' : '15px',
             borderBottomLeftRadius: sender === 'user' ? '15px' : '0',
             
-            // ✅ AJUSTE: Esto asegura que el texto se ajuste y no cause scroll en el mensaje individual
+            // Crucial: Asegura que el texto se ajuste y no cause scroll en el mensaje individual
             whiteSpace: 'normal', 
             overflowWrap: 'break-word',
             
@@ -275,7 +287,7 @@ const FloatingChatbot = ({ userName }) => {
                     </form>
                 </div>
             )}
-        {/* NOTA: Este <style> es necesario para ocultar la barra de scroll en navegadores WebKit (Chrome/Safari) */}
+        {/* NOTA: Este <style> es necesario para la animación de escribir y para ocultar la barra de scroll en navegadores WebKit (Chrome/Safari) */}
         <style>
             {`
                 /* Oculta la scrollbar para Webkit (Chrome, Safari) */
