@@ -1,4 +1,4 @@
-// ProductDetail.js - VERSIÓN CON MÚLTIPLES IMÁGENES Y MODAL DE DETALLES
+// ProductDetail.js - VERSIÓN CON MÚLTIPLES IMÁGENES Y MODAL DE DETALLES (CON ZOOM)
 import React, { useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
@@ -8,10 +8,10 @@ import SidebarCart from '../components/Cart/SidebarCart';
 import Swal from 'sweetalert2';
 import Footer from '../components/Footer';
 import ReviewsSection from '../components/Reviews/ReviewsSection';
- 
+
 // URL de imagen por defecto
 const DEFAULT_IMAGE_URL = '/placeholder-image.jpg';
- 
+
 const ProductDetail = () => {
   const { id } = useParams();
   const location = useLocation();
@@ -21,14 +21,37 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
- 
+
   // NUEVO ESTADO: Índice de la imagen principal para el carrusel
   const [mainImageIndex, setMainImageIndex] = useState(0);
- 
+
+  // 🚨 ESTADOS AÑADIDOS PARA LA FUNCIÓN DE ZOOM
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  // 🚨 HANDLERS AÑADIDOS PARA LA FUNCIÓN DE ZOOM
+  const handleMouseMove = (e) => {
+    // Calcula la posición relativa del mouse dentro de la imagen
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.pageX - left) / width) * 100;
+    const y = ((e.pageY - top) / height) * 100;
+    setMousePosition({ x, y });
+  };
+
+  const handleZoomIn = () => {
+    setIsZoomed(true);
+  };
+
+  const handleZoomOut = () => {
+    setIsZoomed(false);
+    // Opcional: reiniciar posición al salir para evitar saltos
+    // setMousePosition({ x: 50, y: 50 });
+  };
+  
   // DEBUG COMPLETO (Se mantiene por si es necesario)
   // console.log('=== DEBUG PRODUCT DETAIL ===');
   // console.log('Product:', product);
- 
+
   // Actualizar tamaño seleccionado e índice de imagen cuando se carga el producto
   React.useEffect(() => {
     if (product) {
@@ -42,7 +65,7 @@ const ProductDetail = () => {
       setMainImageIndex(0);
     }
   }, [product]);
- 
+
   // Función para obtener la URL de la imagen actual
   const getCurrentImageUrl = () => {
     if (product && product.images && product.images.length > mainImageIndex) {
@@ -50,14 +73,14 @@ const ProductDetail = () => {
     }
     return product && product.img ? product.img : DEFAULT_IMAGE_URL; // Fallback al campo 'img' o a la imagen por defecto
   };
- 
+
   // Componente Modal de Detalles
   const DetailsModal = () => {
     if (!showDetailsModal || !product) return null;
- 
+
     // Usaremos la primera imagen o una por defecto para el modal
     const modalImageUrl = product.images && product.images.length > 0 ? product.images[0] : (product.img || DEFAULT_IMAGE_URL);
- 
+
     return (
       <div
         className="modal-overlay"
@@ -115,7 +138,7 @@ const ProductDetail = () => {
           >
             ×
           </button>
- 
+
           {/* Contenido del modal */}
           <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap' }}>
             {/* Imagen del producto (usando la primera imagen del array) */}
@@ -130,13 +153,13 @@ const ProductDetail = () => {
                 }}
               />
             </div>
- 
+
             {/* Detalles del producto (mismo contenido que antes) */}
             <div style={{ flex: '1', minWidth: '300px' }}>
               <h2 style={{ fontSize: '2em', marginBottom: '20px', color: '#333' }}>
                 {product.name}
               </h2>
- 
+
               {/* Precio */}
               <div style={{ marginBottom: '25px' }}>
                 {product.finalPrice && product.finalPrice !== product.price && (
@@ -157,7 +180,7 @@ const ProductDetail = () => {
                   ${(product.finalPrice || product.price || 0).toFixed(2)}
                 </span>
               </div>
- 
+
               {/* Descripción detallada */}
               <div style={{ marginBottom: '25px' }}>
                 <h3 style={{ fontSize: '1.3em', marginBottom: '10px', color: '#333' }}>
@@ -167,7 +190,7 @@ const ProductDetail = () => {
                   {product.description || 'Sin descripción disponible.'}
                 </p>
               </div>
- 
+
               {/* Especificaciones técnicas */}
               <div style={{ marginBottom: '25px' }}>
                 <h3 style={{ fontSize: '1.3em', marginBottom: '15px', color: '#333' }}>
@@ -221,7 +244,7 @@ const ProductDetail = () => {
                   )}
                 </div>
               </div>
- 
+
               {/* Disponibilidad */}
               <div style={{ marginBottom: '25px' }}>
                 <h3 style={{ fontSize: '1.3em', marginBottom: '10px', color: '#333' }}>
@@ -254,7 +277,7 @@ const ProductDetail = () => {
                   </div>
                 </div>
               </div>
- 
+
               {/* Tamaños disponibles */}
               <div style={{ marginBottom: '25px' }}>
                 <h3 style={{ fontSize: '1.3em', marginBottom: '10px', color: '#333' }}>
@@ -278,7 +301,7 @@ const ProductDetail = () => {
                   ))}
                 </div>
               </div>
- 
+
               {/* Información adicional */}
               <div style={{ marginBottom: '20px' }}>
                 <h3 style={{ fontSize: '1.3em', marginBottom: '10px', color: '#333' }}>
@@ -298,14 +321,14 @@ const ProductDetail = () => {
       </div>
     );
   };
- 
+
   // Lógicas de carga y error (se mantienen sin cambios)
   if (loading) {
     return (
       <>
         <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
         <Nav cartOpen={cartOpen} />
-       
+        
         <div className="product-detail-page" style={{ paddingTop: '100px', textAlign: 'center' }}>
           <div style={{
             display: 'flex',
@@ -329,13 +352,13 @@ const ProductDetail = () => {
       </>
     );
   }
- 
+
   if (error || !product) {
     return (
       <>
         <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
         <Nav cartOpen={cartOpen} />
-       
+        
         <div className="product-detail-page" style={{ paddingTop: '100px', textAlign: 'center' }}>
           <div style={{ padding: '40px' }}>
             <h2 style={{ color: '#e74c3c' }}>Error al cargar o Producto no encontrado</h2>
@@ -383,57 +406,57 @@ const ProductDetail = () => {
       </>
     );
   }
- 
+
   // Lógica de añadir al carrito y manejo de cantidad (se mantienen sin cambios)
   const handleAddToCart = () => {
-    // Convertimos product.stock a entero para hacer comparaciones seguras
-    const currentStock = parseInt(product.stock, 10); 
- 
-    if (quantity === 0 || currentStock === 0 || isNaN(currentStock)) {
-      Swal.fire({
-        title: 'Sin stock disponible',
-        text: 'Este producto no tiene stock o la cantidad seleccionada es 0.',
-        icon: 'error',
-        confirmButtonText: 'Entendido',
-        confirmButtonColor: '#D1A6B4',
-      });
-      return;
-    }
- 
-    if (quantity > currentStock) {
-      Swal.fire({
-        title: 'Stock insuficiente',
-        text: `Solo quedan ${currentStock} unidad(es) de este producto.`,
-        icon: 'warning',
-        confirmButtonText: 'Ok',
-        confirmButtonColor: '#D1A6B4',
-      });
-      return;
-    }
- 
-    const productToAdd = {
-      id: product._id,
-      name: product.name,
-      price: product.finalPrice || product.price,
-      // Usamos la primera imagen para el carrito por convención
-      image: product.images && product.images.length > 0 ? product.images[0] : product.img,
-      size: selectedSize,
-      quantity: quantity,
-      stock: currentStock // <<<< ¡STOCK AHORA ES NÚMERO Y SE PASA AL CONTEXTO!
-    };
-   
-    addToCart(productToAdd);
-    Swal.fire({
-      title: '¡Añadido al carrito!',
-      text: `${product.name} ahora está en tu carrito.`,
-      icon: 'success',
-      confirmButtonText: 'Genial',
-      confirmButtonColor: '#D1A6B4',
-      timer: 2500,
-      timerProgressBar: true,
-    });
-  };
- 
+    // Convertimos product.stock a entero para hacer comparaciones seguras
+    const currentStock = parseInt(product.stock, 10); 
+
+    if (quantity === 0 || currentStock === 0 || isNaN(currentStock)) {
+      Swal.fire({
+        title: 'Sin stock disponible',
+        text: 'Este producto no tiene stock o la cantidad seleccionada es 0.',
+        icon: 'error',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#D1A6B4',
+      });
+      return;
+    }
+
+    if (quantity > currentStock) {
+      Swal.fire({
+        title: 'Stock insuficiente',
+        text: `Solo quedan ${currentStock} unidad(es) de este producto.`,
+        icon: 'warning',
+        confirmButtonText: 'Ok',
+        confirmButtonColor: '#D1A6B4',
+      });
+      return;
+    }
+
+    const productToAdd = {
+      id: product._id,
+      name: product.name,
+      price: product.finalPrice || product.price,
+      // Usamos la primera imagen para el carrito por convención
+      image: product.images && product.images.length > 0 ? product.images[0] : product.img,
+      size: selectedSize,
+      quantity: quantity,
+      stock: currentStock // <<<< ¡STOCK AHORA ES NÚMERO Y SE PASA AL CONTEXTO!
+    };
+    
+    addToCart(productToAdd);
+    Swal.fire({
+      title: '¡Añadido al carrito!',
+      text: `${product.name} ahora está en tu carrito.`,
+      icon: 'success',
+      confirmButtonText: 'Genial',
+      confirmButtonColor: '#D1A6B4',
+      timer: 2500,
+      timerProgressBar: true,
+    });
+  };
+
   const handleIncreaseQuantity = () => {
     if (quantity < product.stock) {
       setQuantity(q => q + 1);
@@ -447,22 +470,22 @@ const ProductDetail = () => {
       });
     }
   };
- 
+
   const availableSizes = product.sizes && product.sizes.length > 0 ? product.sizes : ['Pequeño', 'Mediano', 'Grande'];
   // Obtenemos el array de imágenes o un array con la imagen por defecto
   const productImages = product.images && Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.img || DEFAULT_IMAGE_URL];
   // URL de la imagen principal a mostrar
   const mainImage = getCurrentImageUrl();
- 
- 
+
+
   return (
     <>
       <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
       <Nav cartOpen={cartOpen} />
-     
+      
       {/* MODAL DE DETALLES */}
       <DetailsModal />
-     
+      
       <div className="product-detail-page" style={{ paddingTop: '80px' }}>
         <div className="product-detail-container" style={{
           display: 'flex',
@@ -472,25 +495,46 @@ const ProductDetail = () => {
           gap: '40px',
           flexWrap: 'wrap' // Permite que se apilen en pantallas pequeñas
         }}>
-         
-          {/* SECCIÓN DE IMAGEN (CARRUSEL) */}
+          
+          {/* SECCIÓN DE IMAGEN (CARRUSEL CON ZOOM IMPLEMENTADO) */}
           <div className="product-image-section" style={{ flex: '1', minWidth: '350px' }}>
-            <img
-              src={mainImage}
-              alt={`${product.name} - Vista ${mainImageIndex + 1}`}
-              className="main-product-image"
+            {/* 🚨 CONTENEDOR PRINCIPAL DEL ZOOM */}
+            <div
+              className="zoom-container"
+              onMouseEnter={handleZoomIn} 
+              onMouseLeave={handleZoomOut}
+              onMouseMove={handleMouseMove}
+              // Estilos base para el contenedor que actuará como "visor"
               style={{
                 width: '100%',
                 aspectRatio: '1 / 1', // Asegura un ratio cuadrado o ajusta a tus necesidades
-                objectFit: 'cover',
+                overflow: 'hidden', // Importante para que el zoom se "corte" en el borde
                 borderRadius: '15px',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+                boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                cursor: 'zoom-in', // Indica al usuario que puede hacer zoom
+                position: 'relative' 
               }}
-              onError={(e) => {
-                e.target.src = DEFAULT_IMAGE_URL;
-              }}
-            />
- 
+            >
+              <img
+                src={mainImage}
+                alt={`${product.name} - Vista ${mainImageIndex + 1}`}
+                className="main-product-image"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  // 🚨 ESTILOS DEL ZOOM DINÁMICO
+                  transformOrigin: `${mousePosition.x}% ${mousePosition.y}%`, // El origen del zoom es el cursor
+                  transform: isZoomed ? 'scale(2.5)' : 'scale(1)', // Factor de zoom
+                  transition: 'transform 0.3s ease-out', // Animación suave
+                  cursor: 'zoom-in',
+                }}
+                onError={(e) => {
+                  e.target.src = DEFAULT_IMAGE_URL;
+                }}
+              />
+            </div>
+
             {/* Miniaturas de imágenes */}
             {productImages.length > 1 && (
               <div className="thumbnail-gallery" style={{
@@ -522,7 +566,7 @@ const ProductDetail = () => {
               </div>
             )}
           </div>
-         
+          
           {/* SECCIÓN DE INFORMACIÓN (Se mantiene el contenido principal) */}
           <div className="product-info-section" style={{ flex: '1', minWidth: '350px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
@@ -559,7 +603,7 @@ const ProductDetail = () => {
                 +
               </button>
             </div>
-           
+            
             <div className="price-container" style={{ marginBottom: '30px' }}>
               {product.finalPrice && product.finalPrice !== product.price && (
                 <span className="old-price" style={{
@@ -579,7 +623,7 @@ const ProductDetail = () => {
                 ${(product.finalPrice || product.price || 0).toFixed(2)}
               </span>
             </div>
-           
+            
             <div className="size-selector" style={{ marginBottom: '30px' }}>
               <p style={{ fontWeight: 'bold', marginBottom: '10px' }}>Seleccionar tamaño</p>
               <div className="sizes" style={{ display: 'flex', gap: '10px' }}>
@@ -603,7 +647,7 @@ const ProductDetail = () => {
                 ))}
               </div>
             </div>
-           
+            
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '18px 0' }}>
               <button
                 onClick={() => setQuantity(q => Math.max(1, q - 1))}
@@ -639,7 +683,7 @@ const ProductDetail = () => {
                 +
               </button>
             </div>
-           
+            
             <div style={{ marginBottom: '30px' }}>
               <button
                 onClick={handleAddToCart}
@@ -658,14 +702,14 @@ const ProductDetail = () => {
                 AÑADIR AL CARRITO
               </button>
             </div>
-           
+            
             <div className="description">
               <p><strong>Descripción</strong></p>
               <p style={{ lineHeight: '1.6', color: '#666' }}>
                 {product.description || 'Sin descripción disponible.'}
               </p>
             </div>
-           
+            
             {/* BOTÓN ADICIONAL PARA VER MÁS DETALLES */}
             <div style={{ marginTop: '20px' }}>
               <button
@@ -692,7 +736,7 @@ const ProductDetail = () => {
                 Ver detalles completos
               </button>
             </div>
-           
+            
             {/* INFO ADICIONAL */}
             {product.measurements && (
               <div style={{ marginTop: '20px' }}>
@@ -710,7 +754,7 @@ const ProductDetail = () => {
                 </p>
               </div>
             )}
-           
+            
             {product.stock !== undefined && (
               <div style={{ marginTop: '20px' }}>
                 <p><strong>Stock:</strong> <span style={{ 
@@ -721,7 +765,7 @@ const ProductDetail = () => {
             )}
           </div>
         </div>
-       
+        
         {/* SECCIÓN DE RESEÑAS */}
         <ReviewsSection
           productId={product._id}
@@ -729,7 +773,7 @@ const ProductDetail = () => {
         />
       </div>
       <Footer />
-     
+      
       {/* ESTILOS CSS PARA LA ANIMACIÓN DE LOADING */}
       <style>{`
         @keyframes spin {
@@ -740,5 +784,5 @@ const ProductDetail = () => {
     </>
   );
 };
- 
+
 export default ProductDetail;
