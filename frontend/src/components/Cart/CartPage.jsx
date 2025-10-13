@@ -22,7 +22,7 @@ const CartPage = () => {
 
     // Nota: Es mejor calcular el precio usando `finalPrice` o la lógica de tu backend para evitar discrepancias.
     const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    const shipping = cartItems.length > 0 ? 80 : 0;
+    const shipping = cartItems.length > 0 ? 0 : 0;
     const total = subtotal + shipping;
 
     // Vista para el carrito vacío

@@ -47,6 +47,7 @@ const Blog = () => {
        <br />
        <br />
        <br />
+       <br />
       {/* Encabezado del blog con título y descripción */}
       <header className="blog-header">
         <h1>Blog Eternal</h1>
