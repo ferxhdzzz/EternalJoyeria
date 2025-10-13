@@ -210,7 +210,11 @@ const OrderDetailPage = () => {
         <>
             <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
             <Nav cartOpen={cartOpen} />
-
+<br />
+<br />
+<br />
+<br />
+<br />
             <div className="order-detail-page">
                 <div className="order-header-wrapper">
                     <button className="back-btn" onClick={() => navigate(-1)}>
@@ -320,7 +324,11 @@ const OrderDetailPage = () => {
                             </p>
                         )}
                     </div>
+                    <br />
+                    <br />
                 </div>
+                 <br />
+                    <br />
             </div>
 
             <Footer />
