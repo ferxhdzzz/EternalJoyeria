@@ -3,7 +3,6 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { GLOBAL_KNOWLEDGE, CHATBOT_NAME } from './ChatbotKnowledge'; 
 import useUserSpecificData from '../hooks/useUserSpecificData.js';
 import { useProductContext } from '../context/ProductContext.jsx';
-// La importación de 'framer-motion' (color) no se usa en este archivo, la mantengo pero no tiene efecto
 
 // --- UTILIDAD DE MARKDOWN ---
 // Parser simple para manejar **negritas** (Markdown)
@@ -121,7 +120,6 @@ const FloatingChatbot = ({ userName }) => {
     
     // Auto-scroll
     useEffect(() => {
-        // Asegura que el último mensaje sea visible
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, isTyping, userLoading]);
 
@@ -136,7 +134,6 @@ const FloatingChatbot = ({ userName }) => {
         setIsTyping(true);
 
         // 2. Simular tiempo de procesamiento
-        // Añade una pequeña demora para simular una respuesta de IA
         await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 400)); 
         const botResponse = classifyAndRespond(userQuery);
 
@@ -155,54 +152,46 @@ const FloatingChatbot = ({ userName }) => {
         },
         container: {
             position: 'fixed', bottom: '90px', right: '20px', width: '350px', 
-            // Altura fija, crucial para que flex funcione
             height: '450px', 
-            backgroundColor: '#f9f9f9', // Fondo sutil para la ventana del chat
+            backgroundColor: '#f9f9f9', 
             borderRadius: '15px', 
             boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)',
             zIndex: 9999, 
-            // Crucial: Habilita el layout flex para apilar header, area y form
-            display: 'flex', 
+            display: 'flex', // Necesario para apilar header, area y form
             flexDirection: 'column', 
             overflow: 'hidden', 
         },
         header: {
             padding: '12px 15px', background: '#D1A6B4', color: 'white', fontWeight: 'bold', fontSize: '1.1em',
             borderTopLeftRadius: '15px', borderTopRightRadius: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            flexShrink: 0, // Asegura que el header no se encoja
+            flexShrink: 0, 
         },
         messageArea: {
-            // Crucial: Toma todo el espacio vertical restante
-            flexGrow: 1, 
-            // ✅ AJUSTE: Soluciona el bug de Flexbox con overflow y height
-            minHeight: 0, 
+            // ESTILOS CLAVE PARA EL SCROLL (Reemplazando Flexbox que causaba problemas)
+            flex: 1, // Crucial: Toma todo el espacio vertical restante dentro del Flex container padre
             padding: '15px', 
-            // Crucial: Aplica el scroll solo a este contenedor
-            overflowY: 'auto', 
+            overflowY: 'auto', // Esto debe hacer scroll
             borderBottom: '1px solid #eee',
-            display: 'flex', 
-            flexDirection: 'column', 
-            gap: '10px', 
             color: 'black',
-            backgroundColor: 'white', // Fondo blanco para el área de mensajes
+            backgroundColor: 'white',
+            minHeight: 0, // Ajuste de Flexbox para evitar desbordamiento
             
-            // Oculta la scrollbar por defecto, pero permite scroll
+            // Oculta la scrollbar por defecto
             msOverflowStyle: 'none', 
             scrollbarWidth: 'none', 
         },
         form: { 
             display: 'flex', padding: '10px', borderTop: '1px solid #eee', backgroundColor: '#f9f9f9',
-            flexShrink: 0, // Asegura que el formulario no se encoja
+            flexShrink: 0, 
         },
         input: {
-            flexGrow: 1, padding: '10px', border: '1px solid #ccc', borderRadius: '20px', // Borde más redondeado
+            flexGrow: 1, padding: '10px', border: '1px solid #ccc', borderRadius: '20px', 
             marginRight: '10px', backgroundColor: 'white',
             outline: 'none', transition: 'border-color 0.2s', fontSize: '0.9em',
-            // Color de la letra del input a negro
             color: 'black' 
         },
         sendButton: {
-            backgroundColor: '#D1A6B4', color: 'white', border: 'none', borderRadius: '20px', // Borde más redondeado
+            backgroundColor: '#D1A6B4', color: 'white', border: 'none', borderRadius: '20px', 
             padding: '10px 15px', cursor: 'pointer', transition: 'background-color 0.2s',
             minWidth: '40px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -210,20 +199,24 @@ const FloatingChatbot = ({ userName }) => {
         },
         message: (sender) => ({
             maxWidth: '85%', padding: '10px 12px', borderRadius: '15px', fontSize: '0.9em',
-            alignSelf: sender === 'user' ? 'flex-end' : 'flex-start',
-            // Colores mejorados
-            backgroundColor: sender === 'user' ? '#D1A6B4' : '#E8E8E8', // Color rosa para usuario, gris claro para bot
+            // Utiliza el estilo de margen para la separación, ya que no usamos 'gap' en messageArea
+            marginBottom: '10px', 
+            // Alineación: usamos 'float' para alinear, ya que 'messageArea' ya no es flex
+            float: sender === 'user' ? 'right' : 'left',
+            clear: 'both', // Limpia para que las burbujas no se solapen
+            
+            // Colores
+            backgroundColor: sender === 'user' ? '#D1A6B4' : '#E8E8E8', 
             color: sender === 'user' ? 'white' : '#333',
             
-            // Asegura que solo se rompan las esquinas donde el mensaje no se une a uno del mismo emisor
+            // Border radius
             borderBottomRightRadius: sender === 'user' ? '0' : '15px',
             borderBottomLeftRadius: sender === 'user' ? '15px' : '0',
             
-            // Crucial: Asegura que el texto se ajuste y NO cause scroll en el mensaje individual
+            // Crucial: Las burbujas tienen tamaño estático y el texto se ajusta
             whiteSpace: 'normal', 
             overflowWrap: 'break-word',
-            
-            boxShadow: '0 1px 1px rgba(0,0,0,0.05)' // Sutil sombra para los mensajes
+            boxShadow: '0 1px 1px rgba(0,0,0,0.05)'
         })
     };
 
@@ -246,28 +239,27 @@ const FloatingChatbot = ({ userName }) => {
                         {productInfo && <span style={{fontSize: '0.8em', marginLeft: '10px', fontWeight: 'normal', opacity: 0.8}}>Viendo: {productInfo.name}</span>}
                     </div>
 
+                    {/* El messageArea ahora es un contenedor de bloque flexible que fuerza el scroll interno */}
                     <div className="message-area" style={chatbotStyles.messageArea}>
                         {messages.map((msg, index) => (
                             <div 
                                 key={index} 
                                 style={chatbotStyles.message(msg.sender)}
                             >
-                                {/* Renderiza con soporte Markdown */}
                                 {parseMarkdown(msg.text)} 
                             </div>
                         ))}
                         {isTyping && (
-                            <div style={{...chatbotStyles.message('bot'), display: 'flex', alignItems: 'center'}}>
+                            <div style={{...chatbotStyles.message('bot'), display: 'inline-flex', alignItems: 'center', float: 'left', clear: 'both'}}>
                                 <span style={{ color: '#888' }}>
-                                    {/* Simulación de 3 puntos parpadeantes para escribir */}
                                     <span className="typing-dot" style={{ opacity: 0.5 }}>•</span>
                                     <span className="typing-dot" style={{ opacity: 0.7 }}>•</span>
                                     <span className="typing-dot" style={{ opacity: 0.9 }}>•</span>
                                 </span>
                             </div>
                         )}
-                        {userLoading && <div style={chatbotStyles.message('bot')}><span style={{ fontStyle: 'italic', color: '#888' }}>Cargando datos de perfil...</span></div>}
-                        <div ref={messagesEndRef} />
+                        {userLoading && <div style={{...chatbotStyles.message('bot'), float: 'left', clear: 'both'}}><span style={{ fontStyle: 'italic', color: '#888' }}>Cargando datos de perfil...</span></div>}
+                        <div ref={messagesEndRef} style={{ clear: 'both', height: '0px' }} /> {/* Asegura que el contenedor de mensajes se cierre correctamente */}
                     </div>
 
                     <form onSubmit={handleSend} style={chatbotStyles.form}>
@@ -289,9 +281,8 @@ const FloatingChatbot = ({ userName }) => {
                     </form>
                 </div>
             )}
-        {/* NOTA: Este <style> es necesario para la animación de escribir y para ocultar la barra de scroll en navegadores WebKit (Chrome/Safari) */}
-        <style>
-            {`
+            <style>
+                {`
                 /* Oculta la scrollbar para Webkit (Chrome, Safari) */
                 .message-area::-webkit-scrollbar { 
                     display: none; 
@@ -305,7 +296,7 @@ const FloatingChatbot = ({ userName }) => {
                 .typing-dot:nth-child(2) { animation: blink 1.4s infinite 0.2s; }
                 .typing-dot:nth-child(3) { animation: blink 1.4s infinite 0.4s; }
             `}
-        </style>
+            </style>
         </>
     );
 };
