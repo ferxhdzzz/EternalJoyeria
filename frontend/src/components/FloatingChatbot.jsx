@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { GLOBAL_KNOWLEDGE, CHATBOT_NAME } from './ChatbotKnowledge';
 import useUserSpecificData from '../hooks/useUserSpecificData.js';
 import { useProductContext } from '../context/ProductContext.jsx';
-import { color } from 'framer-motion';
 // La importación de 'framer-motion' (color) no se usa en este archivo, la mantengo pero no tiene efecto
 
 // --- UTILIDAD DE MARKDOWN ---
@@ -21,67 +20,67 @@ const parseMarkdown = (text) => {
 
 // --- LÓGICA DE CLASIFICACIÓN (El motor de la "IA") ---
 const useChatbotLogic = (userName, productInfo, userData) => {
-    // ... (Lógica de classifyAndRespond, no modificada)
-    const classifyAndRespond = useCallback((text) => {
-        const normalizedText = text.toLowerCase();
-        
-        // 1. Clasificación de Saludos
-        if (normalizedText.match(/hola|buenos d(í|i)as|buenas tardes|buenas noches|qu(é|e) tal/i)) {
-            const name = userName || "personita";
-            return `¡Hola ${name}! Me alegra verte. ¿Tienes dudas sobre la tienda o sobre el producto que estás viendo?`;
-        }
+    // ... (Lógica de classifyAndRespond, no modificada)
+    const classifyAndRespond = useCallback((text) => {
+        const normalizedText = text.toLowerCase();
+        
+        // 1. Clasificación de Saludos
+        if (normalizedText.match(/hola|buenos d(í|i)as|buenas tardes|buenas noches|qu(é|e) tal/i)) {
+            const name = userName || "personita";
+            return `¡Hola ${name}! Me alegra verte. ¿Tienes dudas sobre la tienda o sobre el producto que estás viendo?`;
+        }
 
-        // 2. Clasificación de Preguntas PERSONALIZADAS (Solo si el usuario está logueado)
-        if (userName) {
-            if (normalizedText.match(/mis rese(ñ|n)as|cuantas rese(ñ|n)as|rese(ñ|n)as hechas/i)) {
-                return `Has escrito **${userData.reviewsCount} reseña(s)** hasta ahora. ¡Gracias por compartir tu experiencia!`;
-            }
-            if (normalizedText.match(/mi historial|ventas|cuantas compras|he gastado|mi (ú|u)ltima compra/i)) {
-                if (userData.totalOrders > 0) {
-                    return `Tienes un total de **${userData.totalOrders} pedidos** con nosotros, y has gastado un total de **$${userData.totalSpent.toFixed(2)} USD**. Tu último pedido fue el ${userData.recentOrderDate}. ¡Eres un cliente VIP!`;
-                }
-                return "Aún no tienes pedidos registrados. ¡Es el momento perfecto para hacer tu primera compra!";
-            }
-        }
-        
-        // 3. Clasificación de Preguntas ESPECÍFICAS DEL PRODUCTO (Solo si estamos en una página de producto)
-        if (productInfo) {
-            const { name, price, stock } = productInfo;
+        // 2. Clasificación de Preguntas PERSONALIZADAS (Solo si el usuario está logueado)
+        if (userName) {
+            if (normalizedText.match(/mis rese(ñ|n)as|cuantas rese(ñ|n)as|rese(ñ|n)as hechas/i)) {
+                return `Has escrito **${userData.reviewsCount} reseña(s)** hasta ahora. ¡Gracias por compartir tu experiencia!`;
+            }
+            if (normalizedText.match(/mi historial|ventas|cuantas compras|he gastado|mi (ú|u)ltima compra/i)) {
+                if (userData.totalOrders > 0) {
+                    return `Tienes un total de **${userData.totalOrders} pedidos** con nosotros, y has gastado un total de **$${userData.totalSpent.toFixed(2)} USD**. Tu último pedido fue el ${userData.recentOrderDate}. ¡Eres un cliente VIP!`;
+                }
+                return "Aún no tienes pedidos registrados. ¡Es el momento perfecto para hacer tu primera compra!";
+            }
+        }
+        
+        // 3. Clasificación de Preguntas ESPECÍFICAS DEL PRODUCTO (Solo si estamos en una página de producto)
+        if (productInfo) {
+            const { name, price, stock } = productInfo;
 
-            if (normalizedText.match(/precio|cuesta|valor/i)) {
-                return `El precio de **${name}** es de **$${price}**. Si tienes alguna duda sobre el envío, pregúntame sobre 'envío'.`;
-            }
-            if (normalizedText.match(/stock|disponible|unidades|hay en existencia/i)) {
-                if (stock > 0) {
-                    return `Actualmente hay **${stock} unidades** de **${name}** disponibles.`;
-                }
-                return `¡Mala suerte! **${name}** está agotado por el momento. Te recomendamos añadirlo a tu lista de deseos.`;
-            }
-            if (normalizedText.match(/detalles de este producto|composici(ó|o)n|material/i)) {
-                return `Para ver los detalles completos, material y medidas de **${name}**, por favor haz clic en el botón '+' en la sección del producto.`;
-            }
-        }
+            if (normalizedText.match(/precio|cuesta|valor/i)) {
+                return `El precio de **${name}** es de **$${price}**. Si tienes alguna duda sobre el envío, pregúntame sobre 'envío'.`;
+            }
+            if (normalizedText.match(/stock|disponible|unidades|hay en existencia/i)) {
+                if (stock > 0) {
+                    return `Actualmente hay **${stock} unidades** de **${name}** disponibles.`;
+                }
+                return `¡Mala suerte! **${name}** está agotado por el momento. Te recomendamos añadirlo a tu lista de deseos.`;
+            }
+            if (normalizedText.match(/detalles de este producto|composici(ó|o)n|material/i)) {
+                return `Para ver los detalles completos, material y medidas de **${name}**, por favor haz clic en el botón '+' en la sección del producto.`;
+            }
+        }
 
-        // 4. Clasificación de Preguntas GENERALES (GLOBAL_KNOWLEDGE)
-        for (const item of GLOBAL_KNOWLEDGE) {
-            if (item.query.test(normalizedText)) {
-                return item.answer;
-            }
-        }
+        // 4. Clasificación de Preguntas GENERALES (GLOBAL_KNOWLEDGE)
+        for (const item of GLOBAL_KNOWLEDGE) {
+            if (item.query.test(normalizedText)) {
+                return item.answer;
+            }
+        }
 
-        // 5. Respuesta por Defecto (Fallback)
-        let fallbackMessage = "Lo siento, **no puedo ayudarte con eso en este momento**.";
-        if (!userName && normalizedText.match(/mis/i)) {
-            fallbackMessage += " Para preguntas personalizadas (reseñas, historial), por favor **inicia sesión** primero.";
-        } else if (productInfo) {
-            fallbackMessage += " Mis funciones están limitadas a temas generales de la tienda y al producto **que estás viendo**.";
-        } else {
-             fallbackMessage += " Mis funciones están limitadas a temas generales de la tienda (horarios, contacto, devoluciones, etc.).";
-        }
-        return fallbackMessage;
-    }, [userName, productInfo, userData]);
+        // 5. Respuesta por Defecto (Fallback)
+        let fallbackMessage = "Lo siento, **no puedo ayudarte con eso en este momento**.";
+        if (!userName && normalizedText.match(/mis/i)) {
+            fallbackMessage += " Para preguntas personalizadas (reseñas, historial), por favor **inicia sesión** primero.";
+        } else if (productInfo) {
+            fallbackMessage += " Mis funciones están limitadas a temas generales de la tienda y al producto **que estás viendo**.";
+        } else {
+             fallbackMessage += " Mis funciones están limitadas a temas generales de la tienda (horarios, contacto, devoluciones, etc.).";
+        }
+        return fallbackMessage;
+    }, [userName, productInfo, userData]);
 
-    return classifyAndRespond;
+    return classifyAndRespond;
 };
 
 // --- COMPONENTE PRINCIPAL FLOTANTE ---
@@ -172,19 +171,12 @@ const FloatingChatbot = ({ userName }) => {
             display: 'flex', 
             flexDirection: 'column', 
             gap: '10px', 
-color: 'black',
+            color: 'black',
             backgroundColor: 'white', // Fondo blanco para el área de mensajes
             
             // Oculta la scrollbar por defecto, pero permite scroll
             msOverflowStyle: 'none', 
             scrollbarWidth: 'none', 
-            // ESTILO PARA OCULTAR SCROLLBAR EN WEBKIT (CHROME/SAFARI)
-            '&::-webkit-scrollbar': {
-                display: 'none',
-            },
-            // Nota: '&::-webkit-scrollbar' no funciona directamente en style objects de React, 
-            // pero lo dejo como recordatorio si usas CSS/SCSS modules o Styled Components.
-            // Usaremos el truco de scrollbar-width: none por ahora.
         },
         form: { display: 'flex', padding: '10px', borderTop: '1px solid #eee', backgroundColor: '#f9f9f9' },
         input: {
@@ -199,24 +191,22 @@ color: 'black',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontWeight: 'bold'
         },
-         message: (sender) => ({
-        maxWidth: '85%', padding: '10px 12px', borderRadius: '15px', fontSize: '0.9em',
-        alignSelf: sender === 'user' ? 'flex-end' : 'flex-start',
-        // Colores mejorados
-        backgroundColor: sender === 'user' ? '#D1A6B4' : '#E8E8E8', // Color rosa para usuario, gris claro para bot
-        color: sender === 'user' ? 'white' : '#333',
-        
-        // Asegura que solo se rompan las esquinas donde el mensaje no se une a uno del mismo emisor
-        borderBottomRightRadius: sender === 'user' ? '0' : '15px',
-        borderBottomLeftRadius: sender === 'user' ? '15px' : '0',
-        
-        // 🚨 CAMBIO CLAVE: Cambiamos 'pre-wrap' a 'normal' o lo eliminamos. 
-        // 'pre-wrap' es útil si quieres mantener saltos de línea y espacios,
-        // pero 'normal' es mejor para que el texto se ajuste automáticamente.
-        whiteSpace: 'normal', 
-        
-        boxShadow: '0 1px 1px rgba(0,0,0,0.05)' // Sutil sombra para los mensajes
-    })
+        message: (sender) => ({
+            maxWidth: '85%', padding: '10px 12px', borderRadius: '15px', fontSize: '0.9em',
+            alignSelf: sender === 'user' ? 'flex-end' : 'flex-start',
+            // Colores mejorados
+            backgroundColor: sender === 'user' ? '#D1A6B4' : '#E8E8E8', // Color rosa para usuario, gris claro para bot
+            color: sender === 'user' ? 'black' : '#333',
+            
+            // Asegura que solo se rompan las esquinas donde el mensaje no se une a uno del mismo emisor
+            borderBottomRightRadius: sender === 'user' ? '0' : '15px',
+            borderBottomLeftRadius: sender === 'user' ? '15px' : '0',
+            
+            // 🚨 CAMBIO CLAVE AQUÍ: Usar 'normal' para que el texto se ajuste automáticamente al borde.
+            whiteSpace: 'normal',
+            
+            boxShadow: '0 1px 1px rgba(0,0,0,0.05)' // Sutil sombra para los mensajes
+        })
     };
 
     return (
@@ -251,11 +241,11 @@ color: 'black',
                         {isTyping && (
                             <div style={{...chatbotStyles.message('bot'), display: 'flex', alignItems: 'center'}}>
                                 <span style={{ color: '#888' }}>
-                                    {/* Simulación de 3 puntos parpadeantes para escribir */}
-                                    <span className="typing-dot" style={{ opacity: 0.5 }}>•</span>
-                                    <span className="typing-dot" style={{ opacity: 0.7 }}>•</span>
-                                    <span className="typing-dot" style={{ opacity: 0.9 }}>•</span>
-                                </span>
+                                    {/* Simulación de 3 puntos parpadeantes para escribir */}
+                                    <span className="typing-dot" style={{ opacity: 0.5 }}>•</span>
+                                    <span className="typing-dot" style={{ opacity: 0.7 }}>•</span>
+                                    <span className="typing-dot" style={{ opacity: 0.9 }}>•</span>
+                                </span>
                             </div>
                         )}
                         {userLoading && <div style={chatbotStyles.message('bot')}><span style={{ fontStyle: 'italic', color: '#888' }}>Cargando datos de perfil...</span></div>}
@@ -282,11 +272,11 @@ color: 'black',
                 </div>
             )}
         {/* 🚨 NOTA: Si quieres ocultar la barra de scroll completamente, 
-           debes añadir este CSS a tu archivo global (o un <style> en el componente) 
-           ya que no es soportado por inline styles de React */}
-        <style>
-            {`.message-area::-webkit-scrollbar { display: none; }`}
-        </style>
+           debes añadir este CSS a tu archivo global (o un <style> en el componente) 
+           ya que no es soportado por inline styles de React */}
+        <style>
+            {`.message-area::-webkit-scrollbar { display: none; }`}
+        </style>
         </>
     );
 };
