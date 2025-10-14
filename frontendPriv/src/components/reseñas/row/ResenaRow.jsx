@@ -1,76 +1,104 @@
 // frontendPriv/src/components/reseñas/row/ResenaRow.jsx
 import React from "react";
-import "./ResenaRow.css";
-import "../../../styles/Shared/buttons.css"; 
+import Swal from "sweetalert2";
+import "./ResenaRow.css"; // ✅ Asegúrate de que este archivo CSS exista (lo crearemos en el paso 2)
+import "../../../styles/shared/buttons.css"; 
 
-/**
- * Fila de reseña:
- * - Usa onDeleteClick (y soporta onClick como fallback por compatibilidad).
- * - Muestra Nombre / Calificación / Comentario / Compra con fallbacks.
- */
 const ResenaRow = ({
   id_customer,
   rank,
   comment,
   id_product,
-  onDeleteClick,      // <-- nombre correcto
-  onClick,            // fallback por si en algún sitio viejo aún usan onClick
-
-  // Fallbacks opcionales
-  name,
-  user,
-  customer,
-  rating,
-  score,
-  stars,
-  product,
-  productId,
-  orderId,
-  purchaseId,
-  idOrder,
+  images = [], // ✅ Se añade el manejo de imágenes
+  onClick, // ✅ Se recibe la prop 'onClick' del padre
 }) => {
+  // ✅ Lógica robusta para obtener el nombre del cliente
   const nombre =
-    (typeof id_customer === "object" &&
-      `${id_customer?.firstName || ""} ${id_customer?.lastName || ""}`.trim()) ||
-    (typeof customer === "object" &&
-      `${customer?.firstName || ""} ${customer?.lastName || ""}`.trim()) ||
-    (typeof user === "object" &&
-      `${user?.firstName || ""} ${user?.lastName || ""}`.trim()) ||
-    (typeof id_customer === "string" && id_customer) ||
-    name ||
-    "—";
+    typeof id_customer === "object"
+      ? `${id_customer?.firstName || "Cliente"} ${id_customer?.lastName || "Anónimo"}`.trim()
+      : "Cliente Anónimo";
 
-  const calificacion = rank ?? rating ?? score ?? stars ?? "—";
-
+  // ✅ Lógica robusta para obtener el nombre del producto
   const compra =
-    (typeof id_product === "object" && (id_product?.name || id_product?.title)) ||
-    (typeof product === "object" && (product?.name || product?.title)) ||
-    (typeof productId === "object" && (productId?.name || productId?.title)) ||
-    (typeof id_product === "string" && id_product) ||
-    purchaseId ||
-    orderId ||
-    (typeof idOrder === "object" ? (idOrder?.code || idOrder?._id) : idOrder) ||
-    "—";
+    typeof id_product === "object"
+      ? id_product?.name || "Producto no especificado"
+      : "Compra no especificada";
 
-  const handleDelete = onDeleteClick || onClick; // compat
+  // ✅ FUNCIÓN MEJORADA: Renderiza estrellas de calificación como en master
+  const renderStars = (rating) => {
+    const fullStar = "★";
+    const emptyStar = "☆";
+    return (
+      <span className="rating-stars">
+        {Array(5).fill(0).map((_, i) => (
+          <span key={i} style={{ color: i < rating ? '#ffc107' : '#e4e5e9' }}>
+            {i < rating ? fullStar : emptyStar}
+          </span>
+        ))}
+      </span>
+    );
+  };
 
+  // ✅ FUNCIÓN MEJORADA: Muestra una imagen en grande al hacer clic
+  const handleImageClick = (imageUrl) => {
+    Swal.fire({
+      imageUrl: imageUrl,
+      imageWidth: 'auto',
+      imageHeight: 'auto',
+      imageAlt: 'Imagen de la reseña',
+      showConfirmButton: false,
+      showCloseButton: true,
+      customClass: { image: 'swal2-image-responsive' },
+    });
+  };
+
+  // ✅ DISEÑO CORREGIDO: Se reemplaza <tr> por una estructura de <div> tipo "Card"
   return (
-    <tr className="resena-row">
-      <td>{nombre || "—"}</td>
-      <td>{calificacion !== undefined && calificacion !== null ? String(calificacion) : "—"}</td>
-      <td>{comment ? String(comment) : "—"}</td>
-      <td>{typeof compra === "string" ? compra : String(compra || "—")}</td>
-      <td>
+    <div className="resena-card">
+      <div className="card-header">
+        <h3 className="customer-name">{nombre}</h3>
+        <div className="rating-display">{renderStars(rank)}</div>
+      </div>
+
+      <div className="card-body">
+        <p className="review-comment">{String(comment)}</p>
+        <p className="product-info"><strong>Producto:</strong> {compra}</p>
+      </div>
+
+      <div className="card-images">
+        <strong>Imágenes:</strong>
+        {images && images.length > 0 ? (
+          <div className="resena-images-container">
+            {images.slice(0, 3).map((imgUrl, index) => (
+              <img
+                key={index}
+                src={imgUrl}
+                alt={`Imagen de reseña ${index + 1}`}
+                className="resena-thumbnail clickable"
+                onClick={() => handleImageClick(imgUrl)}
+              />
+            ))}
+            {images.length > 3 && (
+              <span className="image-count">+{images.length - 3}</span>
+            )}
+          </div>
+        ) : (
+          <span className="no-image-text">Sin imagen</span>
+        )}
+      </div>
+
+      <div className="card-actions">
+        {/* ✅ MANTENIDO: Tu botón personalizado, ahora conectado a la prop 'onClick' */}
         <button
           type="button"
           className="ej-btn ej-danger ej-size-sm"
-          onClick={handleDelete}
+          onClick={onClick} // <-- Se conecta a la función de eliminación del padre
           title="Eliminar reseña"
         >
           Eliminar
         </button>
-      </td>
-    </tr>
+      </div>
+    </div>
   );
 };
 

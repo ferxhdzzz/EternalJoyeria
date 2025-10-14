@@ -1,5 +1,5 @@
 // src/pages/HistorialCompras.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Swal from "sweetalert2";
 import Titulo from "../components/Componte-hook/Titulos";
 import SubTitulo from "../components/Componte-hook/SubTitulo";
@@ -12,11 +12,21 @@ import "../Styles/HistorialCompras.css";
 import "../styles/shared/buttons.css";
 
 const HistorialCompras = () => {
-  const { sales, getSales } = useFetchSales();
+  const { sales, getSales, customers } = useFetchSales();
   const { deleteSale: deleteSaleOriginal } = useSaleActions(getSales);
 
+  const [selectedCustomer, setSelectedCustomer] = useState("");
   const [editingSaleId, setEditingSaleId] = useState(null);
   const [loadingId, setLoadingId] = useState(null);
+
+  const filteredSales = sales.filter((sale) => {
+    if (!selectedCustomer) return true;
+    return sale.idOrder?.idCustomer?._id === selectedCustomer;
+  });
+
+  const sortedSales = [...filteredSales].sort((a, b) => {
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
 
   const deleteSale = async (id) => {
     const result = await Swal.fire({
@@ -33,31 +43,13 @@ const HistorialCompras = () => {
     if (result.isConfirmed) {
       try {
         setLoadingId(id);
-        await Swal.fire({
-          title: "Eliminando...",
-          allowOutsideClick: false,
-          didOpen: () => Swal.showLoading(),
-          showConfirmButton: false,
-        });
-
         await deleteSaleOriginal(id);
         await getSales();
-
-        Swal.close();
-        Swal.fire({
-          icon: "success",
-          title: "Venta eliminada",
-          timer: 1500,
-          showConfirmButton: false,
-          confirmButtonColor: "#d6336c",
-        });
       } catch (error) {
-        Swal.close();
         Swal.fire({
           icon: "error",
           title: "Error",
           text: error.message || "No se pudo eliminar la venta",
-          confirmButtonColor: "#d6336c",
         });
       } finally {
         setLoadingId(null);
@@ -79,13 +71,32 @@ const HistorialCompras = () => {
             <SubTitulo>Administra las ventas de manera efectiva</SubTitulo>
           </div>
 
+          <div className="filter-bar">
+            <label htmlFor="customer-filter" className="filter-label">
+              Filtrar por Cliente:
+            </label>
+            <select
+              id="customer-filter"
+              className="customer-select-filter"
+              value={selectedCustomer}
+              onChange={(e) => setSelectedCustomer(e.target.value)}
+            >
+              <option value="">— Todos los Clientes —</option>
+              {customers.map((customer) => (
+                <option key={customer._id} value={customer._id}>
+                  {customer.fullName}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="sales-container">
-            {sales.length === 0 ? (
+            {sortedSales.length === 0 ? (
               <div className="no-sales-message">
                 <p>No hay ventas registradas {selectedCustomer && "para este cliente"}.</p>
               </div>
             ) : (
-              sales.map((sale) => (
+              sortedSales.map((sale) => (
                 <div key={sale._id} className="sale-card">
                   <div className="sale-header">
                     <div className="sale-customer-info">
@@ -97,40 +108,28 @@ const HistorialCompras = () => {
                       {sale.idOrder?.status}
                     </div>
                   </div>
-
                   <div className="sale-details">
-                    <p>
-                      <strong>Cliente:</strong> {sale.idOrder?.idCustomer?.firstName}{" "}
-                      {sale.idOrder?.idCustomer?.lastName}
-                    </p>
-                    <p>
-                      <strong>Estado:</strong> {sale.idOrder?.status}
-                    </p>
-                    <p>
-                      <strong>Dirección:</strong> {sale.address}
-                    </p>
-                    <p>
-                      <strong>Email:</strong> {sale.idOrder?.idCustomer?.email}
-                    </p>
-                    <p>
-                      <strong>Total:</strong> ${sale.idOrder?.total}
-                    </p>
+                    <p><strong>Cliente:</strong> {sale.idOrder?.idCustomer?.firstName} {sale.idOrder?.idCustomer?.lastName}</p>
+                    <p><strong>Estado:</strong> {sale.idOrder?.status}</p>
+                    <p><strong>Dirección:</strong> {sale.address}</p>
+                    <p><strong>Email:</strong> {sale.idOrder?.idCustomer?.email}</p>
+                    {/* ✅ CORREGIDO: Código a prueba de fallos para el total */}
+                    <p><strong>Total:</strong> ${sale.idOrder?.total?.toFixed(2) ?? '0.00'}</p>
                   </div>
-
                   <div className="products-section">
                     <p>Productos:</p>
                     <div className="products-list">
                       {sale.idOrder?.products?.map((product, index) => (
                         <div key={index} className="product-item">
                           <p>
-                            <strong>{product.productId?.name}</strong> - Cantidad:{" "}
-                            {product.quantity} - Subtotal: ${product.subtotal}
+                            <strong>{product.productId?.name}</strong> - Cantidad: {product.quantity} - 
+                            {/* ✅ CORREGIDO: Código a prueba de fallos para el subtotal */}
+                            Subtotal: ${product.subtotal?.toFixed(2) ?? '0.00'}
                           </p>
                         </div>
                       ))}
                     </div>
                   </div>
-
                   
                   <div className="action-buttons">
                     <div className="ej-btn-set">
@@ -140,11 +139,8 @@ const HistorialCompras = () => {
                         onClick={() => setEditingSaleId(sale._id)}
                         disabled={loadingId === sale._id}
                       >
-                        {loadingId === sale._id && editingSaleId !== sale._id
-                          ? "Actualizando..."
-                          : "Editar"}
+                        {loadingId === sale._id && editingSaleId !== sale._id ? "Actualizando..." : "Editar"}
                       </button>
-
                       <button
                         type="button"
                         className="ej-btn ej-danger ej-size-sm"

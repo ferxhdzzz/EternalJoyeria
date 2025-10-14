@@ -26,4 +26,5 @@ const ConfirmacionModal = ({ mensaje, onConfirmar, onCancelar }) => {
   );
 };
 
-export default TablaResenas;
+// CORRECCIÓN: Ahora exportamos el componente que definimos en este archivo.
+export default ConfirmacionModal;

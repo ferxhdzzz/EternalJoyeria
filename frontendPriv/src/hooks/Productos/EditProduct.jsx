@@ -32,7 +32,7 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
   useEffect(() => {
     const loadProduct = async () => {
       try {
-        const res = await fetch(`https://eternaljoyeria-cg5d.onrender.com/api/products/${productId}`, {
+        const res = await fetch(`http://localhost:4000/api/products/${productId}`, {
           credentials: "include",
         });
         if (!res.ok) throw new Error("Error al cargar el producto");
@@ -74,7 +74,7 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("https://eternaljoyeria-cg5d.onrender.com/api/categories", {
+        const res = await axios.get("http://localhost:4000/api/categories", {
           withCredentials: true,
         });
         setCategories(Array.isArray(res.data) ? res.data : res.data.categories || []);
@@ -221,7 +221,7 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
         .filter((i) => i.isNew && i.file)
         .forEach((i) => form.append("images", i.file));
 
-      const res = await fetch(`https://eternaljoyeria-cg5d.onrender.com/api/products/${productId}`, {
+      const res = await fetch(`http://localhost:4000/api/products/${productId}`, {
         method: "PUT",
         credentials: "include",
         body: form,

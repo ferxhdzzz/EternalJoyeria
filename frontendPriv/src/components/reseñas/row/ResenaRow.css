@@ -1,4 +1,4 @@
-/* --- ResenaCard.css (NUEVO ARCHIVO) --- */
+/* frontendPriv/src/components/reseñas/row/ResenaRow.css */
 
 .resena-card {
   background-color: #fcfcfc;
@@ -10,6 +10,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  min-height: 220px; /* Asegura una altura mínima consistente */
 }
 
 .resena-card:hover {
@@ -24,6 +25,8 @@
   margin-bottom: 10px;
   border-bottom: 1px solid #f0f0f0;
   padding-bottom: 10px;
+  flex-wrap: wrap; /* Para que no se rompa en pantallas pequeñas */
+  gap: 10px;
 }
 
 .customer-name {
@@ -31,9 +34,9 @@
   font-size: 1.1em;
   color: #333;
   font-weight: 600;
+  flex-grow: 1;
 }
 
-/* Estilos para las estrellas de calificación */
 .rating-display {
   font-size: 1.2em;
 }
@@ -50,16 +53,20 @@
   font-size: 14px;
   color: #555;
   line-height: 1.4;
-  margin-bottom: 5px;
+  margin: 0 0 10px 0;
+  /* Limita el texto a 3 líneas para consistencia */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
 }
 
 .product-info {
   font-size: 13px;
   color: #888;
-  margin-top: 5px;
+  margin: 0;
 }
 
-/* Sección de Imágenes (ajustada al diseño de tarjeta) */
 .card-images {
   display: flex;
   align-items: center;
@@ -69,13 +76,13 @@
 
 .resena-images-container {
   display: flex;
-  gap: 5px; /* Espacio entre las imágenes */
+  gap: 5px;
   align-items: center;
 }
 
 .resena-thumbnail {
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   object-fit: cover;
   border-radius: 6px;
   border: 1px solid #eee;
@@ -104,14 +111,12 @@
   cursor: pointer;
 }
 
-/* Opcional: efecto al pasar el mouse sobre las miniaturas */
 .resena-thumbnail:hover {
   opacity: 0.8;
 }
 
-/* CSS para asegurar que la imagen de SweetAlert2 sea responsiva */
 .swal2-image-responsive {
   max-width: 100% !important;
-  max-height: 70vh !important; /* Limita la altura del modal */
+  max-height: 70vh !important;
   object-fit: contain;
 }
