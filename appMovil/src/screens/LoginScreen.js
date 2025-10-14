@@ -2,24 +2,26 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   Dimensions,
   ScrollView,
   SafeAreaView,
   Animated,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  Image,
+  TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import CustomAlert from '../components/CustomAlert';
 import useCustomAlert from '../hooks/useCustomAlert';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS, SHADOWS } from '../constants/colors';
 
 const { width, height } = Dimensions.get('window');
 
@@ -212,56 +214,37 @@ const LoginScreen = ({ navigation, route }) => {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView 
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined} // Mejor comportamiento en Android
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <LinearGradient
-            colors={['#fdf2f8', '#fce7f3', '#f3e8ff']}
-            style={styles.background}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
-            {/* Elementos decorativos */}
-            {isAnimationComplete && (
-              <>
-                <View style={styles.decorativeCircle1} />
-                <View style={styles.decorativeCircle2} />
-                <View style={styles.decorativeCircle3} />
-              </>
-            )}
-            
+          <View style={styles.background}>
             <ScrollView
               contentContainerStyle={styles.scrollContainer}
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
               keyboardDismissMode="on-drag"
-              contentInsetAdjustmentBehavior="automatic"
-              bounces={false} // Evitar rebote excesivo
+              bounces={true}
+              scrollEnabled={true}
             >
-
-              {/* Encabezado con logo */}
-              <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-                <View style={styles.logoContainer}>
-                  <Text style={styles.logoText}>Eternal Joyería</Text>
-                  <View style={styles.logoUnderline} />
-                </View>
-                <Text style={styles.welcomeTitle}>¡Bienvenido de vuelta!</Text>
-                <Text style={styles.welcomeSubtitle}>
-                  Inicia sesión para descubrir nuestras joyas exclusivas
-                </Text>
+              {/* Contenedor de título */}
+              <Animated.View style={[styles.titleContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+                <Text style={styles.mainTitle}>Iniciar sesion</Text>
+                <Text style={styles.subtitle}>¡Encuentra tus accesorios perfectos!</Text>
+                <Text style={styles.subtitle}>Es un placer tenerte aquí.</Text>
+                <Text style={styles.subtitle}>Regístrate para ver nuestros</Text>
+                <Text style={styles.subtitle}>productos.</Text>
               </Animated.View>
 
-              {/* Formulario de inicio de sesion */}
+              {/* Formulario */}
               <Animated.View style={[styles.formContainer, { opacity: fadeAnim, transform: [{ translateY: formSlideAnim }] }]}>
-                {/* Campo de correo electronico */}
+                {/* Campo de correo */}
                 <View style={styles.inputContainer}>
-                  <Text style={styles.inputLabel}>Correo Electrónico</Text>
-                  <View style={[styles.inputWrapper, emailError ? styles.inputError : null]}>
-                    <Ionicons name="mail-outline" size={20} color="#c084fc" style={styles.inputIcon} />
+                  <Text style={styles.inputLabel}>Correo</Text>
+                  <View style={[styles.inputBox, emailError ? styles.inputError : null]}>
                     <TextInput
                       style={styles.textInput}
-                      placeholder="correo@ejemplo.com"
+                      placeholder=""
                       placeholderTextColor="#999"
                       value={email}
                       onChangeText={handleEmailChange}
@@ -274,14 +257,13 @@ const LoginScreen = ({ navigation, route }) => {
                   {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
                 </View>
 
-                {/* Campo de contrasena */}
+                {/* Campo de contraseña */}
                 <View style={styles.inputContainer}>
                   <Text style={styles.inputLabel}>Contraseña</Text>
-                  <View style={[styles.inputWrapper, passwordError ? styles.inputError : null]}>
-                    <Ionicons name="lock-closed-outline" size={20} color="#c084fc" style={styles.inputIcon} />
+                  <View style={[styles.inputBox, passwordError ? styles.inputError : null]}>
                     <TextInput
                       style={styles.textInput}
-                      placeholder="Ingresa tu contraseña"
+                      placeholder=""
                       placeholderTextColor="#999"
                       value={password}
                       onChangeText={handlePasswordChange}
@@ -289,49 +271,59 @@ const LoginScreen = ({ navigation, route }) => {
                       secureTextEntry={!showPassword}
                       editable={!isLoading}
                     />
-                    <TouchableOpacity
-                      style={styles.eyeIconButton}
+                    <TouchableOpacity 
+                      style={styles.eyeButton}
                       onPress={togglePasswordVisibility}
                       disabled={isLoading}
+                      activeOpacity={0.7}
                     >
-                      <Ionicons
-                        name={showPassword ? "eye-off-outline" : "eye-outline"}
-                        size={22}
-                        color="#c084fc"
+                      <Ionicons 
+                        name={showPassword ? "eye-off-outline" : "eye-outline"} 
+                        size={22} 
+                        color="#6b7280" 
                       />
                     </TouchableOpacity>
                   </View>
                   {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
                 </View>
 
-                {/* Boton de inicio de sesion */}
-                <TouchableOpacity
-                  style={[styles.loginButton, !isFormValid || isLoading ? styles.loginButtonDisabled : null]}
+                {/* Enlace de contraseña olvidada */}
+                <TouchableOpacity 
+                  style={styles.forgotPassword}
+                  onPress={() => navigation.navigate('ForgotPassword')}
+                >
+                  <Text style={styles.forgotPasswordText}>¿Olvidaste tu contraseña?</Text>
+                </TouchableOpacity>
+
+                {/* Botón de iniciar sesión */}
+                <TouchableOpacity 
+                  style={[
+                    styles.loginButton, 
+                    (!isFormValid || isLoading) ? styles.loginButtonDisabled : null
+                  ]} 
                   onPress={handleLogin}
                   disabled={!isFormValid || isLoading}
                 >
-                  <Text style={styles.loginButtonText}>
-                    {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-                  </Text>
+                  {isLoading ? (
+                    <View style={styles.loadingContainer}>
+                      <ActivityIndicator color="#FFFFFF" size="small" />
+                      <Text style={[styles.loginButtonText, { marginLeft: 10 }]}>Iniciando...</Text>
+                    </View>
+                  ) : (
+                    <Text style={styles.loginButtonText}>Iniciar sesion</Text>
+                  )}
                 </TouchableOpacity>
 
-                {/* Enlaces de navegacion */}
-                <View style={styles.linksContainer}>
-                  <TouchableOpacity style={styles.forgotPasswordLink} onPress={() => navigation.navigate('ForgotPassword')}>
-                    <Text style={styles.forgotPasswordText}>
-                      ¿Olvidaste tu contraseña?
-                    </Text>
-                  </TouchableOpacity>
-                  
-                  <TouchableOpacity style={styles.registerLink} onPress={() => navigation.navigate('Register')}>
-                    <Text style={styles.registerText}>
-                      ¿No tienes cuenta? <Text style={styles.registerHighlight}>Regístrate</Text>
-                    </Text>
+                {/* Enlace de registro */}
+                <View style={styles.registerContainer}>
+                  <Text style={styles.registerText}>¿No tienes cuenta? </Text>
+                  <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                    <Text style={styles.registerLink}>Regístrate</Text>
                   </TouchableOpacity>
                 </View>
               </Animated.View>
             </ScrollView>
-          </LinearGradient>
+          </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
 
@@ -355,198 +347,173 @@ const LoginScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fdf2f8',
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
   },
   background: {
     flex: 1,
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center', // Centrar contenido verticalmente
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
   },
   scrollContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 20,
-    paddingTop: 20,
-    paddingBottom: 40,
-    minHeight: '100%',
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 150,
+    minHeight: height * 1.2,
   },
-  header: {
+  titleContainer: {
     alignItems: 'center',
-    marginBottom: 30, // Reducido el margen inferior
-    zIndex: 2,
-    marginTop: Platform.OS === 'ios' ? 0 : 20, // Ajuste para iOS/Android
-  },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: 20, // Reducido el margen inferior
-  },
-  logoText: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    color: '#c084fc',
-    letterSpacing: 1,
-  },
-  logoUnderline: {
-    width: 60,
-    height: 3,
-    backgroundColor: '#f472b6',
-    marginTop: 5,
-    borderRadius: 2,
-  },
-  welcomeTitle: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#7c2d92',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  welcomeSubtitle: {
-    fontSize: 16,
-    color: '#9333ea',
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  formContainer: {
+    marginBottom: 40,
+    marginTop: 20,
+    marginHorizontal: 0,
+    backgroundColor: '#fdf2f8',
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    paddingVertical: 40,
+    paddingTop: 60,
+    paddingHorizontal: 20,
     width: '100%',
-    maxWidth: 400,
-    marginVertical: 20, // Reducido el margen superior e inferior
-    alignSelf: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 20,
-    padding: 25,
-    shadowColor: '#c084fc',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 8,
-    zIndex: 2,
-  },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#7c2d92',
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 15,
-    borderWidth: 2,
-    borderColor: '#f472b6',
-    paddingHorizontal: 15,
-    height: 56,
-    shadowColor: '#c084fc',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 4,
   },
-  inputIcon: {
-    marginRight: 10,
+  mainTitle: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#1f2937',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 2,
+  },
+  formContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingTop: 35,
+    paddingBottom: 35,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 3,
+    marginBottom: 30,
+  },
+  inputContainer: {
+    marginBottom: 18,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#6b7280',
+    marginBottom: 8,
+    marginLeft: 6,
+  },
+  inputBox: {
+    backgroundColor: '#ffffff',
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    paddingLeft: 16,
+    paddingRight: 0,
+    paddingVertical: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 50,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  inputError: {
+    borderColor: '#ef4444',
+    backgroundColor: '#fef2f2',
   },
   textInput: {
     flex: 1,
+    fontSize: 15,
+    color: '#374151',
     paddingVertical: 12,
-    fontSize: 16,
-    color: '#1e293b',
-    paddingRight: 10,
-    includeFontPadding: false,
-    textAlignVertical: 'center',
+    paddingHorizontal: 0,
+    height: '100%',
   },
-  inputError: {
-    borderColor: '#e53e3e',
-    backgroundColor: '#fed7d7',
-  },
-  errorText: {
-    color: '#e53e3e',
-    fontSize: 13,
-    marginTop: 5,
-    marginLeft: 5,
-    fontWeight: '500',
-  },
-  eyeIconButton: {
-    padding: 5,
-  },
-  linksContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  forgotPasswordLink: {
-    marginBottom: 15,
-  },
-  forgotPasswordText: {
-    fontSize: 16,
-    color: '#c084fc',
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-  registerLink: {
-    marginTop: 10,
-  },
-  registerText: {
-    fontSize: 16,
-    color: '#9333ea',
-    textAlign: 'center',
-  },
-  registerHighlight: {
-    color: '#c084fc',
-    fontWeight: '600',
-  },
-  loginButton: {
-    backgroundColor: '#c084fc',
-    borderRadius: 15,
-    height: 56,
+  eyeButton: {
+    padding: 8,
+    marginLeft: -4,
+    marginRight: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 30,
-    shadowColor: '#c084fc',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 6,
+    width: 40,
+    height: 40,
+  },
+  errorText: {
+    color: '#ef4444',
+    fontSize: 14,
+    marginTop: 4,
+  },
+  forgotPassword: {
+    alignSelf: 'center',
+    marginBottom: 30,
+    marginTop: 12,
+  },
+  forgotPasswordText: {
+    fontSize: 13,
+    color: '#6b7280',
+    textDecorationLine: 'underline',
+  },
+  loginButton: {
+    backgroundColor: '#000000',
+    borderRadius: 12,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
   },
   loginButtonDisabled: {
     opacity: 0.6,
   },
   loginButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
   },
-  decorativeCircle1: {
-    position: 'absolute',
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: 'rgba(236, 72, 153, 0.1)',
-    top: -50,
-    right: -50,
-    zIndex: 0,
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  decorativeCircle2: {
-    position: 'absolute',
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    backgroundColor: 'rgba(192, 132, 252, 0.1)',
-    bottom: -100,
-    left: -100,
-    zIndex: 0,
+  registerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 10,
   },
-  decorativeCircle3: {
-    position: 'absolute',
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    backgroundColor: 'rgba(99, 102, 241, 0.1)',
-    top: '30%',
-    right: -50,
-    zIndex: 0,
+  registerText: {
+    fontSize: 13,
+    color: '#6b7280',
+  },
+  registerLink: {
+    fontSize: 13,
+    color: '#000000',
+    fontWeight: '600',
+    textDecorationLine: 'underline',
   },
 });
 

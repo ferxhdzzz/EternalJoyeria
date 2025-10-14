@@ -7,46 +7,35 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
 const TermsConditionsScreen = ({ navigation }) => {
   return (
-    <LinearGradient
-      colors={['#fce4ec', '#f8bbd9', '#f48fb1']}
-      style={styles.container}
-    >
-      <SafeAreaView style={styles.safeArea}>
-        {/* Encabezado */}
-        <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="arrow-back" size={24} color="#ad1457" />
-          </TouchableOpacity>
-          <View style={styles.headerCenter}>
-            <Ionicons name="document-text" size={28} color="#e91e63" />
-            <Text style={styles.headerTitle}>Términos y Condiciones</Text>
-          </View>
-          <View style={styles.placeholder} />
+    <SafeAreaView style={styles.container}>
+      {/* Encabezado */}
+      <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={24} color="#000" />
+        </TouchableOpacity>
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerTitle}>Términos y Condiciones</Text>
         </View>
+        <View style={styles.headerSpacer} />
+      </View>
 
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          <LinearGradient
-            colors={['rgba(255, 255, 255, 0.95)', 'rgba(252, 228, 236, 0.8)']}
-            style={styles.contentGradient}
-          >
-            <View style={styles.updateContainer}>
-              <Ionicons name="time" size={16} color="#e91e63" />
-              <Text style={styles.lastUpdated}>Última actualización: Diciembre 2024</Text>
-            </View>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.contentContainer}>
+          <View style={styles.updateContainer}>
+            <Text style={styles.lastUpdated}>Última actualización: Diciembre 2024</Text>
+          </View>
             
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Ionicons name="checkmark-circle" size={20} color="#e91e63" />
-                <Text style={styles.sectionTitle}>1. Aceptación de los Términos</Text>
-              </View>
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>1. Aceptación de los Términos</Text>
+            </View>
               <Text style={styles.sectionText}>
                 Al acceder y utilizar la aplicación móvil de Eternal Joyería, aceptas estar 
                 sujeto a estos términos y condiciones. Si no estás de acuerdo con alguna 
@@ -56,20 +45,18 @@ const TermsConditionsScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="diamond" size={20} color="#e91e63" />
                 <Text style={styles.sectionTitle}>2. Descripción del Servicio</Text>
               </View>
               <Text style={styles.sectionText}>
                 Eternal Joyería es una plataforma de comercio electrónico que permite a los 
                 usuarios explorar, seleccionar y comprar productos de joyería. Nuestros 
                 servicios incluyen la visualización de productos, procesamiento de pedidos 
-                y entrega de mercancías.
+                y gestión de cuentas de usuario.
               </Text>
             </View>
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="person" size={20} color="#e91e63" />
                 <Text style={styles.sectionTitle}>3. Cuenta de Usuario</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -81,31 +68,26 @@ const TermsConditionsScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="pricetag" size={20} color="#e91e63" />
-                <Text style={styles.sectionTitle}>4. Productos y Precios</Text>
+                <Text style={styles.sectionTitle}>4. Pagos y Precios</Text>
               </View>
               <Text style={styles.sectionText}>
-                Todos los productos mostrados están sujetos a disponibilidad. Los precios 
-                pueden cambiar sin previo aviso. Nos esforzamos por mostrar imágenes 
-                precisas, pero las características reales pueden variar ligeramente.
+                Todos los precios están expresados en la moneda local y pueden cambiar sin previo aviso. 
+                Los pagos se procesan de forma segura a través de nuestros proveedores de pago autorizados.
               </Text>
             </View>
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="bag" size={20} color="#e91e63" />
-                <Text style={styles.sectionTitle}>5. Proceso de Compra</Text>
+                <Text style={styles.sectionTitle}>5. Privacidad y Seguridad</Text>
               </View>
               <Text style={styles.sectionText}>
-                Al realizar un pedido, confirmas que tienes la capacidad legal para 
-                celebrar contratos. Recibirás una confirmación por correo electrónico 
-                una vez que se procese tu pedido exitosamente.
+                Nos comprometemos a proteger tu información personal de acuerdo con nuestra Política de Privacidad. 
+                Utilizamos medidas de seguridad apropiadas para proteger tus datos.
               </Text>
             </View>
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="return-down-back" size={20} color="#e91e63" />
                 <Text style={styles.sectionTitle}>6. Política de Devoluciones</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -117,7 +99,6 @@ const TermsConditionsScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="car" size={20} color="#e91e63" />
                 <Text style={styles.sectionTitle}>7. Envío y Entrega</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -129,7 +110,6 @@ const TermsConditionsScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="library" size={20} color="#e91e63" />
                 <Text style={styles.sectionTitle}>8. Propiedad Intelectual</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -141,7 +121,6 @@ const TermsConditionsScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="shield-checkmark" size={20} color="#e91e63" />
                 <Text style={styles.sectionTitle}>9. Limitación de Responsabilidad</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -153,7 +132,6 @@ const TermsConditionsScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="create" size={20} color="#e91e63" />
                 <Text style={styles.sectionTitle}>10. Modificaciones</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -165,7 +143,6 @@ const TermsConditionsScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="hammer" size={20} color="#e91e63" />
                 <Text style={styles.sectionTitle}>11. Ley Aplicable</Text>
               </View>
               <Text style={styles.sectionText}>
@@ -176,44 +153,33 @@ const TermsConditionsScreen = ({ navigation }) => {
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="mail" size={20} color="#e91e63" />
                 <Text style={styles.sectionTitle}>12. Contacto</Text>
               </View>
               <Text style={styles.sectionText}>
                 Si tienes preguntas sobre estos términos y condiciones, contáctanos en:
               </Text>
               <View style={styles.contactContainer}>
-                <View style={styles.contactItemEmail}>
-                  <View style={styles.emailRow}>
-                    <Ionicons name="mail" size={16} color="#e91e63" />
-                    <Text style={styles.emailLabel}>Correo:</Text>
-                  </View>
-                  <Text style={styles.emailText}>
-                    legal@eternaljoyeria.com
-                  </Text>
+                <View style={styles.contactItem}>
+                  <Text style={styles.contactInfo}>legal@eternaljoyeria.com</Text>
                 </View>
                 <View style={styles.contactItem}>
-                  <Ionicons name="call" size={16} color="#e91e63" />
                   <Text style={styles.contactInfo}>+503 1234-5678</Text>
                 </View>
               </View>
             </View>
 
-            {/* Espacio adicional */}
-            <View style={styles.extraSpace} />
-          </LinearGradient>
-        </ScrollView>
-      </SafeAreaView>
-    </LinearGradient>
+          {/* Espacio adicional */}
+          <View style={styles.extraSpace} />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  safeArea: {
-    flex: 1,
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
   },
   header: {
     flexDirection: 'row',
@@ -221,51 +187,42 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingTop: 50,
     paddingHorizontal: 20,
-    paddingBottom: 25,
-    backgroundColor: 'transparent',
+    paddingBottom: 20,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
   },
   headerCenter: {
     flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
-    marginLeft: 15,
+  },
+  headerSpacer: {
+    width: 45,
   },
   backButton: {
     width: 45,
     height: 45,
     borderRadius: 22.5,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: '#f5f5f5',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#e91e63',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#ad1457',
-  },
-  placeholder: {
-    width: 45,
   },
   content: {
     flex: 1,
     paddingHorizontal: 20,
   },
-  contentGradient: {
-    padding: 25,
-    borderRadius: 25,
-    margin: 10,
-    shadowColor: '#e91e63',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 8,
+  contentContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 20,
+    marginVertical: 20,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   updateContainer: {
     flexDirection: 'row',
@@ -273,39 +230,33 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     marginBottom: 25,
-    backgroundColor: 'rgba(233, 30, 99, 0.1)',
+    backgroundColor: '#f5f5f5',
     padding: 12,
-    borderRadius: 15,
+    borderRadius: 8,
   },
   lastUpdated: {
     fontSize: 14,
-    color: '#ad1457',
+    color: '#666',
     fontWeight: '500',
   },
   section: {
     marginBottom: 25,
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    padding: 20,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: 'rgba(233, 30, 99, 0.1)',
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
     marginBottom: 15,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16, // Reducido de 18 a 16 (1 nivel menos)
     fontWeight: 'bold',
-    color: '#ad1457',
+    color: '#2d2d2d',
   },
   sectionText: {
-    fontSize: 16,
-    color: '#4a148c',
-    lineHeight: 24,
-    fontWeight: '500',
+    fontSize: 12, // Reducido de 14 a 12 (1 nivel menos)
+    color: '#666',
+    lineHeight: 18, // Ajustado proporcionalmente
   },
   contactContainer: {
     marginTop: 15,
@@ -314,24 +265,23 @@ const styles = StyleSheet.create({
   contactItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 10,
-    backgroundColor: 'rgba(233, 30, 99, 0.1)',
+    gap: 8,
+    backgroundColor: '#f5f5f5',
     padding: 15,
-    borderRadius: 10,
-    minHeight: 60,
+    borderRadius: 8,
+    minHeight: 50,
   },
   contactInfo: {
     fontSize: 16,
-    color: '#ad1457',
-    fontWeight: '600',
+    color: '#2d2d2d',
+    fontWeight: '500',
     flex: 1,
-    lineHeight: 22,
   },
   contactItemEmail: {
-    backgroundColor: 'rgba(233, 30, 99, 0.1)',
+    backgroundColor: '#f5f5f5',
     padding: 15,
-    borderRadius: 10,
-    minHeight: 70,
+    borderRadius: 8,
+    minHeight: 50,
     width: '100%',
   },
   emailRow: {
@@ -342,13 +292,13 @@ const styles = StyleSheet.create({
   },
   emailLabel: {
     fontSize: 16,
-    color: '#ad1457',
+    color: '#2d2d2d',
     fontWeight: '600',
   },
   emailText: {
     fontSize: 15,
-    color: '#ad1457',
-    fontWeight: '600',
+    color: '#2d2d2d',
+    fontWeight: '500',
     paddingLeft: 24,
     width: '100%',
     flexWrap: 'wrap',

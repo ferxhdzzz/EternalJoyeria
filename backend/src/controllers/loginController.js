@@ -1,205 +1,102 @@
-// backend/src/controllers/loginController.js
-import customersModel from "../models/Customers.js";
-import adminModel from "../models/Administrator.js";
+import CustomersModel from "../models/Customers.js";
+import AdministratorsModel from "../models/Administrator.js";
 import bcryptjs from "bcryptjs";
-import jsonwebtoken from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { config } from "../config.js";
-const MAX_ATTEMPTS = 5; // Máximo intentos fallidos permitidos
-const BLOCK_TIME = 15 * 60 * 1000; // 15 minutos de bloqueo en milisegundos
-const attempts = new Map();
-const loginController = {};
-// Función principal de login
-loginController.login = async (req, res) => {
- const { email, password } = req.body;
- // Validar que se envíen email y password
- if (!email || !password) {
-   return res.status(400).json({
-     success: false,
-     message: "Email and password are required",
-   });
- }
- // Validar formato del email
- const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
- if (!emailRegex.test(email)) {
-   return res.status(400).json({
-     success: false,
-     message: "Invalid email format",
-   });
- }
- const emailKey = email.toLowerCase(); // Normalizar email para la búsqueda
- const now = Date.now(); // Tiempo actual
- const userAttempts = attempts.get(emailKey); // Obtener intentos del usuario
- if (userAttempts && userAttempts.blockedUntil && now < userAttempts.blockedUntil) {
-   const minutesLeft = Math.ceil((userAttempts.blockedUntil - now) / 60000);
-   return res.status(429).json({
-     success: false,
-     message: `Cuenta bloqueada faltan ${minutesLeft} minutos.`,
-   });
- }
- try {
-   let userFound;
-   let userType;
-   // Buscar en tabla de administradores primero
-   const adminFound = await adminModel.findOne({ email: email.toLowerCase() });
-   if (adminFound) {
-     userType = "admin";
-     userFound = adminFound;
-     const isMatch = await bcryptjs.compare(password, adminFound.password);
-     if (!isMatch) {
-       const currentAttempts = attempts.get(emailKey) || { count: 0 };
-       currentAttempts.count++;
-       if (currentAttempts.count >= MAX_ATTEMPTS) {
-         currentAttempts.blockedUntil = now + BLOCK_TIME;
-         attempts.set(emailKey, currentAttempts);
-         return res.status(429).json({
-           success: false,
-           message: "Muchos intentos fallidos. Tu cuenta fue bloqueada por 15 minutos.",
-         });
-       }
-       attempts.set(emailKey, currentAttempts);
-       return res.status(401).json({
-         success: false,
-         message: `Credenciales inválidas ${MAX_ATTEMPTS - currentAttempts.count} intentos restantes`,
-       });
-     }
-   } else {
-     // Si no es admin, buscar en la tabla de clientes
-     userFound = await customersModel.findOne({ email: email.toLowerCase() });
-     if (userFound) {
-       userType = "customer";
-       const isMatch = await bcryptjs.compare(password, userFound.password);
-       if (!isMatch) {
-         const currentAttempts = attempts.get(emailKey) || { count: 0 };
-         currentAttempts.count++;
-         if (currentAttempts.count >= MAX_ATTEMPTS) {
-           currentAttempts.blockedUntil = now + BLOCK_TIME;
-           attempts.set(emailKey, currentAttempts);
-           return res.status(429).json({
-             success: false,
-             message: "Muchos intentos fallidos. Tu cuenta fue bloqueada por 15 minutos",
-           });
-         }
-         attempts.set(emailKey, currentAttempts);
-         return res.status(401).json({
-           success: false,
-           message: `Credenciales inválidas ${MAX_ATTEMPTS - currentAttempts.count} intentos restantes`,
-         });
-       }
-     }
-   }
-   // Si no se encontró el usuario
-   if (!userFound) {
-     const currentAttempts = attempts.get(emailKey) || { count: 0 };
-     currentAttempts.count++;
-     if (currentAttempts.count >= MAX_ATTEMPTS) {
-       currentAttempts.blockedUntil = now + BLOCK_TIME;
-       attempts.set(emailKey, currentAttempts);
-       return res.status(429).json({
-         success: false,
-         message: "Muchos intentos fallidos. Tu cuenta fue bloqueada por 15 minutos",
-       });
-     }
-     attempts.set(emailKey, currentAttempts);
-     return res.status(401).json({
-       success: false,
-       message: `Credenciales inválidas ${MAX_ATTEMPTS - currentAttempts.count} intentos restantes.`,
-     });
-   }
-   attempts.delete(emailKey); // Eliminar registro de intentos fallidos
-   const token = jsonwebtoken.sign(
-     {
-       id: userFound._id,
-       userType,
-       email: userFound.email,
-     },
-     config.jwt.jwtSecret,
-     { expiresIn: config.jwt.expiresIn }
-   );
 
-const isProd = process.env.NODE_ENV === 'production';
-const cookieOptions = {
- httpOnly: true,
- // En producción se requiere HTTPS y sameSite 'none' para permitir cookies cross-site
- secure: isProd,
- sameSite: isProd ? 'none' : 'lax',
- path: '/',
- maxAge: 24 * 60 * 60 * 1000, // 1 día
+const MAX_ATTEMPTS = 3;
+const LOCK_TIME = 15 * 60 * 1000; // 15 minutos
+const loginController = {};
+
+loginController.login = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    let user = await AdministratorsModel.findOne({ email });
+    let userType = "admin";
+
+    if (!user) {
+      user = await CustomersModel.findOne({ email });
+      userType = "customer";
+    }
+
+    if (!user)
+      return res.status(401).json({ success: false, message: "Usuario no encontrado" });
+
+    // Bloqueo por intentos fallidos
+    if (user.lockUntil && user.lockUntil > Date.now()) {
+      const minutosRestantes = Math.ceil((user.lockUntil - Date.now()) / 60000);
+      return res.status(403).json({
+        success: false,
+        message: `Cuenta bloqueada. Intenta nuevamente en ${minutosRestantes} minutos`,
+      });
+    }
+
+    const isMatch = await bcryptjs.compare(password, user.password);
+    if (!isMatch) {
+      user.loginAttempts = (user.loginAttempts || 0) + 1;
+
+      if (user.loginAttempts >= MAX_ATTEMPTS) {
+        user.lockUntil = Date.now() + LOCK_TIME;
+        await user.save();
+        return res.status(403).json({
+          success: false,
+          message: `Cuenta bloqueada por ${LOCK_TIME / 60000} minutos`,
+        });
+      }
+
+      await user.save();
+      return res.status(401).json({
+        success: false,
+        message: `Contraseña incorrecta. Intentos restantes: ${MAX_ATTEMPTS - user.loginAttempts}`,
+      });
+    }
+
+    // Contraseña correcta
+    user.loginAttempts = 0;
+    user.lockUntil = null;
+    await user.save();
+
+    // Generar JWT
+    const token = jwt.sign(
+      { id: user._id, userType },
+      config.jwt.secret,
+      { expiresIn: config.jwt.expiresIn }
+    );
+
+    // MODIFICACIÓN CLAVE: Verificamos 'production' O el protocolo de la petición.
+    // También se añade una comprobación directa del encabezado de proxy.
+    const isSecure = process.env.NODE_ENV === "production" || 
+                     req.protocol === 'https' ||
+                     req.headers['x-forwarded-proto'] === 'https'; // Agregado para robustez
+
+    // Guardar cookie JWT (cross-site/producción HTTPS)
+    res.cookie("authToken", token, {
+      httpOnly: true,
+      secure: isSecure, // Usamos la variable determinada
+      sameSite: "none", // Necesario para cross-site
+      path: "/",
+      maxAge: 24 * 60 * 60 * 1000, // 1 día
+    });
+
+    res.json({
+      success: true,
+      message: "Login successful",
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        phone: user.phone || "",
+        profilePicture: user.profilePicture || "",
+      },
+      userType,
+    });
+  } catch (error) {
+    console.error("Error login:", error);
+    res.status(500).json({ success: false, message: "Error del servidor" });
+  }
 };
-// Usar la constante al crear la cookie
-res.cookie("authToken", token, cookieOptions);
-   res.status(200).json({
-     success: true,
-     message: "Login successful",
-     userType: userType,
-     token: token, // Agregar token para React Native
-     user: {
-       id: userFound._id,
-       email: userFound.email,
-       name: userFound.name,
-     },
-   });
- } catch (error) {
-   console.error("Login error:", error);
-   res.status(500).json({
-     success: false,
-     message: "Internal server error",
-   });
- }
-};
-// Función para verificar si el usuario es admin
-loginController.checkAdmin = (req, res) => {
- try {
-   const { authToken } = req.cookies;
-   if (!authToken) {
-     return res.json({ ok: false, message: "No auth token found" });
-   }
-   const decoded = jsonwebtoken.verify(authToken, config.jwt.jwtSecret);
-   if (decoded.userType === "admin") {
-     return res.json({ ok: true });
-   } else {
-     return res.json({ ok: false, message: "Access denied" });
-   }
- } catch (error) {
-   console.error("checkAdmin error:", error);
-   return res.json({ ok: false, message: "Invalid or expired token" });
- }
-};
-// Función para obtener los datos del usuario autenticado
-loginController.getUserData = async (req, res) => {
- try {
-   const { authToken } = req.cookies;
-   // Verificar si el token JWT existe
-   if (!authToken) {
-     return res.status(401).json({
-       success: false,
-       message: "No estás autenticado",
-     });
-   }
-   // Verificar y decodificar el token JWT
-   const decoded = jsonwebtoken.verify(authToken, config.jwt.jwtSecret);
-   // Obtener usuario según el tipo (admin o customer)
-   let userFound;
-   if (decoded.userType === "admin") {
-     userFound = await adminModel.findById(decoded.id);
-   } else {
-     userFound = await customersModel.findById(decoded.id);
-   }
-   // Retornar los datos del usuario
-   return res.json({
-     success: true,
-     user: {
-       id: userFound._id,
-       email: userFound.email,
-       name: userFound.name,
-       userType: decoded.userType,
-     },
-   });
- } catch (error) {
-   console.error("Error en /api/login/me:", error);
-   return res.status(500).json({
-     success: false,
-     message: "Error interno del servidor",
-   });
- }
-};
+
 export default loginController;

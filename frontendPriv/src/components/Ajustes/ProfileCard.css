@@ -1,9 +1,11 @@
+/* Card */
 .profile-card {
+  padding: 1em 2em 4em 2em;
+  background-color: white;
   padding: 1em 2em 4em 2em;
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 100%;
   max-width: 500px;
   margin: 0 auto;
   overflow: hidden;
@@ -33,6 +35,7 @@
   padding: 1rem;
   margin-bottom: 1.5rem;
   background-color: #fff;
+  background-color: #fff;
 }
 
 .info-row {
@@ -40,6 +43,22 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Input invisible */
+.info-input,
+.floating-input {
+  flex-grow: 1;
+  border: 2px solid white !important; /* invisible */
+  border-radius: 25px;
+  padding: 0.5rem;
+  margin-right: 1rem;
+  background-color: #fff;
+  color: #555;
+  font-size: 1rem;
+  outline: none;
 }
 
 .info-input {
@@ -72,7 +91,7 @@
   background: rgba(255, 255, 255, 0.85);
 }
 
-.form-content {
+.overlay-content {
   background-color: white;
   border-radius: 16px;
   padding: 24px;

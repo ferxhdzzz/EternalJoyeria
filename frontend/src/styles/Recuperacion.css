@@ -6,10 +6,11 @@
   justify-content: flex-start; /* Alinea la card a la izquierda */
   align-items: center;
   padding-left: 5%; /* Espacio desde el borde izquierdo */
+  font-family: 'DM Sans', Arial, sans-serif; /* Tipografía DM Sans */
 }
 
 .recover-title{
-  font-family: 'Lora', sans-serif;
+  font-family: 'DM Sans', Arial, sans-serif;
 }
 
 .recover-card {
@@ -40,7 +41,7 @@
 
 .eye-icon {
   position: absolute;
-  right: 10px;
+  right: 1px !important; /* Movido más a la derecha con !important */
   top: 45px;
   padding-right: 35px;
   cursor: pointer;
@@ -75,7 +76,7 @@
     padding-right: 30px;
   }
   .eye-icon {
-    right: 12px;
+    right: 1px !important; /* Movido más a la derecha con !important */
     top: 70%;
     transform: translateY(-50%);
   }
@@ -112,7 +113,7 @@
     padding-right: 30px;
   }
   .eye-icon {
-    right: 12px;
+    right: 1px !important; /* Movido más a la derecha con !important */
     top: 70%;
     transform: translateY(-50%);
   }
@@ -136,7 +137,7 @@
     padding-right: 30px;
   }
   .eye-icon {
-    right: 12px;
+    right: 1px !important; /* Movido más a la derecha con !important */
     top: 70%;
     transform: translateY(-50%);
   }
@@ -160,7 +161,7 @@
     padding-right: 30px;
   }
   .eye-icon {
-    right: 12px;
+    right: 1px !important; /* Movido más a la derecha con !important */
     top: 70%;
     transform: translateY(-50%);
   }

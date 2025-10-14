@@ -3,12 +3,14 @@
   border: none;
   border-radius: 20px;
   padding: 6px 16px;
-  color: white;
+  color: black;
   font-weight: bold;
   cursor: pointer;
   transition: background 0.3s ease;
 }
 
 .eliminar-button:hover {
-  background-color: #e288a8;
+  background-color: #d47a9a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 122, 154, 0.3);
 }

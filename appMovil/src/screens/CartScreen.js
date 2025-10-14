@@ -7,12 +7,14 @@ import {
   Image,
   Dimensions,
   ScrollView,
+  Platform,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useCart } from '../context/CartContext';
 import CustomAlert from '../components/CustomAlert';
 import useCustomAlert from '../hooks/useCustomAlert';
+import { translateSize } from '../utils/sizeTranslations';
 
 const { width, height } = Dimensions.get('window');
 
@@ -30,6 +32,41 @@ const CartScreen = ({ navigation }) => {
     hideAlert,
     showStockError,
   } = useCustomAlert();
+
+  // Funciones para formatear medidas (copiadas de ProductDetailScreen)
+  const sizeDisplayName = (key) => {
+    const names = {
+      height: 'Alto',
+      width: 'Ancho',
+      length: 'Largo',
+      diameter: 'Diámetro',
+      thickness: 'Grosor',
+      weight: 'Peso',
+    };
+    return names[key] || key.charAt(0).toUpperCase() + key.slice(1);
+  };
+
+  // Función para filtrar qué campos mostrar como medidas (no como talla)
+  const isValidMeasurement = (key) => {
+    const validMeasurements = ['height', 'width', 'length', 'diameter', 'thickness', 'weight'];
+    return validMeasurements.includes(key.toLowerCase());
+  };
+
+  const formatMeasurement = (key, raw) => {
+    if (!raw) return '';
+    const str = String(raw).trim();
+    if (!str) return '';
+    const num = parseFloat(str);
+    if (isNaN(num)) return str;
+    
+    if (key === 'weight') {
+      return `${num} g`;
+    }
+    if (key === 'height' || key === 'width') {
+      return `${num} cm`;
+    }
+    return raw;
+  };
   
   const handleQuantityChange = (item, change) => {
     const newQuantity = item.quantity + change;
@@ -40,7 +77,7 @@ const CartScreen = ({ navigation }) => {
         item.name || 'Producto',
         maxStock,
         () => navigation.navigate('MainTabs', { screen: 'Carrito' }), // Ver carrito (ya está aquí)
-        () => navigation.navigate('MainTabs', { screen: 'Inicio' }) // Seguir comprando
+        () => navigation.navigate('MainTabs', { screen: 'Home' }) // Seguir comprando
       );
       return;
     }
@@ -63,37 +100,17 @@ const CartScreen = ({ navigation }) => {
 
   if (cartItems.length === 0) {
     return (
-      <LinearGradient
-        colors={['#fdf2f8', '#fce7f3', '#fbcfe8']} // Degradado rosa elegante
-        style={styles.emptyContainer}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-      >
-        <View style={styles.header}>
+      <View style={styles.emptyContainer}>
+        <StatusBar style="dark" />
+        <View style={styles.headerSimple}>
           <Text style={styles.headerTitle}>Carrito</Text>
         </View>
-        <View style={styles.content}>
-          <View style={styles.cartContainer}>
-            <Image
-              source={require('../../assets/carrito.png')}
-              style={styles.cartImage}
-              resizeMode="contain"
-            />
-            <View style={styles.sparklesContainer}>
-              <View style={[styles.sparkle, styles.sparkle1]}>
-                <Ionicons name="star" size={16} color="#FFD700" />
-              </View>
-              <View style={[styles.sparkle, styles.sparkle2]}>
-                <Ionicons name="star" size={12} color="#FFD700" />
-              </View>
-              <View style={[styles.sparkle, styles.sparkle3]}>
-                <Ionicons name="star" size={14} color="#FFD700" />
-              </View>
-              <View style={[styles.sparkle, styles.sparkle4]}>
-                <Ionicons name="star" size={10} color="#FFD700" />
-              </View>
-            </View>
-          </View>
+        <View style={styles.content}> 
+          <Image
+            source={require('../../assets/carrito.png')}
+            style={styles.cartImage}
+            resizeMode="contain"
+          />
           <View style={styles.textContainer}>
             <Text style={styles.mainText}>Aún no hay brillo</Text>
             <Text style={styles.subText}>en tu carrito</Text>
@@ -101,22 +118,19 @@ const CartScreen = ({ navigation }) => {
         </View>
         <TouchableOpacity 
           style={styles.shopButton}
-          onPress={() => navigation.navigate('Inicio')}
+          onPress={() => navigation.navigate('Home')}
         >
           <Text style={styles.shopButtonText}>Comprar</Text>
         </TouchableOpacity>
-      </LinearGradient>
+      </View>
     );
   }
 
   return (
-    <LinearGradient
-      colors={['#f3e5f5', '#e1bee7', '#ce93d8']}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      <StatusBar style="dark" />
       <View style={styles.cartHeader}>
         <View style={styles.headerContent}>
-          <Ionicons name="bag" size={28} color="#4a148c" />
           <Text style={styles.cartHeaderTitle}>Mi carrito</Text>
           <View style={styles.itemCount}>
             <Text style={styles.itemCountText}>{cartItems.length}</Text>
@@ -126,20 +140,36 @@ const CartScreen = ({ navigation }) => {
       <ScrollView style={styles.productList} showsVerticalScrollIndicator={false}>
         {cartItems.map((item) => (
           <View key={`${item._id}-${item.size}`} style={styles.productItem}>
-            <LinearGradient
-              colors={['rgba(255, 255, 255, 0.95)', 'rgba(240, 230, 255, 0.8)']}
-              style={styles.productGradient}
-            >
+            <View style={styles.productCard}>
               <View style={styles.imageContainer}>
                 <Image source={getProductImage(item)} style={styles.productImage} />
-                <View style={styles.imageOverlay} />
               </View>
               <View style={styles.productInfo}>
                 <Text style={styles.productName}>{item.name || 'Producto sin nombre'}</Text>
-                {item.size && (
+                
+                {/* Talla - Solo mostrar si es una talla real, no medidas */}
+                {item.size && !isValidMeasurement(item.size) && (
                   <View style={styles.sizeContainer}>
-                    <Ionicons name="resize" size={14} color="#8e24aa" />
-                    <Text style={styles.productSize}>Talla: {item.size}</Text>
+                    <Ionicons name="resize" size={14} color="#6b7280" />
+                    <Text style={styles.productSize}>Talla: {translateSize(item.size)}</Text>
+                  </View>
+                )}
+
+                {/* Medidas - Filtrar solo medidas válidas */}
+                {item.measurements && Object.keys(item.measurements).length > 0 && (
+                  <View style={styles.measurementsContainer}>
+                    <Text style={styles.measurementsTitle}>Medidas:</Text>
+                    <View style={styles.measuresList}>
+                      {Object.entries(item.measurements)
+                        .filter(([key]) => isValidMeasurement(key))
+                        .slice(0, 3)
+                        .map(([key, value]) => (
+                          <View key={String(key)} style={styles.measureRow}>
+                            <Text style={styles.measureLabel}>{sizeDisplayName(key)}:</Text>
+                            <Text style={styles.measureValue}>{formatMeasurement(key, value)}</Text>
+                          </View>
+                        ))}
+                    </View>
                   </View>
                 )}
                 <View style={styles.quantityControls}>
@@ -147,7 +177,7 @@ const CartScreen = ({ navigation }) => {
                     style={styles.quantityButton}
                     onPress={() => handleQuantityChange(item, -1)}
                   >
-                    <Ionicons name="remove" size={18} color="#4a148c" />
+                    <Ionicons name="remove" size={18} color="#111827" />
                   </TouchableOpacity>
                   <View style={styles.quantityDisplay}>
                     <Text style={styles.quantityText}>{item.quantity}</Text>
@@ -159,11 +189,12 @@ const CartScreen = ({ navigation }) => {
                     style={styles.quantityButton}
                     onPress={() => handleQuantityChange(item, 1)}
                   >
-                    <Ionicons name="add" size={18} color="#4a148c" />
+                    <Ionicons name="add" size={18} color="#111827" />
                   </TouchableOpacity>
                 </View>
                 <View style={styles.priceContainer}>
-                  <Ionicons name="diamond" size={16} color="#e91e63" />
+                  <Ionicons name="pricetag" size={14} color="#6b7280" />
+                  <Text style={styles.priceLabel}>Precio:</Text>
                   <Text style={styles.productPrice}>${(item.finalPrice || item.price || 0).toFixed(2)}</Text>
                 </View>
               </View>
@@ -173,38 +204,21 @@ const CartScreen = ({ navigation }) => {
               >
                 <Ionicons name="trash" size={18} color="#e74c3c" />
               </TouchableOpacity>
-            </LinearGradient>
+            </View>
           </View>
         ))}
         <View style={{ height: 100 }} />
       </ScrollView>
       <View style={styles.checkoutSection}>
-        <LinearGradient
-          colors={['rgba(255, 255, 255, 0.95)', 'rgba(225, 190, 231, 0.8)']}
-          style={styles.checkoutGradient}
-        >
+        <View style={styles.checkoutPanel}>
           <View style={styles.totalRow}>
-            <View style={styles.totalLabelContainer}>
-              <Ionicons name="calculator" size={20} color="#4a148c" />
-              <Text style={styles.totalLabel}>Total:</Text>
-            </View>
-            <View style={styles.totalAmountContainer}>
-              <Text style={styles.totalAmount}>${getTotalPrice().toFixed(2)}</Text>
-            </View>
+            <Text style={styles.totalLabel}>Total</Text>
+            <Text style={styles.totalAmount}>${getTotalPrice().toFixed(2)}</Text>
           </View>
-          <LinearGradient
-            colors={['#e91e63', '#ad1457']}
-            style={styles.checkoutButton}
-          >
-            <TouchableOpacity 
-              style={styles.checkoutTouchable}
-              onPress={handleCheckout}
-            >
-              <Ionicons name="card" size={20} color="#fff" />
-              <Text style={styles.checkoutButtonText}>Proceder a pago</Text>
-            </TouchableOpacity>
-          </LinearGradient>
-        </LinearGradient>
+          <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
+            <Text style={styles.checkoutButtonText}>Proceder a pago</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       
       {/* Componente de alerta */}
@@ -220,7 +234,7 @@ const CartScreen = ({ navigation }) => {
         showIcon={alertConfig.showIcon}
         animationType={alertConfig.animationType}
       />
-    </LinearGradient>
+    </View>
   );
 };
 
@@ -228,106 +242,75 @@ const styles = StyleSheet.create({
   // Estilos para el carrito vacío
   emptyContainer: {
     flex: 1,
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
   },
-  header: {
-    paddingTop: 60,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    alignItems: 'center',
+  headerSimple: {
+    paddingTop: 56,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    backgroundColor: '#fff',
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '700',
-    color: '#2d3748', // Gris oscuro elegante
+    color: '#111827',
+    textAlign: 'center',
   },
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  cartContainer: {
-    position: 'relative',
-    marginBottom: 30,
+    paddingHorizontal: 32,
   },
   cartImage: {
-    width: width * 0.7,
-    height: height * 0.35,
-  },
-  sparklesContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-  },
-  sparkle: {
-    position: 'absolute',
-  },
-  sparkle1: {
-    top: '8%',
-    left: '12%',
-  },
-  sparkle2: {
-    top: '12%',
-    left: '22%',
-  },
-  sparkle3: {
-    top: '6%',
-    left: '18%',
-  },
-  sparkle4: {
-    top: '10%',
-    left: '16%',
+    width: 160,
+    height: 200,
+    marginBottom: 24,
+    opacity: 0.8,
   },
   textContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 32,
   },
   mainText: {
-    fontSize: 28,
+    fontSize: 22,
     fontWeight: '700',
-    color: '#2d3748', // Gris oscuro elegante
-    marginBottom: 5,
+    color: '#111827',
+    textAlign: 'center',
+    marginBottom: 4,
   },
   subText: {
-    fontSize: 18,
-    fontWeight: '500',
-    color: '#4a5568', // Gris medio elegante
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#111827',
+    textAlign: 'center',
   },
   shopButton: {
-    backgroundColor: '#ec4899', 
-    paddingVertical: 22,
-    paddingHorizontal: 50,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    borderBottomRightRadius: 0,
-    borderBottomLeftRadius: 0,
-    marginLeft: 'auto',
-    marginRight: 0,
-    marginBottom: 0,
-    alignItems: 'center',
-    shadowColor: '#ec4899', 
-    shadowOffset: {
-      width: 0,
-      height: 6,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 8,
+    backgroundColor: '#000',
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderRadius: 20,
+    marginBottom: 32,
+    marginHorizontal: 32,
   },
   shopButtonText: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: '600',
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+    textAlign: 'center',
+    letterSpacing: 0.2,
   },
 
   // Estilos para el carrito con productos
   container: {
     flex: 1,
-    backgroundColor: '#f3e5f5',
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
   },
   cartHeader: {
-    paddingTop: 60,
-    paddingBottom: 25,
-    backgroundColor: 'transparent',
+    paddingTop: 56,
+    paddingBottom: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#fff',
   },
   headerContent: {
     flexDirection: 'row',
@@ -336,7 +319,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   itemCount: {
-    backgroundColor: '#e91e63',
+    backgroundColor: '#111827',
     borderRadius: 12,
     minWidth: 24,
     height: 24,
@@ -351,7 +334,7 @@ const styles = StyleSheet.create({
   cartHeaderTitle: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#4a148c',
+    color: '#111827',
   },
   productList: {
     flex: 1,
@@ -359,35 +342,27 @@ const styles = StyleSheet.create({
   },
   productItem: {
     marginBottom: 15,
-    borderRadius: 20,
-    overflow: 'hidden',
-    shadowColor: '#6a1b9a',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 8,
+    borderRadius: 16,
   },
-  productGradient: {
+  productCard: {
     flexDirection: 'row',
-    padding: 18,
+    padding: 14,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E9ECEF',
   },
   imageContainer: {
-    position: 'relative',
+    width: 80,
+    height: 80,
     marginRight: 15,
-  },
-  imageOverlay: {
-    position: 'absolute',
-    top: -2,
-    left: -2,
-    width: 89,
-    height: 89,
-    borderRadius: 14,
-    borderWidth: 2,
-    borderColor: '#ab47bc',
+    backgroundColor: '#f9fafb',
+    borderRadius: 12,
+    overflow: 'hidden',
   },
   productImage: {
-    width: 85,
-    height: 85,
+    width: 80,
+    height: 80,
     borderRadius: 12,
   },
   productInfo: {
@@ -397,7 +372,7 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#4a148c',
+    color: '#1f2937',
     marginBottom: 8,
   },
   sizeContainer: {
@@ -409,29 +384,29 @@ const styles = StyleSheet.create({
   productSize: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#8e24aa',
+    color: '#6b7280',
   },
   quantityControls: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    borderRadius: 15,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
+    backgroundColor: '#f9fafb',
+    borderRadius: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 4,
     alignSelf: 'flex-start',
   },
   quantityButton: {
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: 'rgba(106, 27, 154, 0.1)',
+    backgroundColor: '#e5e7eb',
     alignItems: 'center',
     justifyContent: 'center',
   },
   quantityDisplay: {
     marginHorizontal: 15,
-    backgroundColor: 'rgba(233, 30, 99, 0.1)',
+    backgroundColor: '#fff',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 4,
@@ -439,12 +414,12 @@ const styles = StyleSheet.create({
   quantityText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#4a148c',
+    color: '#111827',
     textAlign: 'center',
   },
   stockInfo: {
     fontSize: 12,
-    color: '#8e24aa',
+    color: '#6b7280',
     textAlign: 'center',
     marginTop: 2,
   },
@@ -452,82 +427,99 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    marginTop: 4,
+  },
+  priceLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#6b7280',
   },
   productPrice: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#e91e63',
+    color: '#111827',
   },
   removeButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+    backgroundColor: '#fee2e2',
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 10,
   },
   checkoutSection: {
     paddingHorizontal: 20,
-    paddingVertical: 20,
+    paddingVertical: 16,
   },
-  checkoutGradient: {
-    borderRadius: 20,
-    padding: 20,
-    shadowColor: '#6a1b9a',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 6,
+  checkoutPanel: {
+    borderRadius: 16,
+    padding: 16,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#E9ECEF',
   },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
-  },
-  totalLabelContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  totalAmountContainer: {
-    backgroundColor: 'rgba(233, 30, 99, 0.1)',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 12,
+    marginBottom: 12,
   },
   totalLabel: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#4a148c',
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#6b7280',
   },
   totalAmount: {
     fontSize: 22,
-    fontWeight: 'bold',
-    color: '#e91e63',
+    fontWeight: '700',
+    color: '#111827',
   },
   checkoutButton: {
-    borderRadius: 25,
-    overflow: 'hidden',
-    shadowColor: '#e91e63',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 8,
-  },
-  checkoutTouchable: {
-    flexDirection: 'row',
+    marginTop: 8,
+    backgroundColor: '#000',
+    borderRadius: 28,
+    paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 18,
-    gap: 10,
   },
   checkoutButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-    letterSpacing: 0.5,
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: 0.2,
+  },
+  
+  // Estilos para medidas
+  measurementsContainer: {
+    marginBottom: 8,
+  },
+  measurementsTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6b7280',
+    marginBottom: 4,
+  },
+  measuresList: {
+    backgroundColor: '#f9fafb',
+    borderRadius: 8,
+    padding: 8,
+    gap: 4,
+  },
+  measureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  measureLabel: {
+    fontSize: 12,
+    color: '#374151',
+    fontWeight: '500',
+  },
+  measureValue: {
+    fontSize: 12,
+    color: '#111827',
+    fontWeight: '600',
   },
 });
 

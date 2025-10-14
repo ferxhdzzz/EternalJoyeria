@@ -34,9 +34,17 @@ const CategoriesCarousel = () => {
 
   return (
     <div className="categories-carousel-container">
+      <br /><br />
       <h2>Explorar Categorías</h2>
+      <br />
       <div className="categories-carousel">
+        <br />
+        <br />
+        <br />
         <div className="categories-scroll" ref={scrollRef}>
+        <br />
+        <br />
+        <br />
           {loopCategories.map((category, index) => (
             <Link
               key={category._id + index}
@@ -53,9 +61,13 @@ const CategoriesCarousel = () => {
                 <div className="category-card-info">
                   <h3>{category.name}</h3>
                   <p>{category.description}</p>
+               
                 </div>
+             
               </div>
+              <br />
             </Link>
+            
           ))}
         </div>
       </div>

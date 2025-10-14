@@ -1,4 +1,4 @@
-// ProductDetail.js - VERSIÓN CON MODAL DE DETALLES CON UNA SOLA IMAGEN
+// ProductDetail.js - VERSIÓN CON MÚLTIPLES IMÁGENES Y MODAL DE DETALLES (CON ZOOM)
 import React, { useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
@@ -8,6 +8,9 @@ import SidebarCart from '../components/Cart/SidebarCart';
 import Swal from 'sweetalert2';
 import Footer from '../components/Footer';
 import ReviewsSection from '../components/Reviews/ReviewsSection';
+
+// URL de imagen por defecto
+const DEFAULT_IMAGE_URL = '/placeholder-image.jpg';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -19,34 +22,68 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
 
-  // DEBUG COMPLETO
-  console.log('=== DEBUG PRODUCT DETAIL ===');
-  console.log('URL actual:', window.location.href);
-  console.log('Pathname:', location.pathname);
-  console.log('ID desde useParams:', id);
-  console.log('Tipo de ID:', typeof id);
-  console.log('ID válido:', !!id);
-  console.log('Loading:', loading);
-  console.log('Error:', error);
-  console.log('Product:', product);
-  console.log('Product ID:', product?._id);
+  // NUEVO ESTADO: Índice de la imagen principal para el carrusel
+  const [mainImageIndex, setMainImageIndex] = useState(0);
 
-  // Actualizar tamaño seleccionado cuando se carga el producto
+  // 🚨 ESTADOS AÑADIDOS PARA LA FUNCIÓN DE ZOOM
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  // 🚨 HANDLERS AÑADIDOS PARA LA FUNCIÓN DE ZOOM
+  const handleMouseMove = (e) => {
+    // Calcula la posición relativa del mouse dentro de la imagen
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.pageX - left) / width) * 100;
+    const y = ((e.pageY - top) / height) * 100;
+    setMousePosition({ x, y });
+  };
+
+  const handleZoomIn = () => {
+    setIsZoomed(true);
+  };
+
+  const handleZoomOut = () => {
+    setIsZoomed(false);
+    // Opcional: reiniciar posición al salir para evitar saltos
+    // setMousePosition({ x: 50, y: 50 });
+  };
+  
+  // DEBUG COMPLETO (Se mantiene por si es necesario)
+  // console.log('=== DEBUG PRODUCT DETAIL ===');
+  // console.log('Product:', product);
+
+  // Actualizar tamaño seleccionado e índice de imagen cuando se carga el producto
   React.useEffect(() => {
-    if (product && product.sizes && product.sizes.length > 0) {
-      setSelectedSize(product.sizes[0]);
-    } else if (product) {
-      setSelectedSize('Pequeño');
+    if (product) {
+      // 1. Tamaño
+      if (product.sizes && product.sizes.length > 0) {
+        setSelectedSize(product.sizes[0]);
+      } else {
+        setSelectedSize('Pequeño'); // Fallback si no hay tallas
+      }
+      // 2. Reiniciar índice de imagen
+      setMainImageIndex(0);
     }
   }, [product]);
 
+  // Función para obtener la URL de la imagen actual
+  const getCurrentImageUrl = () => {
+    if (product && product.images && product.images.length > mainImageIndex) {
+      return product.images[mainImageIndex];
+    }
+    return product && product.img ? product.img : DEFAULT_IMAGE_URL; // Fallback al campo 'img' o a la imagen por defecto
+  };
+
   // Componente Modal de Detalles
   const DetailsModal = () => {
-    if (!showDetailsModal) return null;
+    if (!showDetailsModal || !product) return null;
+
+    // Usaremos la primera imagen o una por defecto para el modal
+    const modalImageUrl = product.images && product.images.length > 0 ? product.images[0] : (product.img || DEFAULT_IMAGE_URL);
 
     return (
-      <div 
-        className="modal-overlay" 
+      <div
+        className="modal-overlay"
         style={{
           position: 'fixed',
           top: 0,
@@ -62,8 +99,8 @@ const ProductDetail = () => {
         }}
         onClick={() => setShowDetailsModal(false)}
       >
-        <div 
-          className="modal-content" 
+        <div
+          className="modal-content"
           style={{
             background: 'white',
             borderRadius: '20px',
@@ -77,7 +114,7 @@ const ProductDetail = () => {
           onClick={(e) => e.stopPropagation()}
         >
           {/* Botón de cerrar */}
-          <button 
+          <button
             onClick={() => setShowDetailsModal(false)}
             style={{
               position: 'absolute',
@@ -104,10 +141,10 @@ const ProductDetail = () => {
 
           {/* Contenido del modal */}
           <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap' }}>
-            {/* Imagen del producto */}
+            {/* Imagen del producto (usando la primera imagen del array) */}
             <div style={{ flex: '1', minWidth: '300px' }}>
-              <img 
-                src={product.images && product.images.length > 0 ? product.images[0] : '/placeholder-image.jpg'} 
+              <img
+                src={modalImageUrl}
                 alt={product.name}
                 style={{
                   width: '100%',
@@ -117,7 +154,7 @@ const ProductDetail = () => {
               />
             </div>
 
-            {/* Detalles del producto */}
+            {/* Detalles del producto (mismo contenido que antes) */}
             <div style={{ flex: '1', minWidth: '300px' }}>
               <h2 style={{ fontSize: '2em', marginBottom: '20px', color: '#333' }}>
                 {product.name}
@@ -126,19 +163,19 @@ const ProductDetail = () => {
               {/* Precio */}
               <div style={{ marginBottom: '25px' }}>
                 {product.finalPrice && product.finalPrice !== product.price && (
-                  <span style={{ 
-                    textDecoration: 'line-through', 
-                    color: '#999', 
+                  <span style={{
+                    textDecoration: 'line-through',
+                    color: '#999',
                     marginRight: '15px',
                     fontSize: '1.2em'
                   }}>
                     ${(product.price || 0).toFixed(2)}
                   </span>
                 )}
-                <span style={{ 
-                  fontSize: '1.8em', 
-                  fontWeight: 'bold', 
-                  color: '#D1A6B4' 
+                <span style={{
+                  fontSize: '1.8em',
+                  fontWeight: 'bold',
+                  color: '#D1A6B4'
                 }}>
                   ${(product.finalPrice || product.price || 0).toFixed(2)}
                 </span>
@@ -199,7 +236,10 @@ const ProductDetail = () => {
                   {product.stock !== undefined && (
                     <div style={{ padding: '10px', background: '#f8f9fa', borderRadius: '8px' }}>
                       <strong>Stock:</strong><br/>
-                      <span style={{ color: '#666' }}>{product.stock} unidades</span>
+                      <span style={{ 
+                        color: product.stock < 3 ? '#dc3545' : '#666',
+                        fontWeight: product.stock < 3 ? 'bold' : 'normal'
+                      }}>{product.stock} unidades</span>
                     </div>
                   )}
                 </div>
@@ -212,19 +252,21 @@ const ProductDetail = () => {
                 </h3>
                 <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
                   {product.stock !== undefined && (
+
                     <div style={{ 
                       padding: '8px 15px', 
-                      background: product.stock > 0 ? '#d4edda' : '#f8d7da',
-                      color: product.stock > 0 ? '#155724' : '#721c24',
+                      background: product.stock === 0 ? '#f8d7da' : product.stock < 3 ? '#f8d7da' : '#d4edda',
+                      color: product.stock === 0 ? '#721c24' : product.stock < 3 ? '#721c24' : '#155724',
+
                       borderRadius: '20px',
                       fontSize: '14px',
                       fontWeight: 'bold'
                     }}>
-                      {product.stock > 0 ? `${product.stock} en stock` : 'Sin stock'}
+                      {product.stock === 0 ? 'Sin stock' : product.stock < 3 ? `${product.stock} en stock (¡Pocas unidades!)` : `${product.stock} en stock`}
                     </div>
                   )}
-                  <div style={{ 
-                    padding: '8px 15px', 
+                  <div style={{
+                    padding: '8px 15px',
                     background: '#cce5ff',
                     color: '#004085',
                     borderRadius: '20px',
@@ -243,7 +285,7 @@ const ProductDetail = () => {
                 </h3>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   {(product.sizes || ['Pequeño', 'Mediano', 'Grande']).map(size => (
-                    <span 
+                    <span
                       key={size}
                       style={{
                         padding: '6px 12px',
@@ -280,6 +322,7 @@ const ProductDetail = () => {
     );
   };
 
+  // Lógicas de carga y error (se mantienen sin cambios)
   if (loading) {
     return (
       <>
@@ -287,10 +330,10 @@ const ProductDetail = () => {
         <Nav cartOpen={cartOpen} />
         
         <div className="product-detail-page" style={{ paddingTop: '100px', textAlign: 'center' }}>
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
             gap: '20px',
             padding: '40px'
           }}>
@@ -304,14 +347,13 @@ const ProductDetail = () => {
             }}></div>
             <h2>Cargando producto...</h2>
             <p><strong>ID buscado:</strong> {id || 'ID no definido'}</p>
-            <p><strong>URL:</strong> {window.location.pathname}</p>
           </div>
         </div>
       </>
     );
   }
 
-  if (error) {
+  if (error || !product) {
     return (
       <>
         <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
@@ -319,44 +361,42 @@ const ProductDetail = () => {
         
         <div className="product-detail-page" style={{ paddingTop: '100px', textAlign: 'center' }}>
           <div style={{ padding: '40px' }}>
-            <h2 style={{ color: '#e74c3c' }}>Error al cargar el producto</h2>
-            <div style={{ 
-              background: '#f8f9fa', 
-              border: '1px solid #ddd', 
-              borderRadius: '8px', 
-              padding: '20px', 
+            <h2 style={{ color: '#e74c3c' }}>Error al cargar o Producto no encontrado</h2>
+            <div style={{
+              background: '#f8f9fa',
+              border: '1px solid #ddd',
+              borderRadius: '8px',
+              padding: '20px',
               margin: '20px 0',
               textAlign: 'left'
             }}>
               <p><strong>ID buscado:</strong> {id || 'ID no definido'}</p>
-              <p><strong>URL actual:</strong> {window.location.href}</p>
-              <p><strong>Error:</strong> {error}</p>
-              <p><strong>Timestamp:</strong> {new Date().toLocaleString()}</p>
+              <p><strong>Error:</strong> {error || 'No se recibió la información del producto.'}</p>
             </div>
-            <button 
-              onClick={refetch} 
-              style={{ 
-                padding: '10px 20px', 
-                margin: '10px', 
-                background: '#007bff', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '4px', 
-                cursor: 'pointer' 
+            <button
+              onClick={refetch}
+              style={{
+                padding: '10px 20px',
+                margin: '10px',
+                background: '#28a745',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
               }}
             >
               Reintentar
             </button>
-            <button 
-              onClick={() => window.history.back()} 
-              style={{ 
-                padding: '10px 20px', 
-                margin: '10px', 
-                background: '#6c757d', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '4px', 
-                cursor: 'pointer' 
+            <button
+              onClick={() => window.history.back()}
+              style={{
+                padding: '10px 20px',
+                margin: '10px',
+                background: '#6c757d',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
               }}
             >
               ← Volver
@@ -367,63 +407,12 @@ const ProductDetail = () => {
     );
   }
 
-  if (!product) {
-    return (
-      <>
-        <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
-        <Nav cartOpen={cartOpen} />
-        
-        <div className="product-detail-page" style={{ paddingTop: '100px', textAlign: 'center' }}>
-          <div style={{ padding: '40px' }}>
-            <h2>Producto no encontrado</h2>
-            <div style={{ 
-              background: '#fff3cd', 
-              border: '1px solid #ffeaa7', 
-              borderRadius: '8px', 
-              padding: '20px', 
-              margin: '20px 0'
-            }}>
-              <p><strong>ID buscado:</strong> {id || 'ID no definido'}</p>
-              <p><strong>URL:</strong> {window.location.href}</p>
-              <p>El producto con este ID no existe en la base de datos o no se pudo cargar.</p>
-            </div>
-            <button 
-              onClick={refetch} 
-              style={{ 
-                padding: '10px 20px', 
-                margin: '10px', 
-                background: '#28a745', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '4px', 
-                cursor: 'pointer' 
-              }}
-            >
-              Reintentar
-            </button>
-            <button 
-              onClick={() => window.history.back()} 
-              style={{ 
-                padding: '10px 20px', 
-                margin: '10px', 
-                background: '#6c757d', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '4px', 
-                cursor: 'pointer' 
-              }}
-            >
-              ← Volver
-            </button>
-          </div>
-        </div>
-      </>
-    );
-  }
-
+  // Lógica de añadir al carrito y manejo de cantidad (se mantienen sin cambios)
   const handleAddToCart = () => {
-    // Si la cantidad es 0 o el stock es 0, no hacer nada
-    if (quantity === 0 || product.stock === 0) {
+    // Convertimos product.stock a entero para hacer comparaciones seguras
+    const currentStock = parseInt(product.stock, 10); 
+
+    if (quantity === 0 || currentStock === 0 || isNaN(currentStock)) {
       Swal.fire({
         title: 'Sin stock disponible',
         text: 'Este producto no tiene stock o la cantidad seleccionada es 0.',
@@ -434,11 +423,10 @@ const ProductDetail = () => {
       return;
     }
 
-    // Verificar si la cantidad a agregar es mayor que el stock disponible
-    if (quantity > product.stock) {
+    if (quantity > currentStock) {
       Swal.fire({
         title: 'Stock insuficiente',
-        text: `Solo quedan ${product.stock} unidad(es) de este producto.`,
+        text: `Solo quedan ${currentStock} unidad(es) de este producto.`,
         icon: 'warning',
         confirmButtonText: 'Ok',
         confirmButtonColor: '#D1A6B4',
@@ -450,9 +438,11 @@ const ProductDetail = () => {
       id: product._id,
       name: product.name,
       price: product.finalPrice || product.price,
+      // Usamos la primera imagen para el carrito por convención
       image: product.images && product.images.length > 0 ? product.images[0] : product.img,
       size: selectedSize,
-      quantity: quantity
+      quantity: quantity,
+      stock: currentStock // <<<< ¡STOCK AHORA ES NÚMERO Y SE PASA AL CONTEXTO!
     };
     
     addToCart(productToAdd);
@@ -468,7 +458,6 @@ const ProductDetail = () => {
   };
 
   const handleIncreaseQuantity = () => {
-    // Evitar que la cantidad supere el stock
     if (quantity < product.stock) {
       setQuantity(q => q + 1);
     } else {
@@ -483,6 +472,11 @@ const ProductDetail = () => {
   };
 
   const availableSizes = product.sizes && product.sizes.length > 0 ? product.sizes : ['Pequeño', 'Mediano', 'Grande'];
+  // Obtenemos el array de imágenes o un array con la imagen por defecto
+  const productImages = product.images && Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.img || DEFAULT_IMAGE_URL];
+  // URL de la imagen principal a mostrar
+  const mainImage = getCurrentImageUrl();
+
 
   return (
     <>
@@ -493,44 +487,97 @@ const ProductDetail = () => {
       <DetailsModal />
       
       <div className="product-detail-page" style={{ paddingTop: '80px' }}>
-        <div className="product-detail-container" style={{ 
-          display: 'flex', 
-          maxWidth: '1200px', 
-          margin: '0 auto', 
+        <div className="product-detail-container" style={{
+          display: 'flex',
+          maxWidth: '1200px',
+          margin: '0 auto',
           padding: '40px 20px',
-          gap: '40px'
+          gap: '40px',
+          flexWrap: 'wrap' // Permite que se apilen en pantallas pequeñas
         }}>
           
-          {/* SECCIÓN DE IMAGEN */}
-          <div className="product-image-section" style={{ flex: '1' }}>
-            <img 
-              src={product.images && product.images.length > 0 ? product.images[0] : '/placeholder-image.jpg'} 
-              alt={product.name} 
-              className="main-product-image"
-              style={{ 
-                width: '100%', 
-                borderRadius: '15px', 
-                boxShadow: '0 10px 30px rgba(0,0,0,0.1)' 
+          {/* SECCIÓN DE IMAGEN (CARRUSEL CON ZOOM IMPLEMENTADO) */}
+          <div className="product-image-section" style={{ flex: '1', minWidth: '350px' }}>
+            {/* 🚨 CONTENEDOR PRINCIPAL DEL ZOOM */}
+            <div
+              className="zoom-container"
+              onMouseEnter={handleZoomIn} 
+              onMouseLeave={handleZoomOut}
+              onMouseMove={handleMouseMove}
+              // Estilos base para el contenedor que actuará como "visor"
+              style={{
+                width: '100%',
+                aspectRatio: '1 / 1', // Asegura un ratio cuadrado o ajusta a tus necesidades
+                overflow: 'hidden', // Importante para que el zoom se "corte" en el borde
+                borderRadius: '15px',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                cursor: 'zoom-in', // Indica al usuario que puede hacer zoom
+                position: 'relative' 
               }}
-              onError={(e) => {
-                console.log('Error cargando imagen:', e.target.src);
-                e.target.src = '/placeholder-image.jpg';
-              }}
-            />
+            >
+              <img
+                src={mainImage}
+                alt={`${product.name} - Vista ${mainImageIndex + 1}`}
+                className="main-product-image"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  // 🚨 ESTILOS DEL ZOOM DINÁMICO
+                  transformOrigin: `${mousePosition.x}% ${mousePosition.y}%`, // El origen del zoom es el cursor
+                  transform: isZoomed ? 'scale(2.5)' : 'scale(1)', // Factor de zoom
+                  transition: 'transform 0.3s ease-out', // Animación suave
+                  cursor: 'zoom-in',
+                }}
+                onError={(e) => {
+                  e.target.src = DEFAULT_IMAGE_URL;
+                }}
+              />
+            </div>
 
+            {/* Miniaturas de imágenes */}
+            {productImages.length > 1 && (
+              <div className="thumbnail-gallery" style={{
+                display: 'flex',
+                marginTop: '15px',
+                gap: '10px',
+                overflowX: 'auto',
+                paddingBottom: '10px'
+              }}>
+                {productImages.map((imgUrl, index) => (
+                  <img
+                    key={index}
+                    src={imgUrl}
+                    alt={`${product.name} thumbnail ${index + 1}`}
+                    onClick={() => setMainImageIndex(index)}
+                    style={{
+                      width: '80px',
+                      height: '80px',
+                      objectFit: 'cover',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      border: index === mainImageIndex ? '3px solid #D1A6B4' : '1px solid #ddd',
+                      opacity: index === mainImageIndex ? 1 : 0.7,
+                      transition: 'all 0.2s ease',
+                      flexShrink: 0
+                    }}
+                  />
+                ))}
+              </div>
+            )}
           </div>
           
-          {/* SECCIÓN DE INFORMACIÓN */}
-          <div className="product-info-section" style={{ flex: '1' }}>
+          {/* SECCIÓN DE INFORMACIÓN (Se mantiene el contenido principal) */}
+          <div className="product-info-section" style={{ flex: '1', minWidth: '350px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
               <h1 style={{ fontSize: '2.5em', margin: 0 }}>{product.name}</h1>
               {/* BOTÓN + PARA MÁS DETALLES */}
-              <button 
+              <button
                 onClick={() => setShowDetailsModal(true)}
-                style={{ 
-                  background: '#D1A6B4', 
-                  color: 'white', 
-                  border: 'none', 
+                style={{
+                  background: '#D1A6B4',
+                  color: 'white',
+                  border: 'none',
                   borderRadius: '50%',
                   width: '45px',
                   height: '45px',
@@ -559,19 +606,19 @@ const ProductDetail = () => {
             
             <div className="price-container" style={{ marginBottom: '30px' }}>
               {product.finalPrice && product.finalPrice !== product.price && (
-                <span className="old-price" style={{ 
-                  textDecoration: 'line-through', 
-                  color: '#999', 
+                <span className="old-price" style={{
+                  textDecoration: 'line-through',
+                  color: '#999',
                   marginRight: '10px',
                   fontSize: '1.2em'
                 }}>
                   ${(product.price || 0).toFixed(2)}
                 </span>
               )}
-              <span className="current-price" style={{ 
-                fontSize: '2em', 
-                fontWeight: 'bold', 
-                color: '#D1A6B4' 
+              <span className="current-price" style={{
+                fontSize: '2em',
+                fontWeight: 'bold',
+                color: '#D1A6B4'
               }}>
                 ${(product.finalPrice || product.price || 0).toFixed(2)}
               </span>
@@ -581,8 +628,8 @@ const ProductDetail = () => {
               <p style={{ fontWeight: 'bold', marginBottom: '10px' }}>Seleccionar tamaño</p>
               <div className="sizes" style={{ display: 'flex', gap: '10px' }}>
                 {availableSizes.map(size => (
-                  <button 
-                    key={size} 
+                  <button
+                    key={size}
                     className={`size-option ${selectedSize === size ? 'selected' : ''}`}
                     onClick={() => setSelectedSize(size)}
                     style={{
@@ -602,17 +649,17 @@ const ProductDetail = () => {
             </div>
             
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '18px 0' }}>
-              <button 
-                onClick={() => setQuantity(q => Math.max(1, q - 1))} 
-                style={{ 
-                  width: 32, 
-                  height: 32, 
-                  borderRadius: 8, 
-                  background: '#D1A6B4', 
-                  border: 'none', 
-                  fontSize: 18, 
-                  fontWeight: 700, 
-                  cursor: 'pointer' 
+              <button
+                onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 8,
+                  background: '#D1A6B4',
+                  border: 'none',
+                  fontSize: 18,
+                  fontWeight: 700,
+                  cursor: 'pointer'
                 }}
               >
                 -
@@ -620,17 +667,17 @@ const ProductDetail = () => {
               <span style={{ fontSize: 18, fontWeight: 700, minWidth: 20, textAlign: 'center' }}>
                 {quantity}
               </span>
-              <button 
-                onClick={handleIncreaseQuantity} 
-                style={{ 
-                  width: 32, 
-                  height: 32, 
-                  borderRadius: 8, 
-                  background: '#D1A6B4', 
-                  border: 'none', 
-                  fontSize: 18, 
-                  fontWeight: 700, 
-                  cursor: 'pointer' 
+              <button
+                onClick={handleIncreaseQuantity}
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 8,
+                  background: '#D1A6B4',
+                  border: 'none',
+                  fontSize: 18,
+                  fontWeight: 700,
+                  cursor: 'pointer'
                 }}
               >
                 +
@@ -638,16 +685,16 @@ const ProductDetail = () => {
             </div>
             
             <div style={{ marginBottom: '30px' }}>
-              <button 
-                onClick={handleAddToCart} 
-                style={{ 
-                  background: '#D1A6B4', 
-                  color: 'white', 
-                  fontWeight: 'bold', 
-                  border: 'none', 
-                  borderRadius: 8, 
-                  padding: '15px 30px', 
-                  fontSize: 18, 
+              <button
+                onClick={handleAddToCart}
+                style={{
+                  background: '#D1A6B4',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  border: 'none',
+                  borderRadius: 8,
+                  padding: '15px 30px',
+                  fontSize: 18,
                   cursor: 'pointer',
                   width: '100%'
                 }}
@@ -665,15 +712,15 @@ const ProductDetail = () => {
             
             {/* BOTÓN ADICIONAL PARA VER MÁS DETALLES */}
             <div style={{ marginTop: '20px' }}>
-              <button 
+              <button
                 onClick={() => setShowDetailsModal(true)}
-                style={{ 
-                  background: 'transparent', 
-                  color: '#D1A6B4', 
-                  border: '2px solid #D1A6B4', 
-                  borderRadius: '8px', 
-                  padding: '10px 20px', 
-                  fontSize: '16px', 
+                style={{
+                  background: 'transparent',
+                  color: '#D1A6B4',
+                  border: '2px solid #D1A6B4',
+                  borderRadius: '8px',
+                  padding: '10px 20px',
+                  fontSize: '16px',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease'
                 }}
@@ -710,14 +757,17 @@ const ProductDetail = () => {
             
             {product.stock !== undefined && (
               <div style={{ marginTop: '20px' }}>
-                <p><strong>Stock:</strong> {product.stock} unidades disponibles</p>
+                <p><strong>Stock:</strong> <span style={{ 
+                  color: product.stock < 3 ? '#dc3545' : '#333',
+                  fontWeight: product.stock < 3 ? 'bold' : 'normal'
+                }}>{product.stock} unidades disponibles</span></p>
               </div>
             )}
           </div>
         </div>
         
         {/* SECCIÓN DE RESEÑAS */}
-        <ReviewsSection 
+        <ReviewsSection
           productId={product._id}
           productName={product.name}
         />
@@ -725,12 +775,13 @@ const ProductDetail = () => {
       <Footer />
       
       {/* ESTILOS CSS PARA LA ANIMACIÓN DE LOADING */}
-      <style jsx>{`
+      <style>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
-      `}</style>    </>
+      `}</style>
+    </>
   );
 };
 

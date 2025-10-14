@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 // Importa el Footer para mostrarlo al final de la página
 import Footer from '../components/Footer';
+import Nva from '../components/Nav/Nav';
 // Importa los estilos específicos del blog
 import '../styles/Blog.css';
 
@@ -36,7 +37,17 @@ const Blog = () => {
   const [selectedPost, setSelectedPost] = useState(null);
 
   return (
+
+    
+    
     <div className="blog-page-container">
+
+       <Nva />
+       <br />
+       <br />
+       <br />
+       <br />
+       <br />
       {/* Encabezado del blog con título y descripción */}
       <header className="blog-header">
         <h1>Blog Eternal</h1>

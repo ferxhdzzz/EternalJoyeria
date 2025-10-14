@@ -1,5 +1,5 @@
 import { toast } from "react-hot-toast";
-const api = "http://localhost:4000/api/categories";
+const api = "https://eternaljoyeria-cg5d.onrender.com/api/categories";
 
 const useCategoriasAction = () => {
   const deleteCategorieById = async (id) => {

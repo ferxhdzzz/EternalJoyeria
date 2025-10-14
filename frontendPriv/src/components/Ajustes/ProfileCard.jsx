@@ -22,9 +22,20 @@ const ProfileCard = () => {
     getValues,
   } = useForm();
 
-  const [imagenPreview, setImagenPreview] = useState(null);
-  const [editingField, setEditingField] = useState(null); // "nombre" | "correo" | "foto"
-  const [nuevaFoto, setNuevaFoto] = useState(null);
+  const [imagenPreview, setImagenPreview] = useState(null);
+  const [editingField, setEditingField] = useState(null); // "nombre" | "correo" | "foto"
+  const [nuevaFoto, setNuevaFoto] = useState(null);
+  // Estado para la notificación de éxito
+  const [successMessage, setSuccessMessage] = useState(null);
+
+  // Función para manejar la visualización del mensaje de éxito
+  const handleSuccess = (message) => {
+    setSuccessMessage(message);
+    // Ocultar el mensaje después de 3 segundos
+    setTimeout(() => {
+      setSuccessMessage(null);
+    }, 3000);
+  };
 
   useEffect(() => {
     if (admin) {
@@ -118,8 +129,8 @@ const ProfileCard = () => {
     }
   };
 
-  if (loading) return <p className="cargando-texto">Cargando perfil...</p>;
-  if (error) return <p className="error-texto">{error}</p>;
+  if (loading) return <p className="cargando-texto">Cargando perfil...</p>;
+  if (error) return <p className="error-texto">Error al cargar el perfil: {error}. Asegúrate de haber iniciado sesión.</p>;
 
   return (
     <form className="profile-card" onSubmit={handleSubmit(onSubmit)}>

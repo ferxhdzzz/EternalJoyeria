@@ -24,23 +24,22 @@
   max-width: 100%;
   color: black;
   padding: 10px 14px;
-  border: 2px solid #000;
-  border-radius: 20px;
+  border: 1px solid #e0e0e0; /* Borde más delgado y gris más claro */
+  border-radius: 8px; /* Menos redondeado */
   outline: none;
   font-size: 16px;
   background-color: white;
-  box-shadow: 0 0 0 0 rgba(255,105,180,0.3);
-  transition: border-color 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s cubic-bezier(.4,2,.6,1), transform 0.15s cubic-bezier(.4,2,.6,1);
+  box-shadow: none; /* Sin sombra */
+  transition: border-color 0.3s cubic-bezier(.4,2,.6,1);
 }
 
 .custom-input:focus, .custom-textarea:focus {
   border-color: #ff69b4;
-  box-shadow: 0 0 0 4px rgba(255,105,180,0.15);
-  transform: scale(1.03);
+  box-shadow: none; /* Sin sombra en focus */
 }
 
 .custom-textarea {
-  border-radius: 20px;
+  border-radius: 8px; /* Menos redondeado */
   min-height: 120px;
   resize: none;
   padding: 10px 14px;
@@ -121,7 +120,7 @@
   .custom-input, .custom-textarea {
     padding: 8px 12px;
     font-size: 15px;
-    border-radius: 15px;
+    border-radius: 6px; /* Menos redondeado en responsive */
   }
   
   .custom-textarea {
@@ -148,7 +147,7 @@
   .custom-input, .custom-textarea {
     padding: 6px 10px;
     font-size: 14px;
-    border-radius: 12px;
+    border-radius: 5px; /* Menos redondeado en responsive */
   }
   
   .custom-textarea {

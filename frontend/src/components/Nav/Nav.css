@@ -340,7 +340,7 @@
     border-radius: 9999px;
     text-decoration: none;
     font-weight: var(--font-bold);
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease; /* Solo transiciones de color */
     border: 1px solid var(--border-color);
     overflow: hidden;
     position: relative;
@@ -362,7 +362,7 @@
 .nav-login-btn:hover {
     background-color: #FBCFE8;
     box-shadow: 0 4px 16px #ffd6de44;
-    transform: scale(1.04) translateY(-2px);
+    /* Sin transform para mantener el mismo tamaño */
 }
 
 .nav-login-btn:hover::before {
@@ -372,7 +372,7 @@
 .nav-login-btn:active {
     background-color: #ffd6de;
     color: #b94a6c;
-    transform: scale(0.97);
+    /* Sin transform para mantener el mismo tamaño */
 }
 
 .nav-toggle {

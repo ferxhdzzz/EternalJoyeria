@@ -59,7 +59,7 @@ const WelcomeScreen2 = ({ onNext }) => {
       <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
         <View style={styles.imageSection}>
           <LinearGradient
-            colors={['#f8bbd9', '#f48fb1', '#e91e63']}
+            colors={['rgba(211, 162, 148, 0.37)', 'rgba(211, 162, 148, 0.37)', 'rgba(211, 162, 148, 0.37)']}
             style={styles.gradientBackground}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -108,7 +108,7 @@ const WelcomeScreen2 = ({ onNext }) => {
             </View>
           </ScrollView>
           <TouchableOpacity 
-            style={[styles.startButton, { bottom: Math.max(12, insets.bottom + 8) }]} 
+            style={styles.startButton} 
             onPress={handleStart}
           >
             <Animated.Text style={[styles.startButtonText, { transform: [{ scale: buttonScaleAnim }] }]}>
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
   },
   mainTitle: {
     fontSize: 32, // Aumentado de 28 a 32 para letra más grande
-    fontWeight: '800',
+    fontWeight: 'bold', // Agregado para título en negrita
     color: '#333',
     textAlign: 'center',
     marginTop: 20, // Reducido de 30 a 20 para mover el texto más arriba
@@ -190,6 +190,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: -20, // Mover los puntos más arriba
+    marginLeft: 30, // Mover los puntos hacia la derecha
   },
   dot: {
     width: 8,
@@ -213,27 +214,19 @@ const styles = StyleSheet.create({
     paddingLeft: 30, // Padding solo a la izquierda para los puntos
   },
   startButton: {
-    backgroundColor: '#e91e63',
+    backgroundColor: '#000000',
     paddingVertical: 16,
     paddingHorizontal: 36,
     borderTopLeftRadius: 35,
     borderTopRightRadius: 0,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
     minWidth: 140,
     marginRight: 0,
-    marginLeft: 'auto',
+    marginLeft: 0,
     position: 'absolute',
-    right: 16,
-    bottom: 16,
+    right: 0,
+    bottom: 0,
   },
   startButtonText: { 
     color: '#fff', 

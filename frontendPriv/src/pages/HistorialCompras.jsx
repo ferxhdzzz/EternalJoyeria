@@ -82,7 +82,7 @@ const HistorialCompras = () => {
           <div className="sales-container">
             {sales.length === 0 ? (
               <div className="no-sales-message">
-                <p>No hay ventas registradas</p>
+                <p>No hay ventas registradas {selectedCustomer && "para este cliente"}.</p>
               </div>
             ) : (
               sales.map((sale) => (
@@ -90,8 +90,7 @@ const HistorialCompras = () => {
                   <div className="sale-header">
                     <div className="sale-customer-info">
                       <h3>
-                        {sale.idOrder?.idCustomer?.firstName}{" "}
-                        {sale.idOrder?.idCustomer?.lastName}
+                        {sale.idOrder?.idCustomer?.firstName} {sale.idOrder?.idCustomer?.lastName}
                       </h3>
                     </div>
                     <div className={`sale-status ${sale.idOrder?.status}`}>
@@ -101,8 +100,7 @@ const HistorialCompras = () => {
 
                   <div className="sale-details">
                     <p>
-                      <strong>Cliente:</strong>{" "}
-                      {sale.idOrder?.idCustomer?.firstName}{" "}
+                      <strong>Cliente:</strong> {sale.idOrder?.idCustomer?.firstName}{" "}
                       {sale.idOrder?.idCustomer?.lastName}
                     </p>
                     <p>

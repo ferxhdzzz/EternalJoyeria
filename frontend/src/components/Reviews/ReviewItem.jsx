@@ -76,22 +76,22 @@ const ReviewItem = ({ review }) => {
   const productImage =
     review?.id_product?.images?.[0] || "https://placehold.co/150x150";
 
-  return (
-    <div className="historial-item-content">
-      {/* Imagen del producto */}
-      <div className="historial-item-image-container">
-        <img
-          src={productImage}
-          alt={productName}
-          className="historial-item-image"
-        />
-      </div>
+return (
+ <div className="historial-item-content">
+ {/* Imagen del producto */}
+<div className="historial-item-image-container">
+ <img
+ src={productImage}
+alt={productName}
+className="historial-item-image"
+  />
+</div>
 
-      {/* Detalles */}
-      <div className="historial-item-details">
-        <div className="product-info">
-          <h3 className="product-name">{productName}</h3>
-        </div>
+ {/* Detalles */}
+<div className="historial-item-details">
+ <div className="product-info">
+ <h3 className="product-name">{productName}</h3>
+ </div>
 
         <div className="review-body-content">
           <div className="review-text-and-rating">

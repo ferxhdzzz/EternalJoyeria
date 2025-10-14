@@ -1,93 +1,138 @@
-// src/context/AuthContext.jsx
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
-export const AuthContext = createContext();
-
-const API = (import.meta.env.VITE_API_URL || "https://eternaljoyeria-cg5d.onrender.com/api").replace(/\/$/, "");
+const SERVER_URL = import.meta.env.VITE_API_URL || "https://eternaljoyeria-cg5d.onrender.com/api";
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const isPublicSession = !!user;
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const normalizeUser = (data) => {
-    if (!data) return null;
-    if (data.user && (data.user.id || data.user._id)) {
-      return { id: data.user.id || data.user._id, email: data.user.email, userType: data.user.userType || "customer" };
-    }
-    if (data.id || data._id) {
-      return { id: data.id || data._id, email: data.email, userType: data.userType || "customer" };
-    }
-    if ((data.ok || data.success) && (data.id || data._id)) {
-      return { id: data.id || data._id, email: data.email, userType: data.userType || "customer" };
-    }
-    return null;
-  };
+  const Login = async (email, password) => {
+    try {
+      const response = await fetch(`${SERVER_URL}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // CRUCIAL: Para enviar/recibir cookies
+        body: JSON.stringify({ email, password }),
+      });
 
-  const fetchJSON = async (url) => {
-    const res = await fetch(url, { method: "GET", credentials: "include" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
-  };
+      // Tu controlador puede devolver errores con status 200
+      const isJSON = response.headers.get("content-type")?.includes("application/json");
+      const data = isJSON ? await response.json() : await response.text();
 
-  const hydrate = useCallback(async () => {
-    setLoading(true);
-    try {
-      let me = null;
+      // Manejar errores HTTP
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error(isJSON && data.message ? data.message : "Credenciales inválidas");
+        }
+        if (response.status === 403) {
+          throw new Error(isJSON && data.message ? data.message : "Cuenta temporalmente bloqueada");
+        }
+        if (response.status === 500) {
+          throw new Error(isJSON && data.message ? data.message : "Error del servidor");
+        }
+        throw new Error(isJSON && data.message ? data.message : `Error HTTP ${response.status}`);
+      }
 
-      // ver si hay usuario en la sesión de backend
-      try { me = await fetchJSON(`${API}/login/me`); } catch {}
-      if (!me) { try { me = await fetchJSON(`${API}/customers/me`); } catch {} }
+      // Respuesta 200 OK - debe ser login exitoso
+      // Nota: El endpoint /login usualmente no devuelve el perfil completo, solo un mensaje.
+      // Nos basaremos en el posterior checkAuthStatus para obtener el perfil completo.
+      if (isJSON && data.message === "login successful") {
+        console.log("Login exitoso. Forzando re-chequeo de estado para obtener ID...");
+        // Tras un login exitoso, forzamos un chequeo de estado
+        await checkAuthStatus();
+        return { success: true, message: "Login exitoso" };
+      }
 
-      const u = normalizeUser(me);
-      if (u) {
-        let isAdmin = false;
-        try {
-          const r = await fetch(`${API}/login/checkAdmin`, { credentials: "include" });
-          const d = await r.json();
-          isAdmin = r.ok && d.ok ? !!d.ok : false;
-        } catch {}
-        setUser({ ...u, isAdmin });
-      } else {
-        setUser(null);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      // Fallback
+      console.log("Login exitoso (fallback). Forzando re-chequeo de estado para obtener ID...");
+      await checkAuthStatus();
+      return { success: true, message: "Login exitoso" };
 
-  useEffect(() => { hydrate(); }, [hydrate]);
+    } catch (error) {
+      console.error("Login error:", error);
+      return { success: false, message: error.message };
+    }
+  };
 
-  const login = async (email, password) => {
-    const res = await fetch(`${API}/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include", // cookies viajan aquí
-      body: JSON.stringify({ email, password }),
-    });
+  const logout = async () => {
+    try {
+      console.log("Intentando cerrar sesión y limpiar cookie...");
+      // Hacer request al backend para limpiar la cookie
+      const response = await fetch(`${SERVER_URL}/logout`, {
+        method: "POST",
+        credentials: "include", // Para enviar la cookie al servidor
+      });
 
-    const isJSON = res.headers.get("content-type")?.includes("application/json");
-    const data = isJSON ? await res.json() : await res.text();
+      if (response.ok) {
+        console.log("Servidor confirmó cierre de sesión (cookie borrada).");
+      } else {
+        console.warn("Servidor devolvió error al cerrar sesión, pero borraremos el estado local.", response.status);
+      }
+      
+    } catch (error) {
+      console.error("Logout error (falla de red o servidor):", error);
+    } finally {
+      // Limpiar estado local independientemente de si el request falló
+      setUser(null);
+      console.log("Estado de usuario local limpio.");
+    }
+  };
 
-    if (!res.ok || (isJSON && data?.success === false)) {
-      throw new Error((isJSON ? data?.message : data) || `HTTP ${res.status}`);
-    }
+  // Verificar si hay sesión activa al cargar la app
+  const checkAuthStatus = async () => {
+    setLoading(true);
+    try {
+      // Intentar hacer una petición a una ruta protegida para verificar si hay sesión activa
+      const response = await fetch(`${SERVER_URL}/customers/me`, {
+        method: "GET",
+        credentials: "include", // Incluir cookies
+      });
 
-    // no se guarda nada en localStorage
-    await hydrate();
-    return data;
-  };
+      if (response.ok) {
+        const userData = await response.json();
+        // CRÍTICO: GUARDAR LA PROPIEDAD _ID (O ID) DEL USUARIO
+        setUser({ 
+            _id: userData._id || userData.id, // <-- GUARDAMOS EL ID AQUI
+            email: userData.email || "user@example.com", 
+            firstName: userData.firstName, 
+            lastName: userData.lastName
+        });
+        console.log("Sesión activa recuperada. ID del usuario:", userData._id || userData.id);
+      } else {
+        // No hay sesión válida
+        setUser(null);
+        console.log("No hay sesión activa.");
+      }
+    } catch (error) {
+      console.error("Auth check error:", error);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const logout = async () => {
-    try { await fetch(`${API}/logout`, { method: "POST", credentials: "include" }); } catch {}
-    setUser(null);
-  };
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
 
-  return (
-    <AuthContext.Provider value={{ user, setUser, isPublicSession, loading, hydrate, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return (
+    <AuthContext.Provider
+      value={{ 
+        user, 
+        Login, 
+        logout, 
+        loading,
+        isAuthenticated: !!user
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => useContext(AuthContext);
+
+// Exportar también el contexto si es necesario
+export { AuthContext };

@@ -11,8 +11,6 @@ import ProductsMenu from './ProductsMenu';
 // Componente del icono de carrito personalizado más compacto
 const CartIcon = ({ size = 24 }) => (
     <svg 
-        width={size} 
-        height={size} 
         viewBox="0 0 24 24" 
         fill="none" 
         stroke="currentColor" 
@@ -32,9 +30,12 @@ const Nav = ({ cartOpen = false }) => {
     // Estados para controlar el comportamiento de la navegación
     const [isOpen, setIsOpen] = useState(false);
     const { cartItems } = useCart();
-    const { user } = useAuth(); // Usar la variable 'user' de tu contexto
+    const { user, isAuthenticated, loading } = useAuth();
     const [bump, setBump] = useState(false);
     const prevCount = useRef(0);
+    
+    // Debug: Log del estado de autenticación (comentado para producción)
+    // console.log('🔍 Nav Debug:', { user, isAuthenticated, loading });
     
     // Calcular el total de items en el carrito
     const totalCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
@@ -172,18 +173,21 @@ const Nav = ({ cartOpen = false }) => {
                         {isOpen ? <X size={28} /> : <Menu size={28} />}
                     </div>
                     
-                    {/* Renderizado condicional: El botón de Iniciar Sesión solo aparece si 'user' es null o undefined */}
-                    {!user && (
+                    {/* Renderizado condicional: El botón de Iniciar Sesión solo aparece si NO hay usuario */}
+                    {!user && !isAuthenticated && (
                         <Link to="/login" className="nav-login-btn">
                             Iniciar Sesión
                         </Link>
                     )}
                     
-                    {/* El icono del perfil se muestra siempre */}
-                    <Link to="/perfil" className="nav-icon nav-icon-user" aria-label="Perfil">
-                        <User size={22} />
-                    </Link>
-                    
+                    {/* El icono del perfil se muestra solo para usuarios autenticados */}
+                    {(user || isAuthenticated) && (
+                        <Link to="/perfil" className="nav-icon nav-icon-user" aria-label="Perfil">
+                            <User size={22} />
+                        </Link>
+                    )}
+                    <br />
+                    <br />
                     <Link to="/carrito" className="nav-icon nav-cart-icon" aria-label="Carrito de Compras">
                         <CartIcon size={22} />
                         {totalCount > 0 && (

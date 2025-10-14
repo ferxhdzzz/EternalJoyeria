@@ -1,7 +1,6 @@
-import React, { useState } from "react";
-import ResenaRow from "../row/ResenaRow";
-import ConfirmacionModal from "../modal/ConfirmacionModal";
+import React from "react";
 import Swal from "sweetalert2";
+import ResenaCard from "../row/ResenaRow"; // ✅ Cambiado al nombre correcto del componente
 import "./TablaResenas.css";
 import "../../../styles/shared/buttons.css";
 
@@ -13,19 +12,20 @@ const TablaResenas = ({ titulo, reviews = [], deleteReviews }) => {
       await deleteReviews(resenaSeleccionada._id);
       setResenaSeleccionada(null);
 
-      Swal.fire({
-        icon: "success",
-        title: "¡Eliminado correctamente!",
-        showConfirmButton: false,
-        timer: 1500,
-        timerProgressBar: true,
-      });
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error al eliminar",
-        text: error.message || "No se pudo eliminar la reseña.",
-      });
+        Swal.fire({
+          icon: "success",
+          title: "¡Eliminado correctamente!",
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true,
+        });
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Error al eliminar",
+          text: error.message || "No se pudo eliminar la reseña.",
+        });
+      }
     }
   };
 

@@ -1,3 +1,5 @@
+// Archivo: registerCustomersController.js
+
 // importación de librerías necesarias
 import jsonwebtoken from "jsonwebtoken"; // para generar y verificar tokens jwt
 import bcryptjs from "bcryptjs"; // para encriptar contraseñas
@@ -5,8 +7,12 @@ import crypto from "crypto"; // módulo de node para generar valores aleatorios
 import { v2 as cloudinary } from "cloudinary"; // servicio para subir y gestionar imágenes en la nube
 import clientsModel from "../models/Customers.js"; // modelo mongoose de clientes
 import { config } from "../config.js"; // configuración global del proyecto
-import { sendMail, HTMLEmailVerification } from "../utils/mailVerify.js"; // utilidades para enviar correos de verificación
-import { HTMLWelcomeEmail } from "../utils/HTMLWelcomeEmail.js"; // plantilla de correo de bienvenida
+
+// Importamos la nueva función de Brevo para VERIFICACIÓN
+import mailVerifyBrevo from "../utils/BrevoMailVerify.js"; 
+
+// Importación de la función de Brevo para BIENVENIDA (ya la habíamos cambiado)
+import welcomeEmail from "../utils/BrevoWelcomeEmail.js";
 
 // configuración de credenciales de cloudinary desde variables de entorno
 
@@ -45,7 +51,7 @@ const validateVerificationCode = (code) => /^\d{6}$/.test(code);
 // ===== FUNCIONES PRINCIPALES =====
 
 /**
- *  REGISTRO DE CLIENTE
+ * REGISTRO DE CLIENTE
  * Procesa el registro de un nuevo cliente incluyendo:
  * - Validación de datos
  * - Subida de imagen de perfil (opcional)
@@ -59,13 +65,11 @@ registerCustomersController.registerClient = async (req, res) => {
   let profilePictureURL = ""; // variable para guardar la url de la imagen de perfil
 
   try {
-
     // validación de campos obligatorios
 
     if (!firstName || !lastName || !email || !password || !phone) {
       return res.status(400).json({ message: "all fields are required." });
     }
-
 
     const emailNormalized = email.trim().toLowerCase(); // normaliza el email para evitar duplicados por mayúsculas o espacios
 
@@ -74,7 +78,6 @@ registerCustomersController.registerClient = async (req, res) => {
     if (!validateEmail(emailNormalized)) {
       return res.status(400).json({ message: "invalid email format." });
     }
-
 
     // validación de la contraseña
     if (!validatePassword(password)) {
@@ -91,8 +94,8 @@ registerCustomersController.registerClient = async (req, res) => {
     if (existClient) {
       // Distinguir entre cliente no verificado y cliente ya registrado
       if (!existClient.isVerified) {
-        return res.status(409).json({ 
-          message: "Client exists but not verified. Please check your email or request a new code." 
+        return res.status(409).json({
+          message: "Client exists but not verified. Please check your email or request a new code."
         });
       }
       return res.status(409).json({ message: "Client already exists and is verified." });
@@ -138,7 +141,6 @@ registerCustomersController.registerClient = async (req, res) => {
       phone: phone.trim(),
       profilePicture: profilePictureURL,
       isVerified: false, // Cliente inicia como no verificado
-
     });
 
     // guardar en base de datos
@@ -151,13 +153,13 @@ registerCustomersController.registerClient = async (req, res) => {
 
     // Crear token JWT que contiene el código y datos de verificación
     const tokenCode = jsonwebtoken.sign(
-      { 
-        email: emailNormalized, 
-        verificationCode, 
+      {
+        email: emailNormalized,
+        verificationCode,
         expiresAt,
         userId: newClient._id // Incluir ID del usuario para mayor seguridad
       },
-      config.jwt.jwtSecret,
+      config.jwt.secret,
       { expiresIn: config.jwt.expiresIn }
     );
 
@@ -166,18 +168,19 @@ registerCustomersController.registerClient = async (req, res) => {
       console.log("Verification code generated:", verificationCode);
     }
 
-    // ===== ENVIAR EMAIL DE VERIFICACIÓN =====
+    // ===== ENVIAR EMAIL DE VERIFICACIÓN (¡USANDO BREVO!) =====
+    console.log("Sending verification email to:", newClient.email);
     try {
-      await sendMail(
+      // Usamos la función de Brevo
+      await mailVerifyBrevo(
         newClient.email,
-        "Your verification code",
-        `Your verification code is ${verificationCode}`,
-        HTMLEmailVerification(verificationCode)
+        verificationCode
       );
+      
     } catch (emailError) {
-      console.error("Error sending verification email:", emailError);
+      console.error("Error sending verification email (Brevo):", emailError);
       // No fallar el registro por error de email, pero informar al usuario
-      return res.status(201).json({ 
+      return res.status(201).json({
         message: "Registration successful but email could not be sent. Please contact support.",
         client: { email: emailNormalized }
       });
@@ -193,44 +196,44 @@ registerCustomersController.registerClient = async (req, res) => {
     });
 
     // ===== RESPUESTA EXITOSA =====
-    res.status(201).json({ 
+    res.status(201).json({
       message: "Registration successful. Verification email sent.",
       verificationToken: tokenCode // Incluir token para app móvil
     });
 
   } catch (error) {
     console.error("Error registering client:", error);
-    
+
     // Manejar errores específicos de MongoDB
     if (error.code === 11000) {
       return res.status(409).json({ message: "Email already registered." });
     }
-    
+
     res.status(500).json({ message: "Server error during registration." });
   }
 };
 
 /**
- *  VERIFICAR CÓDIGO DE EMAIL
+ * VERIFICAR CÓDIGO DE EMAIL
  * Valida el código de verificación enviado por email y activa la cuenta del cliente
  */
 
 registerCustomersController.verifyCodeEmail = async (req, res) => {
   const { verificationCode } = req.body; // código recibido desde el cliente
   // Obtener token desde cookie (web) o Authorization header (móvil)
-  const token = req.cookies.verificationToken || 
-                (req.headers.authorization && req.headers.authorization.startsWith('Bearer ') 
-                  ? req.headers.authorization.substring(7) 
-                  : null);
+  const token = req.cookies.verificationToken ||
+    (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')
+      ? req.headers.authorization.substring(7)
+      : null);
 
 
   try {
     // ===== VALIDACIONES INICIALES =====
-    
+
     // Verificar que existe token de verificación
     if (!token) {
-      return res.status(400).json({ 
-        message: "No verification token found. Please register first." 
+      return res.status(400).json({
+        message: "No verification token found. Please register first."
       });
     }
 
@@ -242,42 +245,42 @@ registerCustomersController.verifyCodeEmail = async (req, res) => {
     // Validar formato del código (debe ser exactamente 6 dígitos)
     const codeStr = verificationCode.toString().trim();
     if (!validateVerificationCode(codeStr)) {
-      return res.status(400).json({ 
-        message: "Verification code must be exactly 6 digits." 
+      return res.status(400).json({
+        message: "Verification code must be exactly 6 digits."
       });
     }
 
     // ===== VERIFICAR Y DECODIFICAR TOKEN JWT =====
     let decoded;
     try {
-      decoded = jsonwebtoken.verify(token, config.jwt.jwtSecret);
+      decoded = jsonwebtoken.verify(token, config.jwt.secret);
     } catch (jwtError) {
       // Limpiar cookie inválida
       res.clearCookie("verificationToken");
-      
+
       if (jwtError.name === 'TokenExpiredError') {
-        return res.status(401).json({ 
-          message: "Verification token expired. Please register again." 
+        return res.status(401).json({
+          message: "Verification token expired. Please register again."
         });
       }
-      
+
       if (jwtError.name === 'JsonWebTokenError') {
-        return res.status(401).json({ 
-          message: "Invalid verification token. Please register again." 
+        return res.status(401).json({
+          message: "Invalid verification token. Please register again."
         });
       }
-      
+
       throw jwtError; // Re-lanzar otros errores JWT
     }
 
     const { email, verificationCode: storedCode, expiresAt, userId } = decoded;
 
     // Log para debugging (solo en desarrollo)
-    if (process.env.NODE_ENV !== "production") {
-      console.log("VERIFICATION ATTEMPT:", { 
-        email, 
-        providedCode: codeStr, 
-        storedCode, 
+    if (process.env.NODE_ENV !== "production") { // *** CORRECCIÓN: Usar NODE_ENV ***
+      console.log("VERIFICATION ATTEMPT:", {
+        email,
+        providedCode: codeStr,
+        storedCode,
         expiresAt: new Date(expiresAt),
         isExpired: Date.now() > expiresAt
       });
@@ -286,8 +289,8 @@ registerCustomersController.verifyCodeEmail = async (req, res) => {
     // ===== VERIFICAR EXPIRACIÓN DEL CÓDIGO =====
     if (Date.now() > expiresAt) {
       res.clearCookie("verificationToken");
-      return res.status(401).json({ 
-        message: "Verification code expired. Please request a new code." 
+      return res.status(401).json({
+        message: "Verification code expired. Please request a new code."
       });
     }
 
@@ -299,26 +302,26 @@ registerCustomersController.verifyCodeEmail = async (req, res) => {
     // ===== BUSCAR Y ACTUALIZAR EL CLIENTE =====
 
     const client = await clientsModel.findOneAndUpdate(
-      { 
+      {
         _id: userId, // Usar ID del token para mayor seguridad
         email: email.trim().toLowerCase(),
         isVerified: false // Solo actualizar si no está verificado
       },
-      { 
-        $set: { 
+      {
+        $set: {
           isVerified: true,
           verifiedAt: new Date() // Marcar fecha de verificación
-        } 
+        }
       },
       { new: true } // Retornar documento actualizado
     );
 
 
     // Log para debugging (solo en desarrollo)
-    if (process.env.nodeEnv !== "production") {
+    if (process.env.NODE_ENV !== "production") { // *** CORRECCIÓN: Usar NODE_ENV ***
       console.log("CLIENT UPDATE RESULT:", client ? {
-        id: client._id, 
-        email: client.email, 
+        id: client._id,
+        email: client.email,
         isVerified: client.isVerified,
         verifiedAt: client.verifiedAt
       } : "Client not found or already verified");
@@ -330,28 +333,26 @@ registerCustomersController.verifyCodeEmail = async (req, res) => {
     // Verificar que se encontró y actualizó el cliente
     if (!client) {
 
-      return res.status(404).json({ 
-        message: "Client not found or already verified." 
+      return res.status(404).json({
+        message: "Client not found or already verified."
       });
     }
 
     // ===== LIMPIAR COOKIE DESPUÉS DE VERIFICACIÓN EXITOSA =====
     res.clearCookie("verificationToken");
 
-    // ===== ENVIAR EMAIL DE BIENVENIDA =====
+    // ===== ENVIAR EMAIL DE BIENVENIDA (Usando Brevo) =====
     try {
-      await sendMail(
+      await welcomeEmail(
         client.email,
-        "Welcome to our platform!",
-        `Hi ${client.firstName}, welcome to our platform!`,
-        HTMLWelcomeEmail(client.firstName)
+        client.firstName
       );
-      
-      if (process.env.nodeEnv !== "production") {
+
+      if (process.env.NODE_ENV !== "production") { // *** CORRECCIÓN: Usar NODE_ENV ***
         console.log("Welcome email sent successfully to:", client.email);
       }
     } catch (emailError) {
-      console.error("Error sending welcome email:", emailError);
+      console.error("Error sending welcome email (Brevo):", emailError);
       // No fallar la verificación por error en email de bienvenida
     }
 
@@ -369,23 +370,23 @@ registerCustomersController.verifyCodeEmail = async (req, res) => {
     };
 
     // ===== RESPUESTA EXITOSA =====
-    res.status(200).json({ 
-      message: "Email verified successfully. Welcome!", 
-      client: clientResponse 
+    res.status(200).json({
+      message: "Email verified successfully. Welcome!",
+      client: clientResponse
     });
 
   } catch (error) {
     console.error("Error verifying code:", error);
-    
+
     // Limpiar cookie en caso de error general
     res.clearCookie("verificationToken");
-    
+
     res.status(500).json({ message: "Server error during verification." });
   }
 };
 
 /**
- *  REENVIAR CÓDIGO DE VERIFICACIÓN
+ * REENVIAR CÓDIGO DE VERIFICACIÓN
  * Genera y envía un nuevo código de verificación para usuarios no verificados
  */
 registerCustomersController.resendVerificationCode = async (req, res) => {
@@ -393,7 +394,7 @@ registerCustomersController.resendVerificationCode = async (req, res) => {
 
   try {
     // ===== VALIDACIONES DE ENTRADA =====
-    
+
     // Verificar que se proporcionó email
     if (!email) {
       return res.status(400).json({ message: "Email is required." });
@@ -408,15 +409,26 @@ registerCustomersController.resendVerificationCode = async (req, res) => {
     }
 
     // ===== BUSCAR CLIENTE NO VERIFICADO =====
-    const client = await clientsModel.findOne({ 
+    const client = await clientsModel.findOne({
       email: emailNormalized,
-      isVerified: false 
+      isVerified: false
     });
 
     // Verificar que el cliente existe y no está verificado
     if (!client) {
-      return res.status(404).json({ 
-        message: "Client not found or already verified." 
+      // Intentar buscar el cliente si ya está verificado para dar un mensaje más preciso
+      const verifiedClient = await clientsModel.findOne({ email: emailNormalized, isVerified: true });
+      
+      if (verifiedClient) {
+        // Si el cliente existe y está verificado, usar 409 Conflict
+        return res.status(409).json({
+          message: "Client is already verified. Please log in."
+        });
+      }
+      
+      // Si el cliente no existe en absoluto (o está en otro estado inesperado), 404
+      return res.status(404).json({
+        message: "Client not found."
       });
     }
 
@@ -426,48 +438,48 @@ registerCustomersController.resendVerificationCode = async (req, res) => {
 
     // Crear nuevo token JWT con el código actualizado
     const tokenCode = jsonwebtoken.sign(
-      { 
-        email: emailNormalized, 
-        verificationCode, 
+      {
+        email: emailNormalized,
+        verificationCode,
         expiresAt,
         userId: client._id // Incluir ID para consistencia
       },
-      config.jwt.jwtSecret,
+      config.jwt.secret,
       { expiresIn: config.jwt.expiresIn }
     );
 
     // Log para debugging (solo en desarrollo)
-    if (process.env.nodeEnv !== "production") {
+    if (process.env.NODE_ENV !== "production") { // *** CORRECCIÓN: Usar NODE_ENV ***
       console.log("New verification code generated (resend):", verificationCode);
     }
 
-    // ===== ENVIAR NUEVO EMAIL DE VERIFICACIÓN =====
+    // ===== ENVIAR NUEVO EMAIL DE VERIFICACIÓN (¡USANDO BREVO!) =====
     try {
-      await sendMail(
+      // Usamos la nueva función de Brevo
+      await mailVerifyBrevo(
         client.email,
-        "Your new verification code",
-        `Your new verification code is ${verificationCode}`,
-        HTMLEmailVerification(verificationCode)
+        verificationCode
       );
+      
     } catch (emailError) {
-      console.error("Error sending resend verification email:", emailError);
-      return res.status(500).json({ 
-        message: "Error sending verification email. Please try again later." 
+      console.error("Error sending resend verification email (Brevo):", emailError);
+      return res.status(500).json({
+        message: "Error sending verification email. Please try again later."
       });
     }
 
     // ===== ACTUALIZAR COOKIE CON NUEVO TOKEN =====
     res.cookie("verificationToken", tokenCode, {
       httpOnly: true,
-      secure: process.env.nodeEnv === "production",
+      secure: process.env.NODE_ENV === "production", // *** CORRECCIÓN: Usar NODE_ENV ***
       maxAge: 2 * 60 * 60 * 1000, // 2 horas
       sameSite: "lax",
       path: "/",
     });
 
     // ===== RESPUESTA EXITOSA =====
-    res.status(200).json({ 
-      message: "New verification code sent successfully." 
+    res.status(200).json({
+      message: "New verification code sent successfully."
     });
 
   } catch (error) {

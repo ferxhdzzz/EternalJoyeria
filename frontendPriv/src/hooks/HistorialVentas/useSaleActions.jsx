@@ -9,7 +9,7 @@ const useSaleActions = (getSales) => {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(`http://localhost:4000/api/sales/${id}`, {
+      const response = await fetch(`https://eternaljoyeria-cg5d.onrender.com/api/sales/${id}`, {
         method: "DELETE",
         credentials: "include", // ← incluir cookies de sesión
       });

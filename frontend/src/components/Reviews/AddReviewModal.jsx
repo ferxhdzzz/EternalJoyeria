@@ -69,8 +69,8 @@ const AddReviewModal = ({ isOpen, onClose, onSubmit, productName, productId }) =
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
     if (!user) {
       Swal.fire({

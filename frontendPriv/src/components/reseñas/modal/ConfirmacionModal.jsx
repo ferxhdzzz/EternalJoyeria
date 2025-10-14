@@ -26,4 +26,4 @@ const ConfirmacionModal = ({ mensaje, onConfirmar, onCancelar }) => {
   );
 };
 
-export default ConfirmacionModal;
+export default TablaResenas;

@@ -8,12 +8,12 @@ import {
   ScrollView,
   Alert,
   Animated,
-  StatusBar,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
   Image,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCart } from '../context/CartContext';
@@ -383,14 +383,14 @@ const CheckoutScreen = ({ navigation }) => {
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color="#2C3E50" />
+            <Ionicons name="arrow-back" size={24} color="#000" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Carrito vacío</Text>
           <View style={styles.placeholder} />
         </View>
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>No tienes productos para pagar.</Text>
-          <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.navigate('Inicio')}>
+          <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.navigate('Home')}>
             <Text style={styles.primaryButtonText}>Ir a comprar</Text>
           </TouchableOpacity>
         </View>
@@ -400,26 +400,18 @@ const CheckoutScreen = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar style="dark" backgroundColor="#FFFFFF" />
       
       {/* Encabezado */}
-      <LinearGradient
-        colors={['#fce4ec', '#f8bbd9', '#f48fb1']}
-        style={styles.headerGradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
-        <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color="#ad1457" />
-          </TouchableOpacity>
-          <View style={styles.headerCenter}>
-            <Ionicons name="diamond" size={28} color="#e91e63" />
-            <Text style={styles.headerTitle}>Finalizar Compra</Text>
-          </View>
-          <View style={styles.placeholder} />
-        </Animated.View>
-      </LinearGradient>
+      <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="#000" />
+        </TouchableOpacity>
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerTitle}>Finalizar Compra</Text>
+        </View>
+        <View style={styles.headerSpacer} />
+      </Animated.View>
 
       {/* Barra de progreso */}
       <View style={styles.progressContainer}>
@@ -448,13 +440,11 @@ const CheckoutScreen = ({ navigation }) => {
         {step === 1 && (
           <Animated.View style={[styles.stepContainer, { opacity: fadeAnim }]}>
             <View style={styles.stepTitleContainer}>
-              <Ionicons name="location" size={24} color="#e91e63" />
               <Text style={styles.stepTitle}>Datos de envío</Text>
             </View>
             
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="person" size={16} color="#e91e63" />
                 <Text style={styles.inputLabel}>Nombre completo</Text>
               </View>
               <TextInput
@@ -469,7 +459,6 @@ const CheckoutScreen = ({ navigation }) => {
 
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="mail" size={16} color="#e91e63" />
                 <Text style={styles.inputLabel}>Correo electrónico</Text>
               </View>
               <TextInput
@@ -486,7 +475,6 @@ const CheckoutScreen = ({ navigation }) => {
 
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="home" size={16} color="#e91e63" />
                 <Text style={styles.inputLabel}>Dirección completa</Text>
               </View>
               <TextInput
@@ -504,7 +492,6 @@ const CheckoutScreen = ({ navigation }) => {
 
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="call" size={16} color="#e91e63" />
                 <Text style={styles.inputLabel}>Teléfono</Text>
               </View>
               <TextInput
@@ -520,7 +507,6 @@ const CheckoutScreen = ({ navigation }) => {
 
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="business" size={16} color="#e91e63" />
                 <Text style={styles.inputLabel}>Ciudad</Text>
               </View>
               <TextInput
@@ -539,14 +525,12 @@ const CheckoutScreen = ({ navigation }) => {
         {step === 2 && (
           <Animated.View style={[styles.stepContainer, { opacity: fadeAnim }]}>
             <View style={styles.stepTitleContainer}>
-              <Ionicons name="card" size={24} color="#e91e63" />
               <Text style={styles.stepTitle}>Información de pago</Text>
             </View>
             
             {/* Informacion de modo prueba */}
             <View style={styles.testModeContainer}>
               <View style={styles.testModeHeader}>
-                <Ionicons name="information-circle" size={20} color="#4CAF50" />
                 <Text style={styles.testModeTitle}>Modo de Prueba Activo</Text>
               </View>
               <Text style={styles.testModeText}>
@@ -561,7 +545,6 @@ const CheckoutScreen = ({ navigation }) => {
             
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="person" size={16} color="#e91e63" />
                 <Text style={styles.inputLabel}>Nombre en la tarjeta</Text>
               </View>
               <TextInput
@@ -576,7 +559,6 @@ const CheckoutScreen = ({ navigation }) => {
 
             <View style={styles.inputGroup}>
               <View style={styles.inputLabelContainer}>
-                <Ionicons name="card" size={16} color="#e91e63" />
                 <Text style={styles.inputLabel}>Número de tarjeta</Text>
               </View>
               <TextInput
@@ -594,7 +576,6 @@ const CheckoutScreen = ({ navigation }) => {
             <View style={styles.rowContainer}>
               <View style={styles.halfInputGroup}>
                 <View style={styles.inputLabelContainer}>
-                  <Ionicons name="calendar" size={16} color="#e91e63" />
                   <Text style={styles.inputLabel}>Fecha de vencimiento</Text>
                 </View>
                 <TextInput
@@ -610,7 +591,6 @@ const CheckoutScreen = ({ navigation }) => {
               </View>
               <View style={styles.cvvInputGroup}>
                 <View style={styles.cvvLabelContainer}>
-                  <Ionicons name="shield-checkmark" size={16} color="#e91e63" />
                   <Text style={styles.inputLabel}>CVV</Text>
                 </View>
                 <TextInput
@@ -633,7 +613,7 @@ const CheckoutScreen = ({ navigation }) => {
         {step === 3 && (
           <Animated.View style={[styles.stepContainer, styles.successContainer, { opacity: fadeAnim }]}>
             <View style={styles.successIcon}>
-              <Ionicons name="checkmark-circle" size={80} color="#e91e63" />
+              <Text style={styles.successIconText}>✓</Text>
             </View>
             <Text style={styles.successTitle}>¡Pago exitoso!</Text>
             <Text style={styles.successMessage}>Tu transacción ha sido procesada correctamente</Text>
@@ -644,7 +624,7 @@ const CheckoutScreen = ({ navigation }) => {
         {/* Resumen del pedido */}
         <View style={styles.summaryContainer}>
           <View style={styles.summaryHeader}>
-            <Ionicons name="receipt" size={24} color="#e91e63" />
+            <Ionicons name="receipt" size={24} color="#000" />
             <Text style={styles.summaryTitle}>Resumen de tu compra</Text>
           </View>
           {cartItems.map(item => (
@@ -665,15 +645,10 @@ const CheckoutScreen = ({ navigation }) => {
             <Text style={styles.summaryLabel}>Envío</Text>
             <Text style={styles.summaryValue}>${shipping.toFixed(2)}</Text>
           </View>
-          <LinearGradient
-            colors={['#e91e63', '#ad1457']}
-            style={styles.summaryTotal}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-          >
+          <View style={styles.summaryTotal}>
             <Text style={styles.summaryTotalLabel}>Total</Text>
             <Text style={styles.summaryTotalValue}>${total.toFixed(2)}</Text>
-          </LinearGradient>
+          </View>
         </View>
       </ScrollView>
 
@@ -690,7 +665,6 @@ const CheckoutScreen = ({ navigation }) => {
             ) : (
               <>
                 <Text style={styles.primaryButtonText}>Siguiente</Text>
-                <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
               </>
             )}
           </TouchableOpacity>
@@ -699,7 +673,6 @@ const CheckoutScreen = ({ navigation }) => {
         {step === 2 && (
           <View style={styles.buttonRow}>
             <TouchableOpacity style={styles.secondaryButton} onPress={handlePreviousStep}>
-              <Ionicons name="arrow-back" size={20} color="#2C3E50" />
               <Text style={styles.secondaryButtonText}>Volver</Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -711,7 +684,6 @@ const CheckoutScreen = ({ navigation }) => {
                 <ActivityIndicator color="#FFFFFF" />
               ) : (
                 <>
-                  <Ionicons name="card" size={20} color="#FFFFFF" />
                   <Text style={styles.primaryButtonText}>Pagar ahora</Text>
                 </>
               )}
@@ -753,45 +725,39 @@ const CheckoutScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fce4ec',
-  },
-  headerGradient: {
-    paddingTop: 50,
-    paddingBottom: 20,
+    backgroundColor: 'rgba(255, 221, 221, 0.37)',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingTop: 50,
+    paddingBottom: 20,
     paddingHorizontal: 20,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
   },
   headerCenter: {
     flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
+  },
+  headerSpacer: {
+    width: 45,
   },
   backButton: {
     width: 45,
     height: 45,
     borderRadius: 22.5,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: '#f5f5f5',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#e91e63',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#ad1457',
-  },
-  placeholder: {
-    width: 44,
+    color: '#2d2d2d',
   },
   progressContainer: {
     paddingHorizontal: 20,
@@ -812,7 +778,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   progressStepActive: {
-    backgroundColor: '#e91e63',
+    backgroundColor: '#f8bbd9',
   },
   progressStepText: {
     fontSize: 14,
@@ -829,7 +795,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   progressLineActive: {
-    backgroundColor: '#e91e63',
+    backgroundColor: '#f8bbd9',
   },
   progressLabels: {
     flexDirection: 'row',
@@ -859,39 +825,33 @@ const styles = StyleSheet.create({
   stepTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#ad1457',
+    color: '#2d2d2d',
   },
   inputGroup: {
     marginBottom: 20,
   },
   inputLabelContainer: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     marginBottom: 8,
-    gap: 6,
-    minHeight: 48,
+    gap: 8,
   },
   inputLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ad1457',
+    color: '#2d2d2d',
     flexWrap: 'wrap',
     flex: 1,
   },
   textInput: {
     borderWidth: 1,
-    borderColor: '#E9ECEF',
-    borderRadius: 12,
+    borderColor: '#e0e0e0',
+    borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#2C3E50',
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#e91e63',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    color: '#2d2d2d',
+    backgroundColor: '#fff',
   },
   largeInput: {
     minHeight: 100,
@@ -899,10 +859,10 @@ const styles = StyleSheet.create({
     paddingTop: 12,
   },
   inputError: {
-    borderColor: '#e91e63',
+    borderColor: '#f44336',
   },
   errorText: {
-    color: '#e91e63',
+    color: '#f44336',
     fontSize: 12,
     marginTop: 4,
     fontWeight: '500',
@@ -922,28 +882,21 @@ const styles = StyleSheet.create({
   },
   cvvLabelContainer: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     marginBottom: 8,
-    gap: 6,
-    minHeight: 48,
-    paddingTop: 22,
+    gap: 8,
   },
   halfInputGroupAligned: {
     width: '48%',
     justifyContent: 'flex-start',
   },
   summaryContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 20,
-    padding: 25,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 20,
     marginVertical: 20,
     borderWidth: 1,
-    borderColor: 'rgba(233, 30, 99, 0.2)',
-    shadowColor: '#e91e63',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 8,
+    borderColor: '#e0e0e0',
   },
   summaryHeader: {
     flexDirection: 'row',
@@ -955,7 +908,7 @@ const styles = StyleSheet.create({
   summaryTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#ad1457',
+    color: '#2d2d2d',
   },
   summaryItem: {
     flexDirection: 'row',
@@ -970,7 +923,7 @@ const styles = StyleSheet.create({
   summaryItemName: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#4a148c',
+    color: '#2d2d2d',
     marginBottom: 2,
   },
   summaryItemDetails: {
@@ -980,11 +933,11 @@ const styles = StyleSheet.create({
   summaryItemPrice: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#e91e63',
+    color: '#000',
   },
   summaryDivider: {
     height: 1,
-    backgroundColor: 'rgba(233, 30, 99, 0.3)',
+    backgroundColor: '#e0e0e0',
     marginVertical: 15,
   },
   summaryRow: {
@@ -1006,7 +959,8 @@ const styles = StyleSheet.create({
     marginTop: 15,
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: 8,
+    backgroundColor: '#000',
   },
   summaryTotalLabel: {
     fontSize: 18,
@@ -1022,49 +976,39 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 30,
     paddingTop: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(233, 30, 99, 0.2)',
+    borderTopColor: '#e0e0e0',
   },
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   primaryButton: {
-    backgroundColor: '#e91e63',
+    backgroundColor: '#000',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 18,
+    paddingVertical: 16,
     paddingHorizontal: 30,
-    borderRadius: 25,
+    borderRadius: 8,
     gap: 10,
-    shadowColor: '#e91e63',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
   },
   flexButton: {
     flex: 1,
     marginLeft: 10,
   },
   secondaryButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: '#fff',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 18,
+    paddingVertical: 16,
     paddingHorizontal: 30,
-    borderRadius: 25,
+    borderRadius: 8,
     gap: 10,
-    borderWidth: 2,
-    borderColor: '#e91e63',
-    shadowColor: '#e91e63',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#000',
   },
   primaryButtonText: {
     color: '#FFFFFF',
@@ -1073,7 +1017,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   secondaryButtonText: {
-    color: '#e91e63',
+    color: '#000',
     fontSize: 16,
     fontWeight: 'bold',
     letterSpacing: 0.5,
@@ -1099,19 +1043,22 @@ const styles = StyleSheet.create({
   },
   successIcon: {
     marginBottom: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: '#fff',
     borderRadius: 50,
     padding: 20,
-    shadowColor: '#e91e63',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  successIconText: {
+    fontSize: 80,
+    color: '#000',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    lineHeight: 20,
   },
   successTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#ad1457',
     marginBottom: 10,
   },
   successMessage: {
@@ -1123,7 +1070,7 @@ const styles = StyleSheet.create({
   successAmount: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#e91e63',
+    color: '#000',
     marginTop: 10,
   },
   testModeContainer: {

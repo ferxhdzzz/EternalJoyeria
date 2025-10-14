@@ -3,7 +3,7 @@ import { toast } from "react-hot-toast";
 import { useEffect, useState } from "react";
 
 // URL DE LA API DE CATEGORÍAS
-const api = "http://localhost:4000/api/categories";
+const api = "https://eternaljoyeria-cg5d.onrender.com/api/categories";
 
 // DEFINICIÓN DEL HOOK PERSONALIZADO
 const useFetchCategorias = () => {
