@@ -24,8 +24,11 @@ const HistorialCompras = () => {
     return sale.idOrder?.idCustomer?._id === selectedCustomer;
   });
 
+  // ✅ CORRECCIÓN: Ahora se ordena por la fecha de la orden (idOrder)
   const sortedSales = [...filteredSales].sort((a, b) => {
-    return new Date(b.createdAt) - new Date(a.createdAt);
+    const dateA = a.idOrder?.createdAt ? new Date(a.idOrder.createdAt) : 0;
+    const dateB = b.idOrder?.createdAt ? new Date(b.idOrder.createdAt) : 0;
+    return dateB - dateA; // Orden descendente (más nuevo primero)
   });
 
   const deleteSale = async (id) => {
@@ -113,7 +116,6 @@ const HistorialCompras = () => {
                     <p><strong>Estado:</strong> {sale.idOrder?.status}</p>
                     <p><strong>Dirección:</strong> {sale.address}</p>
                     <p><strong>Email:</strong> {sale.idOrder?.idCustomer?.email}</p>
-                    {/* ✅ CORREGIDO: Código a prueba de fallos para el total */}
                     <p><strong>Total:</strong> ${sale.idOrder?.total?.toFixed(2) ?? '0.00'}</p>
                   </div>
                   <div className="products-section">
@@ -122,15 +124,13 @@ const HistorialCompras = () => {
                       {sale.idOrder?.products?.map((product, index) => (
                         <div key={index} className="product-item">
                           <p>
-                            <strong>{product.productId?.name}</strong> - Cantidad: {product.quantity} - 
-                            {/* ✅ CORREGIDO: Código a prueba de fallos para el subtotal */}
+                            <strong>{product.name || product.productId?.name}</strong> - Cantidad: {product.quantity} - 
                             Subtotal: ${product.subtotal?.toFixed(2) ?? '0.00'}
                           </p>
                         </div>
                       ))}
                     </div>
                   </div>
-                  
                   <div className="action-buttons">
                     <div className="ej-btn-set">
                       <button
