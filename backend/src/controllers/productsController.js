@@ -109,6 +109,7 @@ productController.createProduct = async (req, res) => {
 };
 
 // actualizar un producto
+// actualizar un producto
 productController.updateProduct = async (req, res) => {
   const { id } = req.params;
   const updates = { ...req.body };
@@ -144,9 +145,20 @@ productController.updateProduct = async (req, res) => {
       }
     }
 
+    // obtener imágenes existentes enviadas desde el frontend
+    let existingImages = [];
+    if (req.body.existingImages) {
+      try {
+        existingImages = JSON.parse(req.body.existingImages);
+      } catch (err) {
+        console.error("Error parsing existingImages:", err);
+        existingImages = [];
+      }
+    }
+
     // subir nuevas imágenes si se envían
+    let uploadedImages = [];
     if (req.files && req.files.length > 0) {
-      let uploadedImages = [];
       for (const file of req.files) {
         const result = await cloudinary.uploader.upload(file.path, {
           folder: "products",
@@ -159,8 +171,10 @@ productController.updateProduct = async (req, res) => {
         uploadedImages.push(result.secure_url);
         await fs.unlink(file.path);
       }
-      product.images = uploadedImages;
     }
+
+    // combinar imágenes existentes y nuevas
+    product.images = [...existingImages, ...uploadedImages];
 
     // aplicar actualizaciones excepto imágenes
     Object.keys(updates).forEach(key => {
@@ -177,9 +191,11 @@ productController.updateProduct = async (req, res) => {
     res.status(200).json(populatedProduct);
 
   } catch (error) {
+    console.error("Error updating product:", error); // opcional para debugging
     res.status(500).json({ message: "error updating product", error: error.message });
   }
 };
+
 
 // eliminar un producto
 productController.deleteProduct = async (req, res) => {
