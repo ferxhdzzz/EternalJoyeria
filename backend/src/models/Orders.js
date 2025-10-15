@@ -14,6 +14,18 @@ const addressSchema = new Schema(
   { _id: false }
 );
 
+// 📦 Snapshot de producto (cuando se realiza la compra)
+const productSnapshotSchema = new Schema(
+  {
+    name: String,
+    images: [String],
+    price: Number,
+    finalPrice: Number,
+    discountPercentage: Number,
+  },
+  { _id: false }
+);
+
 const ordersSchema = new Schema(
   {
     idCustomer: {
@@ -38,29 +50,28 @@ const ordersSchema = new Schema(
             message: "La cantidad debe ser un número entero",
           },
         },
-        // soporta ambos mundos (tu código viejo y el nuevo en centavos)
-        subtotal: { type: Number, min: 0 },        // USD (legacy)
-        unitPriceCents: { type: Number, min: 0 },  // opcional
-        subtotalCents: { type: Number, min: 0 },   // opcional
-        variant: { type: Object },                 // talla, etc (opcional)
+        subtotal: { type: Number, min: 0 },
+        unitPriceCents: { type: Number, min: 0 },
+        subtotalCents: { type: Number, min: 0 },
+        variant: { type: Object },
+
+        // 💾 Nuevo: snapshot del producto en el momento de la compra
+        productSnapshot: { type: productSnapshotSchema, default: undefined },
       },
     ],
 
-    // totales
-    total: { type: Number, required: true, min: 0 }, // USD (legacy)
+    total: { type: Number, required: true, min: 0 },
     totalCents: { type: Number, default: 0, min: 0 },
     shippingCents: { type: Number, default: 0, min: 0 },
     taxCents: { type: Number, default: 0, min: 0 },
     discountCents: { type: Number, default: 0, min: 0 },
     currency: { type: String, default: "USD" },
 
-    // dirección de envío (snapshot para la venta)
     shippingAddress: { type: addressSchema, default: undefined },
 
-    // estados 
     status: {
       type: String,
-      enum: ["cart", "pending_payment", "pagado", "no pagado"],
+      enum: ["cart", "pending_payment", "pagado", "no pagado", "completed"],
       default: "cart",
     },
   },
@@ -69,11 +80,10 @@ const ordersSchema = new Schema(
   }
 );
 
-// Un (1) carrito por usuario: único sólo cuando status === "cart"
+// 🔒 Solo un carrito activo por usuario
 ordersSchema.index(
   { idCustomer: 1, status: 1 },
   { unique: true, partialFilterExpression: { status: "cart" } }
 );
-
 
 export default model("Orders", ordersSchema);

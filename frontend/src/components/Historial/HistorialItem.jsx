@@ -8,33 +8,31 @@ const HistorialItem = ({ product }) => {
         {/* Imagen del producto */}
         <div className="historial-item-image-container">
           <img
-            src={product.image}
-            alt={product.name}
+            src={product.image || 'https://placehold.co/150x150'}
+            alt={product.name || 'Producto eliminado'}
             className="historial-item-image"
           />
           <div className="image-overlay">
-            <div className="quantity-badge">{product.quantity}</div>
+            <div className="quantity-badge">{product.quantity || 1}</div>
           </div>
         </div>
 
         {/* Detalles del producto */}
         <div className="historial-item-details">
           <div className="product-info">
-            <h3 className="product-name">{product.name}</h3>
+            <h3 className="product-name">{product.name || 'Producto eliminado'}</h3>
             <p className="product-description">
-              Joyas únicas que cuentan historias
+              {product.description || 'Joyas únicas que cuentan historias'}
             </p>
           </div>
           <div className="order-number">Cantidad</div>
-          <div className="order-date">{product.quantity}</div>
+          <div className="order-date">{product.quantity || 1}</div>
         </div>
 
         {/* Precio unitario */}
         <div className="historial-item-right">
           <div className="price-container">
-            <div className="price-amount">
-              ${product.price?.toFixed(2) || "0.00"}
-            </div>
+            <div className="price-amount">${product.price?.toFixed(2) || "0.00"}</div>
             <div className="price-label">Precio unitario</div>
           </div>
         </div>
