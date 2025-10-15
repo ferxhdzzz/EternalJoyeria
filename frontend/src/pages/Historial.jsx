@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Nav from '../components/Nav/Nav';
 import HistorialItem from '../components/Historial/HistorialItem';
@@ -13,7 +13,7 @@ const BACKEND_URL = 'https://eternaljoyeria-cg5d.onrender.com';
 const API_BASE_URL = `${BACKEND_URL}/api`;
 
 const getImageUrl = (path) => {
-  if (!path) return 'https://placehold.co/150x150';
+  if (!path) return 'https://placehold.co/150x150/f0f0f0/333?text=N/A';
   if (path.startsWith('http')) return path;
   return `${BACKEND_URL}${path.startsWith('/') ? '' : '/'}${path}`;
 };
@@ -43,9 +43,9 @@ const HistorialPage = () => {
     switch (status.toLowerCase()) {
       case 'entregado':
       case 'pagado':
-        return '#10b981'; 
+        return '#10b981';
       case 'en camino':
-        return '#f59e0b'; 
+        return '#f59e0b';
       default:
         return '#6b7280';
     }
@@ -75,8 +75,7 @@ const HistorialPage = () => {
 
         const data = await response.json();
 
-        // Orden descendente por fecha
-        const sortedData = Array.isArray(data) 
+        const sortedData = Array.isArray(data)
           ? data.sort((a, b) => new Date(b.idOrder?.createdAt) - new Date(a.idOrder?.createdAt))
           : [];
 
@@ -121,15 +120,25 @@ const HistorialPage = () => {
       orderTotal: (order.totalCents / 100) || order.total || 0,
       saleAddress: sale.address,
       products: order.products.map((productItem, index) => {
-        const subtotal =
-          (productItem.subtotalCents / 100) || productItem.subtotal || 0;
+        const subtotal = (productItem.subtotalCents / 100) || productItem.subtotal || 0;
         const quantity = productItem.quantity || 1;
         const unitPrice = subtotal / quantity;
 
+        const isProductPopulated =
+          productItem.productId && typeof productItem.productId === 'object';
+
+        const productName = isProductPopulated
+          ? productItem.productId.name
+          : productItem.nameSnapshot || 'Producto eliminado';
+
+        const productImage = isProductPopulated
+          ? getImageUrl(productItem.productId.images?.[0])
+          : getImageUrl(productItem.imageSnapshot) || getImageUrl(null);
+
         return {
           key: `${order._id}-${productItem.productId?._id || index}`,
-          name: productItem.productId?.name || 'Producto eliminado',
-          image: getImageUrl(productItem.productId?.images?.[0]),
+          name: productName,
+          image: productImage,
           quantity,
           subtotal,
           price: unitPrice,
@@ -140,9 +149,9 @@ const HistorialPage = () => {
     return acc;
   }, {});
 
-  // Orden descendente por fecha
-  const ordersToDisplay = Object.values(groupedOrders)
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
+  const ordersToDisplay = Object.values(groupedOrders).sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
 
   if (isLoading || authLoading) {
     return (
@@ -185,7 +194,6 @@ const HistorialPage = () => {
       <Nav cartOpen={cartOpen} />
 
       <div className="historial-page">
-        {/* Hero y filtros */}
         <div className="historial-hero">
           <div className="historial-hero-content">
             <div className="historial-hero-text">
@@ -250,9 +258,7 @@ const HistorialPage = () => {
                     </div>
                     <div className="venta-info">
                       <span className="info-label">Fecha</span>
-                      <span className="info-value">
-                        {formatDate(order.date)}
-                      </span>
+                      <span className="info-value">{formatDate(order.date)}</span>
                     </div>
                     <div className="venta-total">
                       <span className="total-label">Total pagado</span>
@@ -268,7 +274,6 @@ const HistorialPage = () => {
                         {order.status || 'Sin estado'}
                       </span>
                     </div>
-
                     <button
                       className="details-eye-btn"
                       onClick={() => handleViewDetails(order.orderNumber)}
@@ -277,7 +282,6 @@ const HistorialPage = () => {
                       <FiEye size={20} />
                     </button>
                   </div>
-
                   <div className="venta-productos">
                     {order.products.map((product) => (
                       <HistorialItem key={product.key} product={product} />
