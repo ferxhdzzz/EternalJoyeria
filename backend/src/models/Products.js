@@ -68,7 +68,7 @@ const productSchema = new Schema(
       required: true,
       default: 1,
       min: 1,
-      max: 20,
+      max: 100,
     },
   },
   {
