@@ -10,7 +10,8 @@ import BackArrow from "../components/registro/backarrow/BackArrow";
 import OlvidarCont from "../components/registro/labelcont/LabelCont";
 
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
-import "../styles/Login.css";
+
+import "../styles/InicioSesi.css"
 
 // Componente Input mejorado con tema rosado // j
 const PinkImprovedInput = React.forwardRef(({ 
