@@ -8,7 +8,7 @@
   display: flex;
   justify-content: flex-start; /* Alinea la card a la izquierdaa */
   align-items: center;
-  padding-left: 5%; /* Espacio desde el borde izquierdo */
+  padding-left: 5%; /* Espacio desde el borde izquierdoa */
 }
 
 .recover-titler{
