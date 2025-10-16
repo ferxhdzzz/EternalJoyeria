@@ -2,27 +2,22 @@
 import React from "react";
 import { useForm } from "react-hook-form"; // Manejo y validación de formularios
 import { useNavigate } from "react-router-dom"; // Navegación programática
-import useRecoverAdminPassword from "../hooks/recovery/useRecoverAdminPassword"; // Hook para lógica de recuperación de contraseña
+import useRecoverAdminPassword from "../hooks/recovery/useRecoverAdminPassword"; // Hook para recuperación de contraseña
 import Logo from "../components/registro/logo/Logo"; // Logo reutilizable
 import Button from "../components/registro/button/Button"; // Botón reutilizable
-import BackArrow from "../components/registro/backarrow/BackArrow"; // Flecha para regresar atrás
-import Swal from "sweetalert2"; // Librería para alertas
-import "../styles/Recuperacion.css"; // Estilos CSS
+import BackArrow from "../components/registro/backarrow/BackArrow"; // Flecha para regresar
+import Swal from "sweetalert2"; // Librería de alertas
+import "../styles/Recuperacion.css"; // Estilos base
 
 // Componente Input mejorado con tema rosado
-const PinkImprovedInput = React.forwardRef(({ 
-  label, 
-  type = "text", 
-  error, 
-  ...props 
-}, ref) => {
+const PinkImprovedInput = React.forwardRef(({ label, type = "text", error, ...props }, ref) => {
   return (
     <div className="pink-input-container">
       <div className="pink-input-wrapper">
         <input
           ref={ref}
           type={type}
-          className={`pink-input ${error ? 'error' : ''}`}
+          className={`pink-input ${error ? "error" : ""}`}
           placeholder=" "
           {...props}
         />
@@ -34,53 +29,43 @@ const PinkImprovedInput = React.forwardRef(({
 });
 
 const RecuperacionContra = () => {
-  // Hook para formulario con validación
   const { register, handleSubmit, formState: { errors } } = useForm();
-
-  // Hook personalizado para pedir código de recuperación y estado de carga
   const { requestCode, loading } = useRecoverAdminPassword();
-
-  // Hook para navegar a otras rutas
   const navigate = useNavigate();
 
-  // Función que se ejecuta al enviar el formulario
   const onSubmit = async (data) => {
     try {
-      // Llamada al hook para pedir el código al backend
       const res = await requestCode(data.email);
-
-      // Si el mensaje indica éxito, mostrar alerta y navegar a página de verificación
       if (res.message?.includes("correctamente")) {
         Swal.fire("Éxito", res.message, "success");
         navigate("/verificar-codigo");
       } else {
-        // Si no, mostrar error con mensaje del backend o genérico
         Swal.fire("Error", res.message || "No se pudo enviar el código.", "error");
       }
     } catch (error) {
-      console.error(error); // Log del error (podrías mostrar otra alerta aquí si quieres)
+      console.error(error);
     }
   };
 
   return (
-    <div className="recover-wrapper"
+    <div
+      className="recover-wrapper"
       style={{
-        backgroundImage: `url("/recuperacionPriv.png")`, // Imagen de fondo
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
+        padding: "20px",
       }}
     >
-      <div className="recover-card improved-form">
-        {/* Botón para volver a login */}
+      <div className="recover-card improved-form" style={{ maxWidth: "400px", width: "100%" }}>
         <BackArrow to="/login" />
-        {/* Logo */}
         <Logo />
-
-        {/* Título de la página */}
         <h2 className="recover-title">Recuperar Contraseña</h2>
 
-        {/* Formulario que maneja la petición para enviar código */}
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="pink-form-fields">
             <PinkImprovedInput
@@ -88,16 +73,15 @@ const RecuperacionContra = () => {
               type="email"
               error={errors.email?.message}
               {...register("email", {
-                required: "El correo es obligatorio", // Validación requerida
+                required: "El correo es obligatorio",
                 pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, // Validación formato email
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                   message: "Formato de correo inválido",
                 },
               })}
             />
           </div>
 
-          {/* Botón que cambia su texto cuando está cargando */}
           <Button text={loading ? "Enviando..." : "Enviar código →"} type="submit" />
         </form>
       </div>
@@ -114,39 +98,37 @@ const RecuperacionContra = () => {
           width: 100%;
         }
 
-       .pink-input {
-  width: 100%;
-  height: 56px;
-  padding: 16px 16px 8px 16px;
-  border: 2px solid #f8bbd9;
-  border-radius: 16px;
-  font-size: 16px;
-  font-family: inherit;
-  background: linear-gradient(145deg, #fef7f7, #fff0f3);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  outline: none;
-  box-sizing: border-box;
-  color: #4a4a4a;
-}
-
+        .pink-input {
+          width: 100%;
+          height: 56px;
+          padding: 16px 16px 8px 16px;
+          border: 2px solid #f8bbd9;
+          border-radius: 16px;
+          font-size: 16px;
+          font-family: inherit;
+          background: linear-gradient(145deg, #fef7f7, #fff0f3);
+          transition: all 0.3s ease;
+          outline: none;
+          box-sizing: border-box;
+          color: #4a4a4a;
+        }
 
         .pink-input:focus {
           border-color: #ec4899;
-          box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.2);
-          background: #fce7f3;
-          transform: none;
+          box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.15), 
+                      0 4px 12px rgba(236, 72, 153, 0.1);
+          background: linear-gradient(145deg, #ffffff, #fef7f7);
+          transform: translateY(-1px);
         }
 
         .pink-input:hover:not(:focus) {
           border-color: #f472b6;
-          background: #fce7f3;
-          transform: none;
+          box-shadow: 0 2px 8px rgba(244, 114, 182, 0.1);
         }
 
         .pink-input.error {
           border-color: #f87171;
-          background: #fce7f3;
-          animation: shake 0.5s ease-in-out;
+          background: linear-gradient(145deg, #fef2f2, #fff5f5);
         }
 
         .pink-input.error:focus {
@@ -155,7 +137,7 @@ const RecuperacionContra = () => {
         }
 
         .pink-input::placeholder {
-          color: #000000ff;
+          color: #d1a3a3;
         }
 
         .pink-label {
@@ -166,10 +148,10 @@ const RecuperacionContra = () => {
           font-size: 16px;
           color: #be185d;
           pointer-events: none;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          background: #fce7f3;
+          transition: all 0.3s ease;
+          background: linear-gradient(145deg, #fef7f7, #fff0f3);
           padding: 0 6px;
-          border-radius: 6px;
+          border-radius: 4px;
           font-weight: 500;
         }
 
@@ -179,39 +161,15 @@ const RecuperacionContra = () => {
           font-size: 12px;
           font-weight: 600;
           color: #ec4899;
-          transform: translateY(0) scale(0.95);
-          background: #fce7f3;
+          transform: translateY(0);
+          background: linear-gradient(145deg, #ffffff, #fef7f7);
+          box-shadow: 0 2px 4px rgba(236, 72, 153, 0.1);
         }
 
         .pink-input.error:focus + .pink-label,
         .pink-input.error:not(:placeholder-shown) + .pink-label {
           color: #ef4444;
-          background: #fce7f3;
-        }
-
-        .pink-password-toggle {
-          position: absolute;
-          right: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-          background: linear-gradient(145deg, #f472b6, #ec4899);
-          border: none;
-          color: #ffffff;
-          cursor: pointer;
-          padding: 8px;
-          border-radius: 8px;
-          transition: all 0.3s ease;
-          box-shadow: 0 2px 4px rgba(236, 72, 153, 0.2);
-        }
-
-        .pink-password-toggle:hover {
-          background: linear-gradient(145deg, #ec4899, #db2777);
-          box-shadow: 0 4px 8px rgba(236, 72, 153, 0.3);
-          transform: translateY(-50%) scale(1.05);
-        }
-
-        .pink-password-toggle:active {
-          transform: translateY(-50%) scale(0.95);
+          background: linear-gradient(145deg, #fef2f2, #fff5f5);
         }
 
         .pink-error-message {
@@ -223,7 +181,6 @@ const RecuperacionContra = () => {
           margin-top: 6px;
           margin-left: 4px;
           font-weight: 500;
-          animation: slideInDown 0.3s ease-out;
         }
 
         .pink-error-message::before {
@@ -236,66 +193,51 @@ const RecuperacionContra = () => {
           margin: 24px 0;
         }
 
-        .improved-form {
-          padding: 24px;
+        /* Mejoras para el contenedor principal */
+        .verify-wrapper {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+        }
+
+        .verify-card {
           background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(248, 187, 217, 0.3);
+          padding: 2.5rem;
+          border-radius: 20px;
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 
                       0 10px 10px -5px rgba(0, 0, 0, 0.04),
                       0 0 0 1px rgba(236, 72, 153, 0.05);
+          width: 100%;
+          max-width: 420px;
+          position: relative;
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(248, 187, 217, 0.3);
         }
 
-        .recover-title {
+        .verify-title {
+          text-align: center;
+          margin-bottom: 2rem;
           color: #be185d;
+          font-size: 1.75rem;
+          font-weight: 700;
           background: linear-gradient(135deg, #be185d, #ec4899);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
-          font-weight: 700;
-          text-align: center;
-          margin: 16px 0 24px 0;
         }
 
-        /* Animaciones */
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-          20%, 40%, 60%, 80% { transform: translateX(5px); }
-        }
-
-        @keyframes slideInDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes pinkGlow {
-          0% { box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.15); }
-          50% { box-shadow: 0 0 0 6px rgba(236, 72, 153, 0.1); }
-          100% { box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.15); }
-        }
-
-        .pink-input:focus {
-          animation: pinkGlow 2s ease-in-out infinite;
-        }
-
-        /* Mejoras responsive para móvil */
+        /* Responsive para móvil */
         @media (max-width: 768px) {
-          .recover-card.improved-form {
+          .verify-card {
             margin: 20px;
             padding: 24px 20px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.97);
+            border-radius: 18px;
           }
 
-          .recover-title {
-            font-size: 24px;
+          .verify-title {
+            font-size: 1.5rem;
             margin: 16px 0 24px 0;
           }
 
@@ -306,7 +248,7 @@ const RecuperacionContra = () => {
           }
 
           .pink-input:focus {
-            transform: translateY(-0.5px) scale(1.005);
+            transform: translateY(-0.5px);
           }
 
           .pink-form-fields {
@@ -316,23 +258,17 @@ const RecuperacionContra = () => {
           .pink-input-container {
             margin-bottom: 18px;
           }
-
-          .pink-password-toggle {
-            padding: 6px;
-            border-radius: 6px;
-          }
         }
 
         /* Para dispositivos muy pequeños */
         @media (max-width: 480px) {
-          .recover-wrapper {
+          .verify-wrapper {
             padding: 10px;
           }
 
-          .recover-card.improved-form {
+          .verify-card {
             margin: 10px;
             padding: 20px 16px;
-            border-radius: 18px;
           }
 
           .pink-input {
@@ -344,78 +280,37 @@ const RecuperacionContra = () => {
           .pink-label {
             left: 18px;
           }
-
-          .pink-password-toggle {
-            right: 14px;
-            padding: 6px;
-          }
         }
 
         /* Mejora para accesibilidad */
         @media (prefers-reduced-motion: reduce) {
-          .pink-input,
-          .pink-label,
-          .pink-password-toggle {
+          .code-input {
             transition: none;
             animation: none;
           }
         }
 
-        /* Dark mode support con tema rosado */
+        /* Dark mode para inputs de código */
         @media (prefers-color-scheme: dark) {
-          .pink-input {
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
+          .code-input {
+            background: linear-gradient(145deg, rgba(45, 25, 35, 0.9), rgba(55, 30, 40, 0.8));
             border-color: #f472b6;
-            color: #000000ff;
-          }
-
-          .pink-input:focus {
-            border-color: #ec4899;
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), hsla(0, 0%, 100%, 0.90));
-            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
-          }
-
-          .pink-label {
-            color: #f472b6;
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
-          }
-
-          .pink-input:focus + .pink-label,
-          .pink-input:not(:placeholder-shown) + .pink-label {
-            color: #ec4899;
-            background: linear-gradient(145deg, rgba(243, 243, 243, 0.95), rgba(255, 255, 255, 0.9));
-          }
-
-          .pink-password-toggle {
-            background: linear-gradient(145deg, #ec4899, #db2777);
-            color: #ffffff;
-          }
-
-          .pink-password-toggle:hover {
-            background: linear-gradient(145deg, #db2777, #be185d);
-          }
-
-          .recover-card.improved-form {
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
-            border: 1px solid rgba(244, 114, 182, 0.2);
-            box-shadow: 0 8px 32px rgba(236, 72, 153, 0.1);
-          }
-
-          .recover-title {
             color: #fdf2f8;
-            background: linear-gradient(135deg, #f472b6, #ec4899);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
           }
 
-          .pink-input.error {
+          .code-input:focus {
+            border-color: #ec4899;
+            background: linear-gradient(145deg, rgba(55, 30, 40, 0.95), rgba(45, 25, 35, 0.9));
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.2);
+          }
+
+          .code-label {
+            color: #f472b6;
+          }
+
+          .code-input.error {
             border-color: #f87171;
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
-          }
-
-          .pink-error-message {
-            color: #f87171;
+            background: linear-gradient(145deg, rgba(60, 30, 30, 0.9), rgba(70, 35, 35, 0.8));
           }
         }
       `}</style>

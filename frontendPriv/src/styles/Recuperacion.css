@@ -1,35 +1,34 @@
-  /* src/pages/Recuperacion.css */
+/* src/pages/Recuperacion.css */
 .recover-wrapper {
-
-
-  width: 200vh;
+  width: 100vw;
   height: 100vh;
-
   display: flex;
-  justify-content: flex-start; /* Alinea la card a la izquierda */
+  justify-content: center; /* centrar la card horizontalmente */
   align-items: center;
-  padding-left: 5%; /* Espacio desde el borde izquierdo */
-}
-
-.recover-title{
-    font-family: 'Lora', sans-serif;
-
+  padding: 20px;
 }
 
 .recover-card {
   background: white;
   padding: 40px;
-  border-radius: 10px;
+  border-radius: 20px; /* esquinas más redondeadas */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   max-width: 400px;
   width: 100%;
-  text-align: left; /* Alinea todo el contenido de la card a la izquierda */
+  position: relative; /* para posicionar el logo */
 }
 
-.recover-title {
+.recover-card .recover-title {
+  font-family: 'Lora', sans-serif;
   font-size: 24px;
-  text-align: left; /* Alinea solo el título a la izquierda */
-  margin-bottom: 20px;
+  text-align: center; /* título centrado */
+  margin: 20px 0;
+}
+
+.recover-card .logo-wrapper {
+  position: absolute;
+  top: 20px;
+  left: 20px;
 }
 
 .input-group-eye {
@@ -39,7 +38,7 @@
 
 .input-group-eye input {
   width: 100%;
-  padding-right: 15px; /* espacio para el ícono */
+  padding-right: 15px;
 }
 
 .eye-icon {
@@ -59,25 +58,21 @@
   margin-bottom: 12px;
 }
 
+/* Responsive */
 @media (max-width: 736px) {
   .recover-wrapper {
-    padding: 0px;
     width: 100vw;
     height: auto;
     justify-content: center;
     align-items: center;
+    padding: 0px;
   }
 
   .recover-card {
     width: 100%;
     max-width: 400px;
     padding: 30px 20px;
-    box-sizing: border-box;
-  }
-
-  .input-group-eye input {
-    width: 100%;
-    padding-right: 30px;
+    border-radius: 25px;
   }
 
   .eye-icon {
@@ -100,86 +95,3 @@
     font-size: 1rem;
   }
 }
-
-@media (max-width: 912px) {
-  .recover-wrapper {
-    padding: 0px;
-    width: 100vw;
-    height: auto;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .recover-card {
-    width: 100%;
-    max-width: 400px;
-    padding: 30px 20px;
-    box-sizing: border-box;
-  }
-
-  .input-group-eye input {
-    width: 100%;
-    padding-right: 30px;
-  }
-
-  .eye-icon {
-    right: 12px;
-    top: 70%;
-    transform: translateY(-50%);
-  }
-}
-@media (max-width: 1024px) {
-  .recover-wrapper {
-    padding: 0px;
-    width: 100vw;
-    height: auto;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .recover-card {
-    width: 100%;
-    max-width: 400px;
-    padding: 30px 20px;
-    box-sizing: border-box;
-  }
-
-  .input-group-eye input {
-    width: 100%;
-    padding-right: 30px;
-  }
-
-  .eye-icon {
-    right: 12px;
-    top: 70%;
-    transform: translateY(-50%);
-  }
-}
-@media (max-width: 1247px) {
-  .recover-wrapper {
-    padding: 0px;
-    width: 100vw;
-    height: auto;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .recover-card {
-    width: 100%;
-    max-width: 400px;
-    padding: 30px 20px;
-    box-sizing: border-box;
-  }
-
-  .input-group-eye input {
-    width: 100%;
-    padding-right: 30px;
-  }
-
-  .eye-icon {
-    right: 12px;
-    top: 70%;
-    transform: translateY(-50%);
-  }
-}
-

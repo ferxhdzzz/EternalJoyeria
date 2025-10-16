@@ -10,7 +10,7 @@ import BackArrow from "../components/registro/backarrow/BackArrow";
 import OlvidarCont from "../components/registro/labelcont/LabelCont";
 
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
-import "../styles/Recuperacion.css";
+import "../styles/Login.css";
 
 // Componente Input mejorado con tema rosado
 const PinkImprovedInput = React.forwardRef(({ 
@@ -110,7 +110,7 @@ export default function Login() {
 
   return (
     <div
-      className="recover-wrapper"
+      className="recover-wrapperr"
       style={{
         backgroundImage: `url("/LoginPriv.png")`,
         backgroundSize: "cover",

@@ -1,19 +1,22 @@
-/* src/pages/styles/Recuperacion.css */
-.recover-wrapper {
+  /* src/pages/Recuperacion.css */
+.recover-wrapperr {
+
+
   width: 200vh;
   height: 100vh;
+
   display: flex;
   justify-content: flex-start; /* Alinea la card a la izquierda */
   align-items: center;
   padding-left: 5%; /* Espacio desde el borde izquierdo */
-  font-family: 'DM Sans', Arial, sans-serif; /* Tipografía DM Sans */
 }
 
-.recover-title{
-  font-family: 'DM Sans', Arial, sans-serif;
+.recover-titler{
+    font-family: 'Lora', sans-serif;
+
 }
 
-.recover-card {
+.recover-cardr {
   background: white;
   padding: 40px;
   border-radius: 10px;
@@ -23,40 +26,25 @@
   text-align: left; /* Alinea todo el contenido de la card a la izquierda */
 }
 
-.recover-title {
+.recover-titler {
   font-size: 24px;
   text-align: left; /* Alinea solo el título a la izquierda */
   margin-bottom: 20px;
 }
 
-/* 1. Contenedor: Establece el contexto de posicionamiento */
-.input-group-eye {
-  /* Asegura que el contenedor tenga posición relativa */
-  position: relative; 
-  /* Puede que necesites un padding a la derecha para que el ícono no tape el texto del input */
-  padding-right: 10px; 
+.input-group-eyer {
+  position: relative;
+  padding-right: 35px;
 }
 
-/* 2. Ícono: Posiciona y centra */
-.input-group-eye .eye-icon {
-  position: absolute; /* Lo saca del flujo normal para posicionarlo libremente */
-  right: -10px;       /* 📐 Esquinado a la derecha (ajusta el valor si lo quieres más cerca o lejos) */
-  top: 55%;          /* 📐 Inicia a la mitad del contenedor */
-  transform: translateY(-50%); /* 📐 Centrado: Sube el ícono la mitad de su propia altura */
-  
-  cursor: pointer;
-  z-index: 10;       /* Asegura que el ícono esté por encima del input si es necesario */
-  font-size: 1.2em;  /* Ajusta el tamaño del ojo */
-  color: #666;       /* Ajusta el color del ojo */
-}
-.input-group-eye input {
+.input-group-eye inputr {
   width: 100%;
   padding-right: 15px; /* espacio para el ícono */
 }
 
-.eye-icon {
+.eye-iconr {
   position: absolute;
-  right: 1px !important; /* Movido más a la derecha con !important */
+  right: 10px;
   top: 45px;
   padding-right: 35px;
   cursor: pointer;
@@ -71,113 +59,127 @@
   margin-bottom: 12px;
 }
 
-/* --- Responsivo --- */
 @media (max-width: 736px) {
-  .recover-wrapper {
+  .recover-wrapperr {
     padding: 0px;
     width: 100vw;
     height: auto;
     justify-content: center;
     align-items: center;
   }
-  .recover-card {
+
+  .recover-cardr {
     width: 100%;
     max-width: 400px;
     padding: 30px 20px;
     box-sizing: border-box;
   }
-  .input-group-eye input {
+
+  .input-group-eyer input {
     width: 100%;
     padding-right: 30px;
   }
-  .eye-icon {
-    right: 1px !important; /* Movido más a la derecha con !important */
+
+  .eye-iconr {
+    right: 12px;
     top: 70%;
     transform: translateY(-50%);
   }
 }
 
 @media (max-width: 480px) {
-  .recover-title {
+  .recover-titler {
     font-size: 20px;
   }
-  .recover-card {
+
+  .recover-cardr {
     padding: 25px 16px;
   }
-  .eye-icon {
+
+  .eye-iconr {
     font-size: 1rem;
   }
 }
 
 @media (max-width: 912px) {
-  .recover-wrapper {
+  .recover-wrapperr {
     padding: 0px;
     width: 100vw;
     height: auto;
     justify-content: center;
     align-items: center;
   }
-  .recover-card {
+
+  .recover-cardr {
     width: 100%;
     max-width: 400px;
     padding: 30px 20px;
     box-sizing: border-box;
   }
-  .input-group-eye input {
+
+  .input-group-eyer input {
     width: 100%;
     padding-right: 30px;
   }
-  .eye-icon {
-    right: 1px !important; /* Movido más a la derecha con !important */
+
+  .eye-iconr {
+    right: 12px;
     top: 70%;
     transform: translateY(-50%);
   }
 }
 @media (max-width: 1024px) {
-  .recover-wrapper {
+  .recover-wrapperr {
     padding: 0px;
     width: 100vw;
     height: auto;
     justify-content: center;
     align-items: center;
   }
-  .recover-card {
+
+  .recover-cardr {
     width: 100%;
     max-width: 400px;
     padding: 30px 20px;
     box-sizing: border-box;
   }
-  .input-group-eye input {
+
+  .input-group-eyer input {
     width: 100%;
     padding-right: 30px;
   }
-  .eye-icon {
-    right: 1px !important; /* Movido más a la derecha con !important */
+
+  .eye-iconr {
+    right: 12px;
     top: 70%;
     transform: translateY(-50%);
   }
 }
 @media (max-width: 1247px) {
-  .recover-wrapper {
+  .recover-wrapperr {
     padding: 0px;
     width: 100vw;
     height: auto;
     justify-content: center;
     align-items: center;
   }
-  .recover-card {
+
+  .recover-cardr {
     width: 100%;
     max-width: 400px;
     padding: 30px 20px;
     box-sizing: border-box;
   }
-  .input-group-eye input {
+
+  .input-group-eyer input {
     width: 100%;
     padding-right: 30px;
   }
-  .eye-icon {
-    right: 1px !important; /* Movido más a la derecha con !important */
+
+  .eye-iconr {
+    right: 12px;
     top: 70%;
     transform: translateY(-50%);
   }
 }
+

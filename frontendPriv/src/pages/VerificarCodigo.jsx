@@ -198,7 +198,6 @@ export default function VerificarCodigo() {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #f3e8ff 100%);
           padding: 20px;
         }
 
@@ -219,10 +218,10 @@ export default function VerificarCodigo() {
         .verify-title {
           text-align: center;
           margin-bottom: 2rem;
-          color: #be185d;
+          color: #000000ff;
           font-size: 1.75rem;
           font-weight: 700;
-          background: linear-gradient(135deg, #be185d, #ec4899);
+          background: linear-gradient(135deg, #000000ff, #000000ff);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
