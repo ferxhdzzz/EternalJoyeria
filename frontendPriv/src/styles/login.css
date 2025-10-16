@@ -6,7 +6,7 @@
   height: 100vh;
 
   display: flex;
-  justify-content: flex-start; /* Alinea la card a la izquierda */
+  justify-content: flex-start; /* Alinea la card a la izquierdaa */
   align-items: center;
   padding-left: 5%; /* Espacio desde el borde izquierdo */
 }
