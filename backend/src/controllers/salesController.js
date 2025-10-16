@@ -115,14 +115,25 @@ salesController.getSales = async (req, res) => {
   try {
     const allSales = await Sale.find()
       .populate({
-        path: "idOrder",
-        // Aquí poblamos la orden para obtener su 'idCustomer' y los 'products'
+        path: "idOrder", // Primer nivel: referencia a la Orden
+        select: "status total products createdAt",
         populate: [
+          // Sub-populate 1: Obtener el cliente de la Orden
           { path: "idCustomer", select: "firstName lastName email" },
-          { path: "products.productId", select: "name" } // Seleccionamos solo el nombre del producto
+          
+          // Sub-populate 2: Corregir el populate del array de productos
+          { 
+            path: "products", // Poblamos el array de productos (que debe ser un array de objetos en el esquema de Orders)
+            populate: {
+              path: "productId", // Dentro de cada objeto de products, poblamos la referencia 'productId'
+              model: "Products",
+              select: "name"    // Traemos el nombre (y otros campos si son necesarios para el subtotal)
+            }
+          }
         ],
-        select: "status total products createdAt" // NOTA: No es necesario seleccionar el 'idCustomer' aquí si ya se ha poblado
-      });
+      })
+      .populate("idCustomers", "firstName lastName"); // Opcional: Si necesitas el cliente de la Venta (Sales)
+
     res.json(allSales);
   } catch (error) {
     res.status(500).json({ message: "Error fetching sales", error: error.message });
