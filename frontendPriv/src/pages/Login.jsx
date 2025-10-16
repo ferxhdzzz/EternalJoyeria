@@ -12,7 +12,7 @@ import OlvidarCont from "../components/registro/labelcont/LabelCont";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import "../styles/Login.css";
 
-// Componente Input mejorado con tema rosado
+// Componente Input mejorado con tema rosado // j
 const PinkImprovedInput = React.forwardRef(({ 
   label, 
   type = "text", 
