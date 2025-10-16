@@ -115,29 +115,33 @@ salesController.getSales = async (req, res) => {
   try {
     const allSales = await Sale.find()
       .populate({
-        path: "idOrder", // 1. Popula la Orden
-        // Selecciona todos los campos necesarios, incluyendo 'products' donde está el subtotal
-        select: "status total products createdAt idCustomer", 
+        path: "idOrder",
+        select: "status total products createdAt idCustomer totalCents", 
         populate: [
-          // 1.1. Popula el Cliente asociado a la ORDEN
-          { path: "idCustomer", select: "firstName lastName email" },
-          
-          // 1.2. CORRECCIÓN CLAVE: Popula el array 'products' y, dentro de él, la referencia 'productId'
+          // 1. Popula el Cliente de la Orden
           { 
-            path: "products", // Popula el array de productos
+            path: "idCustomer", 
+            model: "Customers", // Forzamos el modelo del cliente
+            select: "firstName lastName email" 
+          },
+          
+          // 2. CORRECCIÓN AGRESIVA: Popula el array 'products' y anida el populate para 'productId'
+          {
+            path: "products", // Popula el array
+            model: "Orders", // Importante: Mongoose sabe que 'products' está en 'Orders'
             populate: {
-              path: "productId", // Dentro del array, resuelve la referencia al producto
-              model: "Products", // Nombre del modelo de productos
-              select: "name images price finalPrice" // Traemos lo que el otro componente sí usa
+              path: "productId", // Dentro de 'products', busca el campo 'productId'
+              model: "Products", // Forzamos el modelo
+              select: "name"
             }
           }
         ],
       })
-      // 2. Popula el Cliente asociado a la VENTA (Sale), usado en el filtro de HistorialCompras
       .populate("idCustomers", "firstName lastName email"); 
 
     res.json(allSales);
   } catch (error) {
+    console.error("Error en getSales:", error);
     res.status(500).json({ message: "Error fetching sales", error: error.message });
   }
 };

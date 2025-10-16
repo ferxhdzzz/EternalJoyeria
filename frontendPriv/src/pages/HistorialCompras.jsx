@@ -155,7 +155,7 @@ const HistorialCompras = () => {
                       {sale.idOrder?.products?.map((product, index) => (
                         <div key={index} className="product-item">
                           <p>
-                            <strong>{product.productId?.name}</strong> - Cantidad: {product.quantity} - Subtotal: ${product.subtotal?.toFixed(2)}
+                            <strong>{product.productId?.name}</strong> - Cantidad: {product.quantity}  - Subtotal: ${((product.unitPriceCents / 100) || product.subtotal)?.toFixed(2)}
                           </p>
                         </div>
                       ))}
