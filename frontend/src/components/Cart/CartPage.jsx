@@ -72,7 +72,7 @@ const CartPage = () => {
                                             <img src={item.image} alt={item.name} className="cartpage-product-img" />
                                             <div className="cartpage-product-info">
                                                 <span className="cartpage-product-name">{item.name}</span>
-                                                <span className="cartpage-product-size">Talla: {item.size}</span>
+                                         
                                             </div>
                                         </td>
                                         <td className="cartpage-grey-text">${item.price.toFixed(2)}</td>

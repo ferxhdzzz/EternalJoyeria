@@ -20,7 +20,6 @@ const CartItem = ({ product, onUpdateQuantity, onRemove }) => {
           <p className="cart-item-name">{product.name}</p>
           <p className="cart-item-price">${(product.price * product.quantity).toFixed(2)}</p>
         </div>
-        <p className="cart-item-style">Talla: {product.size}</p>
         <div className="cart-item-actions">
           <div className="cart-item-quantity">
             <button onClick={() => handleQuantityChange(-1)} className="quantity-btn">

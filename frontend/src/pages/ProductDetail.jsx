@@ -602,29 +602,7 @@ const ProductDetail = () => {
               </span>
             </div>
             
-            <div className="size-selector" style={{ marginBottom: '30px' }}>
-              <p style={{ fontWeight: 'bold', marginBottom: '10px' }}>Seleccionar tamaño</p>
-              <div className="sizes" style={{ display: 'flex', gap: '10px' }}>
-                {availableSizes.map(size => (
-                  <button
-                    key={size}
-                    className={`size-option ${selectedSize === size ? 'selected' : ''}`}
-                    onClick={() => setSelectedSize(size)}
-                    style={{
-                      padding: '10px 15px',
-                      border: selectedSize === size ? '2px solid #D1A6B4' : '2px solid #ddd',
-                      background: selectedSize === size ? '#D1A6B4' : 'white',
-                      color: selectedSize === size ? 'white' : '#333',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
+      
             
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '18px 0' }}>
               <button

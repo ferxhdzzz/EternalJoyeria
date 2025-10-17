@@ -284,32 +284,7 @@ const CategoryProducts = () => {
                 </div>
               </div>
 
-              {/* Selector de tamaño */}
-              <div style={{ marginBottom: '25px' }}>
-                <h3 style={{ fontSize: '1.3em', marginBottom: '10px', color: '#333' }}>
-                  Seleccionar tamaño
-                </h3>
-                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                  {availableSizes.map(size => (
-                    <button 
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      style={{
-                        padding: '10px 15px',
-                        border: selectedSize === size ? '2px solid #D1A6B4' : '2px solid #ddd',
-                        background: selectedSize === size ? '#D1A6B4' : 'white',
-                        color: selectedSize === size ? 'white' : '#333',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        fontWeight: 'bold',
-                        fontSize: '14px'
-                      }}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
+           
 
               {/* Selector de cantidad */}
               <div style={{ marginBottom: '25px' }}>

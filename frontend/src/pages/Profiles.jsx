@@ -468,7 +468,7 @@ const handleLogout = async () => {
     onClick={() => window.location.href = '/historial'}
   >
     <HistoryIcon size={16} color="currentColor" />
-    Historial de pedidos
+    Historial de Compras
   </button>
 </div>
 
