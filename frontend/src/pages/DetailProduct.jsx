@@ -250,30 +250,7 @@ const ProductDetail = () => {
                 </div>
               </div>
  
-              {/* Tamaños disponibles */}
-              <div style={{ marginBottom: '25px' }}>
-                <h3 style={{ fontSize: '1.3em', marginBottom: '10px', color: '#333' }}>
-                  Tamaños Disponibles
-                </h3>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {(product.sizes || ['Pequeño', 'Mediano', 'Grande']).map(size => (
-                    <span
-                      key={size}
-                      style={{
-                        padding: '6px 12px',
-                        background: '#e9ecef',
-                        border: '1px solid #ced4da',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        fontWeight: 'bold'
-                      }}
-                    >
-                      {size}
-                    </span>
-                  ))}
-                </div>
-              </div>
- 
+           
               {/* Información adicional */}
               <div style={{ marginBottom: '20px' }}>
                 <h3 style={{ fontSize: '1.3em', marginBottom: '10px', color: '#333' }}>

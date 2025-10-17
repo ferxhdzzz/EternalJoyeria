@@ -428,7 +428,6 @@ const CheckoutPage = () => {
                     <img src={item.image} alt={item.name} className="ticket-summary-img" />
                     <div className="ticket-summary-details">
                       <span className="ticket-summary-name">{item.name}</span>
-                      <span className="ticket-summary-size">Talla: {item.size}</span>
                     </div>
                     <span className="ticket-summary-price">${(item.price * item.quantity).toFixed(2)}</span>
                   </div>

@@ -197,7 +197,7 @@ const HistorialPage = () => {
             <div className="historial-stats">
               <div className="stat-card">
                 <div className="stat-number">{totalOrders}</div>
-                <div className="stat-label">Pedidos Realizados</div>
+                <div className="stat-label">Compras Realizadas</div>
               </div>
               <div className="stat-card">
                 <div className="stat-number">${totalSpent.toFixed(2)}</div>
@@ -213,7 +213,7 @@ const HistorialPage = () => {
               className={`filter-btn ${selectedFilter === 'todos' ? 'active' : ''}`}
               onClick={() => setSelectedFilter('todos')}
             >
-              Todos los pedidos
+              Todos las compras
             </button>
             <button
               className={`filter-btn ${selectedFilter === 'entregado' ? 'active' : ''}`}
@@ -235,7 +235,7 @@ const HistorialPage = () => {
             {ordersToDisplay.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-icon">📦</div>
-                <h3>No hay pedidos que coincidan</h3>
+                <h3>No hay compras que coincidan</h3>
                 <p>Revisa el filtro seleccionado o realiza tu primera compra.</p>
               </div>
             ) : (
@@ -272,7 +272,7 @@ const HistorialPage = () => {
                     <button
                       className="details-eye-btn"
                       onClick={() => handleViewDetails(order.orderNumber)}
-                      title={`Ver detalles del pedido ${index + 1}`}
+                      title={`Ver detalles de la compra ${index + 1}`}
                     >
                       <FiEye size={20} />
                     </button>
