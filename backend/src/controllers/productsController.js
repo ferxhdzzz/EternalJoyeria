@@ -16,17 +16,17 @@ const productController = {};
 
 // obtener todos los productos
 productController.getAllProducts = async (req, res) => {
- try {
+  try {
     const { country } = req.query;
 
-   let filter = { country: country || "SV" };
+    // 🔹 Si hay country válido, filtrar; si no, traer todos
+    let filter = {};
     if (country && ["SV", "US"].includes(country)) {
       filter.country = country;
     }
 
     const products = await Product.find(filter).populate("category_id", "name");
     res.json({ products });
-
   } catch (error) {
     res.status(500).json({ message: "error fetching products", error: error.message });
   }
@@ -45,19 +45,17 @@ productController.getProductById = async (req, res) => {
 
 // obtener productos por categoría
 productController.getProductsByCategory = async (req, res) => {
-   try {
+  try {
     const categoryId = req.params.id;
     const { country } = req.query;
 
     let filter = { category_id: categoryId };
-
     if (country && ["SV", "US"].includes(country)) {
       filter.country = country;
     }
 
     const products = await Product.find(filter).populate("category_id", "name");
     res.json({ products });
-
   } catch (error) {
     res.status(500).json({ message: "error fetching products by category", error: error.message });
   }

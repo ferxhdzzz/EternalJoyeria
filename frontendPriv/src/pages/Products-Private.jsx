@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Swal from "sweetalert2";
 import Titulo from "../components/Componte-hook/Titulos";
 import SubTitulo from "../components/Componte-hook/SubTitulo";
@@ -20,7 +20,18 @@ const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState("Todas");
   const [editingProductId, setEditingProductId] = useState(null);
 
+  const safeProducts = Array.isArray(products) ? products : [];
   const categoriesArray = Array.isArray(categories) ? categories : [];
+
+  // 🔹 País actual del usuario (puedes hacerlo dinámico)
+  const currentCountry = "SV";
+
+  // 🔥 Filtro seguro: país + categoría
+  const filteredProducts = safeProducts.filter((p) => {
+    const categoryMatch = selectedCategory === "Todas" || p.category_id?.name === selectedCategory;
+    const countryMatch = !p.country || p.country.toUpperCase() === currentCountry.toUpperCase();
+    return categoryMatch && countryMatch;
+  });
 
   const handleDelete = async (id) => {
     const result = await Swal.fire({
@@ -56,15 +67,9 @@ const Products = () => {
     }
   };
 
-  const filteredProducts =
-    selectedCategory === "Todas"
-      ? products
-      : products.filter((p) => p.category_id?.name === selectedCategory);
-
   return (
     <div className="dashboard-container">
       <Sidebar />
-
       <div className="main-content">
         <div className="topbar-wrapper">
           <Topbar />
@@ -111,7 +116,6 @@ const Products = () => {
             ) : (
               filteredProducts.map((product) => {
                 let medidas = {};
-
                 if (product.measurements) {
                   if (typeof product.measurements === "string") {
                     try {
@@ -128,7 +132,6 @@ const Products = () => {
                   <div key={product._id} className="product-card">
                     <div className="product-info">
                       <h3 className="product-title">{product.name || "Sin nombre"}</h3>
-
                       {Array.isArray(product.images) && product.images.length > 0 ? (
                         <ImageSlider images={product.images} name={product.name} />
                       ) : (
@@ -137,19 +140,16 @@ const Products = () => {
                     </div>
 
                     <p>Descripción: {product.description || "Sin descripción"}</p>
-
                     <p>
                       Precio:{" "}
                       {product.discountPercentage > 0 ? (
                         <>
-                          <s>${product.price ?? "N/A"}</s> →{" "}
-                          <strong>${product.finalPrice ?? "N/A"}</strong>
+                          <s>${product.price ?? "N/A"}</s> → <strong>${product.finalPrice ?? "N/A"}</strong>
                         </>
                       ) : (
                         <>${product.price ?? "N/A"}</>
                       )}
                     </p>
-
                     <p>Descuento: {product.discountPercentage ?? 0}%</p>
                     <p>Categoría: {product.category_id?.name || "Sin categoría"}</p>
 
