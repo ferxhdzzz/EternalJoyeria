@@ -74,13 +74,13 @@ const MailVerify = async function enviarCorreo(email, code) {
                     <div style="margin-bottom: 10px;">
                         <div style="font-size: 12px; color: #16a34a; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">English</div>
                         <div style="font-size: 14px; color: #374151;">
-                            Need help? Contact us at <a href="mailto:eternaljoyeria@gmail.com" style="color: #22c55e; font-weight: 600; text-decoration: none;">eternaljoyeria@gmail.com</a>
+                            Need help? Contact us at <a href="mailto:eternaljoyeriadeflores@gmail.com" style="color: #22c55e; font-weight: 600; text-decoration: none;">eternaljoyeriadeflores@gmail.com</a>
                         </div>
                     </div>
                     <div>
                         <div style="font-size: 12px; color: #16a34a; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Español</div>
                         <div style="font-size: 14px; color: #374151;">
-                            ¿Necesitas ayuda? Contáctanos en <a href="mailto:eternaljoyeria@gmail.com" style="color: #22c55e; font-weight: 600; text-decoration: none;">eternaljoyeria@gmail.com</a>
+                            ¿Necesitas ayuda? Contáctanos en <a href="mailto:eternaljoyeriadeflores@gmail.com" style="color: #22c55e; font-weight: 600; text-decoration: none;">eternaljoyeria@gmail.com</a>
                         </div>
                     </div>
                 </div>

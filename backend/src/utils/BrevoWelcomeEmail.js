@@ -112,14 +112,14 @@ const welcomeEmail = async function enviarCorreo(email, firstName) {
             <div style="font-weight: 600; color: #7c3aed; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">English</div>
             <div style="color: #6b7280; font-size: 15px; line-height: 1.5;">
               Questions? We're here to help! Contact us at
-              <a href="mailto:eternaljoyeria@gmail.com" style="color: #9333ea; text-decoration: none; font-weight: 600;">eternaljoyeria@gmail.com</a>
+              <a href="mailto:eternaljoyeriadeflores@gmail.com" style="color: #9333ea; text-decoration: none; font-weight: 600;">eternaljoyeriadeflores@gmail.com</a>
             </div>
           </div>
           <div style="margin-bottom: 0;">
             <div style="font-weight: 600; color: #7c3aed; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Español</div>
             <div style="color: #6b7280; font-size: 15px; line-height: 1.5;">
               ¿Preguntas? ¡Estamos aquí para ayudarte! Contáctanos en
-              <a href="mailto:eternaljoyeria@gmail.com" style="color: #9333ea; text-decoration: none; font-weight: 600;">eternaljoyeria@gmail.com</a>
+              <a href="mailto:eternaljoyeriadeflores@gmail.com" style="color: #9333ea; text-decoration: none; font-weight: 600;">eternaljoyeriadeflores@gmail.com</a>
             </div>
           </div>
         </div>

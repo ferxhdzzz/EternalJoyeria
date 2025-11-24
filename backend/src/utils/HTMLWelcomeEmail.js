@@ -394,14 +394,14 @@ const HTMLWelcomeEmail = (firstName) => {
           <div class="support-label">English</div>
           <div class="support-text">
             Questions? We're here to help! Contact us at
-            <a href="mailto:eternaljoyeria@gmail.com" class="support-link">eternaljoyeria@gmail.com</a>
+            <a href="mailto:eternaljoyeriadeflores@gmail.com" class="support-link">eternaljoyeriadeflores@gmail.com</a>
           </div>
         </div>
         <div class="support-info">
           <div class="support-label">Español</div>
           <div class="support-text">
             ¿Preguntas? ¡Estamos aquí para ayudarte! Contáctanos en
-            <a href="mailto:eternaljoyeria@gmail.com" class="support-link">eternaljoyeria@gmail.com</a>
+            <a href="mailto:eternaljoyeriadeflores@gmail.com" class="support-link">eternaljoyeriadeflores@gmail.com</a>
           </div>
         </div>
       </div>

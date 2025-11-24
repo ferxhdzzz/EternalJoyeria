@@ -280,7 +280,7 @@ const HTMLContactusEmail = (fullName, email, phone, subject, message) => {
           Responde directamente a este email: <a href="mailto:${email}" class="footer-link">${email}</a>
         </div>
         <div class="footer-text">
-          Este mensaje fue enviado desde el formulario de contacto de eternaljoyeria.com
+          Este mensaje fue enviado desde el formulario de contacto de eternal-joyeria-sigma.vercel.app
         </div>
       </div>
     </div>

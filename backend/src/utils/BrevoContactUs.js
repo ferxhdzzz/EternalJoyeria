@@ -3,7 +3,7 @@ import fetch from "node-fetch";
 // Aquí debería ir la API KEY de Brevo, preferiblemente desde las variables de entorno
 const apiKey = process.env.brevoApiKey;
 const adminEmail = "lovercotes@gmail.com"; // 💡 CORREO VERIFICADO EN BREVO (TÚ/REMITENTE)
-const recipientEmail = "eternaljoyeria1@gmail.com"; // 💡 CORREO DEL ADMINISTRADOR (DESTINATARIO)
+const recipientEmail = "eternaljoyeriadeflores@gmail.com"; // 💡 CORREO DEL ADMINISTRADOR (DESTINATARIO)
 
 /**
  * Función para generar HTML del email de contacto (CON CSS EN LÍNEA y TABLAS)
@@ -113,7 +113,7 @@ const HTMLContactusEmail = (fullName, email, phone, subject, message) => {
                         Responde directamente a este email: <a href="mailto:${email}" style="color: #22c55e; font-weight: 600; text-decoration: none;">${email}</a>
                     </div>
                     <div style="font-size: 14px; color: #6b7280; margin-bottom: 0;">
-                        Este mensaje fue enviado desde el formulario de contacto de eternaljoyeria.com
+                        Este mensaje fue enviado desde el formulario de contacto de eternal-joyeria-sigma.vercel.app
                     </div>
                 </div>
             </td>

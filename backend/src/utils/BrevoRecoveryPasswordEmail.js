@@ -106,7 +106,7 @@ const RecoveryPassword = async function enviarCorreo(email, code) {
                     </div>
                     <div class="support-text" style="color: #6b7280; font-size: 15px; line-height: 1.6;">
                         If you need further assistance, please contact our support team at
-                        <a href="mailto:eternaljoyeria@gmail.com" class="support-link" style="color: #f472b6; text-decoration: none; font-weight: 600;">eternaljoyeria@gmail.com</a>
+                        <a href="mailto:eternaljoyeriadeflores@gmail.com" class="support-link" style="color: #f472b6; text-decoration: none; font-weight: 600;">eternaljoyeriadeflores@gmail.com</a>
                     </div>
                 </div>
                 <div class="support-info" style="margin-bottom: 0;">
@@ -115,7 +115,7 @@ const RecoveryPassword = async function enviarCorreo(email, code) {
                     </div>
                     <div class="support-text" style="color: #6b7280; font-size: 15px; line-height: 1.6;">
                         Si necesitas asistencia adicional, por favor contacta a nuestro equipo de soporte en
-                        <a href="mailto:eternaljoyeria@gmail.com" class="support-link" style="color: #f472b6; text-decoration: none; font-weight: 600;">eternaljoyeria@gmail.com</a>
+                        <a href="mailto:eternaljoyeriadeflores@gmail.com" class="support-link" style="color: #f472b6; text-decoration: none; font-weight: 600;">eternaljoyeriadeflores@gmail.com</a>
                     </div>
                 </div>
             </div>
