@@ -138,7 +138,7 @@ const ContactUs = () => {
               </div>
               <div className="contact-info-content">
                 <h3>Email</h3>
-                <p>EternalJoyeria@gmail.com</p>
+                <p>eternaljoyeriadeflores@gmail.com</p>
                 <small>Respuesta en 24 horas</small>
               </div>
             </div>

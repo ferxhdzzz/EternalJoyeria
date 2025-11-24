@@ -16,9 +16,17 @@ const productController = {};
 
 // obtener todos los productos
 productController.getAllProducts = async (req, res) => {
-  try {
-    const products = await Product.find().populate("category_id", "name");
-    res.json(products);
+ try {
+    const { country } = req.query;
+
+   let filter = { country: country || "SV" };
+    if (country && ["SV", "US"].includes(country)) {
+      filter.country = country;
+    }
+
+    const products = await Product.find(filter).populate("category_id", "name");
+    res.json({ products });
+
   } catch (error) {
     res.status(500).json({ message: "error fetching products", error: error.message });
   }
@@ -37,10 +45,19 @@ productController.getProductById = async (req, res) => {
 
 // obtener productos por categoría
 productController.getProductsByCategory = async (req, res) => {
-  try {
+   try {
     const categoryId = req.params.id;
-    const products = await Product.find({ category_id: categoryId }).populate("category_id", "name");
-    res.json(products);
+    const { country } = req.query;
+
+    let filter = { category_id: categoryId };
+
+    if (country && ["SV", "US"].includes(country)) {
+      filter.country = country;
+    }
+
+    const products = await Product.find(filter).populate("category_id", "name");
+    res.json({ products });
+
   } catch (error) {
     res.status(500).json({ message: "error fetching products by category", error: error.message });
   }
@@ -55,10 +72,17 @@ productController.createProduct = async (req, res) => {
     measurements,
     category_id,
     discountPercentage,
-    stock
+    stock,
+    country,
   } = req.body;
 
   try {
+
+   if (!country || !["SV", "US"].includes(country)) {
+      return res.status(400).json({ message: "Country must be SV or US" });
+    }
+
+
     // validación de campos obligatorios
     if (!name || !name.trim() || !description || price == null || !category_id) {
       return res.status(400).json({ message: "missing required product fields" });
@@ -87,19 +111,19 @@ productController.createProduct = async (req, res) => {
     }
 
     // creación de la instancia del producto
-    const newProduct = new Product({
+     const newProduct = new Product({
       name: name.trim(),
       description: description.trim(),
       price: Number(price),
       images: uploadedImages,
       measurements: measurements ? JSON.parse(measurements) : {},
       category_id,
-      discountPercentage: discountPercentage != null ? discountPercentage : null,
+      discountPercentage: discountPercentage ?? null,
       finalPrice: calculateFinalPrice(Number(price), discountPercentage),
-      stock: stock ?? 1
+      stock: stock ?? 1,
+      country, // ← ← ← NUEVO
     });
 
-    // guardar en la base de datos
     const savedProduct = await newProduct.save();
     const populatedProduct = await Product.findById(savedProduct._id).populate("category_id", "name");
     res.status(201).json(populatedProduct);
@@ -125,6 +149,10 @@ productController.updateProduct = async (req, res) => {
       }
       updates.price = Number(updates.price);
     }
+
+    if (updates.country && ["SV", "US"].includes(updates.country)) {
+  product.country = updates.country;
+}
 
     // buscar id de categoría si se envía nombre
     if (updates.category_name) {

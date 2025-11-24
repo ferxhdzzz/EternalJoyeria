@@ -1,4 +1,4 @@
-// IMPORTACIÓN DE DEPENDENCIAS Y COMPONENTES NECESARIOS
+// AddProductPage.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -7,7 +7,6 @@ import TopBar from "../components/TopBar/TopBar";
 import Sidebar from "../components/Sidebar/Sidebar";
 import "../styles/AddProducts/AgregarProducto.css";
 
-// DEFINICIÓN DEL COMPONENTE PRINCIPAL
 export default function AddProductPage() {
   const { addProduct } = useAddProduct();
   const [loading, setLoading] = useState(false);
@@ -20,6 +19,7 @@ export default function AddProductPage() {
     discountPercentage: "",
     stock: "",
     category_id: "",
+    country: "",               // ⬅⬅⬅ NUEVO CAMPO
     measurements: {
       weight: "",
       height: "",
@@ -31,17 +31,22 @@ export default function AddProductPage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("https://eternaljoyeria-cg5d.onrender.com/api/categories", {
-          withCredentials: true,
-        });
+        const res = await axios.get(
+          "https://eternaljoyeria-cg5d.onrender.com/api/categories",
+          { withCredentials: true }
+        );
+
         const data = res.data;
         const categoriesArray = Array.isArray(data)
           ? data
           : data.categories || [];
+
         setCategories(categoriesArray);
+
       } catch (error) {
         console.error("Error al obtener categorías:", error);
         setCategories([]);
+
         Swal.fire({
           icon: "error",
           title: "Error",
@@ -101,6 +106,16 @@ export default function AddProductPage() {
       return;
     }
 
+    if (!formData.country) {
+      Swal.fire({
+        icon: "warning",
+        title: "Falta país",
+        text: "Debes seleccionar si el producto es de SV o US",
+        confirmButtonColor: "#d6336c",
+      });
+      return;
+    }
+
     if (formData.images.length === 0) {
       Swal.fire({
         icon: "warning",
@@ -120,6 +135,8 @@ export default function AddProductPage() {
     data.append("discountPercentage", formData.discountPercentage);
     data.append("stock", formData.stock);
     data.append("category_id", formData.category_id);
+    data.append("country", formData.country);  // ⬅⬅⬅ NUEVO
+
     data.append("measurements", JSON.stringify(formData.measurements));
 
     formData.images.forEach((file) => {
@@ -144,6 +161,7 @@ export default function AddProductPage() {
         discountPercentage: "",
         stock: "",
         category_id: "",
+        country: "",
         measurements: {
           weight: "",
           height: "",
@@ -151,6 +169,7 @@ export default function AddProductPage() {
         },
         images: [],
       });
+
     } catch (error) {
       setLoading(false);
       Swal.fire({
@@ -188,6 +207,7 @@ export default function AddProductPage() {
                   required
                 />
               </div>
+
               <div className="form-group">
                 <label>Precio</label>
                 <input
@@ -199,6 +219,7 @@ export default function AddProductPage() {
                   required
                 />
               </div>
+
               <div className="form-group">
                 <label>Descuento</label>
                 <input
@@ -209,6 +230,7 @@ export default function AddProductPage() {
                   onChange={handleInputChange}
                 />
               </div>
+
               <div className="form-group">
                 <label>Stock</label>
                 <input
@@ -254,8 +276,24 @@ export default function AddProductPage() {
               </select>
             </div>
 
+            {/* ⬅⬅⬅ NUEVO SELECTOR DE PAÍS */}
+            <div className="form-group">
+              <label>País del producto</label>
+              <select
+                name="country"
+                value={formData.country}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="">Selecciona país</option>
+                <option value="SV">El Salvador (SV)</option>
+                <option value="US">Estados Unidos (US)</option>
+              </select>
+            </div>
+
             <div className="measurements-section">
               <h4>Medidas</h4>
+
               <div className="measurements-grid">
                 <div className="form-group">
                   <label>Largo</label>
@@ -267,6 +305,7 @@ export default function AddProductPage() {
                     onChange={handleInputChange}
                   />
                 </div>
+
                 <div className="form-group">
                   <label>Ancho</label>
                   <input
@@ -277,6 +316,7 @@ export default function AddProductPage() {
                     onChange={handleInputChange}
                   />
                 </div>
+
                 <div className="form-group">
                   <label>Peso (g)</label>
                   <input

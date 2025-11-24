@@ -75,6 +75,20 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(express.json());
 app.use(cookieParser());
 
+app.use((req, res, next) => {
+  let country = req.query.region; // se enviará desde el frontend
+
+  // Si no viene nada → por defecto USA
+  if (!country) {
+    country = "US";
+  }
+
+  // Guardar el país en la request
+  req.userCountry = country;
+
+  next();
+});
+
 // ===== Rutas públicas =====
 app.use("/api/login", loginRoutes);
 app.use("/api/logout", logoutRoutes);
@@ -92,5 +106,9 @@ app.use("/api/sales", validateAuthToken(["admin", "customer"]), salesRoutes);
 app.use("/api/orders", validateAuthToken(["admin", "customer"]), ordersRoutes);
 app.use("/api/wompi", validateAuthToken(["admin", "customer"]), wompiRoutes);
 app.use("/api/profile", validateAuthToken(["admin", "customer"]), profileRoutes);
+
+
+
+
 
 export default app;

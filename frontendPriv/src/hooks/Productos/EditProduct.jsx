@@ -6,6 +6,7 @@ import "./EditDataProduct.css";
 const EditProduct = ({ productId, onClose, refreshProducts }) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -13,18 +14,23 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
     discountPercentage: "",
     stock: "",
     category_id: "",
+    country: "sv", // ← agregado
   });
 
-  // previewImages ahora guarda objetos: { url: string, isNew: boolean, file?: File }
   const [previewImages, setPreviewImages] = useState([]);
 
+  // ============================================
+  // Cargar datos del producto
+  // ============================================
   useEffect(() => {
     const loadProduct = async () => {
       try {
-        const res = await fetch(`https://eternaljoyeria-cg5d.onrender.com/api/products/${productId}`, {
-          credentials: "include",
-        });
+        const res = await fetch(
+          `https://eternaljoyeria-cg5d.onrender.com/api/products/${productId}`,
+          { credentials: "include" }
+        );
         if (!res.ok) throw new Error("Error al cargar el producto");
+
         const data = await res.json();
 
         setFormData({
@@ -34,9 +40,9 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
           category_id: data.category_id?._id || "",
           discountPercentage: data.discountPercentage || "",
           stock: data.stock || "",
+          country: data.country || "sv", // ← país cargado del backend
         });
 
-        // Setear imágenes existentes como objetos { url, isNew: false }
         const imagesData = (data.images || []).map((url) => ({
           url,
           isNew: false,
@@ -44,44 +50,63 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
         setPreviewImages(imagesData);
       } catch (err) {
         console.error(err);
-        Swal.fire({ icon: "error", title: "Error", text: "No se pudo cargar el producto" });
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo cargar el producto",
+        });
       }
     };
+
     loadProduct();
   }, [productId]);
 
+  // ============================================
+  // Cargar categorías
+  // ============================================
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("https://eternaljoyeria-cg5d.onrender.com/api/categories", {
-          withCredentials: true,
-        });
-        setCategories(Array.isArray(res.data) ? res.data : res.data.categories || []);
+        const res = await axios.get(
+          "https://eternaljoyeria-cg5d.onrender.com/api/categories",
+          { withCredentials: true }
+        );
+
+        setCategories(
+          Array.isArray(res.data) ? res.data : res.data.categories || []
+        );
       } catch (error) {
         console.error("Error al obtener categorías:", error);
       }
     };
+
     fetchCategories();
   }, []);
 
+  // ============================================
+  // Handlers básicos
+  // ============================================
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Reemplazar imagen existente
+  // ============================================
+  // Click sobre una imagen para reemplazarla
+  // ============================================
   const handleImageClick = (index) => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
+
     input.onchange = (e) => {
       const file = e.target.files[0];
       if (file) {
-        // Liberar URL anterior si era nueva imagen
         if (previewImages[index].isNew) {
           URL.revokeObjectURL(previewImages[index].url);
         }
         const newUrl = URL.createObjectURL(file);
+
         setPreviewImages((prev) => {
           const copy = [...prev];
           copy[index] = { url: newUrl, isNew: true, file };
@@ -89,14 +114,16 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
         });
       }
     };
+
     input.click();
   };
 
+  // ============================================
   // Agregar imágenes nuevas
+  // ============================================
   const handleAddImages = (e) => {
     const files = Array.from(e.target.files);
 
-    // Filtrar para evitar duplicados (mismo nombre y tamaño)
     const filteredFiles = files.filter((file) => {
       return !previewImages.some(
         (img) =>
@@ -124,7 +151,9 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
     e.target.value = "";
   };
 
-  // Eliminar imagen (sea nueva o existente)
+  // ============================================
+  // Eliminar imagen
+  // ============================================
   const handleDeleteImage = (index) => {
     Swal.fire({
       title: "¿Eliminar esta imagen?",
@@ -134,7 +163,6 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
     }).then((result) => {
       if (result.isConfirmed) {
         setPreviewImages((prev) => {
-          // Liberar URL si es imagen nueva
           if (prev[index].isNew) {
             URL.revokeObjectURL(prev[index].url);
           }
@@ -144,9 +172,13 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
     });
   };
 
+  // ============================================
+  // GUARDAR CAMBIOS (PUT)
+  // ============================================
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const form = new FormData();
 
@@ -154,30 +186,37 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
         form.append(key, value);
       });
 
-      // Imágenes existentes (urls)
+      // Imágenes existentes
       const existingImages = previewImages
         .filter((img) => !img.isNew)
         .map((img) => img.url);
+
       form.append("existingImages", JSON.stringify(existingImages));
 
-      // Imágenes nuevas (archivos)
+      // Imágenes nuevas
       previewImages
         .filter((img) => img.isNew && img.file)
         .forEach((img) => {
           form.append("images", img.file);
         });
 
-      const res = await fetch(`https://eternaljoyeria-cg5d.onrender.com/api/products/${productId}`, {
-        method: "PUT",
-        credentials: "include",
-        body: form,
-      });
+      const res = await fetch(
+        `https://eternaljoyeria-cg5d.onrender.com/api/products/${productId}`,
+        {
+          method: "PUT",
+          credentials: "include",
+          body: form,
+        }
+      );
 
       const resJson = await res.json();
-      if (!res.ok) throw new Error(resJson.message || "Error al actualizar el producto");
+
+      if (!res.ok)
+        throw new Error(resJson.message || "Error al actualizar el producto");
 
       await refreshProducts();
       setLoading(false);
+
       Swal.fire({ icon: "success", title: "Producto actualizado" });
       onClose();
     } catch (err) {
@@ -189,9 +228,12 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
   return (
     <>
       <div className="modal-overlay" onClick={onClose} />
+
       <div className="edit-modal-card scrollable-form">
         <h2 className="modal-title">Editar Producto</h2>
+
         <form onSubmit={handleSubmit} className="edit-category-form">
+          {/* Nombre */}
           <label>Nombre</label>
           <input
             type="text"
@@ -202,6 +244,7 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
             className="input-field"
           />
 
+          {/* Descripción */}
           <label>Descripción</label>
           <textarea
             name="description"
@@ -210,6 +253,7 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
             className="input-field"
           />
 
+          {/* Precio */}
           <label>Precio</label>
           <input
             type="number"
@@ -220,6 +264,7 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
             className="input-field"
           />
 
+          {/* Categoría */}
           <label>Categoría</label>
           <select
             name="category_id"
@@ -230,12 +275,16 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
           >
             <option value="">Selecciona Categoría</option>
             {categories.map((category) => (
-              <option key={category._id || category.id} value={category._id || category.id}>
+              <option
+                key={category._id || category.id}
+                value={category._id || category.id}
+              >
                 {category.name}
               </option>
             ))}
           </select>
 
+          {/* Descuento */}
           <label>% Descuento</label>
           <input
             type="number"
@@ -245,6 +294,7 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
             className="input-field"
           />
 
+          {/* Stock */}
           <label>Stock</label>
           <input
             type="number"
@@ -254,6 +304,20 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
             className="input-field"
           />
 
+          {/* País */}
+          <label>País del producto</label>
+          <select
+            name="country"
+            value={formData.country}
+            onChange={handleChange}
+            className="select"
+            required
+          >
+            <option value="sv">El Salvador</option>
+            <option value="us">Estados Unidos</option>
+          </select>
+
+          {/* IMÁGENES */}
           <label>Imágenes actuales</label>
           <div className="edit-image-preview">
             {previewImages.map((img, index) => (
@@ -265,6 +329,7 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
                   onClick={() => handleImageClick(index)}
                   title="Click para reemplazar"
                 />
+
                 <button
                   type="button"
                   onClick={() => handleDeleteImage(index)}
@@ -275,14 +340,9 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
                     background: "transparent",
                     color: "black",
                     border: "none",
-                    borderRadius: "50%",
-                    width: "20px",
-                    height: "20px",
-                    cursor: "pointer",
                     fontSize: "20px",
-                    lineHeight: "18px",
+                    cursor: "pointer",
                   }}
-                  aria-label="Eliminar imagen"
                 >
                   ×
                 </button>
@@ -290,6 +350,7 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
             ))}
           </div>
 
+          {/* Agregar imágenes */}
           <label>Agregar más imágenes</label>
           <input
             type="file"
@@ -299,10 +360,17 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
             className="input-field"
           />
 
+          {/* BOTONES */}
           <div className="buttons-roww">
-            <button type="button" onClick={onClose} className="main-buttoon" disabled={loading}>
+            <button
+              type="button"
+              onClick={onClose}
+              className="main-buttoon"
+              disabled={loading}
+            >
               Cancelar
             </button>
+
             <button type="submit" className="btn-primary" disabled={loading}>
               {loading ? "Actualizando..." : "Guardar"}
             </button>

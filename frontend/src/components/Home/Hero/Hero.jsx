@@ -3,6 +3,7 @@ import React, { useRef, useEffect } from 'react'; // React y hooks para referenc
 import { gsap } from 'gsap'; // Biblioteca de animaciones GSAP
 import './HomeHeroFixed.css'; // Estilos CSS específicos del hero
 import handImage from '/Home/Hand.png'; // Imagen de la mano para el hero
+import FlowerImg from '/Home/flor.png'; // Imagen de la mano para el hero
 import { Link } from 'react-router-dom'; // Componente para navegación (no usado actualmente)
 
 // Componente principal del Hero - Sección principal de la página de inicio
@@ -70,7 +71,7 @@ const Hero = () => {
         </div>
       </div>
       <div className="bloom-hero-hand-container"> {/* Contenedor para la imagen de la mano */}
-        <img src={handImage} alt="Hand" className="bloom-hero-hand-img" ref={handRef} />
+        <img src={FlowerImg} alt="Hand" className="bloom-hero-hand-img" ref={handRef} />
       </div>
     </div>
   );
