@@ -3,7 +3,7 @@ import fetch from "node-fetch";
 // Aquí debería ir la API KEY de Brevo, preferiblemente desde las variables de entorno
 const apiKey = process.env.brevoApiKey;
 const adminEmail = "lovercotes@gmail.com"; // 💡 CORREO VERIFICADO EN BREVO (TÚ/REMITENTE)
-const recipientEmail = "eternaljoyeria1@gmail.com"; // 💡 CORREO DEL ADMINISTRADOR (DESTINATARIO)
+const recipientEmail = "eternaljoyeriadeflores@gmail.com"; // 💡 CORREO DEL ADMINISTRADOR (DESTINATARIO)
 
 /**
  * Función para generar HTML del email de contacto (CON CSS EN LÍNEA y TABLAS)
