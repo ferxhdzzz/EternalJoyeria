@@ -15,18 +15,23 @@ cloudinary.config({
 const productController = {};
 
 // obtener todos los productos
+// backend/src/controllers/productsController.js
 productController.getAllProducts = async (req, res) => {
   try {
     const { country } = req.query;
 
-    // 🔹 Si hay country válido, filtrar; si no, traer todos
+    // 🔹 Filtro opcional: solo si country es SV o US
     let filter = {};
-    if (country && ["SV", "US"].includes(country)) {
-      filter.country = country;
+    if (country && ["SV", "US"].includes(country.toUpperCase())) {
+      filter.country = country.toUpperCase();
     }
 
     const products = await Product.find(filter).populate("category_id", "name");
-    res.json({ products });
+    
+    console.log("Filtro aplicado:", filter);
+    console.log("Productos encontrados:", products.length);
+
+    res.json(products); // ⚠️ devolvemos el array directamente
   } catch (error) {
     res.status(500).json({ message: "error fetching products", error: error.message });
   }
