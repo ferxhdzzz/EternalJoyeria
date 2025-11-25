@@ -98,9 +98,51 @@ body {
   margin-left: 2px;
 }
 
-.paypal-logo {
-  height: 24px;
-  margin-left: 5px;
+.payment-grid-cute {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+  margin-top: 15px;
+}
+
+.payment-card-cute {
+  background: #ffffff;
+  border: 2px solid #ffd1e8;
+  border-radius: 14px;
+  padding: 14px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0px 2px 5px rgba(255, 182, 218, 0.3);
+}
+
+.payment-card-cute img {
+  width: 60px;
+  height: 35px;
+  object-fit: contain;
+}
+
+.payment-card-cute span {
+  font-weight: 600;
+  font-size: 14px;
+  color: #444;
+}
+
+/* SELECCIÓN */
+.payment-card-cute.active {
+  border-color: #ff66a8;
+  background: #ffe4f3;
+  box-shadow: 0 0 10px rgba(255, 102, 168, 0.45);
+  transform: translateY(-2px);
+}
+
+.payment-card-cute:hover {
+  border-color: #ff90c7;
+  transform: translateY(-2px);
 }
 
 .checkout-form {
@@ -637,6 +679,102 @@ body {
   flex: 2;
   margin-top: 0; /* Quitar el margen superior cuando está en fila */
 }
+.title-pay {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 25px;
+}
+
+.payment-grid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.pay-card {
+  width: 260px;
+  padding: 20px;
+  border-radius: 20px;
+  background: white;
+  border: 2px solid #ff7eb9;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.pay-card.active {
+  background: #ffe3f2;
+  border-color: #ff4fa3;
+}
+
+.pay-card:hover {
+  transform: scale(1.03);
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-box {
+  width: 420px;
+  background: #fff;
+  padding: 30px;
+  border-radius: 25px;
+  text-align: center;
+  border: 3px solid #ff7eb9;
+}
+
+.modal-title {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: #d63384;
+}
+
+.modal-info p {
+  margin: 6px 0;
+  font-size: 16px;
+}
+
+.modal-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.modal-btn.copy {
+  background: #ff7eb9;
+  color: white;
+}
+
+.modal-btn.close {
+  background: #ff97d0;
+}
+
+.payment-link {
+  display: inline-block;
+  background: #ff7eb9;
+  padding: 12px;
+  border-radius: 20px;
+  color: white;
+  font-weight: bold;
+  text-decoration: none;
+  margin-top: 15px;
+}
+
 
 /* Página de éxito mejorada */
 .ticket-success {

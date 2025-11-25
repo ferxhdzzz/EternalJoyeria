@@ -165,8 +165,9 @@ const Nav = ({ cartOpen = false }) => {
           {(user || isAuthenticated) && (
             <Link to="/perfil" className="nav-icon nav-icon-user" aria-label="Perfil"><User size={22} /></Link>
           )}
-
+<br /><br /><br />
           <Link to="/carrito" className="nav-icon nav-cart-icon" aria-label="Carrito de Compras" style={{ position: "relative" }}>
+
             <CartIcon size={22} />
             {totalCount > 0 && <span className={`nav-cart-badge${bump ? " bump" : ""}`}>{totalCount}</span>}
           </Link>

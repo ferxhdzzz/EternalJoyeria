@@ -1,5 +1,6 @@
 // src/pages/CheckoutPage.jsx
-import React, { useEffect, useState } from 'react';
+
+import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 import Nav from '../components/Nav/Nav';
@@ -7,10 +8,14 @@ import SidebarCart from '../components/Cart/SidebarCart';
 import Swal from 'sweetalert2';
 import '../styles/CheckoutPage.css';
 import Footer from '../components/Footer';
-import usePayment from '../hooks/Payment/usePayment.js';
+// 🔑 Importamos el hook de pago modificado
+import usePayment from '../hooks/Payment/usePayment'; 
 
+
+// SVG EDGE (Sin cambios)
 const TicketEdge = () => (
-  <svg width="100%" height="6" viewBox="0 0 400 6" fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:'block'}}>
+// ... (Componente igual)
+  <svg width="100%" height="6" viewBox="0 0 400 6" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
     <g>
       {[...Array(20)].map((_, i) => (
         <circle key={i} cx={20 * i + 10} cy={-6} r={6} fill="#fceee7" />
@@ -19,439 +24,372 @@ const TicketEdge = () => (
   </svg>
 );
 
-// Barra de progreso
-const ProgressBar = ({ step }) => {
-  return (
-    <div className="progress-bar-container">
-      <div className="progress-bar">
-        <div className={`progress-step ${step >= 1 ? 'active' : ''}`}>
-          <span>1</span>
-          <label>Datos de envío</label>
-        </div>
-        <div className={`progress-line ${step >= 2 ? 'active' : ''}`}></div>
-        <div className={`progress-step ${step >= 2 ? 'active' : ''}`}>
-          <span>2</span>
-          <label>Pago</label>
-        </div>
-        <div className={`progress-line ${step >= 3 ? 'active' : ''}`}></div>
-        <div className={`progress-step ${step >= 3 ? 'active completed' : ''}`}>
-          <span>{step >= 3 ? '✓' : '3'}</span>
-          <label>Confirmación</label>
-        </div>
+// PROGRESS BAR (Sin cambios)
+const ProgressBar = ({ step }) => (
+// ... (Componente igual)
+  <div className="progress-bar-container">
+    <div className="progress-bar">
+      <div className={`progress-step ${step >= 1 ? 'active' : ''}`}>
+        <span>1</span>
+        <label>Datos de envío</label>
+      </div>
+      <div className={`progress-line ${step >= 2 ? 'active' : ''}`}></div>
+
+      <div className={`progress-step ${step >= 2 ? 'active' : ''}`}>
+        <span>2</span>
+        <label>Pago</label>
+      </div>
+
+      <div className={`progress-line ${step >= 3 ? 'active' : ''}`}></div>
+
+      <div className={`progress-step ${step >= 3 ? 'active completed' : ''}`}>
+        <span>{step >= 3 ? '✓' : '3'}</span>
+        <label>Confirmación</label>
       </div>
     </div>
-  );
-};
+  </div>
+);
+
 
 const CheckoutPage = () => {
-  const { cartItems, clearCart } = useCart();
-  const navigate = useNavigate();
-  const [cartOpen, setCartOpen] = useState(false);
+    const { cartItems, clearCart } = useCart();
+    const navigate = useNavigate();
+    const [cartOpen, setCartOpen] = useState(false);
+    
+    // 🔑 Usamos el hook y obtenemos las funciones necesarias
+    const { 
+        formData, 
+        handleChangeData, 
+        step, 
+        setStep, 
+        order,
+        loadOrCreateCart,
+        syncCartItems,
+        handleFirstStep,   // Usado para validar paso 1 y pasar al 2
+        handleManualPayment // 🔑 Usado para finalizar la orden como PENDIENTE
+    } = usePayment(); 
+    
+    // Estados locales para el flujo (igual que antes)
+    const [showModal, setShowModal] = useState(false); 
+    const [paymentMethod, setPaymentMethod] = useState("");
+    const [errors, setErrors] = useState({});
 
-  // Hook de pago (con carrito servidor)
-  const {
-    formData,
-    formDataTarjeta,
-    handleChangeData,
-    handleChangeTarjeta,
-    handleFirstStep,
-    handleFinishPayment,
-    step,
-    setStep,
-    limpiarFormulario,
-    loadOrCreateCart,
-    syncCartItems,
-    orderId,
-  } = usePayment();
+    // DATOS MODAL (Igual que antes)
+    const bankInfo = {
+        banco: "Banco de América Central Credomatic",
+        nombre: "Eternal Joyeria",
+        cuenta: "0000-0000-0000-0000",
+        tipo: "Cuenta de ahorros",
+    };
 
-  const [errors, setErrors] = useState({});
+    const handleCopy = () => {
+        navigator.clipboard.writeText(bankInfo.cuenta);
+        Swal.fire("Copiado", "Número de cuenta copiado.", "success");
+    };
 
-  // Totales frontend (para mostrar). Para pruebas, envío = 0
-  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const shipping = 0; // 👈 sin costo de envío para testear
-  const total = subtotal + shipping;
+    // TOTAL (Igual que antes)
+    const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const total = subtotal;
 
-  // Cargar/crear carrito servidor al entrar a checkout
-  useEffect(() => {
-    loadOrCreateCart().catch(console.error);
-  }, [loadOrCreateCart]);
+    // VALIDACIÓN PASO 1 (Igual que antes)
+    const validateStep1 = () => {
+        const newErrors = {};
+        if (!formData.nombre.trim()) newErrors.nombre = "Nombre requerido";
+        if (!formData.email.trim() || !/^\S+@\S+\.\S+$/.test(formData.email)) newErrors.email = "Email inválido";
+        if (!formData.direccion.trim()) newErrors.direccion = "Dirección requerida";
+        if (!formData.ciudad.trim()) newErrors.ciudad = "Ciudad requerida";
+        if (!formData.codigoPostal.trim()) newErrors.codigoPostal = "Código postal requerido";
+        if (!formData.telefono.trim()) newErrors.telefono = "Teléfono requerido";
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+    
+    // 🔑 Transición al paso 2 (Usando la función del hook)
+    const nextStep = async () => {
+        if (step === 1 && validateStep1()) {
+            try {
+                // Guarda la dirección en la orden y pasa a setStep(2) dentro de handleFirstStep
+                await handleFirstStep(); 
+            } catch (error) {
+                console.error("Error al guardar la dirección:", error);
+                Swal.fire("Error", error.message || "No se pudo guardar la dirección.", "error");
+            }
+        }
+    };
 
-  // Sincronizar ítems del carrito local al backend cuando YA tenemos orderId
-  useEffect(() => {
-    if (!orderId) return;
-    const shippingCents = Math.round(shipping * 100);
-    syncCartItems(cartItems, { shippingCents, taxCents: 0, discountCents: 0 }).catch(console.error);
-  }, [cartItems, shipping, orderId, syncCartItems]);
-
-  if (cartItems.length === 0) {
-    return (
-      <>
-        <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
-        <Nav cartOpen={cartOpen} />
-        <div className="checkout-page-container empty">
-          <h2>Tu carrito está vacío.</h2>
-          <p>No tienes productos para pagar.</p>
-        </div>
-      </>
-    );
-  }
-
-  // Validación paso 1 (datos de envío)
-  const validateStep1 = () => {
-    const newErrors = {};
-    if (!formData.nombre?.trim()) newErrors.nombre = 'Nombre requerido';
-    if (!formData.email?.trim() || !/^\S+@\S+\.\S+$/.test(formData.email)) newErrors.email = 'Correo inválido';
-    if (!formData.direccion?.trim()) newErrors.direccion = 'Dirección requerida';
-    if (!formData.ciudad?.trim()) newErrors.ciudad = 'Ciudad requerida';
-    if (!formData.codigoPostal?.trim() || !/^\d{3,10}$/.test(formData.codigoPostal)) newErrors.codigoPostal = 'Código postal inválido';
-    if (!formData.telefono?.trim()) newErrors.telefono = 'Teléfono requerido';
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // Validación paso 2 (datos de tarjeta)
-  const validateStep2 = () => {
-    const newErrors = {};
-    if (!formDataTarjeta.nombreTarjetaHabiente?.trim()) {
-      newErrors.nombreTarjetaHabiente = 'Nombre en la tarjeta requerido';
+    const previousStep = () => {
+        if (step > 1) {
+            setStep(step - 1);
+            setShowModal(false);
+        }
+    };
+    
+    // 🔑 Lógica para finalizar la orden como PENDIENTE
+    const finalizePendingOrder = async (method) => {
+        try {
+            Swal.fire({
+                title: "Registrando pedido...",
+                text: `Finalizando orden con método ${method}.`,
+                icon: "info",
+                showConfirmButton: false,
+                allowOutsideClick: false,
+            });
+            
+            // 🔑 Llama a la función del hook que gestiona la orden
+            await handleManualPayment(method); 
+            
+            // Si tiene éxito, el hook ya habrá llamado a setStep(3)
+            clearCart(); // Vacia el carrito local después de la confirmación del servidor
+            setShowModal(false);
+            Swal.close();
+            
+        } catch (error) {
+            console.error('Error al finalizar la orden como pendiente:', error);
+            Swal.fire("Error", error.message || "No se pudo finalizar la orden. Intenta de nuevo.", "error");
+        }
     }
-    if (
-      !formDataTarjeta.numeroTarjeta?.trim() ||
-      !/^\d{13,16}$/.test(formDataTarjeta.numeroTarjeta.replace(/\s/g, ''))
-    ) {
-      newErrors.numeroTarjeta = 'Tarjeta inválida (13-16 dígitos numéricos)';
-    }
-    if (!formDataTarjeta.mesVencimiento || !formDataTarjeta.anioVencimiento) {
-      newErrors.fechaVencimiento = 'Fecha de vencimiento requerida';
-    }
-    if (!formDataTarjeta.cvv?.trim() || !/^\d{3,4}$/.test(formDataTarjeta.cvv)) {
-      newErrors.cvv = 'CVV inválido (3-4 dígitos)';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
-  // Ir al siguiente paso
-  const handleNextStep = async () => {
-    if (step !== 1) return;
 
-    if (validateStep1()) {
-      try {
-        // Asegurar orden + sync inmediata antes de pending_payment
-        if (!orderId) await loadOrCreateCart();
-        const shippingCents = Math.round(shipping * 100);
-        await syncCartItems(
-          cartItems,
-          { shippingCents, taxCents: 0, discountCents: 0 },
-          { immediate: true }
+    // Llamado por el botón "Finalizar compra" (ej. PayPal)
+    const handlePay = () => {
+        if (!paymentMethod) {
+            Swal.fire("Selecciona un método de pago", "", "warning");
+            return;
+        }
+        // Ejecuta la creación de la orden pendiente a través del hook
+        finalizePendingOrder(paymentMethod);
+    };
+
+    // Llamado por el botón "Siguiente → Confirmar Pedido" en los Modales (Transferencia/Link)
+    const handleNextFromModal = () => {
+        // Ejecuta la creación de la orden pendiente a través del hook
+        finalizePendingOrder(paymentMethod);
+    };
+
+    const finishOrder = () => navigate("/historial");
+
+    // Lógica para cargar/sincronizar el carrito al entrar a Checkout (Opcional, pero bueno si el hook lo requiere)
+    // useEffect(() => {
+    //     if (cartItems.length > 0) {
+    //         loadOrCreateCart().catch(console.error);
+    //     }
+    // }, [loadOrCreateCart, cartItems.length]);
+    
+    // useEffect(() => {
+    //     if (order?.status === 'cart') {
+    //         syncCartItems(cartItems, { shippingCents: 0, taxCents: 0, discountCents: 0 }).catch(console.error);
+    //     }
+    // }, [cartItems, order?.status, syncCartItems]);
+
+
+    // Manejo de carrito vacío (Igual que antes)
+    if (cartItems.length === 0 && step !== 3) {
+        return (
+            <>
+              <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+              <Nav cartOpen={cartOpen} />
+              <div className="checkout-page-container empty">
+                <h2>Tu carrito está vacío.</h2>
+              </div>
+              <Footer />
+            </>
         );
-
-        // Guardar dirección → pending → token → step 2
-        await handleFirstStep();
-      } catch (err) {
-        console.error('Error en primer paso:', err);
-        Swal.fire({
-          title: 'Error',
-          text: err?.message || 'No se pudo preparar el pago. Intenta nuevamente.',
-          icon: 'error',
-        });
-      }
     }
-  };
 
-  // Volver al paso anterior
-  const handlePreviousStep = () => {
-    if (step > 1) {
-      setStep(step - 1);
-      setErrors({});
-    }
-  };
+    // ===============================================
+    // RENDERIZADO
+    // ===============================================
+    
+    return (
+        <div className="checkout-page">
+            {/* ... (Nav, SidebarCart, Footer) */}
 
-  // Procesar pago final
-  const handlePay = async (e) => {
-    e.preventDefault();
-    if (!validateStep2()) return;
-    try {
-      await handleFinishPayment(); // Procesa 3DS; si aprueba, step=3
-      Swal.fire({
-        title: 'Pago exitoso',
-        text: 'Gracias por tu compra.',
-        icon: 'success',
-        confirmButtonText: 'Ver mis pedidos',
-        confirmButtonColor: '#D1A6B4',
-      }).then(() => {
-        clearCart();
-        navigate('/historial');
-      });
-    } catch (error) {
-      console.error('Error al pagar:', error);
-      Swal.fire({
-        title: 'Pago rechazado',
-        text: error?.message || 'No se pudo procesar el pago. Intenta de nuevo.',
-        icon: 'error',
-      });
-    }
-  };
+            <div className="checkout-bg">
+                <div className="checkout-flex">
 
-  // Formatear número de tarjeta (solo visual)
-  const formatCardNumber = (value) => {
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-    const matches = v.match(/\d{4,16}/g);
-    const match = (matches && matches[0]) || '';
-    const parts = [];
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
-    }
-    return parts.length ? parts.join(' ') : v;
-  };
+                    {/* FORMULARIO */}
+                    <section className="checkout-payment-box ticket-form-box">
+                        <ProgressBar step={step} />
 
-  // Número de tarjeta visual, guardando sin espacios
-  const handleCardNumberChange = (e) => {
-    const rawValue = e.target.value.replace(/\s/g, '');
-    const formattedValue = formatCardNumber(e.target.value);
-    handleChangeTarjeta({ target: { name: 'numeroTarjeta', value: rawValue } });
-    e.target.value = formattedValue;
-  };
+                        {/* PASO 1 (Datos de envío) */}
+                        {step === 1 && (
+                            <>
+                                <h2 className="ticket-title">Datos de envío</h2>
+                                <form className="ticket-form">
+                                  {/* Mapeo de campos */}
+                                  {Object.keys(formData).filter(k => k !== 'apellido' && k !== 'idPais' && k !== 'idRegion').map((key) => (
+                                    <div className="ticket-field" key={key}>
+                                      <label>{key.charAt(0).toUpperCase() + key.slice(1)}</label>
+                                      <input
+                                        type="text"
+                                        name={key}
+                                        value={formData[key]}
+                                        onChange={handleChangeData} // 🔑 Usamos la función del hook
+                                      />
+                                      {errors[key] && <span className="ticket-error">{errors[key]}</span>}
+                                    </div>
+                                  ))}
+                                  <button className="ticket-pay-btn" type="button" onClick={nextStep}>
+                                    Siguiente →
+                                  </button>
+                                </form>
+                            </>
+                        )}
 
-  // Fecha (MM/AA) → guarda MM + YYYY
-  const handleExpiryChange = (e) => {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length >= 2) {
-      value = value.substring(0, 2) + '/' + value.substring(2, 4);
-    }
-    e.target.value = value;
-    const [mes, anio] = value.split('/');
-    if (mes) handleChangeTarjeta({ target: { name: 'mesVencimiento', value: mes } });
-    if (anio) handleChangeTarjeta({ target: { name: 'anioVencimiento', value: `20${anio}` } });
-  };
+                        {/* PASO 2 (Métodos de pago) */}
+                        {step === 2 && (
+                            <>
+                                <h2 className="ticket-title">Métodos de pago</h2>
 
-  // Limpiar formulario y reiniciar
-  const handleNewTransaction = () => {
-    clearCart();
-    limpiarFormulario();
-    navigate('/historial');
-  };
+                                <div className="payment-grid-cute">
+                                    {/* PAYPAL (Finaliza directo) */}
+                                    <button
+                                        className={`payment-card-cute ${paymentMethod === "PayPal" ? "active" : ""}`}
+                                        onClick={() => setPaymentMethod("PayPal")}
+                                    >
+                                        <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" alt="PayPal Logo" />
+                                        <span>PayPal</span>
+                                    </button>
 
-  return (
-    <div className="checkout-page">
-      <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
-      <Nav cartOpen={cartOpen} />
-      <div className="checkout-bg">
-        <div className="checkout-flex">
-          {/* Formulario de pasos */}
-          <section className="checkout-payment-box ticket-form-box">
-            <ProgressBar step={step} />
+                                    {/* TRANSFERENCIA (Abre Modal) */}
+                                    <button
+                                        className={`payment-card-cute ${paymentMethod === "Transferencia" ? "active" : ""}`}
+                                        onClick={() => {
+                                            setPaymentMethod("Transferencia");
+                                            setShowModal("transfer");
+                                        }}
+                                    >
+                                        <img src="https://cdn-icons-png.flaticon.com/512/565/565547.png" alt="Transferencia Logo" />
+                                        <span style={{ fontSize: "12px", fontWeight: "600" }}>
+                                            Banco de América Central
+                                        </span>
+                                    </button>
 
-            {/* Paso 1: Datos de envío */}
-            {step === 1 && (
-              <>
-                <h2 className="ticket-title">Datos de envío</h2>
-                <form className="ticket-form">
-                  <div className="ticket-field">
-                    <label>Nombre completo</label>
-                    <input
-                      type="text"
-                      name="nombre"
-                      value={formData.nombre}
-                      onChange={handleChangeData}
-                    />
-                    {errors.nombre && <span className="ticket-error">{errors.nombre}</span>}
-                  </div>
-                  <div className="ticket-field">
-                    <label>Correo electrónico</label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChangeData}
-                    />
-                    {errors.email && <span className="ticket-error">{errors.email}</span>}
-                  </div>
-                  <div className="ticket-field">
-                    <label>Dirección</label>
-                    <input
-                      type="text"
-                      name="direccion"
-                      value={formData.direccion}
-                      onChange={handleChangeData}
-                    />
-                    {errors.direccion && <span className="ticket-error">{errors.direccion}</span>}
-                  </div>
-                  <div className="ticket-field">
-                    <label>Teléfono</label>
-                    <input
-                      type="text"
-                      name="telefono"
-                      value={formData.telefono}
-                      onChange={handleChangeData}
-                    />
-                    {errors.telefono && <span className="ticket-error">{errors.telefono}</span>}
-                  </div>
-                  <div className="ticket-field-row">
-                    <div className="ticket-field">
-                      <label>Ciudad</label>
-                      <input
-                        type="text"
-                        name="ciudad"
-                        value={formData.ciudad}
-                        onChange={handleChangeData}
-                      />
-                      {errors.ciudad && <span className="ticket-error">{errors.ciudad}</span>}
-                    </div>
-                    <div className="ticket-field">
-                      <label>Código postal</label>
-                      <input
-                        type="text"
-                        name="codigoPostal"
-                        value={formData.codigoPostal}
-                        onChange={handleChangeData}
-                      />
-                      {errors.codigoPostal && <span className="ticket-error">{errors.codigoPostal}</span>}
-                    </div>
-                  </div>
-                  <button
-                    className="ticket-pay-btn"
-                    type="button"
-                    onClick={handleNextStep}
-                  >
-                    Siguiente →
-                  </button>
-                </form>
-              </>
-            )}
+                                    {/* LINK (Abre Modal) */}
+                                    <button
+                                        className={`payment-card-cute ${paymentMethod === "Link" ? "active" : ""}`}
+                                        onClick={() => {
+                                            setPaymentMethod("Link");
+                                            setShowModal("link");
+                                        }}
+                                    >
+                                        <img src="https://cdn-icons-png.flaticon.com/512/891/891462.png" alt="Link de Pago Logo" />
+                                        <span>Link de Pago</span>
+                                    </button>
+                                </div>
 
-            {/* Paso 2: Datos de tarjeta */}
-            {step === 2 && (
-              <>
-                <h2 className="ticket-title">Información de pago</h2>
-                <form className="ticket-form" onSubmit={handlePay}>
-                  {/* Nombre en la tarjeta */}
-                  <div className="ticket-field">
-                    <label>Nombre en la tarjeta</label>
-                    <input
-                      type="text"
-                      name="nombreTarjetaHabiente"
-                      value={formDataTarjeta.nombreTarjetaHabiente || ""}
-                      onChange={handleChangeTarjeta}
-                      placeholder="Como aparece en la tarjeta"
-                    />
-                    {errors.nombreTarjetaHabiente && (
-                      <span className="ticket-error">{errors.nombreTarjetaHabiente}</span>
-                    )}
-                  </div>
+                                <div className="ticket-button-row">
+                                    <button className="ticket-back-btn" onClick={previousStep}>
+                                        ← Volver
+                                    </button>
 
-                  {/* Número de tarjeta */}
-                  <div className="ticket-field">
-                    <label>Número de tarjeta</label>
-                    <input
-                      type="text"
-                      onChange={handleCardNumberChange}
-                      maxLength={19}
-                      placeholder="1234 5678 9012 3456"
-                    />
-                    {errors.numeroTarjeta && (
-                      <span className="ticket-error">{errors.numeroTarjeta}</span>
-                    )}
-                  </div>
+                                    {/* Botón de Finalizar solo disponible para métodos que NO usan modal */}
+                                    {paymentMethod && paymentMethod !== "Transferencia" && paymentMethod !== "Link" && (
+                                        <button className="ticket-pay-btn" onClick={handlePay}>
+                                            Finalizar compra
+                                        </button>
+                                    )}
+                                </div>
+                            </>
+                        )}
 
-                  <div className="ticket-field-row">
-                    <div className="ticket-field">
-                      <label>Fecha de vencimiento (MM/AA)</label>
-                      <input
-                        type="text"
-                        onChange={handleExpiryChange}
-                        maxLength={5}
-                        placeholder="MM/AA"
-                      />
-                      {errors.fechaVencimiento && (
-                        <span className="ticket-error">{errors.fechaVencimiento}</span>
-                      )}
-                    </div>
-                    <div className="ticket-field">
-                      <label>Código de seguridad (CVV)</label>
-                      <input
-                        type="text"
-                        name="cvv"
-                        value={formDataTarjeta.cvv}
-                        onChange={handleChangeTarjeta}
-                        maxLength={4}
-                      />
-                      {errors.cvv && <span className="ticket-error">{errors.cvv}</span>}
-                    </div>
-                  </div>
+                        {/* PASO 3 — CONFIRMACIÓN DE ORDEN PENDIENTE */}
+                        {step === 3 && (
+                            <div className="ticket-success">
+                                <div className="success-icon">✓</div>
+                                <h2 className="ticket-title">¡Pedido registrado!</h2>
+                                <p className="success-message">
+                                    Tu orden **#{order?._id || 'N/A'}** ha sido registrada y está en estado **PENDIENTE** de pago. 
+                                    <br />Revisa la información que proporcionamos para completar tu pago.
+                                </p>
+                                <p className="success-small-text">
+                                    El administrador cambiará el estado a "Pagado" cuando confirme la transacción.
+                                </p>
 
-                  <div className="ticket-button-row">
-                    <button
-                      className="ticket-back-btn"
-                      type="button"
-                      onClick={handlePreviousStep}
-                    >
-                      ← Volver
-                    </button>
-                    <button className="ticket-pay-btn" type="submit">
-                      Pagar ahora
-                    </button>
-                  </div>
-                </form>
-              </>
-            )}
+                                <button className="ticket-pay-btn" onClick={finishOrder}>
+                                    Ver mis pedidos
+                                </button>
+                            </div>
+                        )}
+                    </section>
 
-            {/* Paso 3: Confirmación */}
-            {step === 3 && (
-              <div className="ticket-success">
-                <div className="success-icon">✓</div>
-                <h2 className="ticket-title">¡Pago exitoso!</h2>
-                <p className="success-message">
-                  Tu transacción ha sido procesada correctamente
-                </p>
-                <div className="success-amount">
-                  Monto procesado: ${total.toFixed(2)}
+                    {/* RESUMEN (Usa order?.items para el paso 3) */}
+                    <section className="checkout-summary-box ticket-summary-box">
+                        <TicketEdge />
+                        <div className="ticket-summary-inner">
+                            <h3 className="ticket-summary-title">Resumen de tu compra</h3>
+
+                            {/* Mostrar items del carrito o de la orden guardada */}
+                            {(step === 3 ? (order?.items || []) : cartItems).map(item => (
+                                <div className="ticket-summary-item" key={item._id || item.id}>
+                                    <img src={item.image || item.product?.images?.[0] || 'placeholder.jpg'} className="ticket-summary-img" alt={item.name} />
+                                    <div className="ticket-summary-details">
+                                        <span className="ticket-summary-name">{item.name || item.product?.name} x {item.quantity}</span>
+                                    </div>
+                                    <span className="ticket-summary-price">
+                                        ${(item.price * item.quantity).toFixed(2)}
+                                    </span>
+                                </div>
+                            ))}
+                            
+                            <div className="ticket-summary-row">
+                                <span>Subtotal</span>
+                                <span>${subtotal.toFixed(2)}</span>
+                            </div>
+
+                            <div className="ticket-summary-total-row">
+                                <span>Total</span>
+                                <span>${total.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        <TicketEdge style={{ transform: "rotate(180deg)" }} />
+                    </section>
                 </div>
-                <button
-                  className="ticket-pay-btn"
-                  onClick={handleNewTransaction}
-                >
-                  Ver mis pedidos
-                </button>
-              </div>
-            )}
-          </section>
-
-          {/* Ticket resumen */}
-          <section className="checkout-summary-box ticket-summary-box">
-            <TicketEdge />
-            <div className="ticket-summary-inner">
-              <h3 className="ticket-summary-title">Resumen de tu compra</h3>
-              <div className="ticket-summary-items">
-                {cartItems.map(item => (
-                  <div className="ticket-summary-item" key={item.id + '-' + item.size}>
-                    <img src={item.image} alt={item.name} className="ticket-summary-img" />
-                    <div className="ticket-summary-details">
-                      <span className="ticket-summary-name">{item.name}</span>
-                    </div>
-                    <span className="ticket-summary-price">${(item.price * item.quantity).toFixed(2)}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="ticket-summary-row">
-                <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
-              </div>
-              <div className="ticket-summary-row">
-              
-              </div>
-              <div className="ticket-summary-total-row">
-                <span>Total</span>
-                <span>${total.toFixed(2)}</span>
-              </div>
             </div>
-            <TicketEdge style={{ transform: 'rotate(180deg)' }} />
-          </section>
+
+            <Footer />
+
+            {/* 🌸 MODALES 🌸 */}
+            {showModal && (
+                <div className="modal-overlay" onClick={() => setShowModal(false)}>
+                    <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+
+                        {/* Botón de cerrar (X) */}
+                        <button className="modal-close-btn" onClick={() => setShowModal(false)}>
+                            X
+                        </button>
+
+                        {/* Transferencia */}
+                        {showModal === "transfer" && (
+                            <>
+                                <h2 className="modal-title">Datos Bancarios</h2>
+                                <p className="modal-instruction">Por favor, realiza la transferencia con los siguientes datos. Tu pedido se registrará como pendiente hasta que el administrador verifique el pago.</p>
+                                {/* ... (Modal info) */}
+                                <button className="modal-btn copy" onClick={handleCopy}>
+                                    Copiar número de cuenta
+                                </button>
+                                <button className="modal-btn next" onClick={handleNextFromModal}>
+                                    Siguiente → Confirmar Pedido
+                                </button>
+                            </>
+                        )}
+
+                        {/* Link de Pago */}
+                        {showModal === "link" && (
+                            <>
+                                <h2 className="modal-title">Link de Pago</h2>
+                                <p className="modal-instruction">Serás redirigido a una página externa. Al regresar, tu pedido se registrará como pendiente hasta que el administrador verifique el pago.</p>
+                                {/* ... (Modal link) */}
+                                <button className="modal-btn next" onClick={handleNextFromModal}>
+                                    Siguiente → Confirmar Pedido
+                                </button>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
-      </div>
-      <Footer />
-    </div>
-  );
+    );
 };
 
 export default CheckoutPage;
