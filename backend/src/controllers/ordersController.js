@@ -4,7 +4,7 @@ import Order from "../models/Orders.js";
 import Product from "../models/Products.js";
 import Customer from "../models/Customers.js";
 // 🔑 IMPORTACIÓN NECESARIA: Modelo de Sale
-import Sale from "../models/Sales.js"; // Asegúrate de que esta ruta sea correcta: "../models/Sales.js"
+import Sale from "../models/sales.js"; // Asegúrate de que esta ruta sea correcta: "../models/Sales.js"
 
 /* Utiles */
 const isObjectId = (v) => mongoose.Types.ObjectId.isValid(String(v));
