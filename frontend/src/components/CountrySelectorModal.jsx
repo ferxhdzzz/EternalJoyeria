@@ -1,41 +1,62 @@
 // src/components/CountrySelectorModal.jsx
 import { useEffect, useState } from "react";
 import { useCountry } from "../context/CountryContext.jsx";
-
 import { translations } from "../i18n/Translations.js";
 
-const { language } = useCountry();
-
-<p>{translations[language].welcome}</p>
-
 export default function CountrySelectorModal() {
-  const { country, initialized, chooseCountry } = useCountry();
-  const [show, setShow] = useState(false);
+  const { country, initialized, chooseCountry, language } = useCountry();
+  
+  // 1. Inicializamos 'show' en FALSE.
+  const [show, setShow] = useState(false); 
+
+  const welcomeText = translations[language]?.welcome || "¿Desde dónde nos visitas?";
 
   useEffect(() => {
+    // Si el proceso de inicialización del contexto no ha terminado, salimos.
     if (!initialized) return;
 
-    if (!country) {
-      setShow(true);   // Mostrar modal si no hay país seleccionado
-    } else {
-      setShow(false);  // Ocultar si ya se eligió
+    // 2. Si el país ya está guardado (el usuario ya seleccionó), mantenemos oculto.
+    if (country) {
+      setShow(false);
+      return;
     }
-  }, [country, initialized]);
 
+    // 🎯 AJUSTA ESTE VALOR: Duración en milisegundos que es ligeramente mayor
+    // que la duración de tu animación de carga. 2500ms (2.5 segundos) es un buen punto de partida.
+    const animationDuration = 2500; 
+    
+    // 3. Establecer un temporizador para mostrar el modal después del retardo de la animación.
+    const timer = setTimeout(() => {
+        setShow(true); 
+    }, animationDuration);
+
+    // Función de limpieza para evitar fugas de memoria si el componente se desmonta.
+    return () => clearTimeout(timer);
+
+  }, [country, initialized]);
+  
+  // 4. Función para cerrar y seleccionar país
+  const handleCountrySelect = (selectedCountry) => {
+    chooseCountry(selectedCountry);
+    // Ocultamos el modal solo después de que el usuario interactúa
+    setShow(false); 
+  };
+  
+  // Si no debemos mostrar el modal, retornamos null
   if (!show) return null;
 
   return (
     <div style={overlayStyle}>
       <div style={cardStyle}>
-        <h2 style={{ marginTop: 0 }}>¿Desde dónde nos visitas?</h2>
+        <h2 style={{ marginTop: 0 }}>{welcomeText}</h2> 
         <p>Selecciona tu país para ver el catálogo y el idioma correctos.</p>
 
-        <div style={{ display: "flex", gap: "0.6rem", marginTop: "1rem" }}>
-          <button style={btnPrimary} onClick={() => chooseCountry("SV")}>
+        <div style={{ display: "flex", gap: "0.6rem", marginTop: "1rem", justifyContent: "center" }}>
+          <button style={btnPrimary} onClick={() => handleCountrySelect("SV")}>
             🇸🇻 El Salvador — Español
           </button>
 
-          <button style={btnOutline} onClick={() => chooseCountry("US")}>
+          <button style={btnOutline} onClick={() => handleCountrySelect("US")}>
             🇺🇸 United States — English
           </button>
         </div>
@@ -48,13 +69,14 @@ export default function CountrySelectorModal() {
   );
 }
 
-/* ===== ESTILOS ===== */
+/* ===== ESTILOS (Sin cambios) ===== */
 
 const overlayStyle = {
   position: "fixed",
   inset: 0,
   background: "rgba(0,0,0,0.45)",
-  zIndex: 20000,
+  // 💡 Recomendación: Aumenta este zIndex a un número muy alto para asegurar que esté por encima de todo.
+  zIndex: 10000, 
   display: "flex",
   alignItems: "center",
   justifyContent: "center",

@@ -1,40 +1,27 @@
 // src/context/CountryContext.jsx
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 
 const CountryContext = createContext();
 
 export const CountryProvider = ({ children }) => {
-  const [country, setCountry] = useState(null); 
-  const [language, setLanguage] = useState("es");
-  const [initialized, setInitialized] = useState(false);
+  // Inicializar el estado de 'country' con valor guardado o por defecto
+  const getInitialCountry = () => {
+    const savedCountry = localStorage.getItem("site_country");
+    return savedCountry || 'SV';
+  };
 
-  // Cargar país desde localStorage al iniciar
-  useEffect(() => {
-    const saved = localStorage.getItem("site_country");
-    if (saved) {
-      setCountry(saved);
-      setLanguage(saved === "US" ? "en" : "es");
-    }
-    setInitialized(true);
-  }, []);
+  const [country, setCountry] = useState(getInitialCountry);
+  const [language, setLanguage] = useState(country === "US" ? "en" : "es");
+  const [initialized] = useState(true); // siempre inicializado
 
   const chooseCountry = (value) => {
     setCountry(value);
     setLanguage(value === "US" ? "en" : "es");
     localStorage.setItem("site_country", value);
-
-    // Puedes disparar carga de productos dinámicos aquí si quieres
   };
 
   return (
-    <CountryContext.Provider
-      value={{
-        country,
-        language,
-        initialized,
-        chooseCountry,
-      }}
-    >
+    <CountryContext.Provider value={{ country, language, initialized, chooseCountry }}>
       {children}
     </CountryContext.Provider>
   );
