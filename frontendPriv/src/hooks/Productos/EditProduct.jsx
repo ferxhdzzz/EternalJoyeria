@@ -7,6 +7,13 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // 🌍 Opciones de países disponibles
+  const countryOptions = [
+    { value: "", label: "No especificado" },
+    { value: "SV", label: "El Salvador (SV)" },
+    { value: "US", label: "Estados Unidos (US)" },
+  ];
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -14,6 +21,7 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
     discountPercentage: "",
     stock: "",
     category_id: "",
+    country: "", // 🔹 NUEVO: Estado para el país
   });
 
   // previewImages ahora guarda objetos: { url: string, isNew: boolean, file?: File }
@@ -40,6 +48,7 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
           category_id: data.category_id?._id || "",
           discountPercentage: data.discountPercentage || "",
           stock: data.stock || "",
+          country: data.country || "", // 🔹 Carga el país existente
         });
 
         // imágenes existentes
@@ -186,6 +195,7 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
     try {
       const form = new FormData();
 
+      // 🔹 Incluir todos los campos de formData, incluyendo 'country'
       Object.entries(formData).forEach(([key, value]) => {
         form.append(key, value);
       });
@@ -294,6 +304,21 @@ const EditProduct = ({ productId, onClose, refreshProducts }) => {
                   {category.name}
                 </option>
               ))}
+          </select>
+
+          {/* 🌍 NUEVO: Selector de País */}
+          <label>País de origen</label>
+          <select
+            name="country"
+            value={formData.country}
+            onChange={handleChange}
+            className="select"
+          >
+            {countryOptions.map((country) => (
+              <option key={country.value} value={country.value}>
+                {country.label}
+              </option>
+            ))}
           </select>
 
           {/* Descuento */}

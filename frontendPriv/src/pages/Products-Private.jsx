@@ -13,23 +13,38 @@ import { useDataProduct } from "../hooks/Productos/UseDataProduct";
 import useDataCategorias from "../hooks/Categorias/useDataCategorias";
 import ImageSlider from "../components/Componte-hook/ImageSlider";
 
+// ...imports y hooks iguales
 const Products = () => {
   const { products, deleteProduct, fetchProducts } = useDataProduct();
   const { categories } = useDataCategorias();
 
   const [selectedCategory, setSelectedCategory] = useState("Todas");
+  const [selectedCountry, setSelectedCountry] = useState("Todos"); // 🔹 Estado del filtro de país
   const [editingProductId, setEditingProductId] = useState(null);
 
   const safeProducts = Array.isArray(products) ? products : [];
   const categoriesArray = Array.isArray(categories) ? categories : [];
 
-  // 🔹 País actual del usuario (puedes hacerlo dinámico)
-  const currentCountry = "SV";
+  // 🌍 Opciones del filtro de país
+  const countryOptions = ["Todos", "SV", "US"]; 
 
-  // 🔥 Filtro seguro: país + categoría
+  // 🔥 Lógica de filtrado de país mejorada
   const filteredProducts = safeProducts.filter((p) => {
     const categoryMatch = selectedCategory === "Todas" || p.category_id?.name === selectedCategory;
-    const countryMatch = !p.country || p.country.toUpperCase() === currentCountry.toUpperCase();
+    
+    // Convertir el país del producto a mayúsculas o usar una cadena vacía si es null/undefined
+    const productCountry = (p.country || "").toUpperCase(); 
+
+    let countryMatch;
+    
+    if (selectedCountry === "Todos") {
+      // Si es "Todos", incluye TODOS los productos (sin país, SV, US, o cualquier otro)
+      countryMatch = true;
+    } else {
+      // Si es "SV" o "US", solo coinciden si el país del producto es exactamente ese.
+      countryMatch = productCountry === selectedCountry.toUpperCase();
+    }
+
     return categoryMatch && countryMatch;
   });
 
@@ -81,9 +96,10 @@ const Products = () => {
             <SubTitulo>Administra tus productos fácilmente</SubTitulo>
           </div>
 
-          {/* Filtros por categoría */}
           <div className="category-filter-wrapper">
+            {/* Filtros por categoría */}
             <div className="category-filter-bar">
+              {/* Contenido de filtro de categoría (sin cambios) */}
               <Button
                 className={selectedCategory === "Todas" ? "active" : ""}
                 onClick={() => setSelectedCategory("Todas")}
@@ -105,9 +121,23 @@ const Products = () => {
                 <p>No hay categorías</p>
               )}
             </div>
+
+            {/* 🔹 Nuevo: Filtro por país */}
+            <div className="category-filter-bar country-filter-bar"> 
+              {countryOptions.map((country) => (
+                <Button
+                  key={country}
+                  className={selectedCountry === country ? "active" : ""}
+                  onClick={() => setSelectedCountry(country)}
+                >
+                  {country}
+                </Button>
+              ))}
+            </div>
+            
           </div>
 
-          {/* Lista de productos */}
+          {/* Lista de productos (sin cambios relevantes) */}
           <div className="products-list">
             {filteredProducts.length === 0 ? (
               <div className="no-products-message">
@@ -152,6 +182,8 @@ const Products = () => {
                     </p>
                     <p>Descuento: {product.discountPercentage ?? 0}%</p>
                     <p>Categoría: {product.category_id?.name || "Sin categoría"}</p>
+                    {/* 🔹 Mostrar país */}
+                    <p>País: {product.country ?? "No especificado"}</p>
 
                     <p
                       style={{
