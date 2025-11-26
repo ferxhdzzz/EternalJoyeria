@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 import Order from "../models/Orders.js";
 import Product from "../models/Products.js";
 import Customer from "../models/Customers.js";
-import Sale from "../models/sales.js";
 
 /* Utiles */
 const isObjectId = (v) => mongoose.Types.ObjectId.isValid(String(v));
@@ -12,7 +11,7 @@ const nz = (n) => Math.max(0, Math.round(Number(n || 0)));
 
 /* =================== FLUJO DE CARRITO =================== */
 
-// GET /api/orders/cart -> obtiene/crea el carrito
+// GET /api/orders/cart -> obtiene/crea el “cart” del usuario (idempotente)
 async function getOrCreateCart(req, res) {
   try {
     const userId = req.userId;
@@ -42,11 +41,16 @@ async function getOrCreateCart(req, res) {
   }
 }
 
-// PUT /api/orders/cart/items -> update de carrito
+// PUT /api/orders/cart/items -> sincroniza items del frontend y recalcula totales
 async function syncCartItems(req, res) {
   try {
     const userId = req.userId;
     const { items = [], shippingCents = 0, taxCents = 0, discountCents = 0 } = req.body || {};
+
+    console.log('🛒 [syncCartItems] Iniciando sincronización...');
+    console.log('🛒 [syncCartItems] userId:', userId);
+    console.log('🛒 [syncCartItems] items recibidos:', JSON.stringify(items, null, 2));
+    console.log('🛒 [syncCartItems] shippingCents:', shippingCents, 'taxCents:', taxCents, 'discountCents:', discountCents);
 
     const cleaned = (Array.isArray(items) ? items : [])
       .filter((it) => isObjectId(it?.productId) && Number(it?.quantity) > 0)
@@ -55,7 +59,10 @@ async function syncCartItems(req, res) {
         quantity: Math.max(1, parseInt(it.quantity, 10)),
         variant: it?.variant || undefined,
       }));
+    
+    console.log('🧽 [syncCartItems] Items limpiados:', JSON.stringify(cleaned, null, 2));
 
+    // Siempre trabajar sobre el mismo cart (idempotente)
     let order = await Order.findOneAndUpdate(
       { idCustomer: userId, status: "cart" },
       {
@@ -82,39 +89,28 @@ async function syncCartItems(req, res) {
       order.taxCents = nz(taxCents);
       order.discountCents = nz(discountCents);
       await order.save();
-
       const out = await Order.findById(order._id)
         .populate("products.productId", "name images price finalPrice discountPercentage");
-
       return res.json(out);
     }
 
+    // Traer precios reales
     const ids = cleaned.map((i) => i.productId);
+    console.log('🔍 [syncCartItems] Buscando productos con IDs:', ids);
     const products = await Product.find({ _id: { $in: ids } }, "price finalPrice images name");
-
-    const priceMap = new Map(
-      products.map((p) => [
-        String(p._id),
-        toCents(p.finalPrice ?? p.price)
-      ])
-    );
+    console.log('💰 [syncCartItems] Productos encontrados:', products.length);
+    console.log('💰 [syncCartItems] Productos:', products.map(p => ({ id: p._id, name: p.name, price: p.price, finalPrice: p.finalPrice })));
+    const priceMap = new Map(products.map((p) => [String(p._id), toCents(p.finalPrice ?? p.price)]));
+    console.log('🗺 [syncCartItems] Mapa de precios:', Array.from(priceMap.entries()));
 
     let totalItemsCents = 0;
-
     const normalized = cleaned
       .filter((it) => priceMap.has(it.productId))
       .map((it) => {
         const unitPriceCents = priceMap.get(it.productId);
         const subtotalCents = unitPriceCents * it.quantity;
         totalItemsCents += subtotalCents;
-
-        return {
-          productId: it.productId,
-          quantity: it.quantity,
-          unitPriceCents,
-          subtotalCents,
-          variant: it.variant,
-        };
+        return { productId: it.productId, quantity: it.quantity, unitPriceCents, subtotalCents, variant: it.variant };
       });
 
     const ship = nz(shippingCents);
@@ -122,6 +118,9 @@ async function syncCartItems(req, res) {
     const disc = nz(discountCents);
     const totalCents = Math.max(0, totalItemsCents + ship + tax - disc);
 
+    console.log('📦 [syncCartItems] Productos normalizados:', JSON.stringify(normalized, null, 2));
+    console.log('📊 [syncCartItems] Totales calculados:', { totalItemsCents, ship, tax, disc, totalCents });
+    
     order.products = normalized;
     order.shippingCents = ship;
     order.taxCents = tax;
@@ -129,20 +128,38 @@ async function syncCartItems(req, res) {
     order.totalCents = totalCents;
     order.total = totalCents / 100;
     order.currency = "USD";
-
+    
+    console.log('💾 [syncCartItems] Guardando orden...');
     await order.save();
+    console.log('✅ [syncCartItems] Orden guardada exitosamente');
 
     const out = await Order.findById(order._id)
       .populate("products.productId", "name images price finalPrice discountPercentage");
 
     return res.json(out);
   } catch (err) {
-    console.error("[orders] syncCartItems ERROR:", err);
+    console.error("🛑 [orders] syncCartItems ERROR:", err);
+    console.error("🛑 [orders] Error stack:", err.stack);
+    console.error("🛑 [orders] Error name:", err.name);
+    console.error("🛑 [orders] Error message:", err.message);
+    
+    // Si es un error de validación de Mongoose, dar más detalles
+    if (err.name === 'ValidationError') {
+      console.error("🛑 [orders] Validation errors:", err.errors);
+      return res.status(400).json({ 
+        message: "Error de validación en carrito", 
+        details: Object.keys(err.errors).map(key => ({
+          field: key,
+          message: err.errors[key].message
+        }))
+      });
+    }
+    
     return res.status(500).json({ message: "Error sincronizando carrito", error: err.message });
   }
 }
 
-// PUT /api/orders/cart/addresses
+// PUT /api/orders/cart/addresses -> guarda snapshot de dirección
 async function saveCartAddresses(req, res) {
   try {
     const userId = req.userId;
@@ -151,7 +168,7 @@ async function saveCartAddresses(req, res) {
     let order = await Order.findOne({ idCustomer: userId, status: "cart" });
     if (!order) return res.status(404).json({ message: "Carrito no encontrado" });
 
-    order.shippingAddress = shippingAddress;
+    order.shippingAddress = shippingAddress || undefined;
     await order.save();
 
     const out = await Order.findById(order._id)
@@ -164,97 +181,145 @@ async function saveCartAddresses(req, res) {
   }
 }
 
-// POST /api/orders/:orderId/pending -> paso 2
+// POST /api/orders/:orderId/pending -> mueve a pending_payment y retorna ref
 async function moveToPending(req, res) {
   try {
     const userId = req.userId;
     const { orderId } = req.params;
 
-    const order = await Order.findOne({ _id: orderId, idCustomer: userId, status: "cart" });
-    if (!order) return res.status(404).json({ message: "Carrito no encontrado o ya no está en estado 'cart'" });
+    const order = await Order.findOne({ _id: orderId, idCustomer: userId });
+    if (!order) return res.status(404).json({ message: "Orden no encontrada" });
 
     if (!order.totalCents || order.totalCents <= 0) {
-      return res.status(400).json({ message: "El total es 0. No se puede continuar." });
+      return res.status(400).json({ message: "El total de la orden es 0. No se puede pasar a pago." });
     }
 
     order.status = "pending_payment";
-    order.wompiReference = `WOMPI-${Date.now()}-${String(order._id).slice(-6)}`;
-
+    const wompiReference = `WOMPI-${Date.now()}-${String(order._id).slice(-6)}`;
+    order.wompiReference = wompiReference;
     await order.save();
 
-    return res.json({
-      wompiReference: order.wompiReference,
-      order
-    });
+    const out = await Order.findById(order._id)
+      .populate("products.productId", "name images price finalPrice discountPercentage");
+
+    return res.json({ wompiReference, order: out });
   } catch (err) {
     console.error("[orders] moveToPending", err);
     return res.status(500).json({ message: "Error moviendo a pending_payment" });
   }
 }
 
-/* ================== 🔥 PASO 3: MARCAR COMO PENDIENTE MANUAL ================== */
+/* =================== CRUD =================== */
 
-async function markAsPendingManual(req, res) {
+async function createOrder(req, res) {
   try {
-    const userId = req.userId;
-    const { orderId } = req.params;
-    const { paymentMethod } = req.body;
+    const { idCustomer, products } = req.body;
+    const customerExists = await Customer.findById(idCustomer);
+    if (!customerExists) return res.status(400).json({ message: "Cliente no encontrado" });
 
-    const order = await Order.findOne({
-      _id: orderId,
-      idCustomer: userId,
-      status: "pending_payment",
+    let total = 0;
+    const productsWithSubtotal = await Promise.all(
+      (products || []).map(async (item) => {
+        const product = await Product.findById(item.productId);
+        if (!product) throw new Error(`Producto con ID ${item.productId} no encontrado`);
+        const price = product.finalPrice ?? product.price;
+        const subtotal = price * item.quantity;
+        total += subtotal;
+        return { productId: item.productId, quantity: item.quantity, subtotal };
+      })
+    );
+
+    const newOrder = new Order({
+      idCustomer,
+      products: productsWithSubtotal,
+      total,
+      totalCents: toCents(total),
+      status: "no pagado",
     });
 
-    if (!order) {
-      return res.status(404).json({ message: "Orden no encontrada o no está pendiente de pago" });
-    }
-
-    order.status = "PENDIENTE";
-   const allow = {
-  transferencia: "Transferencia",
-  link: "Link",
-  paypal: "PayPal",
-  wompi: "Wompi",
-};
-
-order.paymentMethod = allow[paymentMethod] || undefined;
-
-
-    await order.save();
-
-    await Sale.findOneAndDelete({ idOrder: order._id });
-
-    const newSale = new Sale({
-      idOrder: order._id,
-      idCustomer: userId,
-      address: order.shippingAddress,
-      dateSale: new Date(),
-    });
-
-    await newSale.save();
-
-    const out = await Order.findById(order._id)
-      .populate("products.productId", "name images price finalPrice discountPercentage");
-
-    return res.json({
-      message: "Orden marcada como PENDIENTE y venta creada",
-      order: out,
-      saleId: newSale._id,
-    });
-  } catch (err) {
-    console.error("[orders] markAsPendingManual", err);
-    return res.status(500).json({ message: "Error registrando pago manual" });
+    await newOrder.save();
+    res.status(201).json(newOrder);
+  } catch (error) {
+    res.status(500).json({ message: "Error al crear la orden", error: error.message });
   }
 }
 
-/* =================== CRUD =================== */
+async function getOrders(_req, res) {
+  try {
+    const orders = await Order.find()
+      .populate("idCustomer", "firstName lastName email")
+      .populate("products.productId", "name price discountPercentage finalPrice");
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener órdenes", error: error.message });
+  }
+}
 
-async function createOrder() {}
-async function updateOrder() {}
-async function deleteOrder() {}
-async function getOrder() {}
-async function getOrders() {}
+async function getOrder(req, res) {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate("idCustomer", "firstName lastName email")
+      .populate("products.productId", "name images price discountPercentage finalPrice");
+    if (!order) return res.status(404).json({ message: "Orden no encontrada" });
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener la orden", error: error.message });
+  }
+}
+
+async function updateOrder(req, res) {
+  try {
+    const { idCustomer, products, status } = req.body;
+    const updatedData = {};
+    let total = 0;
+
+    if (idCustomer) {
+      const customerExists = await Customer.findById(idCustomer);
+      if (!customerExists) return res.status(400).json({ message: "Cliente no encontrado" });
+      updatedData.idCustomer = idCustomer;
+    }
+
+    if (products && products.length > 0) {
+      const productsWithSubtotal = await Promise.all(
+        products.map(async (item) => {
+          const product = await Product.findById(item.productId);
+          if (!product) throw new Error(`Producto con ID ${item.productId} no encontrado`);
+          const price = product.finalPrice ?? product.price;
+          const subtotal = price * item.quantity;
+          total += subtotal;
+          return { productId: item.productId, quantity: item.quantity, subtotal };
+        })
+      );
+      updatedData.products = productsWithSubtotal;
+      updatedData.total = total;
+      updatedData.totalCents = toCents(total);
+    }
+
+    if (status && ["pagado", "no pagado", "cart", "pending_payment"].includes(status)) {
+      updatedData.status = status;
+    }
+
+    const updatedOrder = await Order.findByIdAndUpdate(req.params.id, updatedData, { new: true })
+      .populate("idCustomer", "firstName lastName email")
+      .populate("products.productId", "name price discountPercentage finalPrice");
+
+    if (!updatedOrder) return res.status(404).json({ message: "Orden no encontrada" });
+
+    res.json({ message: "Orden actualizada correctamente", order: updatedOrder });
+  } catch (error) {
+    res.status(500).json({ message: "Error al actualizar la orden", error: error.message });
+  }
+}
+
+async function deleteOrder(req, res) {
+  try {
+    const deletedOrder = await Order.findByIdAndDelete(req.params.id);
+    if (!deletedOrder) return res.status(404).json({ message: "Orden no encontrada" });
+    res.json({ message: "Orden eliminada correctamente" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al eliminar la orden", error: error.message });
+  }
+}
 
 async function markAsPaid(req, res) {
   try {
@@ -262,42 +327,62 @@ async function markAsPaid(req, res) {
       req.params.id,
       { status: "pagado" },
       { new: true }
-    );
+    )
+      .populate("idCustomer", "firstName lastName email")
+      .populate("products.productId", "name price discountPercentage finalPrice");
 
     if (!updatedOrder) return res.status(404).json({ message: "Orden no encontrada" });
-
     res.json({ message: "Orden marcada como pagada", order: updatedOrder });
   } catch (error) {
     res.status(500).json({ message: "Error al marcar como pagada", error: error.message });
   }
 }
 
-// GET /api/orders/user
+// GET /api/orders/user -> obtiene todas las órdenes del usuario autenticado
 async function getUserOrders(req, res) {
   try {
+    console.log("🔍 [getUserOrders] Iniciando función...");
+    console.log("🔍 [getUserOrders] req.userId:", req.userId);
+    console.log("🔍 [getUserOrders] req.userType:", req.userType);
+    
     const userId = req.userId;
 
+    if (!userId) {
+      console.error("❌ [getUserOrders] No hay userId en el request");
+      return res.status(400).json({ message: "Usuario no identificado" });
+    }
+
+    console.log("🔍 [getUserOrders] Buscando órdenes para userId:", userId);
+
     const orders = await Order.find({ idCustomer: userId })
+      .populate("idCustomer", "firstName lastName email")
       .populate("products.productId", "name images price finalPrice discountPercentage")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 }); // Ordenar por fecha más reciente
+
+    console.log("✅ [getUserOrders] Órdenes encontradas:", orders.length);
+    console.log("✅ [getUserOrders] IDs de órdenes:", orders.map(o => o._id));
 
     res.json(orders);
   } catch (error) {
+    console.error("❌ [getUserOrders] Error:", error);
+    console.error("❌ [getUserOrders] Stack:", error.stack);
     res.status(500).json({ message: "Error al obtener órdenes del usuario", error: error.message });
   }
 }
 
-export default {
+/* ===== Export default ===== */
+const ordersController = {
   getOrCreateCart,
   syncCartItems,
   saveCartAddresses,
   moveToPending,
-  markAsPendingManual,
   createOrder,
+  getOrders,
+  getOrder,
   updateOrder,
   deleteOrder,
-  getOrder,
-  getOrders,
   markAsPaid,
   getUserOrders,
 };
+
+export default ordersController;
