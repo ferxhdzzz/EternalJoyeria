@@ -21,6 +21,10 @@ import contactusRoutes from "./src/routes/contactusRoutes.js";
 import wompiRoutes from "./src/routes/wompi.js";
 import profileRoutes from "./src/routes/profile.js";
 import { validateAuthToken } from "./src/middlewares/validateAuthToken.js";
+import paymentRoutes from "./src/routes/payments.js";
+
+
+
 
 const app = express();
 
@@ -105,6 +109,7 @@ app.use("/api/admins", validateAuthToken(["admin"]), adminRoutes);
 app.use("/api/sales", validateAuthToken(["admin", "customer"]), salesRoutes);
 app.use("/api/orders", validateAuthToken(["admin", "customer"]), ordersRoutes);
 app.use("/api/wompi", validateAuthToken(["admin", "customer"]), wompiRoutes);
+app.use("/api/payments", validateAuthToken(["admin", "customer"]), paymentRoutes);
 app.use("/api/profile", validateAuthToken(["admin", "customer"]), profileRoutes);
 
 
