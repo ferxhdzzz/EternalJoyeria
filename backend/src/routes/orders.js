@@ -9,6 +9,9 @@ router.get("/cart", validateAuthToken(['customer', 'admin']), ordersController.g
 router.put("/cart/items", validateAuthToken(['customer', 'admin']), ordersController.syncCartItems);
 router.put("/cart/addresses", validateAuthToken(['customer', 'admin']), ordersController.saveCartAddresses);
 router.post("/:orderId/pending", validateAuthToken(['customer', 'admin']), ordersController.moveToPending);
+router.post("/orders/:id/finish", validateAuthToken(['customer', 'admin']), ordersController.finishOrder);
+
+
 
 /* ===== Pedidos del usuario ===== */
 router.get("/user", validateAuthToken(['customer', 'admin']), ordersController.getUserOrders);

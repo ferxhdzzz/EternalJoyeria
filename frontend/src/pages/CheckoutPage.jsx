@@ -1,333 +1,342 @@
-// src/pages/CheckoutPage.jsx
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import Nav from "../components/Nav/Nav";
-import SidebarCart from "../components/Cart/SidebarCart";
-import Footer from "../components/Footer";
-import usePayment from "../hooks/Payment/usePayment";
-import "../styles/CheckoutPage.css";
+import React, { useState } from 'react';
+import { useCart } from '../context/CartContext';
+import { useNavigate } from 'react-router-dom';
+import Nav from '../components/Nav/Nav';
+import SidebarCart from '../components/Cart/SidebarCart';
+import Swal from 'sweetalert2';
+import '../styles/CheckoutPage.css';
+import Footer from '../components/Footer';
 
-// SVG EDGE
+// IMPORTAR EL HOOK DE PAGO
+import usePayment from '../hooks/Payment/usePayment';
+
+// ======================
+// SVG Super cute (Se mantiene igual)
+// ======================
 const TicketEdge = () => (
-  <svg width="100%" height="6" viewBox="0 0 400 6" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: "block" }}>
-    <g>
-      {[...Array(20)].map((_, i) => (
-        <circle key={i} cx={20 * i + 10} cy={-6} r={6} fill="#fceee7" />
-      ))}
-    </g>
-  </svg>
+    <svg width="100%" height="6" viewBox="0 0 400 6" fill="none">
+        <g>
+            {[...Array(20)].map((_, i) => (
+                <circle key={i} cx={20 * i + 10} cy={-6} r={6} fill="#fceee7" />
+            ))}
+        </g>
+    </svg>
 );
 
-// PROGRESS BAR (sin cambios)
+// ======================
+// Progress bar (Se mantiene igual)
+// ======================
 const ProgressBar = ({ step }) => (
-  <div className="progress-bar-container">
-    <div className="progress-bar">
-      <div className={`progress-step ${step >= 1 ? "active" : ""}`}>
-        <span>1</span>
-        <label>Datos de envío</label>
-      </div>
-      <div className={`progress-line ${step >= 2 ? "active" : ""}`}></div>
+    <div className="progress-bar-container">
+        <div className="progress-bar">
+            <div className={`progress-step ${step >= 1 ? 'active' : ''}`}>
+                <span>1</span><label>Datos</label>
+            </div>
 
-      <div className={`progress-step ${step >= 2 ? "active" : ""}`}>
-        <span>2</span>
-        <label>Pago</label>
-      </div>
+            <div className={`progress-line ${step >= 2 ? 'active' : ''}`}></div>
 
-      <div className={`progress-line ${step >= 3 ? "active" : ""}`}></div>
+            <div className={`progress-step ${step >= 2 ? 'active' : ''}`}>
+                <span>2</span><label>Pago</label>
+            </div>
 
-      <div className={`progress-step ${step >= 3 ? "active completed" : ""}`}>
-        <span>{step >= 3 ? "✓" : "3"}</span>
-        <label>Confirmación</label>
-      </div>
+            <div className={`progress-line ${step >= 3 ? 'active' : ''}`}></div>
+
+            <div className={`progress-step ${step >= 3 ? 'active completed' : ''}`}>
+                <span>{step >= 3 ? '✓' : '3'}</span><label>Confirmación</label>
+            </div>
+        </div>
     </div>
-  </div>
 );
 
 const CheckoutPage = () => {
-  const navigate = useNavigate();
-  const {
-    // UI / pasos
-    step,
-    nextStep,
-    previousStep,
+    // Usar el hook de Cart solo para el resumen/vaciar.
+    const { cartItems } = useCart();
+    const navigate = useNavigate();
 
-    // form
-    formData,
-    handleChangeData,
-    errors,
+    // 1. LLAMAR AL HOOK DE PAGO
+    const { 
+        step, setStep, 
+        formData, handleChangeData, errors, 
+        paymentMethod, setPaymentMethod, 
+        showModal, setShowModal, 
+        order, // El estado de la orden (del hook)
+        nextStep: hookNextStep, // Renombrar para evitar conflicto
+        previousStep: hookPreviousStep, // Renombrar para evitar conflicto
+        handlePay: hookHandlePay, // Función principal de pago
+        handleNextFromModal: hookHandleNextFromModal, // Función de modal de pago
+        finishOrder: hookFinishOrder // Función para reiniciar estados
+    } = usePayment();
 
-    // cart/order
-    order,
-    // metodo/modal
-    paymentMethod,
-    setPaymentMethod,
-    showModal,
-    setShowModal,
+    // FIX: Para evitar falso "carrito vacío"
+    const [cartEmptyAtStart] = useState(cartItems.length === 0 && !order);
 
-    // acciones
-    handlePay,
-    handleNextFromModal,
-    finishOrder,
-    // resumen
-    syncCartItems,
-    // carrito context (solo para leer items) -> loadOrCreateCart set order initially
-    orderId,
-  } = usePayment();
+    const [cartOpen, setCartOpen] = useState(false);
 
-  // Para mostrar items usamos order?.products (si existe) o order?.items en fallback
-  const itemsToShow = (step === 3 ? (order?.items || order?.products || []) : (order?.products || []));
+    // ======================
+    // BANK INFO (Se mantiene igual)
+    // ======================
+    const bankInfo = {
+        banco: "Banco de América Central Credomatic",
+        nombre: "Eternal Joyeria",
+        cuenta: "0000-0000-0000-0000",
+        tipo: "Cuenta de ahorros",
+    };
 
-  const subtotal = (itemsToShow || []).reduce((acc, it) => {
-    // cada item puede tener subtotalCents or subtotal or unitPriceCents
-    const unit = (it?.unitPriceCents ? it.unitPriceCents / 100 : it?.productId?.finalPrice ?? it?.productId?.price ?? it?.subtotal ?? 0);
-    const qty = it?.quantity || it?.quantity || 1;
-    // if unit is in cents handled above; but fallback:
-    const val = (it?.subtotalCents ? it.subtotalCents / 100 : it?.subtotal ? it.subtotal : unit * qty);
-    return acc + Number(val || 0);
-  }, 0);
+    const handleCopy = () => {
+        navigator.clipboard.writeText(bankInfo.cuenta);
+        Swal.fire("Copiado", "Número de cuenta copiado.", "success");
+    };
 
-  const total = subtotal;
+    // ======================
+    // HANDLERS DEL FLUJO
+    // ======================
 
-  // Si carrito vacío y no estamos en confirmación -> mostrar vacío
-  if ((!itemsToShow || itemsToShow.length === 0) && step !== 3) {
+    const nextStep = () => {
+        hookNextStep();
+    };
+
+    const previousStep = () => {
+        hookPreviousStep();
+    };
+
+    // Usar la función centralizada del hook
+    const handlePay = () => {
+        hookHandlePay();
+    };
+
+    // Usar la función centralizada del hook
+    const handleNextFromModal = () => {
+        hookHandleNextFromModal();
+    };
+
+    // Función para ir a historial y resetear el hook
+    const finishOrder = () => {
+        hookFinishOrder();
+        navigate("/historial");
+    };
+
+
+    // ======================
+    // FIX: Carrito vacío solo si fue vacío desde el principio (Usamos 'order' del hook)
+    // ======================
+    if (cartEmptyAtStart && step !== 3) {
+        return (
+            <>
+                <Nav cartOpen={cartOpen} />
+                <div className="checkout-page-container empty">
+                    <h2>Tu carrito está vacío.</h2>
+                </div>
+                <Footer />
+            </>
+        );
+    }
+
+    // ======================
+    // UI
+    // ======================
+    // Usar el total del objeto 'order' del hook si existe, si no, calcular localmente.
+    const subtotal = order?.total || cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const total = subtotal; // Asumiendo que subtotal === total por simplicidad
+
+    // Items a mostrar: cartItems en pasos 1 y 2, y los productos de la order guardada en paso 3
+    const itemsToShow = step === 3 ? order?.products?.map(p => ({
+        // Adaptar al formato que usa tu UI
+        id: p.productId._id, 
+        name: p.productId.name, 
+        quantity: p.quantity, 
+        price: p.unitPriceCents / 100, // Asume que unitPriceCents es el precio unitario
+        image: p.productId.images?.[0] // Asume que la imagen está en el subcampo
+    })) : cartItems;
+
+
     return (
-      <>
-        <SidebarCart isOpen={false} onClose={() => {}} />
-        <Nav cartOpen={false} />
-        <div className="checkout-page-container empty">
-          <h2>Tu carrito está vacío.</h2>
-        </div>
-        <Footer />
-      </>
-    );
-  }
+        <div className="checkout-page">
+            <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+            <Nav cartOpen={cartOpen} />
 
-  // Copiar número de cuenta desde el modal: el hook no trae banco, lo mantenemos simple aquí
-  const bankInfo = {
-    banco: "Banco de América Central Credomatic",
-    nombre: "Eternal Joyeria",
-    cuenta: "0000-0000-0000-0000",
-    tipo: "Cuenta de ahorros",
-  };
+            <div className="checkout-bg">
+                <div className="checkout-flex">
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(bankInfo.cuenta);
-  };
+                    {/* FORMULARIO */}
+                    <section className="checkout-payment-box ticket-form-box">
+                        <ProgressBar step={step} />
 
-  const onSelectPayment = (method) => {
-    setPaymentMethod(method);
-    if (method === "Transferencia") setShowModal("transfer");
-    else if (method === "Link") setShowModal("link");
-    else setShowModal(false);
-  };
+                        {/* STEP 1 */}
+                        {step === 1 && (
+                            <>
+                                <h2 className="ticket-title">Datos de envío</h2>
 
-  const onFinishPayClick = async () => {
-    try {
-      await handlePay({ openModalIfNeeded: true });
-    } catch (err) {
-      // errores ya manejados en hook (Swal)
-    }
-  };
+                                <form className="ticket-form">
+                                    {Object.keys(formData).map((key) => (
+                                        <div className="ticket-field" key={key}>
+                                            <label>{key.charAt(0).toUpperCase() + key.slice(1)}</label>
+                                            <input
+                                                type="text"
+                                                name={key}
+                                                value={formData[key]}
+                                                onChange={handleChangeData} // Usar el handler del hook
+                                            />
+                                            {errors[key] && <span className="ticket-error">{errors[key]}</span>}
+                                        </div>
+                                    ))}
 
-  const onModalNext = async () => {
-    try {
-      await handleNextFromModal();
-    } catch (err) {
-      // ya manejado
-    }
-  };
+                                    <button className="ticket-pay-btn" type="button" onClick={nextStep}>
+                                        Siguiente →
+                                    </button>
+                                </form>
+                            </>
+                        )}
 
-  const finishOrderNavigate = () => {
-    finishOrder();
-    navigate("/historial");
-  };
+                        {/* STEP 2 */}
+                        {step === 2 && (
+                            <>
+                                <h2 className="ticket-title">Métodos de pago</h2>
 
-  return (
-    <div className="checkout-page">
-      <SidebarCart isOpen={false} onClose={() => {}} />
-      <Nav cartOpen={false} />
+                                <div className="payment-grid-cute">
 
-      <div className="checkout-bg">
-        <div className="checkout-flex">
-          {/* FORMULARIO */}
-          <section className="checkout-payment-box ticket-form-box">
-            <ProgressBar step={step} />
+                                    {/* PAYPAL */}
+                                    <button
+                                        className={`payment-card-cute ${paymentMethod === "PayPal" ? "active" : ""}`}
+                                        onClick={() => setPaymentMethod("PayPal")}
+                                    >
+                                        <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" />
+                                        <span>PayPal</span>
+                                    </button>
 
-            {/* PASO 1 */}
-            {step === 1 && (
-              <>
-                <h2 className="ticket-title">Datos de envío</h2>
-                <form className="ticket-form" onSubmit={(e) => e.preventDefault()}>
-                  {Object.keys(formData).map((key) => (
-                    <div className="ticket-field" key={key}>
-                      <label>{key.charAt(0).toUpperCase() + key.slice(1)}</label>
-                      <input
-                        type="text"
-                        name={key}
-                        value={formData[key] || ""}
-                        onChange={(e) => handleChangeData(e)}
-                        placeholder={key}
-                      />
-                      {errors[key] && <span className="ticket-error">{errors[key]}</span>}
-                    </div>
-                  ))}
-                  <button className="ticket-pay-btn" type="button" onClick={nextStep}>
-                    Siguiente →
-                  </button>
-                </form>
-              </>
-            )}
+                                    {/* TRANSFERENCIA */}
+                                    <button
+                                        className={`payment-card-cute ${paymentMethod === "Transferencia" ? "active" : ""}`}
+                                        onClick={() => {
+                                            setPaymentMethod("Transferencia");
+                                            setShowModal("transfer");
+                                        }}
+                                    >
+                                        <img src="https://cdn-icons-png.flaticon.com/512/565/565547.png" />
+                                        <span style={{ fontSize: "12px", fontWeight: "600" }}>Banco de América Central</span>
+                                    </button>
 
-            {/* PASO 2 — MÉTODOS DE PAGO */}
-            {step === 2 && (
-              <>
-                <h2 className="ticket-title">Métodos de pago</h2>
+                                    {/* LINK */}
+                                    <button
+                                        className={`payment-card-cute ${paymentMethod === "Link" ? "active" : ""}`}
+                                        onClick={() => {
+                                            setPaymentMethod("Link");
+                                            setShowModal("link");
+                                        }}
+                                    >
+                                        <img src="https://cdn-icons-png.flaticon.com/512/891/891462.png" />
+                                        <span>Link de Pago</span>
+                                    </button>
+                                </div>
 
-                <div className="payment-grid-cute">
-                  <button
-                    className={`payment-card-cute ${paymentMethod === "PayPal" ? "active" : ""}`}
-                    onClick={() => onSelectPayment("PayPal")}
-                  >
-                    <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" alt="PayPal Logo" />
-                    <span>PayPal</span>
-                  </button>
+                                <div className="ticket-button-row">
+                                    <button className="ticket-back-btn" onClick={previousStep}>
+                                        ← Volver
+                                    </button>
 
-                  <button
-                    className={`payment-card-cute ${paymentMethod === "Transferencia" ? "active" : ""}`}
-                    onClick={() => onSelectPayment("Transferencia")}
-                  >
-                    <img src="https://cdn-icons-png.flaticon.com/512/565/565547.png" alt="Transferencia" />
-                    <span style={{ fontSize: "12px", fontWeight: "600" }}>Banco de América Central</span>
-                  </button>
+                                    {/* El botón ahora solo llama a handlePay, y este decide si abre modal o procede */}
+                                    {paymentMethod && ( 
+                                        <button className="ticket-pay-btn" onClick={handlePay}>
+                                            Siguiente →
+                                        </button>
+                                    )}
+                                </div>
+                            </>
+                        )}
 
-                  <button
-                    className={`payment-card-cute ${paymentMethod === "Link" ? "active" : ""}`}
-                    onClick={() => onSelectPayment("Link")}
-                  >
-                    <img src="https://cdn-icons-png.flaticon.com/512/891/891462.png" alt="Link de Pago" />
-                    <span>Link de Pago</span>
-                  </button>
+                        {/* STEP 3 */}
+                        {step === 3 && (
+                            <div className="ticket-success">
+                                <div className="success-icon">✓</div>
+                                <h2 className="ticket-title">¡Pedido registrado!</h2>
+
+                                <p className="success-message">
+                                    Tu orden <b>#{order?._id.slice(-6).toUpperCase()}</b> fue registrada como <b>PENDIENTE</b>.
+                                    Recibirás un email de confirmación.
+                                </p>
+
+                                <button className="ticket-pay-btn" onClick={finishOrder}>
+                                    Ver mis pedidos
+                                </button>
+                            </div>
+                        )}
+                    </section>
+
+                    {/* RESUMEN */}
+                    <section className="checkout-summary-box ticket-summary-box">
+                        <TicketEdge />
+                        <div className="ticket-summary-inner">
+                            <h3 className="ticket-summary-title">Resumen</h3>
+
+                            {itemsToShow?.map(item => (
+                                <div className="ticket-summary-item" key={item.id}>
+                                    <img src={item.image} className="ticket-summary-img" />
+                                    <div className="ticket-summary-details">
+                                        <span>{item.name} x {item.quantity}</span>
+                                    </div>
+                                    <span>${(item.price * item.quantity).toFixed(2)}</span>
+                                </div>
+                            ))}
+
+                            <div className="ticket-summary-row"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
+                            <div className="ticket-summary-total-row"><span>Total</span><span>${total.toFixed(2)}</span></div>
+                        </div>
+
+                        <TicketEdge style={{ transform: "rotate(180deg)" }} />
+                    </section>
+
                 </div>
-
-                <div className="ticket-button-row">
-                  <button className="ticket-back-btn" onClick={previousStep}>← Volver</button>
-
-                  {/* Finalizar compra solo si es PayPal (o cualquier método "directo") */}
-                  {paymentMethod && paymentMethod !== "Transferencia" && paymentMethod !== "Link" && (
-                    <button className="ticket-pay-btn" onClick={onFinishPayClick}>Finalizar compra</button>
-                  )}
-                </div>
-              </>
-            )}
-
-            {/* PASO 3 — CONFIRMACIÓN */}
-            {step === 3 && (
-              <div className="ticket-success">
-                <div className="success-icon">✓</div>
-                <h2 className="ticket-title">¡Pedido registrado!</h2>
-                <p className="success-message">
-                  Tu orden **#{order?._id || order?.id || "N/A"}** ha sido registrada y está en estado <strong>PENDIENTE</strong> de pago.
-                </p>
-                <p className="success-small-text">El administrador cambiará el estado a "Pagado" cuando confirme la transacción.</p>
-
-                <button className="ticket-pay-btn" onClick={finishOrderNavigate}>Ver mis pedidos</button>
-              </div>
-            )}
-          </section>
-
-          {/* RESUMEN */}
-          <section className="checkout-summary-box ticket-summary-box">
-            <TicketEdge />
-            <div className="ticket-summary-inner">
-              <h3 className="ticket-summary-title">Resumen de tu compra</h3>
-
-              {(itemsToShow || []).map((raw, idx) => {
-                // Adaptar distintos formatos de item
-                const item = raw.productId ? {
-                  id: raw.productId._id || raw.productId,
-                  image: (raw.productId?.images && raw.productId.images[0]) || raw.image || 'https://placehold.co/150x150',
-                  name: raw.productId?.name || raw.name || "Producto",
-                  price: (raw.unitPriceCents ? raw.unitPriceCents/100 : raw.productId?.finalPrice ?? raw.productId?.price ?? raw.price ?? raw.subtotal ?? 0),
-                  quantity: raw.quantity || 1
-                } : {
-                  id: raw.id || raw._id || idx,
-                  image: raw.image || 'https://placehold.co/150x150',
-                  name: raw.name || "Producto",
-                  price: raw.price || 0,
-                  quantity: raw.quantity || 1
-                };
-
-                return (
-                  <div className="ticket-summary-item" key={item.id || idx}>
-                    <img src={item.image} className="ticket-summary-img" alt={item.name} />
-                    <div className="ticket-summary-details">
-                      <span className="ticket-summary-name">{item.name} x {item.quantity}</span>
-                    </div>
-                    <span className="ticket-summary-price">${(item.price * item.quantity).toFixed(2)}</span>
-                  </div>
-                );
-              })}
-
-              <div className="ticket-summary-row">
-                <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
-              </div>
-
-              <div className="ticket-summary-total-row">
-                <span>Total</span>
-                <span>${total.toFixed(2)}</span>
-              </div>
             </div>
-            <TicketEdge style={{ transform: "rotate(180deg)" }} />
-          </section>
-        </div>
-      </div>
 
-      <Footer />
+            <Footer />
 
-      {/* MODALES */}
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close-btn" onClick={() => setShowModal(false)}>X</button>
+            {/* MODALES */}
+            {showModal && (
+                <div className="modal-overlay" onClick={() => setShowModal(false)}>
+                    <div className="modal-box" onClick={(e) => e.stopPropagation()}>
 
-            {showModal === "transfer" && (
-              <>
-                <h2 className="modal-title">Datos Bancarios</h2>
-                <p className="modal-instruction">Realiza la transferencia con los siguientes datos. Tu pedido se registrará como pendiente hasta que el administrador verifique el pago.</p>
-                <div className="modal-info">
-                  <p><strong>🏦 Banco:</strong> {bankInfo.banco}</p>
-                  <p><strong>👤 Nombre:</strong> {bankInfo.nombre}</p>
-                  <p><strong>🏷️ Tipo:</strong> {bankInfo.tipo}</p>
-                  <p><strong>💳 N° Cuenta:</strong> {bankInfo.cuenta}</p>
+                        <button className="modal-close-btn" onClick={() => setShowModal(false)}>X</button>
+
+                        {showModal === "transfer" && (
+                            <>
+                                <h2 className="modal-title">Datos Bancarios</h2>
+                                <p className="modal-instruction">
+                                    Realiza la transferencia por el total de <b>${total.toFixed(2)}</b> con los siguientes datos:
+                                </p>
+
+                                <div className="modal-info">
+                                    <p><strong>Banco:</strong> {bankInfo.banco}</p>
+                                    <p><strong>Nombre:</strong> {bankInfo.nombre}</p>
+                                    <p><strong>Tipo:</strong> {bankInfo.tipo}</p>
+                                    <p><strong>N° Cuenta:</strong> {bankInfo.cuenta}</p>
+                                </div>
+
+                                <button className="modal-btn copy" onClick={handleCopy}>Copiar número</button>
+                                <button className="modal-btn next" onClick={handleNextFromModal}>
+                                    Siguiente → Confirmar Pedido
+                                </button>
+                            </>
+                        )}
+
+                        {showModal === "link" && (
+                            <>
+                                <h2 className="modal-title">Link de Pago</h2>
+                                <p className="modal-instruction">Serás redirigido a la pasarela de pago para completar la transacción de <b>${total.toFixed(2)}</b>:</p>
+
+                                <a href="https://tu-link-real.com" target="_blank" className="payment-link">
+                                    Ir al link
+                                </a>
+
+                                <button className="modal-btn next" onClick={handleNextFromModal}>
+                                    Siguiente → Confirmar Pedido
+                                </button>
+                            </>
+                        )}
+
+                    </div>
                 </div>
-                <button className="modal-btn copy" onClick={handleCopy}>Copiar número de cuenta</button>
-                <button className="modal-btn next" onClick={onModalNext}>Siguiente → Confirmar Pedido</button>
-              </>
             )}
-
-            {showModal === "link" && (
-              <>
-                <h2 className="modal-title">Link de Pago</h2>
-                <p className="modal-instruction">Serás redirigido a una página externa. Al regresar, tu pedido se registrará como pendiente.</p>
-
-                <a
-                  href="https://tu-link-real.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="payment-link"
-                >
-                  Ir al link de pago
-                </a>
-
-                <button className="modal-btn next" onClick={onModalNext}>Siguiente → Confirmar Pedido</button>
-              </>
-            )}
-          </div>
         </div>
-      )}
-    </div>
-  );
+    );
 };
 
 export default CheckoutPage;
