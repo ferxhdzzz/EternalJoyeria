@@ -6,7 +6,7 @@ const OBJID = /^[a-f\d]{24}$/i;
 const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
 // ------------------------------------------------
-// helper request (Se mantiene igual)
+// helper request
 // ------------------------------------------------
 async function request(path, { method = "GET", body, headers = {} } = {}) {
     const url = `${API_URL}${String(path).startsWith("/") ? path : `/${path}`}`;
@@ -36,7 +36,7 @@ async function request(path, { method = "GET", body, headers = {} } = {}) {
 }
 
 // ------------------------------------------------
-// Hook principal (Se mantiene igual)
+// Hook principal
 // ------------------------------------------------
 export default function usePayment() {
     const [step, setStep] = useState(1);
@@ -70,9 +70,8 @@ export default function usePayment() {
     const syncTimer = useRef(null);
     const { cartItems, clearCart } = useCart();
 
-    // ... (validateStep1, handleChangeData, handleChangeTarjeta, loadOrCreateCart, syncCartItems, saveAddresses se mantienen igual)
     // ------------------------------------------------
-    // Validaciones paso 1 (Se mantiene igual)
+    // Validaciones paso 1
     // ------------------------------------------------
     const validateStep1 = () => {
         const newErrors = {};
@@ -95,12 +94,11 @@ export default function usePayment() {
 
     const handleChangeTarjeta = (e) => {
         const target = e?.target ? e.target : e;
-        // Se mantiene 'anioVencimiento' aquí si es necesario para Wompi/tarjeta
         setFormDataTarjeta((p) => ({ ...p, [target.name]: target.value })); 
     };
 
     // ------------------------------------------------
-    // Cargar o crear carrito (Se mantiene igual)
+    // Cargar o crear carrito
     // ------------------------------------------------
     async function loadOrCreateCart() {
         const o = await request("/orders/cart");
@@ -110,7 +108,7 @@ export default function usePayment() {
     }
 
     // ------------------------------------------------
-    // Sincronizar items (Se mantiene igual)
+    // Sincronizar items
     // ------------------------------------------------
     async function syncCartItems(
         items = cartItems,
@@ -145,7 +143,7 @@ export default function usePayment() {
     }
 
     // ------------------------------------------------
-    // Guardar direcciones (Se mantiene igual)
+    // Guardar direcciones
     // ------------------------------------------------
     async function saveAddresses() {
         const payload = {
@@ -195,7 +193,8 @@ export default function usePayment() {
         };
 
         // LLAMADA CLAVE: Llama al endpoint que cambia la Order a 'pendiente' y CREA la Sale.
-        const resp = await request("/payments/create-pending-order", { // Nota: Corregí el endpoint si usas createPendingOrder en vez de create.
+        // *** CORRECCIÓN APLICADA AQUÍ: Se cambió la ruta a "/payments/create" ***
+        const resp = await request("/payments/create", { 
             method: "POST",
             body: payload,
         });
@@ -203,9 +202,6 @@ export default function usePayment() {
         const outOrder = resp?.order || resp;
         setOrder(outOrder);
         setOrderId(outOrder?._id);
-
-        // *** IMPORTANTE: Se elimina la llamada a /orders/:id/finish que tenías aquí. ***
-        // *** El backend (paymentController.js) ya crea la Sale.                      ***
 
         setLockedOrderId(outOrder._id);
 
@@ -217,7 +213,7 @@ export default function usePayment() {
     }
 
     // ------------------------------------------------
-    // Admin marcar pagada (Se mantiene igual)
+    // Admin marcar pagada
     // ------------------------------------------------
     async function markOrderAsPaidAdmin(orderIdToMark) {
         return await request("/payments/complete", {
@@ -227,7 +223,7 @@ export default function usePayment() {
     }
 
     // ------------------------------------------------
-    // Navegación pasos (Se mantiene igual)
+    // Navegación pasos
     // ------------------------------------------------
     const nextStep = async () => {
         if (step === 1) {
@@ -303,8 +299,6 @@ export default function usePayment() {
             throw err;
         }
     };
-
-    // ... (finishOrder y useEffect se mantienen igual)
 
     const finishOrder = () => {
         setStep(1);
