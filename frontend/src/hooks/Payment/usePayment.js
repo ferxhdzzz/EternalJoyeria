@@ -145,21 +145,20 @@ export default function usePayment() {
     // ------------------------------------------------
     // Guardar direcciones (CORREGIDO)
     // ------------------------------------------------
-    async function saveAddresses() {
-        const payload = {
-            shippingAddress: {
-                // *** CLAVE: Añadir recipientName y line2 ***
-                recipientName: formData.nombre, // Mapea el campo 'nombre' del formulario a 'recipientName'
-                name: formData.nombre, 
-                phone: formData.telefono,
-                email: formData.email,
-                line1: formData.direccion,
-                // Asumiendo que 'direccion' es line1 y no tienes line2 en el formulario, si lo tuvieras, agrégalo:
-                // line2: formData.direccion2, 
-                city: formData.ciudad,
-                zip: formData.codigoPostal,
-            },
-        };
+   async function saveAddresses() {
+    const payload = {
+        shippingAddress: {
+            recipientName: formData.nombre,
+            phone: formData.telefono,
+            email: formData.email,
+            line1: formData.direccion,
+            // Agrega campos faltantes o define un valor por defecto
+            country: 'El Salvador', // <-- Asume un país si no lo pides en el form
+            region: formData.departamento || 'No especificado', // <-- Si tienes un campo de región/departamento
+            city: formData.ciudad,
+            zip: formData.codigoPostal,
+        },
+    };
         const updated = await request("/orders/cart/addresses", {
             method: "PUT",
             body: payload,
