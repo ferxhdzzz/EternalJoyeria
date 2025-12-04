@@ -2,13 +2,13 @@ import { Schema, model } from "mongoose";
 
 const addressSchema = new Schema(
 	{
-		// Nuevo campo añadido para que coincida con el frontend (recipientName)
-		recipientName: String, // <--- CAMBIO CLAVE AÑADIDO
-		name: String, // Lo mantengo por si acaso, pero recipientName es el que se debería usar
+		// Los campos importantes:
+		recipientName: String, // <--- CAMBIO CLAVE (Asegúrate que exista)
+		name: String, 
 		phone: String,
 		email: String,
 		line1: String,
-		line2: String, // Añadido line2 que no estaba pero se usa en el frontend
+		line2: String, 
 		city: String,
 		region: String,
 		country: String,
@@ -63,11 +63,10 @@ const ordersSchema = new Schema(
 		// estados 
 		status: {
 			type: String,
-			enum: ["cart", "pendiente", "pagado", "no pagado", "pending_payment"], // Añadido "pending_payment"
+			enum: ["cart", "pendiente", "pagado", "no pagado", "pending_payment"], 
 			default: "cart",
 		},
 		
-		// Referencia para el pago
 		wompiReference: { type: String, trim: true },
 	},
 	{
@@ -80,6 +79,5 @@ ordersSchema.index(
 	{ idCustomer: 1, status: 1 },
 	{ unique: true, partialFilterExpression: { status: "cart" } }
 );
-
 
 export default model("Orders", ordersSchema);
