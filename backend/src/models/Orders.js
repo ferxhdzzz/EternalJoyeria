@@ -60,7 +60,7 @@ const ordersSchema = new Schema(
     // estados 
     status: {
       type: String,
-      enum: ["cart", "pendiente", "pagado", "no pagado"],
+      enum: ["cart", "pendiente", "pagado", "no pagado", "en camino", "entregado"],
       default: "cart",
     },
   },

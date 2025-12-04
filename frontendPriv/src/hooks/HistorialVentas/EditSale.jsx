@@ -107,6 +107,7 @@ const EditSale = ({ saleId, onClose, onSave }) => {
           <option value="pendiente">Pendiente</option>
           <option value="En camino">En camino</option>
           <option value="Entregado">Entregado</option>
+             <option value="Entregado">Pagado</option>
         </select>
 
         {errors.status && (

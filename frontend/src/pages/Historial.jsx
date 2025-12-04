@@ -208,27 +208,44 @@ const HistorialPage = () => {
         </div>
 
         <div className="historial-filters">
-          <div className="filter-buttons">
-            <button
-              className={`filter-btn ${selectedFilter === 'todos' ? 'active' : ''}`}
-              onClick={() => setSelectedFilter('todos')}
-            >
-              Todos las compras
-            </button>
-            <button
-              className={`filter-btn ${selectedFilter === 'entregado' ? 'active' : ''}`}
-              onClick={() => setSelectedFilter('entregado')}
-            >
-              Entregados
-            </button>
-            <button
-              className={`filter-btn ${selectedFilter === 'camino' ? 'active' : ''}`}
-              onClick={() => setSelectedFilter('camino')}
-            >
-              En camino
-            </button>
-          </div>
-        </div>
+  <div className="filter-buttons">
+    <button
+      className={`filter-btn ${selectedFilter === 'todos' ? 'active' : ''}`}
+      onClick={() => setSelectedFilter('todos')}
+    >
+      Todos las compras
+    </button>
+
+    <button
+      className={`filter-btn ${selectedFilter === 'entregado' ? 'active' : ''}`}
+      onClick={() => setSelectedFilter('entregado')}
+    >
+      Entregados
+    </button>
+
+    <button
+      className={`filter-btn ${selectedFilter === 'camino' ? 'active' : ''}`}
+      onClick={() => setSelectedFilter('camino')}
+    >
+      En camino
+    </button>
+
+    {/* 🔥 NUEVOS FILTROS AQUÍ */}
+    <button
+      className={`filter-btn ${selectedFilter === 'pendiente' ? 'active' : ''}`}
+      onClick={() => setSelectedFilter('pendiente')}
+    >
+      Pendientes
+    </button>
+
+    <button
+      className={`filter-btn ${selectedFilter === 'pagado' ? 'active' : ''}`}
+      onClick={() => setSelectedFilter('pagado')}
+    >
+      Pagados
+    </button>
+  </div>
+</div>
 
         <div className="historial-orders">
           <div className="orders-container">

@@ -3,6 +3,99 @@ body {
   min-height: 100vh;
 }
 
+/* BOTÓN PRINCIPAL — BONITO, ROSADO Y MODERNO */
+.ticket-pay-btn,
+.modal-btn.next {
+    background: linear-gradient(135deg, #ff9bb0, #ff77a8);
+    color: white;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(255, 148, 180, 0.4);
+}
+
+.ticket-pay-btn:hover,
+.modal-btn.next:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(255, 115, 155, 0.5);
+    background: linear-gradient(135deg, #ff84a0, #ff5c96);
+}
+
+/* Botón atrás — versión suave */
+.ticket-back-btn {
+    background: #ffeef3;
+    color: #e76b90;
+    border: 2px solid #ffb6c8;
+    padding: 12px 22px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.ticket-back-btn:hover {
+    background: #ffd9e4;
+    transform: translateY(-2px);
+    border-color: #ff9bb0;
+}
+
+/* BOTÓN DEL MODAL */
+.modal-btn.next {
+    margin-top: 25px;
+    width: 100%;
+}
+
+/* Botón X superior derecho */
+.modal-close-btn-new {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 26px;
+    font-weight: bold;
+    color: #000;
+    cursor: pointer;
+    z-index: 9999;
+}
+
+/* Botón copiar icono */
+/* FILA CON ICONO DE COPIADO */
+.copy-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #ffd6de;
+    margin-bottom: 10px;
+}
+
+/* BOTÓN DE COPIADO */
+.copy-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.copy-icon-btn svg {
+    width: 20px;
+    height: 20px;
+    color: #d64c7c;
+}
+
+
+
 .checkout-bg {
   min-height: 100vh;
   display: flex;
@@ -22,7 +115,6 @@ body {
 }
 
 .checkout-payment-box {
-  /* background: #fff; */
   border-radius: 0;
   padding: 2.5rem 2.5rem 2rem 2.5rem;
   min-width: 450px;
@@ -90,7 +182,7 @@ body {
 
 .checkout-tab input[type="radio"] {
   display: none;
-   color: black;
+  color: black;
 }
 
 .checkout-logos img {
@@ -333,11 +425,11 @@ body {
   }
 }
 
-/* Ticket resumen y formulario elegante */
+/* --------------------------- */
+/*  TICKET FORM ELEGANTE       */
+/* --------------------------- */
+
 .ticket-form-box {
-  /* background: #fff; */
-  /* border-radius: 18px; */
-  /* box-shadow: 0 4px 18px rgba(0,0,0,0.07); */
   padding: 2.5rem 2.5rem 2rem 2.5rem;
   min-width: 400px;
   max-width: 500px;
@@ -346,6 +438,7 @@ body {
   flex-direction: column;
   align-items: flex-start;
 }
+
 .ticket-title {
   font-family: 'DM Sans', Arial, sans-serif;
   font-size: 1.3rem;
@@ -353,27 +446,33 @@ body {
   color: #b94a6c;
   margin-bottom: 1.5rem;
 }
+
 .ticket-form {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 1.1rem;
 }
+
 .ticket-field {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
 }
+
 .ticket-field-row {
   display: flex;
   gap: 1.2rem;
 }
+
 .ticket-field label {
   font-size: 0.98rem;
   color: #444;
   font-weight: 500;
 }
-.ticket-field input, .ticket-field select {
+
+.ticket-field input,
+.ticket-field select {
   width: 100%;
   padding: 12px 13px;
   border: 1.2px solid #e4e4e4;
@@ -386,14 +485,18 @@ body {
   color: #222;
   box-shadow: 0 0 0 0px #ffd6de;
 }
-.ticket-field input:focus, .ticket-field select:focus {
+
+.ticket-field input:focus,
+.ticket-field select:focus {
   border-color: #d1a6b4;
   box-shadow: 0 0 0 2px #ffd6de;
 }
+
 .ticket-field input:invalid {
   border-color: #e75480;
   box-shadow: 0 0 0 2px #ffe4e7;
 }
+
 .ticket-error {
   color: #e75480;
   font-size: 0.92rem;
@@ -402,10 +505,13 @@ body {
   transform: translateY(-6px);
   transition: opacity 0.18s, transform 0.18s;
 }
-.ticket-field input:invalid ~ .ticket-error, .ticket-field select:invalid ~ .ticket-error {
+
+.ticket-field input:invalid ~ .ticket-error,
+.ticket-field select:invalid ~ .ticket-error {
   opacity: 1;
   transform: translateY(0);
 }
+
 .ticket-pay-btn {
   margin-top: 1.2rem;
   width: 100%;
@@ -421,68 +527,67 @@ body {
   box-shadow: none;
   transition: background 0.18s, color 0.18s, border 0.18s, transform 0.12s;
 }
+
 .ticket-pay-btn:hover {
   background: #ffe4e7;
   color: #e75480;
   border-color: #e75480;
   transform: scale(1.04);
 }
+
 .ticket-pay-btn:active {
   transform: scale(0.97);
 }
+
 .ticket-summary-box {
   background: #fff;
   border-radius: 0 !important;
   box-shadow: none !important;
   border: none !important;
-  padding: 0 0 0 0 !important;
+  padding: 0 !important;
   min-width: 330px;
   max-width: 370px;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  overflow: hidden;
   margin-top: 1.2rem;
 }
+
 .ticket-summary-box svg:first-child {
-  margin: 0 !important;
-  padding: 0 !important;
-  display: block;
   width: 100% !important;
   height: 24px !important;
-  line-height: 0;
-  vertical-align: top;
+  margin: 0 !important;
+  padding: 0 !important;
 }
+
 .ticket-summary-inner {
   border-radius: 0 !important;
-  box-shadow: none !important;
-  border: none !important;
   background: #fff !important;
   width: 100%;
-  padding: 1.5rem 2.2rem 1.5rem 2.2rem;
-  margin-top: 0 !important;
+  padding: 1.5rem 2.2rem;
 }
+
 .ticket-summary-title {
   font-family: 'DM Sans', Arial, sans-serif;
   font-size: 1.15rem;
   font-weight: 900;
   color: #b94a6c;
   margin-bottom: 1.5rem;
-  display: block;
 }
+
 .ticket-summary-items {
   margin-bottom: 1.25rem;
   width: 100%;
 }
+
 .ticket-summary-item {
   display: flex;
   align-items: center;
   gap: 1rem;
   margin-bottom: 1.2rem;
-  width: 100%;
 }
+
 .ticket-summary-img {
   width: 48px;
   height: 48px;
@@ -491,26 +596,31 @@ body {
   border: 1.5px solid #ffd6de;
   background: #fff;
 }
+
 .ticket-summary-details {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
+
 .ticket-summary-name {
   font-weight: 600;
   color: #444;
   font-size: 1.01rem;
 }
+
 .ticket-summary-size {
   color: #888;
   font-size: 0.93rem;
 }
+
 .ticket-summary-price {
   color: #444;
   font-size: 1.01rem;
   font-weight: 500;
 }
+
 .ticket-summary-row {
   display: flex;
   justify-content: space-between;
@@ -816,8 +926,11 @@ body {
 .success-message {
   color: #6b7280;
   margin-bottom: 1.5rem;
-  font-size: 16px;
+  padding: 20px;
+  padding-left: 20px;
+  font-size: 14px;
   font-family: 'DM Sans', Arial, sans-serif;
+
 }
 
 .success-amount {
@@ -832,6 +945,7 @@ body {
   font-family: 'DM Sans', Arial, sans-serif;
   box-shadow: 0 2px 10px rgba(16, 185, 129, 0.1);
 }
+
 
 /* Responsividad mejorada */
 @media (max-width: 768px) {
