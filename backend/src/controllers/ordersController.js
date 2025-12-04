@@ -198,24 +198,26 @@ async function finishOrder(req, res) {
 
 // PUT /api/orders/cart/addresses -> guarda snapshot de dirección
 async function saveCartAddresses(req, res) {
-  try {
-    const userId = req.userId;
-    const { shippingAddress } = req.body || {};
+	try {
+		const userId = req.userId;
+		const { shippingAddress } = req.body || {}; // <-- ¡Aquí se recibe la info completa!
 
-    let order = await Order.findOne({ idCustomer: userId, status: "cart" });
-    if (!order) return res.status(404).json({ message: "Carrito no encontrado" });
+		let order = await Order.findOne({ idCustomer: userId, status: "cart" });
+		if (!order) return res.status(404).json({ message: "Carrito no encontrado" });
 
-    order.shippingAddress = shippingAddress || undefined;
-    await order.save();
+		// Si en req.body.shippingAddress viene 'recipientName', se guardará en Mongoose
+		// porque el esquema ahora lo soporta.
+		order.shippingAddress = shippingAddress || undefined; 
+		await order.save();
 
-    const out = await Order.findById(order._id)
-      .populate("products.productId", "name images price finalPrice discountPercentage");
+		const out = await Order.findById(order._id)
+			.populate("products.productId", "name images price finalPrice discountPercentage");
 
-    return res.json(out);
-  } catch (err) {
-    console.error("[orders] saveCartAddresses", err);
-    return res.status(500).json({ message: "Error guardando dirección" });
-  }
+		return res.json(out);
+	} catch (err) {
+		console.error("[orders] saveCartAddresses", err);
+		return res.status(500).json({ message: "Error guardando dirección" });
+	}
 }
 
 // POST /api/orders/:orderId/pending -> mueve a pending_payment y retorna ref

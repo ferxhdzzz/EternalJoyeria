@@ -280,19 +280,23 @@ const OrderDetailPage = () => {
                     </div>
 
                     {/* Sección de Dirección de Envío */}
-                    {order.shippingAddress && (
-                        <div className="shipping-section card-box">
-                            <h2 className="section-title"><FiMapPin /> Dirección de Envío</h2>
-                            <div className="address-details">
-                                <p><strong>{order.shippingAddress.name}</strong> ({order.shippingAddress.phone})</p>
-                                <p>{order.shippingAddress.line1} {order.shippingAddress.line2}</p>
-                                <p>{order.shippingAddress.city}, {order.shippingAddress.country}</p>
-                                <p>CP: {order.shippingAddress.zip}</p>
-                                <p>Email: {order.shippingAddress.email}</p>
-                            </div>
-                        </div>
-                    )}
-
+              {order.shippingAddress && (
+    <div className="shipping-section card-box">
+        <h2 className="section-title"><FiMapPin /> Dirección de Envío</h2>
+        <div className="address-details">
+            {/* 💡 CORRECCIÓN de Nombre y Teléfono: Prueba con recipientName */}
+            <p><strong>{order.shippingAddress.recipientName || order.shippingAddress.name || 'Nombre No Disp.'}</strong> ({order.shippingAddress.phone || 'Teléfono No Disp.'})</p>
+            
+            {/* Estos ya los tienes bien: line1, line2, city, country, zip */}
+            <p>{order.shippingAddress.line1} {order.shippingAddress.line2}</p>
+            <p>{order.shippingAddress.city}, {order.shippingAddress.country}</p>
+            <p>CP: {order.shippingAddress.zip}</p>
+            
+            {/* 💡 CORRECCIÓN de Email: Podría estar a nivel de la orden o en un campo customerEmail */}
+            <p>Email: {order.customerEmail || order.shippingAddress.email || 'Email No Disp.'}</p>
+        </div>
+    </div>
+)}
                     {/* Resumen de Costos */}
                     <div className="summary-section card-box">
                         <h2 className="section-title"><FiCreditCard /> Resumen de Pagos</h2>
