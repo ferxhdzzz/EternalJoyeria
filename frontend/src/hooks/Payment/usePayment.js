@@ -180,17 +180,27 @@ export default function usePayment() {
         await saveAddresses();
         await syncCartItems(cartItems, {}, { immediate: true });
 
-        const payload = {
-            formData,
-            paymentMethod:
-                m === "paypal" || m === "paypal_native"
-                    ? "paypal"
-                    : m === "link"
-                    ? "link"
-                    : m === "transferencia" || m === "transfer"
-                    ? "transferencia"
-                    : "transferencia", // Fallback, asegura minúscula para el backend
-        };
+    const payload = {
+    formData: {
+        nombre: formData.nombre,
+        email: formData.email,
+        direccion: formData.direccion,
+        ciudad: formData.ciudad,
+        codigoPostal: formData.codigoPostal,
+        telefono: formData.telefono,
+    },
+
+    paymentMethod:
+        m === "paypal" || m === "paypal_native"
+            ? "paypal"
+            : m === "link"
+            ? "link"
+            : m === "transferencia" || m === "transfer"
+            ? "transferencia"
+            : "transferencia",
+};
+
+
 
         // LLAMADA CLAVE: Llama al endpoint que cambia la Order a 'pendiente' y CREA la Sale.
         // *** CORRECCIÓN APLICADA AQUÍ: Se cambió la ruta a "/payments/create" ***

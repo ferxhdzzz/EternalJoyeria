@@ -28,13 +28,21 @@ async function updateProductStock(order) {
 export const createPendingOrder = async (req, res) => {
     try {
         const userId = req.userId;
-        const { formData, paymentMethod } = req.body;
+
+        const { 
+            nombre,
+            email,
+            direccion,
+            ciudad,
+            codigoPostal,
+            telefono,
+            paymentMethod 
+        } = req.body;
 
         if (!["paypal", "link", "transferencia"].includes(paymentMethod)) {
             return res.status(400).json({ message: "Método de pago inválido" });
         }
 
-        // Obtener el carrito existente
         let order = await Order.findOne({
             idCustomer: userId,
             status: "cart",
@@ -43,27 +51,32 @@ export const createPendingOrder = async (req, res) => {
         if (!order) return res.status(404).json({ message: "No hay carrito activo" });
         if (order.products.length === 0) return res.status(400).json({ message: "El carrito está vacío" });
 
-        // 1. Pasar la orden a pendiente
-        order.status = "pendiente"; // Estado de la Orden
+        // PASAR ORDEN A PENDIENTE
+        order.status = "pendiente";
         order.paymentStatus = "pending";
         order.paymentMethod = paymentMethod;
+
+        // Dirección correcta según el nuevo formato
         order.shippingAddress = {
-            line1: formData.direccion,
-            // Agrega más campos si los tienes en formData (city, country, etc.)
+            line1: direccion,
+            city: ciudad,
+            zip: codigoPostal,
+            phone: telefono,
         };
-        order.email = formData.email;
-        order.customerName = formData.nombre;
+
+        // Datos del cliente
+        order.email = email;
+        order.customerName = nombre;
 
         await order.save();
 
-        // 2. Crear la Venta (Sale) con estado "pending"
-        // Asegúrate de que tu modelo Sale tenga un campo 'status' para poder guardarlo.
+        // Crear VENTA (pending)
         const sale = await Sale.create({
             idOrder: order._id,
             idCustomers: order.idCustomer,
-            total: order.total, // Usar total si totalCents no está bien poblado, o mejor totalCents / 100
-            totalCents: order.totalCents, // Si lo manejas en centavos
-            status: "pending", // <<-- ESTADO INICIAL DE LA VENTA (Para que el admin la vea)
+            total: order.total,
+            totalCents: order.totalCents,
+            status: "pending",
             paymentMethod: paymentMethod,
             address: order.shippingAddress,
         });
