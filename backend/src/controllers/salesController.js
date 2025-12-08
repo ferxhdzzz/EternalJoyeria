@@ -258,37 +258,51 @@ salesController.getSale = async (req, res) => {
 
  */
 salesController.updateSale = async (req, res) => {
-  try {
-    const { status, address } = req.body;
+    try {
+        const { status, address } = req.body;
 
-    const sale = await Sale.findById(req.params.id);
-    if (!sale) {
-      return res.status(404).json({ message: "Venta no encontrada" });
+        const sale = await Sale.findById(req.params.id);
+        if (!sale) {
+            return res.status(404).json({ message: "Venta no encontrada" });
+        }
+
+        // 💡 CAMBIO CLAVE: Actualiza el estado de la ORDEN (idOrder) si se proporciona
+        if (status) {
+            const updatedOrder = await Order.findByIdAndUpdate(
+                sale.idOrder,
+                { status: status },
+                { new: true } // Opcional: devuelve la orden actualizada
+            );
+            
+            // Si no se encuentra la orden, no puedes actualizarla.
+            if (!updatedOrder) {
+                console.warn(`Orden no encontrada con ID: ${sale.idOrder}`);
+                // Si la orden no existe, igual continúas si solo quieres actualizar la dirección de la venta,
+                // pero esto indica un dato faltante.
+            }
+        }
+
+        // Si se proporciona una dirección, actualiza el campo de la Venta (Sale)
+        if (address) {
+            sale.address = address;
+            await sale.save();
+        }
+
+        // Obtener la venta actualizada para devolverla en la respuesta
+        const populatedSale = await Sale.findById(sale._id).populate("idOrder", "status total");
+
+        res.json({
+            message: "Venta actualizada correctamente",
+            sale: populatedSale
+        });
+    } catch (error) {
+        // ... (manejo de error)
+        res.status(400).json({
+            message: "Error actualizando la venta",
+            error: error.message
+        });
     }
-
-    if (status) {
-      await Order.findByIdAndUpdate(sale.idOrder, { status: status });
-    }
-
-    if (address) {
-      sale.address = address;
-      await sale.save();
-    }
-
-    const populatedSale = await Sale.findById(sale._id).populate("idOrder", "status total");
-
-    res.json({
-      message: "Venta actualizada correctamente",
-      sale: populatedSale
-    });
-  } catch (error) {
-    res.status(400).json({
-      message: "Error actualizando la venta",
-      error: error.message
-    });
-  }
 };
-
 /**
  *  Elimina una venta.
 

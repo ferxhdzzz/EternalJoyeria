@@ -18,7 +18,7 @@ const MyStory = () => {
         <div className="my-story__image-container">
           {/* The image of the creator. */}
           <img 
-            src="/AboutUs/aboutUsimage.png" // Corregida la ruta de la imagen
+            src="/AboutUs/eternal3.png" // Corregida la ruta de la imagen
             alt="Creadora de Eternal Joyería" // Alt text for accessibility and SEO.
             className="my-story__image" // Applies styling to the image.
           />
