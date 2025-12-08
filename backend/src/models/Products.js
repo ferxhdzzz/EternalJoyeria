@@ -28,6 +28,7 @@ const productSchema = new Schema(
     finalPrice: { type: Number, required: true },
 
     stock: { type: Number, required: true, default: 1, min: 1, max: 100 },
+    isAvailable: { type: Boolean, default: true }, // 💡 CAMPO CLAVE
   },
   { strict: false }
 );
