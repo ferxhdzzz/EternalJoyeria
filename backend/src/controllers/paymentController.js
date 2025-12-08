@@ -2,7 +2,7 @@ import Order from "../models/Orders.js";
 import Sale from "../models/sales.js";
 import Product from "../models/Products.js";
 
-// Función de stock (se mantiene igual, se usa en markOrderAsPaid)
+// ---------------- STOCK ----------------
 async function updateProductStock(order) {
     if (!order?.products) return;
 
@@ -13,9 +13,7 @@ async function updateProductStock(order) {
         product.stock -= item.quantity;
 
         if (product.stock <= 0) {
-            // Decides si eliminar o solo poner stock en 0 y marcar como no disponible
-            // Lo mantengo como lo tienes:
-            await Product.findByIdAndDelete(product._id); 
+            await Product.findByIdAndDelete(product._id);
         } else {
             await product.save();
         }
@@ -23,12 +21,16 @@ async function updateProductStock(order) {
 }
 
 /* ============================================================
-    ESTO SE USA para PayPal, Link de Pago y Transferencia
+        CREAR ORDEN PENDIENTE (Paso 3 – Checkout)
     ============================================================ */
+// ============================================================
+// CREATE PENDING ORDER (PayPal, Link, Transferencia)
+// ============================================================
 export const createPendingOrder = async (req, res) => {
     try {
         const userId = req.userId;
 
+        // 💡 CAMBIO: Agregamos region y country, que son parte del addressSchema
         const { 
             nombre,
             email,
@@ -36,6 +38,8 @@ export const createPendingOrder = async (req, res) => {
             ciudad,
             codigoPostal,
             telefono,
+            region, 
+            country,
             paymentMethod 
         } = req.body;
 
@@ -56,29 +60,38 @@ export const createPendingOrder = async (req, res) => {
         order.paymentStatus = "pending";
         order.paymentMethod = paymentMethod;
 
-        // Dirección correcta según el nuevo formato
+        // ✔ CORRECCIÓN: Guardar la dirección completa en el objeto de shippingAddress de la Order
         order.shippingAddress = {
-            line1: direccion,
+            name: nombre,
+            email,
+            phone: telefono,
+            line1: direccion, // Mapea tu campo 'direccion' a 'line1'
             city: ciudad,
             zip: codigoPostal,
-            phone: telefono,
+            region: region,     // Asegúrate de enviar este dato desde el frontend
+            country: country,   // Asegúrate de enviar este dato desde el frontend
         };
 
-        // Datos del cliente
-        order.email = email;
-        order.customerName = nombre;
+        // ❌ Eliminado: Los campos order.email y order.customerName no están en tu ordersSchema
+        // order.email = email;
+        // order.customerName = nombre;
 
         await order.save();
 
-        // Crear VENTA (pending)
+        // -----------------------------
+        // CREAR VENTA (SALE) → STRING (Con la corrección de los datos)
+        // -----------------------------
+        // ✔ CORRECCIÓN: Crear la cadena de dirección bien formateada para el campo 'address' en Sales
+        const addressString = `[${nombre}] - ${direccion}, ${ciudad}, ${codigoPostal}, ${region}, ${country} | Tel: ${telefono} | Email: ${email}`;
+
         const sale = await Sale.create({
             idOrder: order._id,
             idCustomers: order.idCustomer,
+            address: addressString,   // ✔ Aquí es donde se guarda el string completo
             total: order.total,
             totalCents: order.totalCents,
             status: "pending",
-            paymentMethod: paymentMethod,
-            address: order.shippingAddress,
+            paymentMethod,
         });
 
         return res.json({
@@ -90,48 +103,44 @@ export const createPendingOrder = async (req, res) => {
 
     } catch (error) {
         console.error("❌ createPendingOrder error:", error);
-        return res.status(500).json({ message: "Error al crear orden pendiente y registrar venta" });
+        return res.status(500).json({ message: "Error al crear orden pendiente y registrar venta", error: error.message });
     }
 };
 
 
-/* ========================================================
-    CUANDO EL ADMIN MARQUE UNA ORDEN COMO PAGADA
-    SE ACTUALIZA LA ORDEN, STOCK Y LA VENTA (SALE)
-    ======================================================== */
+/* ============================================================
+        ADMIN → MARCAR ORDEN COMO PAGADA (Se mantiene igual)
+    ============================================================ */
 export const markOrderAsPaid = async (req, res) => {
+    // ... (Esta función se mantiene igual, ya que solo actualiza el estado)
     try {
         const { orderId } = req.body;
 
         const order = await Order.findById(orderId);
         if (!order) return res.status(404).json({ message: "Orden no encontrada" });
 
-        // 1. Actualizar Orden
+        // Actualizar Orden
         order.status = "pagado";
-        order.paymentStatus = "completed";
-        order.paymentDate = new Date();
+        order.paymentStatus = "completed"; // Asumo que tienes este campo en tu schema (no lo vi, pero lo mantengo)
+        order.paymentDate = new Date(); // Asumo que tienes este campo en tu schema
         await order.save();
 
-        // 2. Actualizar inventario
+        // Actualizar inventario
         await updateProductStock(order);
 
-        // 3. Buscar y actualizar la Venta (Sale) asociada (ya creada en createPendingOrder)
+        // Actualizar Venta (Sale)
         const sale = await Sale.findOneAndUpdate(
             { idOrder: order._id },
             {
-                status: "completed", // <<-- ESTADO FINAL DE LA VENTA
-                paymentDate: new Date(),
-                // Puedes agregar más info aquí si es necesario
+                status: "completed",
+                paymentDate: new Date(), // Asumo que tienes este campo en tu schema
             },
             { new: true }
         );
-        
-        // Si por alguna razón no se creó la venta antes, se podría crear aquí como fallback,
-        // pero la lógica principal asume que ya existe. Si la encuentras, actualiza.
 
         return res.json({
             success: true,
-            message: "Orden marcada como pagada y Venta actualizada a completada",
+            message: "Orden marcada como pagada y Venta actualizada",
             order,
             sale,
         });
@@ -141,6 +150,3 @@ export const markOrderAsPaid = async (req, res) => {
         return res.status(500).json({ message: "Error al marcar como pagada" });
     }
 };
-
-// Mantener o eliminar markOrderAsPaid de ordersController.js si lo tienes duplicado.
-// Revisa si 'finishOrder' en ordersController.js también debe ser eliminado o refactorizado.

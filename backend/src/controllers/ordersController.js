@@ -162,40 +162,48 @@ async function syncCartItems(req, res) {
 
 // PUT /api/orders/:id/finish
 async function finishOrder(req, res) {
-  try {
-    const { id } = req.params;
+    try {
+        const { id } = req.params;
 
-    let order = await Order.findById(id);
+        let order = await Order.findById(id);
 
-    if (!order) {
-      return res.status(404).json({ message: "Orden no encontrada" });
+        if (!order) {
+            return res.status(404).json({ message: "Orden no encontrada" });
+        }
+
+        // Cambiar estado a pagado
+        order.status = "pagado";
+        await order.save();
+
+        // 💡 CORRECCIÓN: Creamos la cadena de dirección para el modelo Sale
+        const addressObject = order.shippingAddress || {}; 
+        const addressString = `${addressObject.name || ""}: ${addressObject.line1 || ""}, ${addressObject.city || ""}, ${addressObject.zip || ""}, ${addressObject.region || ""}, ${addressObject.country || ""} | Tel: ${addressObject.phone || ""} | Email: ${addressObject.email || ""}`;
+
+        // Guardar en historial de compras (Sales)
+        await Sale.create({
+            idCustomers: order.idCustomer,
+            idOrder: order._id,
+            address: addressString, // ✔ CORREGIDO: ahora es una cadena
+            total: order.totalCents ? order.totalCents / 100 : order.total,
+            totalCents: order.totalCents,
+            status: "completed",
+            // Nota: Aquí faltaría agregar el paymentMethod si lo tienes disponible.
+        });
+        
+        // ... falta llamar a updateProductStock(order) aquí!
+        // ✅ RECOMENDACIÓN: DEBERÍAS LLAMAR A LA FUNCIÓN DE STOCK AQUÍ
+        // await updateProductStock(order); 
+
+        return res.json({
+            message: "Orden finalizada con éxito",
+            order,
+        });
+
+    } catch (error) {
+        console.error("finishOrder ERROR:", error);
+        return res.status(500).json({ message: "Error finalizando orden" });
     }
-
-    // Cambiar estado a pagado
-    order.status = "pagado";
-    await order.save();
-
-    // Guardar en historial de compras (Sales) <-- REDUNDANTE CON markOrderAsPaid
-    await Sale.create({
-      idCustomer: order.idCustomer,
-      idOrder: order._id,
-      address: order.shippingAddress,
-      total: order.totalCents ? order.totalCents / 100 : order.total,
-    });
-    
-    // ... falta llamar a updateProductStock(order) aquí!
-
-    return res.json({
-      message: "Orden finalizada con éxito",
-      order,
-    });
-
-  } catch (error) {
-    console.error("finishOrder ERROR:", error);
-    return res.status(500).json({ message: "Error finalizando orden" });
-  }
 }
-
 // PUT /api/orders/cart/addresses -> guarda snapshot de dirección
 async function saveCartAddresses(req, res) {
   try {

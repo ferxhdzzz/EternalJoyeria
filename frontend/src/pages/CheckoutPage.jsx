@@ -126,7 +126,7 @@ const CheckoutPage = () => {
         image: p.productId.images?.[0]
     })) : cartItems;
 
-    return (
+   return (
         <div className="checkout-page">
             <SidebarCart isOpen={cartOpen} onClose={() => setCartOpen(false)} />
             <Nav cartOpen={cartOpen} />
@@ -144,19 +144,30 @@ const CheckoutPage = () => {
                             <>
                                 <h2 className="ticket-title">Datos de envío</h2>
                                 <form className="ticket-form">
-
-                                    {Object.keys(formData).map((key) => (
-                                        <div className="ticket-field" key={key}>
-                                            <label>{key.charAt(0).toUpperCase() + key.slice(1)}</label>
+                                    {/* 💡 CAMBIO: Usaremos un array con la etiqueta y el nombre del campo para ordenar */}
+                                    {[
+                                        { key: "nombre", label: "Nombre Completo" },
+                                        { key: "email", label: "Email" },
+                                        { key: "telefono", label: "Teléfono" },
+                                        { key: "direccion", label: "Dirección (Línea 1)" },
+                                        { key: "ciudad", label: "Ciudad" },
+                                        { key: "region", label: "Región / Departamento" }, // ✅ Nuevo campo
+                                        { key: "country", label: "País" },              // ✅ Nuevo campo
+                                        { key: "codigoPostal", label: "Código Postal" },
+                                    ].map((field) => (
+                                        <div className="ticket-field" key={field.key}>
+                                            <label>{field.label}</label>
 
                                             <input
                                                 type="text"
-                                                name={key}
-                                                value={formData[key]}
+                                                name={field.key}
+                                                value={formData[field.key]}
                                                 onChange={handleChangeData}
+                                                // El campo email puede ser de tipo email
+                                                {...(field.key === 'email' ? { type: 'email' } : {})}
                                             />
-                                            {errors[key] && (
-                                                <span className="ticket-error">{errors[key]}</span>
+                                            {errors[field.key] && (
+                                                <span className="ticket-error">{errors[field.key]}</span>
                                             )}
                                         </div>
                                     ))}
@@ -167,7 +178,6 @@ const CheckoutPage = () => {
                                 </form>
                             </>
                         )}
-
                         {/* STEP 2 */}
                         {step === 2 && (
                             <>

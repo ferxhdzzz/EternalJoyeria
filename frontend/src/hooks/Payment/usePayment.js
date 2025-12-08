@@ -52,6 +52,9 @@ export default function usePayment() {
         ciudad: "",
         codigoPostal: "",
         telefono: "",
+        // 💡 CAMBIO 1: Agregar region y country al estado
+        region: "", 
+        country: "",
     });
 
     const [errors, setErrors] = useState({});
@@ -73,7 +76,7 @@ export default function usePayment() {
     // ------------------------------------------------
     // Validaciones paso 1
     // ------------------------------------------------
-    const validateStep1 = () => {
+const validateStep1 = () => {
         const newErrors = {};
         if (!String(formData.nombre || "").trim()) newErrors.nombre = "Nombre requerido";
         if (!String(formData.email || "").trim() || !/^\S+@\S+\.\S+$/.test(formData.email))
@@ -82,6 +85,10 @@ export default function usePayment() {
         if (!String(formData.ciudad || "").trim()) newErrors.ciudad = "Ciudad requerida";
         if (!String(formData.codigoPostal || "").trim()) newErrors.codigoPostal = "Código postal requerido";
         if (!String(formData.telefono || "").trim()) newErrors.telefono = "Teléfono requerido";
+        
+        // 💡 CAMBIO 2: Agregar validación para region y country
+        if (!String(formData.region || "").trim()) newErrors.region = "Región/Departamento requerido";
+        if (!String(formData.country || "").trim()) newErrors.country = "País requerido";
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -145,7 +152,7 @@ export default function usePayment() {
     // ------------------------------------------------
     // Guardar direcciones
     // ------------------------------------------------
-    async function saveAddresses() {
+async function saveAddresses() {
         const payload = {
             shippingAddress: {
                 name: formData.nombre,
@@ -154,6 +161,9 @@ export default function usePayment() {
                 line1: formData.direccion,
                 city: formData.ciudad,
                 zip: formData.codigoPostal,
+                // 💡 CAMBIO 3: Agregar region y country al payload de saveAddresses
+                region: formData.region,
+                country: formData.country,
             },
         };
         const updated = await request("/orders/cart/addresses", {
@@ -166,7 +176,7 @@ export default function usePayment() {
     }
 
 
-    // ------------------------------------------------
+   // ------------------------------------------------
     // CREAR ORDEN PENDIENTE + REGISTRAR VENTA
     // ------------------------------------------------
     async function createPendingOrder(normalizedMethod) {
@@ -181,32 +191,33 @@ export default function usePayment() {
         await syncCartItems(cartItems, {}, { immediate: true });
 
     const payload = {
-    formData: {
+        // 💡 CAMBIO 4: Se debe enviar toda la data directamente a /payments/create
+        // El controller espera todos los campos del formulario.
         nombre: formData.nombre,
         email: formData.email,
         direccion: formData.direccion,
         ciudad: formData.ciudad,
         codigoPostal: formData.codigoPostal,
         telefono: formData.telefono,
-    },
+        region: formData.region,    //  ✅ Agregado
+        country: formData.country,  //  ✅ Agregado
 
-    paymentMethod:
-        m === "paypal" || m === "paypal_native"
-            ? "paypal"
-            : m === "link"
-            ? "link"
-            : m === "transferencia" || m === "transfer"
-            ? "transferencia"
-            : "transferencia",
-};
+        paymentMethod:
+            m === "paypal" || m === "paypal_native"
+                ? "paypal"
+                : m === "link"
+                ? "link"
+                : m === "transferencia" || m === "transfer"
+                ? "transferencia"
+                : "transferencia", // Fallback
+    };
 
 
 
         // LLAMADA CLAVE: Llama al endpoint que cambia la Order a 'pendiente' y CREA la Sale.
-        // *** CORRECCIÓN APLICADA AQUÍ: Se cambió la ruta a "/payments/create" ***
         const resp = await request("/payments/create", { 
             method: "POST",
-            body: payload,
+            body: payload, // Ahora el payload contiene todos los campos de dirección.
         });
 
         const outOrder = resp?.order || resp;
