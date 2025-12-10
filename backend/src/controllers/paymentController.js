@@ -10,21 +10,17 @@ async function updateProductStock(order) {
         const product = await Product.findById(item.productId);
         if (!product) continue;
 
-        // 1. Descontar el stock
         product.stock -= item.quantity;
 
-        // 2. Comprobar si el stock llegó a cero o menos
         if (product.stock <= 0) {
-            // 💡 CAMBIO CLAVE: NO ELIMINAR. Marcar como NO disponible (agotado).
-            product.stock = 0; // Aseguramos que no haya stock negativo
-            product.isAvailable = false; // Marcamos como agotado (asumiendo que tienes este campo)
-            await product.save();
-        } else {
-            // 3. Si aún hay stock, solo guardar el nuevo valor
-            await product.save();
+            product.stock = 0;           // nunca negativo
+            product.status = "agotado";  // estado agotado
         }
+
+        await product.save(); // 🔥 NECESARIO PARA GUARDAR CAMBIOS
     }
 }
+
 
 /* ============================================================
         CREAR ORDEN PENDIENTE (Paso 3 – Checkout)

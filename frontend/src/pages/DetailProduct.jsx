@@ -658,12 +658,30 @@ const ProductDetail = () => {
                 </p>
               </div>
             )}
-           
-            {product.stock !== undefined && (
-              <div style={{ marginTop: '20px' }}>
-                <p><strong>Stock:</strong> {product.stock} unidades disponibles</p>
-              </div>
-            )}
+             {product.stock !== undefined && (
+  <div style={{ marginTop: '20px' }}>
+    {product.stock === 0 || product.status === "agotado" ? (
+      <p>
+        <strong>Stock:</strong>{" "}
+        <span style={{ color: "#dc3545", fontWeight: "bold" }}>
+          AGOTADO
+        </span>
+      </p>
+    ) : (
+      <p>
+        <strong>Stock:</strong>{" "}
+        <span
+          style={{
+            color: product.stock < 3 ? "#dc3545" : "#333",
+            fontWeight: product.stock < 3 ? "bold" : "normal",
+          }}
+        >
+          {product.stock} unidades disponibles
+        </span>
+      </p>
+    )}
+  </div>
+)}
           </div>
         </div>
        
