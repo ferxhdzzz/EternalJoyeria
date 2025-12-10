@@ -77,8 +77,11 @@ export const createPendingOrder = async (req, res) => {
         // ❌ Eliminado: Los campos order.email y order.customerName no están en tu ordersSchema
         // order.email = email;
         // order.customerName = nombre;
+await order.save();
 
-        await order.save();
+// 🔥 BAJAR STOCK AUTOMÁTICO AL CREAR ORDEN PENDIENTE
+await updateProductStock(order);
+
 
         // -----------------------------
         // CREAR VENTA (SALE) → STRING (Con la corrección de los datos)
@@ -114,7 +117,6 @@ export const createPendingOrder = async (req, res) => {
         ADMIN → MARCAR ORDEN COMO PAGADA (Se mantiene igual)
     ============================================================ */
 export const markOrderAsPaid = async (req, res) => {
-    // ... (Esta función se mantiene igual, ya que solo actualiza el estado)
     try {
         const { orderId } = req.body;
 
@@ -123,19 +125,18 @@ export const markOrderAsPaid = async (req, res) => {
 
         // Actualizar Orden
         order.status = "pagado";
-        order.paymentStatus = "completed"; // Asumo que tienes este campo en tu schema (no lo vi, pero lo mantengo)
-        order.paymentDate = new Date(); // Asumo que tienes este campo en tu schema
+        order.paymentStatus = "completed";
+        order.paymentDate = new Date();
         await order.save();
 
-        // Actualizar inventario
-        await updateProductStock(order);
+        // ❌ YA NO descontamos stock aquí (se descontó al crear la orden)
 
         // Actualizar Venta (Sale)
         const sale = await Sale.findOneAndUpdate(
             { idOrder: order._id },
             {
                 status: "completed",
-                paymentDate: new Date(), // Asumo que tienes este campo en tu schema
+                paymentDate: new Date(),
             },
             { new: true }
         );
