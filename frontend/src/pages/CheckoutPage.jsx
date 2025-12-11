@@ -118,13 +118,15 @@ const CheckoutPage = () => {
     const subtotal = order?.total || cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     const total = subtotal;
 
-    const itemsToShow = step === 3 ? order?.products?.map(p => ({
-        id: p.productId._id,
-        name: p.productId.name,
-        quantity: p.quantity,
-        price: p.unitPriceCents / 100,
-        image: p.productId.images?.[0]
-    })) : cartItems;
+    const itemsToShow = step === 3
+        ? order?.products?.map(p => ({
+            id: p.productId._id,
+            name: p.productId.name,
+            quantity: p.quantity,
+            price: p.unitPriceCents / 100,
+            image: p.productId.images?.[0]
+        }))
+        : cartItems;
 
    return (
         <div className="checkout-page">
@@ -144,31 +146,55 @@ const CheckoutPage = () => {
                             <>
                                 <h2 className="ticket-title">Datos de envío</h2>
                                 <form className="ticket-form">
-                                    {/* 💡 CAMBIO: Usaremos un array con la etiqueta y el nombre del campo para ordenar */}
+
                                     {[
                                         { key: "nombre", label: "Nombre Completo" },
                                         { key: "email", label: "Email" },
                                         { key: "telefono", label: "Teléfono" },
                                         { key: "direccion", label: "Dirección" },
                                         { key: "ciudad", label: "Ciudad / Departamento" },
-                                        { key: "country", label: "País" },              // ✅ Nuevo campo
-                                    
+                                        { key: "country", label: "País" }, // SELECT
                                     ].map((field) => (
-                                        <div className="ticket-field" key={field.key}>
-                                            <label>{field.label}</label>
 
-                                            <input
-                                                type="text"
-                                                name={field.key}
-                                                value={formData[field.key]}
-                                                onChange={handleChangeData}
-                                                // El campo email puede ser de tipo email
-                                                {...(field.key === 'email' ? { type: 'email' } : {})}
-                                            />
-                                            {errors[field.key] && (
-                                                <span className="ticket-error">{errors[field.key]}</span>
-                                            )}
-                                        </div>
+                                        field.key === "country" ? (
+                                            // ⭐ SELECT PARA PAÍS
+                                            <div className="ticket-field" key={field.key}>
+                                                <label>{field.label}</label>
+
+                                                <select
+                                                    name="country"
+                                                    value={formData.country}
+                                                    onChange={handleChangeData}
+                                                    className="ticket-input-select"
+                                                >
+                                                    <option value="">Seleccione una opción</option>
+                                                    <option value="El Salvador">El Salvador</option>
+                                                    <option value="Estados Unidos">Estados Unidos</option>
+                                                </select>
+
+                                                {errors[field.key] && (
+                                                    <span className="ticket-error">{errors[field.key]}</span>
+                                                )}
+                                            </div>
+                                        ) : (
+
+                                            <div className="ticket-field" key={field.key}>
+                                                <label>{field.label}</label>
+
+                                                <input
+                                                    type={field.key === 'email' ? 'email' : 'text'}
+                                                    name={field.key}
+                                                    value={formData[field.key]}
+                                                    onChange={handleChangeData}
+                                                />
+
+                                                {errors[field.key] && (
+                                                    <span className="ticket-error">{errors[field.key]}</span>
+                                                )}
+                                            </div>
+
+                                        )
+
                                     ))}
 
                                     <button className="ticket-pay-btn" type="button" onClick={nextStep}>
@@ -177,6 +203,7 @@ const CheckoutPage = () => {
                                 </form>
                             </>
                         )}
+
                         {/* STEP 2 */}
                         {step === 2 && (
                             <>
@@ -277,16 +304,11 @@ const CheckoutPage = () => {
 
             <Footer />
 
-            {/* ============================
-                MODALES 
-            ============================ */}
+            {/* MODALES */}
             {showModal && (
                 <div className="modal-overlay" onClick={() => setShowModal(false)}>
 
                     <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-
-                        {/* BOTÓN DE CIERRE (❌) */}
-                    
 
                         {/* TRANSFERENCIA */}
                         {showModal === "transfer" && (
@@ -298,7 +320,6 @@ const CheckoutPage = () => {
                                 </p>
 
                                 <div className="modal-info">
-
                                     <p><strong>Banco:</strong> {bankInfo.banco}</p>
                                     <p><strong>Nombre:</strong> {bankInfo.nombre}</p>
                                     <p><strong>Tipo:</strong> {bankInfo.tipo}</p>
@@ -312,7 +333,6 @@ const CheckoutPage = () => {
                                             <CopyIcon />
                                         </button>
                                     </p>
-
                                 </div>
 
                                 <button className="modal-btn next" onClick={handleNextFromModal}>

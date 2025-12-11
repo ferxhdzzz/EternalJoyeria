@@ -1,30 +1,168 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/EternalLogo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans&display=swap" rel="stylesheet">
     <title>EternalJoyeria</title>
-    <script>
-      // Suppress deprecated event warnings
-      console.warn = (function(originalWarn) {
-        return function(msg) {
-          if (msg && msg.indexOf('DOMNodeInsertedIntoDocument') !== -1) {
-            return;
-          }
-          originalWarn.apply(console, arguments);
-        };
-      })(console.warn);
-    </script>
+
     <style>
-      h1 {
-        font-family: 'DM Sans', sans-serif;
+      /* ===============================
+         QUITAR BARRA FEAAA DE GOOGLE
+      =============================== */
+      .goog-te-banner-frame.skiptranslate,
+      .goog-te-banner-frame,
+      .goog-te-gadget-icon,
+      .goog-te-menu-frame,
+      .goog-logo-link {
+        display: none !important;
+      }
+      body { top: 0 !important; }
+
+      .goog-te-gadget { 
+        font-size: 0 !important; 
+      }
+
+      /* ===============================
+         BOTÓN FLOTANTE
+      =============================== */
+      #translate-btn {
+        position: fixed;
+        bottom: 25px;
+        left: 25px;
+        background: #ffb6d9;
+        color: white;
+        width: 56px;
+        height: 56px;
+        font-size: 26px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 999999;
+        transition: 0.2s;
+      }
+
+      #translate-btn:hover {
+        transform: scale(1.1);
+        background: #ff99ca;
+      }
+
+      /* ===============================
+         CAJA FLOTANTE
+      =============================== */
+      #google_translate_container {
+        position: fixed;
+        bottom: 95px;
+        left: 25px;
+        background: white;
+        padding: 14px;
+        border-radius: 14px;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+        display: none;
+        z-index: 999999;
+      }
+
+      #google_translate_container.active {
+        display: block;
+        animation: fadeIn 0.2s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* ===============================
+         ESTILO DEL SELECT
+      =============================== */
+      .goog-te-combo {
+        padding: 8px;
+        border-radius: 10px;
+        border: 1px solid #ffb6d9;
+        font-size: 14px;
+        background: #ffe4f1;
+        color: #333;
+        font-weight: bold;
+        cursor: pointer;
       }
     </style>
   </head>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- BOTÓN FLOTANTE -->
+    <div id="translate-btn">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="white">
+        <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 
+        10-4.486 10-10S17.514 2 12 2zm6.93 8h-2.071a15.027 
+        15.027 0 0 0-1.234-4.031A8.025 8.025 0 0 1 18.93 
+        10zM12 4c1.563 0 3.03 2.203 3.629 6h-7.258C8.97 
+        6.203 10.437 4 12 4zM4.07 14h2.071a15.027 15.027 
+        0 0 0 1.234 4.031A8.025 8.025 0 0 1 4.07 14zm0-4a8.025 
+        8.025 0 0 1 3.305-4.031A15.027 15.027 0 0 0 6.141 
+        10H4.07zM12 20c-1.563 0-3.03-2.203-3.629-6h7.258C15.03 
+        17.797 13.563 20 12 20zm3.625-2.031A15.027 15.027 
+        0 0 0 16.859 14h2.071a8.025 8.025 0 0 1-3.305 4.031z"/>
+      </svg>
+    </div>
+
+    <!-- CAJA FLOTANTE -->
+    <div id="google_translate_container">
+      <div id="google_translate_element"></div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const btn = document.getElementById("translate-btn");
+        const container = document.getElementById("google_translate_container");
+
+        btn.addEventListener("click", () => {
+          container.classList.toggle("active");
+        });
+      });
+
+      /* CUANDO EL USUARIO CAMBIA EL IDIOMA → cierre caixa */
+      function closeTranslateBoxOnChange() {
+        const container = document.getElementById("google_translate_container");
+
+        const interval = setInterval(() => {
+          const combo = document.querySelector(".goog-te-combo");
+          if (combo) {
+            clearInterval(interval);
+            combo.addEventListener("change", () => {
+              container.classList.remove("active");
+            });
+          }
+        }, 300);
+      }
+
+      /* Inicializar Google */
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement(
+          {
+            pageLanguage: 'es',
+            includedLanguages: 'es,en',
+            layout: google.translate.TranslateElement.InlineLayout.VERTICAL
+          },
+          'google_translate_element'
+        );
+
+        closeTranslateBoxOnChange();
+      }
+    </script>
+
+    <!-- Script Google -->
+    <script 
+      type="text/javascript" 
+      src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit">
+    </script>
+
   </body>
 </html>
