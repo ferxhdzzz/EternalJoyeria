@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 import "../styles/AuthStyles.css";
 
 import useLogin from "../hooks/Auth/useLogin";
+import { useCart } from "../context/CartContext"; // 🚨 ¡IMPORTACIÓN AÑADIDA!
 
 // Componente Input mejorado con tema rosado - EXACTO del ejemplo que funciona
 const PinkImprovedInput = React.forwardRef(({ 
@@ -59,6 +60,7 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const { login, loading } = useLogin(); // ✅ usa el nuevo login hook
+  const { fetchCart } = useCart(); // 🚨 ¡OBTENCIÓN AÑADIDA!
   const navigate = useNavigate();
 
   const validate = () => {
@@ -100,6 +102,10 @@ const Login = () => {
       console.log("Resultado del login:", res);
 
       if (res?.success) {
+        
+        // 🚨 CORRECCIÓN AÑADIDA: Llama a fetchCart para cargar el carrito inmediatamente
+        await fetchCart(); 
+
         Swal.fire({
           title: "¡Bienvenido/a de vuelta!",
           text: "Has iniciado sesión exitosamente.",
@@ -107,11 +113,9 @@ const Login = () => {
           confirmButtonText: "¡Genial!",
           confirmButtonColor: "#ff69b4",
         }).then(() => {
-          // Pequeña pausa para asegurar que el contexto se actualice
+          // Ya no necesitamos el setTimeout, fetchCart ya se ejecutó.
           console.log("Redirigiendo a /perfil...");
-          setTimeout(() => {
-            navigate("/perfil");
-          }, 100);
+          navigate("/perfil");
         });
       } else {
         Swal.fire({
@@ -178,6 +182,7 @@ const Login = () => {
         <Label textBefore="¿No tienes cuenta?" linkText="Regístrate" to="/registro" />
       </form>
 
+      {/* --- ESTILOS INLINE --- */}
       <style>{`
         /* Estilos para los inputs rosados mejorados */
         .pink-input-container {
@@ -191,19 +196,19 @@ const Login = () => {
         }
 
        .pink-input {
-  width: 100%;
-  height: 56px;
-  padding: 16px 16px 8px 16px;
-  border: 2px solid #f8bbd9;
-  border-radius: 16px;
-  font-size: 16px;
-  font-family: inherit;
-  background: linear-gradient(145deg, #fef7f7, #fff0f3);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  outline: none;
-  box-sizing: border-box;
-  color: #4a4a4a;
-}
+          width: 100%;
+          height: 56px;
+          padding: 16px 16px 8px 16px;
+          border: 2px solid #f8bbd9;
+          border-radius: 16px;
+          font-size: 16px;
+          font-family: inherit;
+          background: linear-gradient(145deg, #fef7f7, #fff0f3);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          outline: none;
+          box-sizing: border-box;
+          color: #4a4a4a;
+        }
 
 
         .pink-input:focus {
