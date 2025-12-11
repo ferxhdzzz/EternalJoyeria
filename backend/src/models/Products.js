@@ -27,7 +27,7 @@ const productSchema = new Schema(
     discountPercentage: { type: Number, default: null, min: 0, max: 90 },
     finalPrice: { type: Number, required: true },
 
-    stock: { type: Number, required: true, default: 1, min: 1, max: 100 },
+    stock: { type: Number, required: true, default: 1, min: 0, max: 100 },
     status: { type: String, default: "disponible" }
   },
   { strict: false }
