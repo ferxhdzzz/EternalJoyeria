@@ -20,17 +20,6 @@ body {
     box-shadow: 0 4px 12px rgba(255, 148, 180, 0.4);
 }
 
-.ticket-input-select {
-    width: 100%;
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #ddd;
-    background: white;
-    font-size: 14px;
-    outline: none;
-}
-
-
 .ticket-pay-btn:hover,
 .modal-btn.next:hover {
     transform: translateY(-2px);

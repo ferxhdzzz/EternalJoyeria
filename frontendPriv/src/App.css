@@ -1,9 +1,6 @@
 /* Global Styles */
 @import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Nunito:wght@400;600;700&display=swap');
 
-
-
-
 body {
   margin: 0;
   font-family: 'Nunito', sans-serif;
@@ -17,8 +14,6 @@ body {
 ::-webkit-scrollbar {
   width: 10px;
 }
-
-
 
 ::-webkit-scrollbar-thumb {
   background-color: #ccc;
