@@ -1,185 +1,359 @@
 import React, { useState } from "react";
+
 import { useNavigate } from "react-router-dom";
+
 import Logo from "../components/registro/logo/Logo";
+
 import Button from "../components/registro/button/Button";
+
 import BackArrow from "../components/registro/backarrow/BackArrow";
+
 import Label from "../components/registro/labels/LabelLog";
+
 import OlvidarCont from "../components/registro/labelcont/LabelCont";
+
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+
 import Swal from "sweetalert2";
+
 import "../styles/AuthStyles.css";
 
+
+
 import useLogin from "../hooks/Auth/useLogin";
-import { useCart } from "../context/CartContext"; // 🚨 ¡IMPORTACIÓN AÑADIDA!
+
+
 
 // Componente Input mejorado con tema rosado - EXACTO del ejemplo que funciona
-const PinkImprovedInput = React.forwardRef(({ 
-  label, 
+
+const PinkImprovedInput = React.forwardRef(({
+
+  label,
+
   name,
-  type = "text", 
+
+  type = "text",
+
   value,
+
   onChange,
-  error, 
-  showPasswordToggle = false, 
+
+  error,
+
+  showPasswordToggle = false,
+
   onTogglePassword,
+
   showPassword = false,
-  ...props 
+
+  ...props
+
 }, ref) => {
+
   return (
+
     <div className="pink-input-container">
+
       <div className="pink-input-wrapper">
+
         <input
+
           ref={ref}
+
           name={name}
+
           type={type}
+
           value={value}
+
           onChange={onChange}
+
           className={`pink-input ${error ? 'error' : ''}`}
+
           placeholder=" "
+
           {...props}
+
         />
+
         <label className="pink-label">{label}</label>
+
         {showPasswordToggle && (
+
           <button
+
             type="button"
+
             className="pink-password-toggle"
+
             onClick={onTogglePassword}
+
             tabIndex={-1}
+
           >
+
             {showPassword ? <AiFillEyeInvisible size={20} /> : <AiFillEye size={20} />}
+
           </button>
+
         )}
+
       </div>
+
       {error && <span className="pink-error-message">{error}</span>}
+
     </div>
+
   );
+
 });
 
+
+
 const Login = () => {
+
   const [form, setForm] = useState({ email: "", password: "" });
+
   const [errors, setErrors] = useState({});
+
   const [showPassword, setShowPassword] = useState(false);
+
   const { login, loading } = useLogin(); // ✅ usa el nuevo login hook
-  const { fetchCart } = useCart(); // 🚨 ¡OBTENCIÓN AÑADIDA!
+
   const navigate = useNavigate();
 
+
+
   const validate = () => {
+
     const newErrors = {};
+
     if (!form.email) newErrors.email = "El correo es obligatorio.";
+
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) newErrors.email = "El formato del correo no es válido.";
+
     if (!form.password) newErrors.password = "La contraseña es obligatoria.";
+
     else if (form.password.length < 8) newErrors.password = "La contraseña debe tener al menos 8 caracteres.";
+
     return newErrors;
+
   };
+
+
 
   const handleChange = (e) => {
+
     const { name, value } = e.target;
+
     setForm((prev) => ({ ...prev, [name]: value }));
+
   };
+
+
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
+
     const newErrors = validate();
+
     setErrors(newErrors);
 
+
+
     if (Object.keys(newErrors).length > 0) {
+
       let mensaje = "";
+
       if (newErrors.email) mensaje += `${newErrors.email} <br>`;
+
       if (newErrors.password) mensaje += `${newErrors.password}`;
+
       Swal.fire({
+
         title: "Datos inválidos",
+
         html: mensaje,
+
         icon: "error",
+
         confirmButtonColor: "#b94a6c",
+
         background: "#fff",
+
         customClass: { title: "swal2-title-custom", popup: "swal2-popup-custom" },
+
       });
+
       return;
+
     }
+
+
 
     try {
+
       const res = await login({ email: form.email, password: form.password });
+
       console.log("Resultado del login:", res);
 
+
+
       if (res?.success) {
-        
-        // 🚨 CORRECCIÓN AÑADIDA: Llama a fetchCart para cargar el carrito inmediatamente
-        await fetchCart(); 
 
         Swal.fire({
+
           title: "¡Bienvenido/a de vuelta!",
+
           text: "Has iniciado sesión exitosamente.",
+
           icon: "success",
+
           confirmButtonText: "¡Genial!",
+
           confirmButtonColor: "#ff69b4",
+
         }).then(() => {
-          // Ya no necesitamos el setTimeout, fetchCart ya se ejecutó.
+
+          // Pequeña pausa para asegurar que el contexto se actualice
+
           console.log("Redirigiendo a /perfil...");
-          navigate("/perfil");
+
+          setTimeout(() => {
+
+            navigate("/perfil");
+
+          }, 100);
+
         });
+
       } else {
+
         Swal.fire({
+
           title: "No se pudo iniciar sesión",
+
           text: res?.message || "Credenciales inválidas.",
+
           icon: "error",
+
           confirmButtonColor: "#b94a6c",
+
         });
+
       }
+
     } catch (err) {
+
       Swal.fire({
+
         title: "Error",
+
         text: err.message || "No se pudo iniciar sesión.",
+
         icon: "error",
+
         confirmButtonColor: "#b94a6c",
+
       });
+
     }
+
   };
 
+
+
   return (
+
     <div
+
       className="recover-wrapper"
+
       style={{
+
         backgroundImage: `url("/Registro/loginneternal.png")`,
+
         backgroundSize: "cover",
+
         backgroundPosition: "center",
+
         backgroundRepeat: "no-repeat",
+
       }}
+
     >
+
       <form className="recover-card improved-form" onSubmit={handleSubmit}>
+
         <BackArrow to="/" />
+
         <Logo />
+
         <h2 className="recover-title">Iniciar sesión</h2>
 
+
+
         <div className="pink-form-fields">
-          <PinkImprovedInput
-            label="Correo electrónico"
-            name="email"
-            type="email"
-            value={form.email}
-            onChange={handleChange}
-            error={errors.email}
-          />
 
           <PinkImprovedInput
-            label="Contraseña"
-            name="password"
-            type={showPassword ? "text" : "password"}
-            value={form.password}
+
+            label="Correo electrónico"
+
+            name="email"
+
+            type="email"
+
+            value={form.email}
+
             onChange={handleChange}
-            error={errors.password}
-            showPasswordToggle={true}
-            showPassword={showPassword}
-            onTogglePassword={() => setShowPassword(!showPassword)}
+
+            error={errors.email}
+
           />
+
+
+
+          <PinkImprovedInput
+
+            label="Contraseña"
+
+            name="password"
+
+            type={showPassword ? "text" : "password"}
+
+            value={form.password}
+
+            onChange={handleChange}
+
+            error={errors.password}
+
+            showPasswordToggle={true}
+
+            showPassword={showPassword}
+
+            onTogglePassword={() => setShowPassword(!showPassword)}
+
+          />
+
         </div>
+
+
 
         <OlvidarCont text="¿Olvidaste tu contraseña?" to="/recuperacion" />
 
+
+
         <div className="auth-container login-specific-styles">
+
           <Button type="submit" text={loading ? "Ingresando..." : "Ingresar"} />
+
         </div>
 
+
+
         <Label textBefore="¿No tienes cuenta?" linkText="Regístrate" to="/registro" />
+
       </form>
 
       {/* --- ESTILOS INLINE --- */}
