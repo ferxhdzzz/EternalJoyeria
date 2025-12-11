@@ -38,9 +38,7 @@ export const createPendingOrder = async (req, res) => {
             email,
             direccion,
             ciudad,
-            codigoPostal,
             telefono,
-            region, 
             country,
             paymentMethod 
         } = req.body;
@@ -68,9 +66,7 @@ export const createPendingOrder = async (req, res) => {
             email,
             phone: telefono,
             line1: direccion, // Mapea tu campo 'direccion' a 'line1'
-            city: ciudad,
-            zip: codigoPostal,
-            region: region,     // Asegúrate de enviar este dato desde el frontend
+            city: ciudad,    // Asegúrate de enviar este dato desde el frontend
             country: country,   // Asegúrate de enviar este dato desde el frontend
         };
 

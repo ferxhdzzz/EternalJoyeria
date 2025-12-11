@@ -7,9 +7,8 @@ const addressSchema = new Schema(
     email: String,
     line1: String,
     city: String,
-    region: String,
     country: String,
-    zip: String,
+   
   },
   { _id: false }
 );

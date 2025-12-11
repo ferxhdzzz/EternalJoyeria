@@ -177,7 +177,7 @@ async function finishOrder(req, res) {
 
         // 💡 CORRECCIÓN: Creamos la cadena de dirección para el modelo Sale
         const addressObject = order.shippingAddress || {}; 
-        const addressString = `${addressObject.name || ""}: ${addressObject.line1 || ""}, ${addressObject.city || ""}, ${addressObject.zip || ""}, ${addressObject.region || ""}, ${addressObject.country || ""} | Tel: ${addressObject.phone || ""} | Email: ${addressObject.email || ""}`;
+        const addressString = `${addressObject.name || ""}: ${addressObject.line1 || ""}, ${addressObject.city || ""},  ${addressObject.country || ""} | Tel: ${addressObject.phone || ""} | Email: ${addressObject.email || ""}`;
 
         // Guardar en historial de compras (Sales)
         await Sale.create({

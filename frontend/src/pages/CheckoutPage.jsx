@@ -150,10 +150,9 @@ const CheckoutPage = () => {
                                         { key: "email", label: "Email" },
                                         { key: "telefono", label: "Teléfono" },
                                         { key: "direccion", label: "Dirección (Línea 1)" },
-                                        { key: "ciudad", label: "Ciudad" },
-                                        { key: "region", label: "Región / Departamento" }, // ✅ Nuevo campo
+                                        { key: "ciudad", label: "Ciudad / Departamento" },
                                         { key: "country", label: "País" },              // ✅ Nuevo campo
-                                        { key: "codigoPostal", label: "Código Postal" },
+                                    
                                     ].map((field) => (
                                         <div className="ticket-field" key={field.key}>
                                             <label>{field.label}</label>

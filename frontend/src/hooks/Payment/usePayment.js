@@ -50,10 +50,10 @@ export default function usePayment() {
         email: "",
         direccion: "",
         ciudad: "",
-        codigoPostal: "",
+       
         telefono: "",
         // 💡 CAMBIO 1: Agregar region y country al estado
-        region: "", 
+       
         country: "",
     });
 
@@ -82,12 +82,11 @@ const validateStep1 = () => {
         if (!String(formData.email || "").trim() || !/^\S+@\S+\.\S+$/.test(formData.email))
             newErrors.email = "Email inválido";
         if (!String(formData.direccion || "").trim()) newErrors.direccion = "Dirección requerida";
-        if (!String(formData.ciudad || "").trim()) newErrors.ciudad = "Ciudad requerida";
-        if (!String(formData.codigoPostal || "").trim()) newErrors.codigoPostal = "Código postal requerido";
+        if (!String(formData.ciudad || "").trim()) newErrors.ciudad = "Ciudad / Departamento requerida";
         if (!String(formData.telefono || "").trim()) newErrors.telefono = "Teléfono requerido";
         
         // 💡 CAMBIO 2: Agregar validación para region y country
-        if (!String(formData.region || "").trim()) newErrors.region = "Región/Departamento requerido";
+       
         if (!String(formData.country || "").trim()) newErrors.country = "País requerido";
 
         setErrors(newErrors);
@@ -160,9 +159,9 @@ async function saveAddresses() {
                 email: formData.email,
                 line1: formData.direccion,
                 city: formData.ciudad,
-                zip: formData.codigoPostal,
+             
                 // 💡 CAMBIO 3: Agregar region y country al payload de saveAddresses
-                region: formData.region,
+              
                 country: formData.country,
             },
         };
@@ -197,9 +196,7 @@ async function saveAddresses() {
         email: formData.email,
         direccion: formData.direccion,
         ciudad: formData.ciudad,
-        codigoPostal: formData.codigoPostal,
-        telefono: formData.telefono,
-        region: formData.region,    //  ✅ Agregado
+        telefono: formData.telefono,   //  ✅ Agregado
         country: formData.country,  //  ✅ Agregado
 
         paymentMethod:
