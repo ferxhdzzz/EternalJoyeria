@@ -325,7 +325,6 @@ async function saveAddresses() {
             email: "",
             direccion: "",
             ciudad: "",
-            codigoPostal: "",
             telefono: "",
         });
         setErrors({});

@@ -83,7 +83,7 @@ await updateProductStock(order);
         // CREAR VENTA (SALE) → STRING (Con la corrección de los datos)
         // -----------------------------
         // ✔ CORRECCIÓN: Crear la cadena de dirección bien formateada para el campo 'address' en Sales
-        const addressString = `[${nombre}] - ${direccion}, ${ciudad}, ${codigoPostal}, ${region}, ${country} | Tel: ${telefono} | Email: ${email}`;
+        const addressString = `[${nombre}] - ${direccion}, ${ciudad}, ${country} | Tel: ${telefono} | Email: ${email}`;
 
         const sale = await Sale.create({
             idOrder: order._id,

@@ -149,7 +149,7 @@ const CheckoutPage = () => {
                                         { key: "nombre", label: "Nombre Completo" },
                                         { key: "email", label: "Email" },
                                         { key: "telefono", label: "Teléfono" },
-                                        { key: "direccion", label: "Dirección (Línea 1)" },
+                                        { key: "direccion", label: "Dirección" },
                                         { key: "ciudad", label: "Ciudad / Departamento" },
                                         { key: "country", label: "País" },              // ✅ Nuevo campo
                                     
