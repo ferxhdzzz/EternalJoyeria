@@ -290,7 +290,7 @@ const OrderDetailPage = () => {
             {/* Estos ya los tienes bien: line1, line2, city, country, zip */}
             <p>{order.shippingAddress.line1} {order.shippingAddress.line2}</p>
             <p>{order.shippingAddress.city}, {order.shippingAddress.country}</p>
-            <p>CP: {order.shippingAddress.zip}</p>
+            
             
             {/* 💡 CORRECCIÓN de Email: Podría estar a nivel de la orden o en un campo customerEmail */}
             <p>Email: {order.customerEmail || order.shippingAddress.email || 'Email No Disp.'}</p>
