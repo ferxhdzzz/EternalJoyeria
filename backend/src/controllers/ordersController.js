@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import Order from "../models/Orders.js";
 import Product from "../models/Products.js";
 import Customer from "../models/Customers.js";
-import { sendOrderPaidEmailToCustomer } from "../services/brevoService.js";
+import { sendOrderPaidEmailToCustomer } from "../utils/BrevoPagoConfirm.js";
 
 /* Utiles */
 const isObjectId = (v) => mongoose.Types.ObjectId.isValid(String(v));
