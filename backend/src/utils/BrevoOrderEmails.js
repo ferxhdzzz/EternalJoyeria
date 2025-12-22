@@ -46,7 +46,7 @@ Puedes verificarlo en cualquier momento desde tu <b>Historial de compras</b>.
 </p>
 
 <h2>
-Detalle dela compra
+Detalle de la compra
 </h2>
 
 

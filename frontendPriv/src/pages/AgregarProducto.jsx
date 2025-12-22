@@ -21,7 +21,7 @@ export default function AddProductPage() {
     category_id: "",
     country: "",               // ⬅⬅⬅ NUEVO CAMPO
     measurements: {
-      weight: "",
+   
       height: "",
       width: "",
     },
@@ -62,7 +62,7 @@ export default function AddProductPage() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    if (["weight", "height", "width"].includes(name)) {
+    if (["height", "width"].includes(name)) {
       setFormData((prev) => ({
         ...prev,
         measurements: {
@@ -163,7 +163,6 @@ export default function AddProductPage() {
         category_id: "",
         country: "",
         measurements: {
-          weight: "",
           height: "",
           width: "",
         },
@@ -317,16 +316,7 @@ export default function AddProductPage() {
                   />
                 </div>
 
-                <div className="form-group">
-                  <label>Peso (g)</label>
-                  <input
-                    type="text"
-                    name="weight"
-                    placeholder="Peso"
-                    value={formData.measurements.weight}
-                    onChange={handleInputChange}
-                  />
-                </div>
+             
               </div>
             </div>
 

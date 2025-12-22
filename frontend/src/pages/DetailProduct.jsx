@@ -182,7 +182,7 @@ const ProductDetail = () => {
                           <>
                             {product.measurements.width && `Ancho: ${product.measurements.width}cm `}
                             {product.measurements.height && `Alto: ${product.measurements.height}cm `}
-                            {product.measurements.weight && `Peso: ${product.measurements.weight}g`}
+                        
                           </>
                         ) : (
                           product.measurements
@@ -196,14 +196,7 @@ const ProductDetail = () => {
                       <span style={{ color: '#666' }}>{product.material}</span>
                     </div>
                   )}
-                  {(product.weight || product.measurements?.weight) && (
-                    <div style={{ padding: '10px', background: '#f8f9fa', borderRadius: '8px' }}>
-                      <strong>Peso:</strong><br/>
-                      <span style={{ color: '#666' }}>
-                        {product.weight || product.measurements?.weight}g
-                      </span>
-                    </div>
-                  )}
+               
                   {product.color && (
                     <div style={{ padding: '10px', background: '#f8f9fa', borderRadius: '8px' }}>
                       <strong>Color:</strong><br/>
@@ -215,7 +208,10 @@ const ProductDetail = () => {
                       <strong>Stock:</strong><br/>
                       <span style={{ color: '#666' }}>{product.stock} unidades</span>
                     </div>
+                    
+                    
                   )}
+                  
                 </div>
               </div>
  
@@ -650,7 +646,7 @@ const ProductDetail = () => {
                     <>
                       {product.measurements.width && `${product.measurements.width}cm (ancho) `}
                       {product.measurements.height && `${product.measurements.height}cm (alto) `}
-                      {product.measurements.weight && `${product.measurements.weight}g (peso)`}
+                   
                     </>
                   ) : (
                     product.measurements
@@ -679,7 +675,22 @@ const ProductDetail = () => {
           {product.stock} unidades disponibles
         </span>
       </p>
+
+      
     )}
+    <br />
+     <p>
+        <strong style={{
+            color: "#959595ff",
+          }}>*</strong>{" "}
+        <span
+          style={{
+            color: "#959595ff",
+          }}
+        >
+          Se recomienda realizar las compras en un dispositivo android o windows para mejor experiencia de compra
+        </span>
+      </p>
   </div>
 )}
           </div>
