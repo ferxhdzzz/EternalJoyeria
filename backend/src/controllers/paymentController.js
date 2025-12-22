@@ -47,10 +47,10 @@ export const createPendingOrder = async (req, res) => {
             return res.status(400).json({ message: "Método de pago inválido" });
         }
 
-      let order = await Order.findOne({
-  idCustomer: userId,
-  status: "cart",
-}).populate("products.productId");
+        let order = await Order.findOne({
+            idCustomer: userId,
+            status: "cart",
+        });
 
         if (!order) return res.status(404).json({ message: "No hay carrito activo" });
         if (order.products.length === 0) return res.status(400).json({ message: "El carrito está vacío" });
@@ -95,32 +95,12 @@ await updateProductStock(order);
             paymentMethod,
         });
 
-        // ===============================
-// 📧 ENVIAR CORREOS BREVO
-// ===============================
-const customerData = {
-  firstName: nombre,
-  lastName: "",
-  email: email,
-};
-
-try {
-  await sendOrderEmailToCustomer(order, customerData);
-  await sendOrderEmailToAdmin(order, customerData);
-  console.log("📨 Correos enviados correctamente");
-} catch (emailError) {
-  console.error("❌ Error enviando correos:", emailError.message);
-}
-
         return res.json({
             success: true,
             message: "Orden creada como pendiente y Venta registrada",
             order,
             saleId: sale._id,
         });
-
-
-        
 
     } catch (error) {
         console.error("❌ createPendingOrder error:", error);

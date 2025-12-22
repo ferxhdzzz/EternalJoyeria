@@ -265,6 +265,10 @@ const CheckoutPage = () => {
                                     Tu orden <b>#{order?._id.slice(-6).toUpperCase()}</b> fue registrada como <b>PENDIENTE</b>.
                                 </p>
 
+   <p className="success-message">
+                                  Te hemos enviado un <b>correo</b> si no lo ves revisa tu bandeja pricipal revisa en la bandeja de  <b>spam</b>.
+                                </p>
+
                                 <button className="ticket-pay-btn" onClick={finishOrder}>
                                     Ver mis pedidos
                                 </button>
