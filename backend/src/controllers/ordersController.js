@@ -166,6 +166,8 @@ async function syncCartItems(req, res) {
 
 // PUT /api/orders/:id/finish
 async function finishOrder(req, res) {
+  console.log("🚀 finishOrder ejecutado", req.params.id);
+
   try {
     const { id } = req.params;
 

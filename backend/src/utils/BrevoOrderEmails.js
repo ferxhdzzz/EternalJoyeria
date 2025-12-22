@@ -1,5 +1,8 @@
 import fetch from "node-fetch";
 
+console.log("📨 Servicio Brevo cargaAdo");
+
+
 const apiKey = process.env.brevoApiKey;
 
 // ⚠️ ESTE debe estar verificado en Brevo
@@ -12,6 +15,8 @@ const adminEmail = "eternaljoyeriadeflores@gmail.com";
    📧 HTML EMAIL – CLIENTE
 ====================================================== */
 const orderCustomerHTML = (order, customer) => {
+    console.log("📨 Servicio Brevo cargado");
+
   const date = new Date(order.createdAt).toLocaleString("es-ES");
 
   const productsHTML = order.products.map(p => `
@@ -89,13 +94,11 @@ const orderAdminHTML = (order, customer) => {
    🚀 SENDERS
 ====================================================== */
 const sendEmail = async ({ to, subject, html }) => {
-  if (!apiKey) throw new Error("Brevo API Key no definida");
-
   const res = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: {
       accept: "application/json",
-      "api-key": apiKey,
+      "api-key": process.env.brevoApiKey,
       "content-type": "application/json",
     },
     body: JSON.stringify({
@@ -106,18 +109,18 @@ const sendEmail = async ({ to, subject, html }) => {
     }),
   });
 
-  const data = await res.json();
-  if (!res.ok) {
-    console.error("❌ Brevo error:", data);
-    throw new Error("Error enviando email");
-  }
+  const text = await res.text();
+  console.log("📨 Brevo response:", res.status, text);
+
+  if (!res.ok) throw new Error(text);
 };
 
 /* ======================================================
    📤 FUNCIONES EXPORTADAS
 ====================================================== */
 export const sendOrderEmailToCustomer = async (order, customer) => {
-  await sendEmail({
+  console.log("📧 Enviando email a cliente:", customer?.email);
+    await sendEmail({
     to: [{ email: customer.email, name: customer.firstName }],
     subject: "✨ Confirmación de tu compra – Eternal Joyería",
     html: orderCustomerHTML(order, customer),
