@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import Order from "../models/Orders.js";
 import Product from "../models/Products.js";
 import Customer from "../models/Customers.js";
+import { sendOrderPaidEmailToCustomer } from "../services/brevoService.js";
 
 /* Utiles */
 const isObjectId = (v) => mongoose.Types.ObjectId.isValid(String(v));
@@ -368,20 +369,71 @@ async function deleteOrder(req, res) {
 
 async function markAsPaid(req, res) {
   try {
-    const updatedOrder = await Order.findByIdAndUpdate(
-      req.params.id,
-      { status: "pagado" },
-      { new: true }
-    )
+    const orderId = req.params.id;
+
+    const order = await Order.findById(orderId)
       .populate("idCustomer", "firstName lastName email")
       .populate("products.productId", "name price discountPercentage finalPrice");
 
-    if (!updatedOrder) return res.status(404).json({ message: "Orden no encontrada" });
-    res.json({ message: "Orden marcada como pagada", order: updatedOrder });
+    if (!order) {
+      return res.status(404).json({ message: "Orden no encontrada" });
+    }
+
+    // 🔒 PROTECCIÓN ANTI DUPLICADOS
+    if (order.paymentStatus === "paid") {
+      return res.json({
+        message: "La orden ya estaba marcada como pagada",
+        order,
+      });
+    }
+
+    // ✅ ACTUALIZAR ORDEN
+    order.status = "pagado";
+    order.paymentStatus = "paid";
+    await order.save();
+
+    // ✅ ACTUALIZAR VENTA
+    await Sale.findOneAndUpdate(
+      { idOrder: order._id },
+      { status: "paid" }
+    );
+
+    // ===============================
+    // 📧 CORREO AL CLIENTE
+    // ===============================
+    const customerData = {
+      firstName:
+        order.shippingAddress?.name ||
+        order.idCustomer?.firstName ||
+        "Cliente",
+      email:
+        order.shippingAddress?.email ||
+        order.idCustomer?.email,
+    };
+
+    try {
+      await sendOrderPaidEmailToCustomer(order, customerData);
+      console.log("📨 Correo de pago enviado");
+    } catch (emailError) {
+      console.error("❌ Error enviando correo de pago:", emailError.message);
+      // ⚠️ NO rompas el flujo si falla el correo
+    }
+
+    return res.json({
+      success: true,
+      message: "Orden marcada como pagada y correo enviado",
+      order,
+    });
+
   } catch (error) {
-    res.status(500).json({ message: "Error al marcar como pagada", error: error.message });
+    console.error("❌ markAsPaid:", error);
+    res.status(500).json({
+      message: "Error al marcar como pagada",
+      error: error.message,
+    });
   }
 }
+
 
 // GET /api/orders/user -> obtiene todas las órdenes del usuario autenticado
 async function getUserOrders(req, res) {

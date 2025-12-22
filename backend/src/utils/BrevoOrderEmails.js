@@ -31,7 +31,7 @@ const orderCustomerHTML = (order, customer) => {
   <html>
     <body style="font-family:Arial;background:#f9fafb;padding:20px">
       <table width="100%" style="max-width:600px;margin:auto;background:#fff;border-radius:12px;padding:24px">
-      <h2 style="color:#db2777;">💖 Pedido recibido</h2>
+      <h2 style="color:#db2777;">Pedido recibido</h2>
 
 <p>Hola <strong>${customer.firstName}</strong>,</p>
 
@@ -41,7 +41,7 @@ Tu orden se encuentra actualmente en estado <b>PENDIENTE DE CONFIRMACIÓN DE PAG
 </p>
 
 <p>
-📌 Una vez confirmado el pago, actualizaremos el estado automáticamente.  
+ Una vez confirmado el pago, actualizaremos el estado automáticamente.  
 Puedes verificarlo en cualquier momento desde tu <b>Historial de compras</b>.
 </p>
 
@@ -50,8 +50,8 @@ Detalle dela compra
 </h2>
 
 
-        <p><strong>🧾 Orden:</strong> ${order._id}</p>
-        <p><strong>📅 Fecha:</strong> ${date}</p>
+        <p><strong> Orden:</strong> ${order._id}</p>
+        <p><strong> Fecha:</strong> ${date}</p>
 
         <table width="100%" cellpadding="0" cellspacing="0">
           <tr>
@@ -69,7 +69,7 @@ Detalle dela compra
         </p>
 
         <p style="margin-top:20px;">
-          ✨ Eternal Joyería – Gracias por confiar en nosotros
+           Eternal Joyería – Gracias por confiar en nosotros
         </p>
       </table>
     </body>
