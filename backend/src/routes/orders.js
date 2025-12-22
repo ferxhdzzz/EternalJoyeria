@@ -52,7 +52,7 @@ router.patch("/:id/pay", validateAuthToken(['admin']), ordersController.markAsPa
 
 /* ===== Ruta específica por ID (ADMIN ONLY) ===== */
 // GET /api/orders/:id -> Obtener una orden por ID (ADMIN)
-router.get("/:id", validateAuthToken(['admin']), ordersController.getOrder);
+router.get("/:id", validateAuthToken(['customer', 'admin']), ordersController.getOrder);
 
 
 export default router;
