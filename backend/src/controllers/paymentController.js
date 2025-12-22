@@ -1,6 +1,10 @@
 import Order from "../models/Orders.js";
 import Sale from "../models/sales.js";
 import Product from "../models/Products.js";
+import {
+  sendOrderEmailToCustomer,
+  sendOrderEmailToAdmin
+} from "../utils/BrevoOrderEmails.js"; 
 
 // ---------------- STOCK ----------------
 async function updateProductStock(order) {
@@ -29,7 +33,13 @@ async function updateProductStock(order) {
 // CREATE PENDING ORDER (PayPal, Link, Transferencia)
 // ============================================================
 export const createPendingOrder = async (req, res) => {
+
+    console.log("🔥 createPendingOrder EJECUTADO");
+
     try {
+
+        console.log("🔥 createPendingOrder EJECUTADO");
+
         const userId = req.userId;
 
         // 💡 CAMBIO: Agregamos region y country, que son parte del addressSchema
