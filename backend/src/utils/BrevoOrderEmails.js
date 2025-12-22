@@ -31,12 +31,24 @@ const orderCustomerHTML = (order, customer) => {
   <html>
     <body style="font-family:Arial;background:#f9fafb;padding:20px">
       <table width="100%" style="max-width:600px;margin:auto;background:#fff;border-radius:12px;padding:24px">
-        <h2 style="color:#db2777;">💖 Gracias por tu compra</h2>
+      <h2 style="color:#db2777;">💖 Pedido recibido</h2>
 
-        <p>Hola <strong>${customer.firstName}</strong>,</p>
-        <p>Hemos recibido tu pedido correctamente.</p>
+<p>Hola <strong>${customer.firstName}</strong>,</p>
 
-        <hr/>
+<p>
+Hemos recibido tu pedido correctamente.  
+Tu orden se encuentra actualmente en estado <b>PENDIENTE DE CONFIRMACIÓN DE PAGO</b>.
+</p>
+
+<p>
+📌 Una vez confirmado el pago, actualizaremos el estado automáticamente.  
+Puedes verificarlo en cualquier momento desde tu <b>Historial de compras</b>.
+</p>
+
+<h2>
+Detalle dela compra
+</h2>
+
 
         <p><strong>🧾 Orden:</strong> ${order._id}</p>
         <p><strong>📅 Fecha:</strong> ${date}</p>
@@ -73,7 +85,7 @@ const orderAdminHTML = (order, customer) => {
   <html>
     <body style="font-family:Arial;background:#fff7ed;padding:20px">
       <table width="100%" style="max-width:600px;margin:auto;background:#fff;border-radius:12px;padding:24px">
-        <h2 style="color:#16a34a;">🛍 Nueva compra realizada</h2>
+        <h2 style="color:#16a34a;">🛍 Nueva orden recibida</h2>
 
         <p><strong>Cliente:</strong> ${customer.firstName} ${customer.lastName}</p>
         <p><strong>Email:</strong> ${customer.email}</p>
@@ -83,6 +95,9 @@ const orderAdminHTML = (order, customer) => {
           <strong>Total:</strong> $${(order.totalCents / 100).toFixed(2)}
         </p>
 
+     <p>
+<strong>Estado:</strong> Pendiente de confirmación de pago
+</p>
         <p>Revisa el panel de administración para más detalles.</p>
       </table>
     </body>

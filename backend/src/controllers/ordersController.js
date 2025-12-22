@@ -3,10 +3,6 @@ import mongoose from "mongoose";
 import Order from "../models/Orders.js";
 import Product from "../models/Products.js";
 import Customer from "../models/Customers.js";
-import {
-  sendOrderEmailToCustomer,
-  sendOrderEmailToAdmin,
-} from "../utils/BrevoOrderEmails.js";
 
 /* Utiles */
 const isObjectId = (v) => mongoose.Types.ObjectId.isValid(String(v));
@@ -166,66 +162,48 @@ async function syncCartItems(req, res) {
 
 // PUT /api/orders/:id/finish
 async function finishOrder(req, res) {
-  console.log("🚀 finishOrder ejecutado", req.params.id);
-
-  try {
-    const { id } = req.params;
-
-    let order = await Order.findById(id);
-
-    if (!order) {
-      return res.status(404).json({ message: "Orden no encontrada" });
-    }
-
-    // ⚠️ Evitar doble finalización
-    if (order.status === "pagado") {
-      return res.status(400).json({ message: "La orden ya fue finalizada" });
-    }
-
-    // ✅ Cambiar estado a pagado
-    order.status = "pagado";
-    await order.save();
-
-    // 🔎 Obtener cliente
-    const customer = await Customer.findById(order.idCustomer);
-
-    // 📧 ENVIAR CORREOS (NO rompe la venta si falla)
     try {
-      await sendOrderEmailToCustomer(order, customer);
-      await sendOrderEmailToAdmin(order, customer);
-      console.log("📨 Correos de venta enviados");
-    } catch (emailError) {
-      console.error("❌ Error enviando correos:", emailError.message);
+        const { id } = req.params;
+
+        let order = await Order.findById(id);
+
+        if (!order) {
+            return res.status(404).json({ message: "Orden no encontrada" });
+        }
+
+        // Cambiar estado a pagado
+        order.status = "pagado";
+        await order.save();
+
+        // 💡 CORRECCIÓN: Creamos la cadena de dirección para el modelo Sale
+        const addressObject = order.shippingAddress || {}; 
+        const addressString = `${addressObject.name || ""}: ${addressObject.line1 || ""}, ${addressObject.city || ""},  ${addressObject.country || ""} | Tel: ${addressObject.phone || ""} | Email: ${addressObject.email || ""}`;
+
+        // Guardar en historial de compras (Sales)
+        await Sale.create({
+            idCustomers: order.idCustomer,
+            idOrder: order._id,
+            address: addressString, // ✔ CORREGIDO: ahora es una cadena
+            total: order.totalCents ? order.totalCents / 100 : order.total,
+            totalCents: order.totalCents,
+            status: "completed",
+            // Nota: Aquí faltaría agregar el paymentMethod si lo tienes disponible.
+        });
+        
+        // ... falta llamar a updateProductStock(order) aquí!
+        // ✅ RECOMENDACIÓN: DEBERÍAS LLAMAR A LA FUNCIÓN DE STOCK AQUÍ
+        // await updateProductStock(order); 
+
+        return res.json({
+            message: "Orden finalizada con éxito",
+            order,
+        });
+
+    } catch (error) {
+        console.error("finishOrder ERROR:", error);
+        return res.status(500).json({ message: "Error finalizando orden" });
     }
-
-    // 📦 Dirección (snapshot)
-    const addressObject = order.shippingAddress || {};
-    const addressString = `${addressObject.name || ""}: ${addressObject.line1 || ""}, ${addressObject.city || ""}, ${addressObject.country || ""} | Tel: ${addressObject.phone || ""} | Email: ${addressObject.email || ""}`;
-
-    // 🧾 Guardar historial (Sales)
-    await Sale.create({
-      idCustomers: order.idCustomer,
-      idOrder: order._id,
-      address: addressString,
-      total: order.totalCents ? order.totalCents / 100 : order.total,
-      totalCents: order.totalCents,
-      status: "completed",
-    });
-
-    // 📉 Actualizar stock (cuando quieras activarlo)
-    // await updateProductStock(order);
-
-    return res.json({
-      message: "Orden finalizada con éxito",
-      order,
-    });
-
-  } catch (error) {
-    console.error("finishOrder ERROR:", error);
-    return res.status(500).json({ message: "Error finalizando orden" });
-  }
 }
-
 // PUT /api/orders/cart/addresses -> guarda snapshot de dirección
 async function saveCartAddresses(req, res) {
   try {
@@ -281,9 +259,12 @@ async function moveToPending(req, res) {
 async function createOrder(req, res) {
   try {
     const { idCustomer, products } = req.body;
+    
+    // 1. Validar cliente y traer sus datos (necesarios para el email)
     const customerExists = await Customer.findById(idCustomer);
     if (!customerExists) return res.status(400).json({ message: "Cliente no encontrado" });
 
+    // 2. Calcular subtotales y traer nombres de productos para el HTML
     let total = 0;
     const productsWithSubtotal = await Promise.all(
       (products || []).map(async (item) => {
@@ -292,25 +273,47 @@ async function createOrder(req, res) {
         const price = product.finalPrice ?? product.price;
         const subtotal = price * item.quantity;
         total += subtotal;
-        return { productId: item.productId, quantity: item.quantity, subtotal };
+        
+        // Retornamos el objeto completo para que el HTML de Brevo tenga nombres
+        return { 
+          productId: product, // Guardamos el objeto producto completo para el email
+          quantity: item.quantity, 
+          subtotalCents: toCents(subtotal) 
+        };
       })
     );
 
+    // 3. Crear la orden
     const newOrder = new Order({
       idCustomer,
       products: productsWithSubtotal,
       total,
       totalCents: toCents(total),
-      status: "no pagado",
+      status: "No pagado", // O el estado que decidas
     });
 
     await newOrder.save();
+
+    // ======================================================
+    // 📧 ENVÍO DE CORREOS (Justo antes de responder al cliente)
+    // ======================================================
+    try {
+      // Usamos las funciones que importamos de tu archivo Brevo
+      await Promise.all([
+        sendOrderEmailToCustomer(newOrder, customerExists),
+        sendOrderEmailToAdmin(newOrder, customerExists)
+      ]);
+    } catch (mailErr) {
+      console.error("⚠️ Error enviando correos:", mailErr.message);
+      // No bloqueamos la respuesta, la orden ya se creó
+    }
+    // ======================================================
+
     res.status(201).json(newOrder);
   } catch (error) {
     res.status(500).json({ message: "Error al crear la orden", error: error.message });
   }
 }
-
 async function getOrders(_req, res) {
   try {
     const orders = await Order.find()
