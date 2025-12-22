@@ -1,0 +1,133 @@
+import fetch from "node-fetch";
+
+const apiKey = process.env.brevoApiKey;
+
+// ⚠️ ESTE debe estar verificado en Brevo
+const senderEmail = "lovercotes@gmail.com";
+
+// Email del admin que recibe notificación
+const adminEmail = "eternaljoyeriadeflores@gmail.com";
+
+/* ======================================================
+   📧 HTML EMAIL – CLIENTE
+====================================================== */
+const orderCustomerHTML = (order, customer) => {
+  const date = new Date(order.createdAt).toLocaleString("es-ES");
+
+  const productsHTML = order.products.map(p => `
+    <tr>
+      <td style="padding:8px 0;">${p.productId.name}</td>
+      <td align="center">${p.quantity}</td>
+      <td align="right">$${(p.subtotalCents / 100).toFixed(2)}</td>
+    </tr>
+  `).join("");
+
+  return `
+  <html>
+    <body style="font-family:Arial;background:#f9fafb;padding:20px">
+      <table width="100%" style="max-width:600px;margin:auto;background:#fff;border-radius:12px;padding:24px">
+        <h2 style="color:#db2777;">💖 Gracias por tu compra</h2>
+
+        <p>Hola <strong>${customer.firstName}</strong>,</p>
+        <p>Hemos recibido tu pedido correctamente.</p>
+
+        <hr/>
+
+        <p><strong>🧾 Orden:</strong> ${order._id}</p>
+        <p><strong>📅 Fecha:</strong> ${date}</p>
+
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <th align="left">Producto</th>
+            <th>Cant.</th>
+            <th align="right">Subtotal</th>
+          </tr>
+          ${productsHTML}
+        </table>
+
+        <hr/>
+
+        <p style="font-size:18px;">
+          <strong>Total:</strong> $${(order.totalCents / 100).toFixed(2)}
+        </p>
+
+        <p style="margin-top:20px;">
+          ✨ Eternal Joyería – Gracias por confiar en nosotros
+        </p>
+      </table>
+    </body>
+  </html>
+  `;
+};
+
+/* ======================================================
+   📧 HTML EMAIL – ADMIN
+====================================================== */
+const orderAdminHTML = (order, customer) => {
+  return `
+  <html>
+    <body style="font-family:Arial;background:#fff7ed;padding:20px">
+      <table width="100%" style="max-width:600px;margin:auto;background:#fff;border-radius:12px;padding:24px">
+        <h2 style="color:#16a34a;">🛍 Nueva compra realizada</h2>
+
+        <p><strong>Cliente:</strong> ${customer.firstName} ${customer.lastName}</p>
+        <p><strong>Email:</strong> ${customer.email}</p>
+        <p><strong>Orden ID:</strong> ${order._id}</p>
+
+        <p style="font-size:18px;">
+          <strong>Total:</strong> $${(order.totalCents / 100).toFixed(2)}
+        </p>
+
+        <p>Revisa el panel de administración para más detalles.</p>
+      </table>
+    </body>
+  </html>
+  `;
+};
+
+/* ======================================================
+   🚀 SENDERS
+====================================================== */
+const sendEmail = async ({ to, subject, html }) => {
+  if (!apiKey) throw new Error("Brevo API Key no definida");
+
+  const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      accept: "application/json",
+      "api-key": apiKey,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      sender: { name: "Eternal Joyería", email: senderEmail },
+      to,
+      subject,
+      htmlContent: html,
+    }),
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    console.error("❌ Brevo error:", data);
+    throw new Error("Error enviando email");
+  }
+};
+
+/* ======================================================
+   📤 FUNCIONES EXPORTADAS
+====================================================== */
+export const sendOrderEmailToCustomer = async (order, customer) => {
+  await sendEmail({
+    to: [{ email: customer.email, name: customer.firstName }],
+    subject: "✨ Confirmación de tu compra – Eternal Joyería",
+    html: orderCustomerHTML(order, customer),
+  });
+};
+
+export const sendOrderEmailToAdmin = async (order, customer) => {
+  await sendEmail({
+    to: [{ email: adminEmail, name: "Administrador" }],
+    subject: "🛎 Nueva venta registrada",
+    html: orderAdminHTML(order, customer),
+  });
+};

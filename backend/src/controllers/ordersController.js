@@ -3,6 +3,10 @@ import mongoose from "mongoose";
 import Order from "../models/Orders.js";
 import Product from "../models/Products.js";
 import Customer from "../models/Customers.js";
+import {
+  sendOrderEmailToCustomer,
+  sendOrderEmailToAdmin,
+} from "../utils/BrevoOrderEmails.js";
 
 /* Utiles */
 const isObjectId = (v) => mongoose.Types.ObjectId.isValid(String(v));
@@ -162,48 +166,64 @@ async function syncCartItems(req, res) {
 
 // PUT /api/orders/:id/finish
 async function finishOrder(req, res) {
-    try {
-        const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-        let order = await Order.findById(id);
+    let order = await Order.findById(id);
 
-        if (!order) {
-            return res.status(404).json({ message: "Orden no encontrada" });
-        }
-
-        // Cambiar estado a pagado
-        order.status = "pagado";
-        await order.save();
-
-        // 💡 CORRECCIÓN: Creamos la cadena de dirección para el modelo Sale
-        const addressObject = order.shippingAddress || {}; 
-        const addressString = `${addressObject.name || ""}: ${addressObject.line1 || ""}, ${addressObject.city || ""},  ${addressObject.country || ""} | Tel: ${addressObject.phone || ""} | Email: ${addressObject.email || ""}`;
-
-        // Guardar en historial de compras (Sales)
-        await Sale.create({
-            idCustomers: order.idCustomer,
-            idOrder: order._id,
-            address: addressString, // ✔ CORREGIDO: ahora es una cadena
-            total: order.totalCents ? order.totalCents / 100 : order.total,
-            totalCents: order.totalCents,
-            status: "completed",
-            // Nota: Aquí faltaría agregar el paymentMethod si lo tienes disponible.
-        });
-        
-        // ... falta llamar a updateProductStock(order) aquí!
-        // ✅ RECOMENDACIÓN: DEBERÍAS LLAMAR A LA FUNCIÓN DE STOCK AQUÍ
-        // await updateProductStock(order); 
-
-        return res.json({
-            message: "Orden finalizada con éxito",
-            order,
-        });
-
-    } catch (error) {
-        console.error("finishOrder ERROR:", error);
-        return res.status(500).json({ message: "Error finalizando orden" });
+    if (!order) {
+      return res.status(404).json({ message: "Orden no encontrada" });
     }
+
+    // ⚠️ Evitar doble finalización
+    if (order.status === "pagado") {
+      return res.status(400).json({ message: "La orden ya fue finalizada" });
+    }
+
+    // ✅ Cambiar estado a pagado
+    order.status = "pagado";
+    await order.save();
+
+    // 🔎 Obtener cliente
+    const customer = await Customer.findById(order.idCustomer);
+
+    // 📧 ENVIAR CORREOS (NO rompe la venta si falla)
+    try {
+      await sendOrderEmailToCustomer(order, customer);
+      await sendOrderEmailToAdmin(order, customer);
+      console.log("📨 Correos de venta enviados");
+    } catch (emailError) {
+      console.error("❌ Error enviando correos:", emailError.message);
+    }
+
+    // 📦 Dirección (snapshot)
+    const addressObject = order.shippingAddress || {};
+    const addressString = `${addressObject.name || ""}: ${addressObject.line1 || ""}, ${addressObject.city || ""}, ${addressObject.country || ""} | Tel: ${addressObject.phone || ""} | Email: ${addressObject.email || ""}`;
+
+    // 🧾 Guardar historial (Sales)
+    await Sale.create({
+      idCustomers: order.idCustomer,
+      idOrder: order._id,
+      address: addressString,
+      total: order.totalCents ? order.totalCents / 100 : order.total,
+      totalCents: order.totalCents,
+      status: "completed",
+    });
+
+    // 📉 Actualizar stock (cuando quieras activarlo)
+    // await updateProductStock(order);
+
+    return res.json({
+      message: "Orden finalizada con éxito",
+      order,
+    });
+
+  } catch (error) {
+    console.error("finishOrder ERROR:", error);
+    return res.status(500).json({ message: "Error finalizando orden" });
+  }
 }
+
 // PUT /api/orders/cart/addresses -> guarda snapshot de dirección
 async function saveCartAddresses(req, res) {
   try {
