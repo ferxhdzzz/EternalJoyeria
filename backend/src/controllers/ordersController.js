@@ -259,12 +259,9 @@ async function moveToPending(req, res) {
 async function createOrder(req, res) {
   try {
     const { idCustomer, products } = req.body;
-    
-    // 1. Validar cliente y traer sus datos (necesarios para el email)
     const customerExists = await Customer.findById(idCustomer);
     if (!customerExists) return res.status(400).json({ message: "Cliente no encontrado" });
 
-    // 2. Calcular subtotales y traer nombres de productos para el HTML
     let total = 0;
     const productsWithSubtotal = await Promise.all(
       (products || []).map(async (item) => {
@@ -273,47 +270,25 @@ async function createOrder(req, res) {
         const price = product.finalPrice ?? product.price;
         const subtotal = price * item.quantity;
         total += subtotal;
-        
-        // Retornamos el objeto completo para que el HTML de Brevo tenga nombres
-        return { 
-          productId: product, // Guardamos el objeto producto completo para el email
-          quantity: item.quantity, 
-          subtotalCents: toCents(subtotal) 
-        };
+        return { productId: item.productId, quantity: item.quantity, subtotal };
       })
     );
 
-    // 3. Crear la orden
     const newOrder = new Order({
       idCustomer,
       products: productsWithSubtotal,
       total,
       totalCents: toCents(total),
-      status: "No pagado", // O el estado que decidas
+      status: "no pagado",
     });
 
     await newOrder.save();
-
-    // ======================================================
-    // 📧 ENVÍO DE CORREOS (Justo antes de responder al cliente)
-    // ======================================================
-    try {
-      // Usamos las funciones que importamos de tu archivo Brevo
-      await Promise.all([
-        sendOrderEmailToCustomer(newOrder, customerExists),
-        sendOrderEmailToAdmin(newOrder, customerExists)
-      ]);
-    } catch (mailErr) {
-      console.error("⚠️ Error enviando correos:", mailErr.message);
-      // No bloqueamos la respuesta, la orden ya se creó
-    }
-    // ======================================================
-
     res.status(201).json(newOrder);
   } catch (error) {
     res.status(500).json({ message: "Error al crear la orden", error: error.message });
   }
 }
+
 async function getOrders(_req, res) {
   try {
     const orders = await Order.find()

@@ -46,7 +46,7 @@ const CartPage = () => {
 
     const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
-    const shipping = cartItems.length > 0 ? 0 : 0;
+     const shipping = 3.00;
 
     const total = subtotal + shipping;
 
@@ -240,9 +240,13 @@ const CartPage = () => {
 
                         </div>
 
+                        
+
                         <div className="cartpage-summary-row">
 
-                           
+                            <span className="cartpage-grey-text">Envio</span>
+
+                            <span className="cartpage-grey-text">${shipping.toFixed(2)}</span>
 
                         </div>
 
