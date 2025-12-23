@@ -233,14 +233,7 @@ const CheckoutPage = () => {
                                         </span>
                                     </button>
 
-                                    {/* LINK */}
-                                    <button
-                                        className={`payment-card-cute ${paymentMethod === "Link" ? "active" : ""}`}
-                                        onClick={() => { setPaymentMethod("Link"); setShowModal("link"); }}
-                                    >
-                                        <img src="https://cdn-icons-png.flaticon.com/512/891/891462.png" />
-                                        <span>Link de Pago</span>
-                                    </button>
+                                  
                                 </div>
 
                                 <div className="ticket-button-row">
@@ -344,7 +337,14 @@ const CheckoutPage = () => {
                                         >
                                             <CopyIcon />
                                         </button>
+                                        
                                     </p>
+                                      <p
+                                       style={{
+            color: "#959595ff",
+            fontSize: "13px"
+          }}><strong>* </strong>se recomienda que el nombre de la transferencia sea el mismo que 
+                                      ingreso en el formulario de envio </p>
                                 </div>
 
                                 <button className="modal-btn next" onClick={handleNextFromModal}>
@@ -370,12 +370,20 @@ const CheckoutPage = () => {
                                     >
                                         <CopyIcon />
                                     </button>
+
+                                  
                                 </div>
 
                                 <a href="https://tu-link-real.com" target="_blank" className="payment-link">
                                     Ir al link de pago
                                 </a>
-
+   <p
+                                       style={{
+            color: "#959595ff",
+            fontSize: "13px"
+          }}><strong>* </strong>se recomienda que el nombre de la transferencia sea el mismo que 
+                                      ingreso en el formulario de envio </p>
+                                      
                                 <button className="modal-btn next" onClick={handleNextFromModal}>
                                     Siguiente → Confirmar Pedido
                                 </button>
@@ -399,8 +407,14 @@ const CheckoutPage = () => {
                                     >
                                         <CopyIcon />
                                     </button>
+                                    
                                 </div>
-
+ <p
+                                       style={{
+            color: "#959595ff",
+            fontSize: "13px"
+          }}><strong>* </strong>se recomienda que el nombre de la transferencia sea el mismo que 
+                                      ingreso en el formulario de envio </p>
                                 <button className="modal-btn next" onClick={handleNextFromModal}>
                                     Siguiente → Confirmar Pedido
                                 </button>
